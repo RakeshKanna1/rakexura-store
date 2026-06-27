@@ -52,7 +52,7 @@ export function MobilePromptManager() {
       } catch (err) {
         console.error("Error in mobile prompt checking:", err);
       }
-    }, 10000); // 10 seconds delay
+    }, 5000); // 5 seconds delay
 
     return () => clearTimeout(timer);
   }, [supabase]);
