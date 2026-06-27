@@ -24,8 +24,7 @@ export function MobilePromptManager() {
   const supabase = createClient();
 
   useEffect(() => {
-    // Only run on mobile/tablet viewports
-    if (typeof window === "undefined" || window.innerWidth >= 1024) return;
+    if (typeof window === "undefined") return;
 
     const timer = setTimeout(async () => {
       try {
@@ -53,7 +52,7 @@ export function MobilePromptManager() {
       } catch (err) {
         console.error("Error in mobile prompt checking:", err);
       }
-    }, 5500); // 5.5 seconds delay
+    }, 10000); // 10 seconds delay
 
     return () => clearTimeout(timer);
   }, [supabase]);
@@ -163,7 +162,7 @@ export function MobilePromptManager() {
   if (!showPrompt) return null;
 
   return (
-    <div className="fixed bottom-16 left-4 right-4 z-[200] max-w-sm mx-auto rounded-xl border border-white/[0.08] bg-black/95 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-fade-in-up">
+    <div className="fixed bottom-16 left-4 right-4 lg:bottom-6 lg:right-6 lg:left-auto z-[200] max-w-sm w-[calc(100%-2rem)] sm:w-full mx-auto lg:mx-0 rounded-xl border border-white/[0.08] bg-black/95 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-fade-in-up">
       <button 
         type="button" 
         onClick={handleDismiss} 
