@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function OfflinePage() { return <div className="page-shell grid min-h-[65vh] place-items-center py-12 text-center"><div><p className="eyebrow">Connection unavailable</p><h1 className="mt-4 text-4xl font-black">You’re offline</h1><p className="section-copy">Reconnect to load live prices, your account, and order updates.</p><Link href="/" className="btn btn-primary mt-7">Try again</Link></div></div>; }

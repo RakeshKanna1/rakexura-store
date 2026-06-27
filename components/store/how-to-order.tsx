@@ -1,0 +1,9 @@
+import Link from "next/link";
+import { CheckCircle2, MessageCircle, Search, ShoppingBag, Upload } from "lucide-react";
+
+const steps = [["1", "Choose your game", "Check available platforms and add the right edition to cart.", Search], ["2", "Review your cart", "Confirm platforms, bundles, coupon savings, and the final total.", ShoppingBag], ["3", "Pay and upload proof", "Pay the exact UPI total and upload the successful payment screenshot.", Upload], ["4", "Track delivery", "Copy your order reference and follow every delivery update.", CheckCircle2]] as const;
+
+export function HowToOrder() {
+  const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695";
+  return <section className="section-space"><div className="section-head"><div><p className="eyebrow">Simple assisted delivery</p><h2 className="section-title mt-2">How to order</h2><p className="section-copy">Four clear steps from discovery to your game library.</p></div><Link href="/track" className="btn btn-secondary">Track your order</Link></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{steps.map(([numberLabel, title, text, Icon]) => <article key={numberLabel} className="premium-panel rounded-md p-5"><div className="flex items-center justify-between"><span className="text-xs font-black text-[#facc15]">STEP {numberLabel}</span><Icon size={19} className="text-[#f6dc73]" /></div><h3 className="mt-6 font-black">{title}</h3><p className="mt-2 text-sm leading-6 text-[#8991a6]">{text}</p></article>)}</div><div className="mt-4 flex flex-wrap gap-2"><Link href="/games" className="btn btn-primary">Browse games</Link><Link href="/dashboard/library" className="btn btn-secondary">My games</Link><a href={`https://wa.me/${number}?text=${encodeURIComponent("Hi Rakexura, I need help placing an order.")}`} target="_blank" rel="noreferrer" className="btn btn-secondary"><MessageCircle size={17} /> Need help?</a></div></section>;
+}

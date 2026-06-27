@@ -1,0 +1,3 @@
+import type { MetadataRoute } from "next";
+import { getGames } from "@/lib/supabase/queries";
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> { const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"; const games = await getGames(); const routes = ["", "/games", "/faq", "/contact", "/requests", "/privacy", "/terms"]; return [...routes.map((route) => ({ url: `${site}${route}`, lastModified: new Date(), changeFrequency: route ? "weekly" as const : "daily" as const, priority: route ? .7 : 1 })), ...games.map((game) => ({ url: `${site}/games/${game.id}`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: .8 }))]; }
