@@ -88,8 +88,8 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
   async function handleVerifyOtp(e: React.FormEvent) {
     e.preventDefault();
     const code = otpCode.trim();
-    if (!code || code.length < 6) {
-      return toast.error("Enter the 6-digit verification code");
+    if (!code || code.length < 6 || code.length > 8) {
+      return toast.error("Enter a valid 6 to 8-digit verification code");
     }
 
     setOtpLoading(true);
@@ -279,19 +279,19 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
             ) : (
               <form onSubmit={handleVerifyOtp} className="space-y-5">
                 <div className="rounded-md border border-[#6974ff]/20 bg-[#6974ff]/5 p-4 text-xs text-[#a3aeff] leading-relaxed">
-                  💡 We sent a 6-digit confirmation code to <strong>{email}</strong>. Copy the code and paste it below.
+                  💡 We sent a verification code to <strong>{email}</strong>. Copy the code and paste it below.
                 </div>
                 <label className="block text-sm font-semibold">
-                  6-Digit OTP Code
+                  Verification Code (OTP)
                   <input 
                     type="text"
-                    maxLength={6}
+                    maxLength={8}
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
                     placeholder="123456"
                     required
-                    pattern="[0-9]{6}"
-                    className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#6974ff] text-center text-xl font-bold tracking-[0.4em] text-white" 
+                    pattern="[0-9]{6,8}"
+                    className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#6974ff] text-center text-xl font-bold tracking-[0.2em] text-white" 
                   />
                 </label>
                 <Button disabled={otpLoading} className="w-full">
