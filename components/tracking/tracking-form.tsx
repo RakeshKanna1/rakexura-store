@@ -7,8 +7,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { formatPrice } from "@/lib/utils";
+import { Confetti } from "@/components/common/confetti";
 
-type TrackedOrder = { order_id: number; order_ref: string; status: string; total_price: number; created_at: string; items: Array<{ title: string; platform: string }>; customer_name: string; auth_required?: boolean };
+type TrackedOrder = { order_id: number; order_ref: string; status: string; total_price: number; created_at: string; items: Array<{ title: string; platform: string }>; customer_name: string; auth_required?: boolean; account_access?: string };
 const stages = ["Order received", "Payment verified", "Preparing delivery", "Delivered"];
 
 function stageIndex(status: string) {
@@ -35,6 +36,8 @@ export function TrackingForm() {
   const [loading, setLoading] = useState(false);
   const [whatsappActivated, setWhatsappActivated] = useState(false);
 
+  const [showConfetti, setShowConfetti] = useState(false);
+
   async function track() {
     if (!order.trim() || phone.replace(/\D/g, "").length < 10) return toast.error("Enter your order reference and full WhatsApp number");
     setLoading(true);
@@ -43,8 +46,20 @@ export function TrackingForm() {
     setLoading(false);
     const row = Array.isArray(data) ? data[0] : data;
     if (error || !row) { setResult(null); return toast.error("Order not found. Check both details."); }
-    setResult(row as TrackedOrder);
-    setWhatsappActivated(typeof window !== "undefined" && localStorage.getItem("activated_" + row.order_ref) === "true");
+    
+    const casted = row as TrackedOrder;
+    setResult(casted);
+    setWhatsappActivated(typeof window !== "undefined" && localStorage.getItem("activated_" + casted.order_ref) === "true");
+
+    if (casted.status === "Delivered" || casted.status === "Completed") {
+      setShowConfetti(true);
+      setTimeout(() => {
+        const el = document.getElementById("credentials-section");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 800);
+    }
   }
 
   async function copyOrder() { if (!result) return; await navigator.clipboard.writeText(result.order_ref); toast.success("Order reference copied"); }
@@ -54,6 +69,7 @@ export function TrackingForm() {
 
   return (
     <div>
+      <Confetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
       <div className="glass rounded-lg p-5">
         <div className="mb-4">
           <h2 className="font-black">Find your order</h2>
@@ -164,6 +180,31 @@ export function TrackingForm() {
                   <p className="mt-1 text-xs leading-5 text-[#a4abbc]">{estimate(result.status)}</p>
                 </div>
               </div>
+
+              {(result.status === "Delivered" || result.status === "Completed") && (
+                <div id="credentials-section" className="space-y-4 mt-6">
+                  <div className="text-center p-6 rounded-lg border border-emerald-500/20 bg-emerald-500/[.03] space-y-2">
+                    <h3 className="text-emerald-400 font-extrabold text-xl">🎉 Thank you for your purchase!</h3>
+                    <p className="text-sm text-[#a4abbc]">
+                      Your order is ready! Thank you for shopping with Rakexura Store. Your game credentials/activation details are listed below.
+                    </p>
+                  </div>
+                  
+                  {result.account_access && (
+                    <div className="p-4 rounded-lg border border-[#8b5cf6]/35 bg-[#8b5cf6]/5 space-y-2">
+                      <div className="flex items-center gap-1.5 text-xs font-black text-[#c4b5fd]">
+                        <span>🔑 Game Activation / Account Details</span>
+                      </div>
+                      <div className="mt-2 font-mono bg-black/45 p-3 rounded border border-white/5 text-xs text-slate-200 select-all whitespace-pre-wrap leading-relaxed shadow-inner">
+                        {result.account_access}
+                      </div>
+                      <p className="text-[10px] text-[#8991a6] leading-relaxed">
+                        Please use these credentials/details to activate or access your game. If you face any issues, click the WhatsApp Help button below.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="mt-8 space-y-0" aria-label="Order progress">
                 {stages.map((stage, index) => {
                   const done = index <= active;

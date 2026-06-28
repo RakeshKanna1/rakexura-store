@@ -7,6 +7,7 @@ import { Check, Circle, Clipboard, Clock3, HelpCircle, LifeBuoy, MessageCircle, 
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { formatPrice } from "@/lib/utils";
+import { Confetti } from "@/components/common/confetti";
 
 type TrackedOrder = { 
   order_id: number; 
@@ -48,6 +49,8 @@ function TrackOrderContent() {
   const [loading, setLoading] = useState(false);
   const [whatsappActivated, setWhatsappActivated] = useState(false);
 
+  const [showConfetti, setShowConfetti] = useState(false);
+
   const track = useCallback(async () => {
     if (!order.trim() || phone.replace(/\D/g, "").length < 10) return toast.error("Enter your order reference and full WhatsApp number");
     setLoading(true);
@@ -60,6 +63,16 @@ function TrackOrderContent() {
     const casted = row as TrackedOrder;
     setResult(casted);
     setWhatsappActivated(typeof window !== "undefined" && localStorage.getItem("activated_" + casted.order_ref) === "true");
+
+    if (casted.status === "Delivered" || casted.status === "Completed") {
+      setShowConfetti(true);
+      setTimeout(() => {
+        const el = document.getElementById("credentials-section");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 800);
+    }
   }, [order, phone]);
 
   // Auto-run if query params are complete
@@ -105,6 +118,7 @@ function TrackOrderContent() {
 
   return (
     <div className="shell py-10">
+      <Confetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
       <p className="eyebrow mb-3">Live order status</p>
       <h1 className="text-4xl font-bold md:text-5xl">Track your delivery</h1>
       <p className="muted mb-8 mt-3">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
@@ -230,17 +244,28 @@ function TrackOrderContent() {
                 </div>
               </div>
 
-              {(result.status === "Delivered" || result.status === "Completed") && result.account_access && (
-                <div className="mt-6 p-4 rounded-lg border border-[#8b5cf6]/35 bg-[#8b5cf6]/5 space-y-2">
-                  <div className="flex items-center gap-1.5 text-xs font-black text-[#c4b5fd]">
-                    <span>🔑 Game Activation / Account Details</span>
+              {(result.status === "Delivered" || result.status === "Completed") && (
+                <div id="credentials-section" className="space-y-4 mt-6">
+                  <div className="text-center p-6 rounded-lg border border-emerald-500/20 bg-emerald-500/[.03] space-y-2">
+                    <h3 className="text-emerald-400 font-extrabold text-xl">🎉 Thank you for your purchase!</h3>
+                    <p className="text-sm text-[#a4abbc]">
+                      Your order is ready! Thank you for shopping with Rakexura Store. Your game credentials/activation details are listed below.
+                    </p>
                   </div>
-                  <div className="mt-2 font-mono bg-black/45 p-3 rounded border border-white/5 text-xs text-slate-200 select-all whitespace-pre-wrap leading-relaxed shadow-inner">
-                    {result.account_access}
-                  </div>
-                  <p className="text-[10px] text-[#8991a6] leading-relaxed">
-                    Please use these credentials/details to activate or access your game. If you face any issues, click the WhatsApp Help button below.
-                  </p>
+                  
+                  {result.account_access && (
+                    <div className="p-4 rounded-lg border border-[#8b5cf6]/35 bg-[#8b5cf6]/5 space-y-2">
+                      <div className="flex items-center gap-1.5 text-xs font-black text-[#c4b5fd]">
+                        <span>🔑 Game Activation / Account Details</span>
+                      </div>
+                      <div className="mt-2 font-mono bg-black/45 p-3 rounded border border-white/5 text-xs text-slate-200 select-all whitespace-pre-wrap leading-relaxed shadow-inner">
+                        {result.account_access}
+                      </div>
+                      <p className="text-[10px] text-[#8991a6] leading-relaxed">
+                        Please use these credentials/details to activate or access your game. If you face any issues, click the WhatsApp Help button below.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -10,9 +10,12 @@ export function RealtimeNotifications() {
   useEffect(() => {
     const supabase = createClient();
     let channel: ReturnType<typeof supabase.channel> | null = null;
+    let active = true;
 
-    void supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return;
+    async function setupRealtime() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !active) return;
+      
       channel = supabase
         .channel(`notifications:${user.id}`)
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, (payload) => {
@@ -20,10 +23,15 @@ export function RealtimeNotifications() {
           toast(notification.title || "Rakexura update", { description: notification.message });
         })
         .subscribe();
-    });
+    }
+
+    void setupRealtime();
 
     return () => {
-      if (channel) void supabase.removeChannel(channel);
+      active = false;
+      if (channel) {
+        void supabase.removeChannel(channel);
+      }
     };
   }, []);
 
