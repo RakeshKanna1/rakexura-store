@@ -51,6 +51,7 @@ export function CheckoutForm() {
   const [purchasedTitles, setPurchasedTitles] = useState("");
   const [finalAmount, setFinalAmount] = useState(0);
   const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(null);
+  const [postPurchasePhone, setPostPurchasePhone] = useState("");
 
   useEffect(() => {
     async function loadGames() {
@@ -466,6 +467,7 @@ export function CheckoutForm() {
     setPurchasedTitles(titles);
     setFinalAmount(finalTotal);
     setAppliedCouponCode(couponEligible && coupon ? coupon.code : null);
+    setPostPurchasePhone(values.whatsapp.replace(/\D/g, ""));
 
     clear();
     setCoupon(null);
@@ -654,11 +656,13 @@ export function CheckoutForm() {
               );
               const isFreebie = finalAmount === 0 && isRankCouponActive;
               const gameTitle = purchasedTitles || "Game";
+              const trackingLink = `${typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL ?? "https://rakexura-store.vercel.app")}/track-order?order=${orderReference}&phone=${postPurchasePhone}`;
               const whatsappUrl = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695"}?text=` + 
                 encodeURIComponent(`🛒 *NEW ORDER RECEIVED*`) + `%0A%0A` +
                 encodeURIComponent(`📦 *Game:* ${gameTitle} `) + `%0A` +
                 encodeURIComponent(`🆔 *Order ID:* ${orderReference} `) + `%0A` +
                 encodeURIComponent(`🏷️ *Type:* ${isFreebie ? '[FREE ORDER via Loyalty Rank Coupon]' : `[PAID ORDER (Amount Paid: Rs. ${finalAmount})]`} `) + `%0A%0A` +
+                encodeURIComponent(`🔗 *Track Order:* ${trackingLink}`) + `%0A%0A` +
                 encodeURIComponent(`Please send over my activation details!`);
 
               return (

@@ -17,6 +17,7 @@ type TrackedOrder = {
   items: Array<{ title: string; platform: string }>; 
   customer_name: string;
   customer_rank: string;
+  account_access?: string;
 };
 
 const stages = ["Order received", "Payment verified", "Preparing delivery", "Delivered"];
@@ -90,12 +91,14 @@ function TrackOrderContent() {
     result?.customer_rank === "Platinum"
   );
   const orderReference = result?.order_ref || "";
+  const trackingLink = `${typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL ?? "https://rakexura-store.vercel.app")}/track-order?order=${orderReference}&phone=${phone}`;
 
   const whatsappUrl = `https://wa.me/${whatsapp}?text=` + 
     encodeURIComponent(`🛒 *NEW ORDER RECEIVED*`) + `%0A%0A` +
     encodeURIComponent(`📦 *Game:* ${gamesText} `) + `%0A` +
     encodeURIComponent(`🆔 *Order ID:* ${orderReference} `) + `%0A` +
     encodeURIComponent(`🏷️ *Type:* ${isFreebie ? '[FREE ORDER via Loyalty Rank Coupon]' : `[PAID ORDER (Amount Paid: Rs. ${finalAmount})]`} `) + `%0A%0A` +
+    encodeURIComponent(`🔗 *Track Order:* ${trackingLink}`) + `%0A%0A` +
     encodeURIComponent(`Please send over my activation details!`);
 
   return (
@@ -194,6 +197,21 @@ function TrackOrderContent() {
                   <p className="mt-1 text-xs leading-5 text-[#a4abbc]">{estimate(result.status)}</p>
                 </div>
               </div>
+
+              {(result.status === "Delivered" || result.status === "Completed") && result.account_access && (
+                <div className="mt-6 p-4 rounded-lg border border-[#8b5cf6]/35 bg-[#8b5cf6]/5 space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs font-black text-[#c4b5fd]">
+                    <span>🔑 Game Activation / Account Details</span>
+                  </div>
+                  <div className="mt-2 font-mono bg-black/45 p-3 rounded border border-white/5 text-xs text-slate-200 select-all whitespace-pre-wrap leading-relaxed shadow-inner">
+                    {result.account_access}
+                  </div>
+                  <p className="text-[10px] text-[#8991a6] leading-relaxed">
+                    Please use these credentials/details to activate or access your game. If you face any issues, click the WhatsApp Help button below.
+                  </p>
+                </div>
+              )}
+
               <div className="mt-8 space-y-0" aria-label="Order progress">
                 {stages.map((stage, index) => {
                   const done = index <= active;

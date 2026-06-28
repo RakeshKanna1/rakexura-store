@@ -25,7 +25,7 @@ export function OrderActions({
   customerPhone = "",
   gameName = "Game",
   orderReference = "",
-  isSubscription = false,
+  isSubscription: _isSubscription = false,
   initialAccountAccess = "",
 }: {
   id: number;
@@ -68,23 +68,27 @@ export function OrderActions({
         gameName,
         id: orderReference || String(id),
       };
-      let encodedText = encodeURIComponent(
-        `🎮 *RAKEXURA GAME DELIVERY*\n\n📦 *Game:* ${order.gameName}\n🆔 *Order ID:* ${order.id}\n\n✨ *Your order is officially ready! Here are your activation and delivery details. Thank you for shopping with Rakexura Store!*`
-      );
-      if (isSubscription && accountAccess.trim()) {
-        encodedText = encodeURIComponent(
-          `🎮 *RAKEXURA GAME DELIVERY*\n\n📦 *Game:* ${order.gameName}\n🆔 *Order ID:* ${order.id}\n\n🔑 *Account Access Details:*\n${accountAccess.trim()}\n\n✨ *Your subscription is ready to play! Thank you for shopping with Rakexura Store!*`
-        );
+      const trackingLink = `${window.location.origin}/track-order?order=${order.id}&phone=${customerPhone}`;
+
+      let textContent = `🎮 *RAKEXURA GAME DELIVERY*\n\n` +
+        `📦 *Game:* ${order.gameName}\n` +
+        `🆔 *Order ID:* ${order.id}\n\n`;
+
+      if (accountAccess.trim()) {
+        textContent += `🔑 *Account/Activation Access Details:*\n${accountAccess.trim()}\n\n`;
       }
+
+      textContent += `🔗 *Track/View Order:* ${trackingLink}\n\n` +
+        `✨ *Your order is officially ready! Thank you for shopping with Rakexura Store!*`;
+
+      const encodedText = encodeURIComponent(textContent);
       window.open(`https://wa.me/${order.phone}?text=${encodedText}`, '_blank');
     }
 
     const formData = new FormData();
     formData.set("id", String(id));
     formData.set("status", status);
-    if (isSubscription) {
-      formData.set("account_access", accountAccess);
-    }
+    formData.set("account_access", accountAccess);
 
     startTransition(async () => {
       try {
@@ -122,27 +126,25 @@ export function OrderActions({
         ))}
       </div>
 
-      {isSubscription && (
-        <div className="mt-4 p-4 rounded-lg border border-[#8b5cf6]/20 bg-[#8b5cf6]/5 space-y-3">
-          <label className="block text-xs font-extrabold uppercase tracking-wider text-[#cbbfff]">
-            🔑 Subscription Account Details (User ID & Password)
-            <textarea
-              value={accountAccess}
-              onChange={(e) => setAccountAccess(e.target.value)}
-              placeholder="e.g. Username: user123&#10;Password: pass123"
-              className="mt-2 min-h-20 w-full rounded-md border border-white/10 bg-black/40 p-2.5 font-mono text-xs text-white outline-none focus:border-[#8b5cf6] resize-none"
-            />
-          </label>
-          <button
-            type="button"
-            disabled={savingAccess || initialAccountAccess === accountAccess}
-            onClick={handleSaveAccess}
-            className="inline-flex min-h-8 items-center gap-1.5 rounded border border-white/10 bg-white/[0.05] hover:bg-white/10 px-3 text-xs font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-35 cursor-pointer"
-          >
-            {savingAccess ? "Saving..." : "Save Access Info"}
-          </button>
-        </div>
-      )}
+      <div className="mt-4 p-4 rounded-lg border border-[#8b5cf6]/20 bg-[#8b5cf6]/5 space-y-3">
+        <label className="block text-xs font-extrabold uppercase tracking-wider text-[#cbbfff]">
+          🔑 Game Activation / Account Details (User ID, Pass, or Keys)
+          <textarea
+            value={accountAccess}
+            onChange={(e) => setAccountAccess(e.target.value)}
+            placeholder="e.g. Username: user123&#10;Password: pass123&#10;or Activation Key: XXXX-XXXX-XXXX"
+            className="mt-2 min-h-20 w-full rounded-md border border-white/10 bg-black/40 p-2.5 font-mono text-xs text-white outline-none focus:border-[#8b5cf6] resize-none"
+          />
+        </label>
+        <button
+          type="button"
+          disabled={savingAccess || initialAccountAccess === accountAccess}
+          onClick={handleSaveAccess}
+          className="inline-flex min-h-8 items-center gap-1.5 rounded border border-white/10 bg-white/[0.05] hover:bg-white/10 px-3 text-xs font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-35 cursor-pointer"
+        >
+          {savingAccess ? "Saving..." : "Save Access Info"}
+        </button>
+      </div>
     </div>
   );
 }

@@ -247,26 +247,20 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                 if (section !== "orders") return null;
                 const isDelivered = row.order_status === "Delivered" || row.order_status === "Completed";
                 if (!isDelivered || !row.account_access) return null;
-                const items = Array.isArray(row.cart_items) ? row.cart_items : [];
-                const hasSubscription = items.some((item) => {
-                  const gameId = Number(item.game_id || item.gameId);
-                  return gamesMap[gameId]?.is_subscription;
-                });
-                if (!hasSubscription) return null;
 
                 return (
                   <details className="mt-4 group border border-[#8b5cf6]/35 bg-[#8b5cf6]/5 rounded-md overflow-hidden max-w-md">
                     <summary className="flex items-center justify-between px-4 py-2.5 text-xs font-black text-[#c4b5fd] cursor-pointer hover:bg-[#8b5cf6]/10 select-none list-none [&::-webkit-details-marker]:hidden">
-                      <span className="flex items-center gap-1.5">🔑 Subscription Account Access</span>
+                      <span className="flex items-center gap-1.5">🔑 Game Activation / Account Details</span>
                       <span className="text-[#8b5cf6] text-[10px] group-open:rotate-180 transition-transform">▼</span>
                     </summary>
                     <div className="px-4 py-3 border-t border-[#8b5cf6]/20 bg-black/40 text-xs text-slate-300 leading-relaxed shadow-inner">
-                      <p className="font-bold text-[#cbbfff] mb-1.5">Your Account Credentials:</p>
+                      <p className="font-bold text-[#cbbfff] mb-1.5">Your Activation / Account Credentials:</p>
                       <div className="font-mono bg-black/40 p-2.5 rounded border border-white/5 select-all whitespace-pre-wrap">
                         {String(row.account_access)}
                       </div>
                       <p className="mt-2 text-[10px] text-[#8991a6]">
-                        Please use these credentials to sign in. Do not change the password or account settings to keep the subscription active.
+                        Please use these details to activate or access your game. If this is a subscription, do not change the password or account settings.
                       </p>
                     </div>
                   </details>
