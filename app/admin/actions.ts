@@ -355,7 +355,7 @@ export async function updateOrderStatus(formData: FormData) {
   let emailSent = false;
   let emailError = null;
 
-  const shouldSendEmail = ["Delivered", "Completed", "Rejected"].includes(status);
+  const shouldSendEmail = ["Verified", "Processing", "Delivered", "Completed", "Rejected"].includes(status);
 
   if (customerEmail && shouldSendEmail) {
     const emailData = buildStatusEmail(order, status, items);

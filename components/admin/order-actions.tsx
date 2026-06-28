@@ -91,13 +91,28 @@ export function OrderActions({
     startTransition(async () => {
       try {
         const result = await updateOrderStatus(formData);
+        
+        let description = "";
         if (result.customerMessageSent) {
-          toast.success(result.message, { description: "Customer WhatsApp update sent automatically." });
+          description += "WhatsApp sent. ";
+        } else if (result.customerMessageError) {
+          description += `WhatsApp failed: ${result.customerMessageError.slice(0, 80)}. `;
         } else {
-          const detail = result.customerMessageError
-            ? result.customerMessageError.slice(0, 220)
-            : "Status saved. Customer WhatsApp update was skipped.";
-          toast.warning(result.message, { description: detail });
+          description += "WhatsApp skipped. ";
+        }
+
+        if (result.customerEmailSent) {
+          description += "Email sent.";
+        } else if (result.customerEmailError) {
+          description += `Email failed: ${result.customerEmailError.slice(0, 80)}.`;
+        } else {
+          description += "Email skipped.";
+        }
+
+        if (result.customerMessageSent || result.customerEmailSent) {
+          toast.success(result.message, { description });
+        } else {
+          toast.warning(result.message, { description });
         }
 
         router.refresh();

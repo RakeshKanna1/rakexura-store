@@ -40,7 +40,19 @@ export async function middleware(request: NextRequest) {
 
   if (request.nextUrl.pathname.startsWith("/admin")) {
     if (!user) {
-      return NextResponse.redirect(new URL("/login?next=" + encodeURIComponent(request.nextUrl.pathname), request.url));
+      const redirectResponse = NextResponse.redirect(new URL("/login?next=" + encodeURIComponent(request.nextUrl.pathname), request.url));
+      response.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie.name, cookie.value, {
+          path: cookie.path,
+          domain: cookie.domain,
+          maxAge: cookie.maxAge,
+          secure: cookie.secure,
+          sameSite: cookie.sameSite,
+          expires: cookie.expires,
+          httpOnly: cookie.httpOnly,
+        });
+      });
+      return redirectResponse;
     }
     const { data: profile } = await supabase
       .from("profiles")
@@ -49,7 +61,19 @@ export async function middleware(request: NextRequest) {
       .maybeSingle();
 
     if (profile?.role !== "admin") {
-      return NextResponse.redirect(new URL("/", request.url));
+      const redirectResponse = NextResponse.redirect(new URL("/", request.url));
+      response.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie.name, cookie.value, {
+          path: cookie.path,
+          domain: cookie.domain,
+          maxAge: cookie.maxAge,
+          secure: cookie.secure,
+          sameSite: cookie.sameSite,
+          expires: cookie.expires,
+          httpOnly: cookie.httpOnly,
+        });
+      });
+      return redirectResponse;
     }
   }
 

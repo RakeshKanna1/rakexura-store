@@ -18,6 +18,8 @@ type TrackedOrder = {
   customer_name: string;
   customer_rank: string;
   account_access?: string;
+  user_id?: string | null;
+  auth_required?: boolean;
 };
 
 const stages = ["Order received", "Payment verified", "Preparing delivery", "Delivered"];
@@ -137,18 +139,48 @@ function TrackOrderContent() {
                 {result.order_ref}
                 <Clipboard size={16} />
               </button>
-              <h2 className="mt-3 text-lg font-bold">{gamesText}</h2>
-              <p className="text-xs font-semibold text-[#8b5cf6] mt-1.5 uppercase tracking-wider">
-                Rank: {result.customer_rank}
-              </p>
+              {result.auth_required ? (
+                <div className="mt-3 flex items-center gap-2 text-sm text-[#facc15] font-bold">
+                  <span>🔒 Protected Customer Order</span>
+                </div>
+              ) : (
+                <>
+                  <h2 className="mt-3 text-lg font-bold">{gamesText}</h2>
+                  <p className="text-xs font-semibold text-[#8b5cf6] mt-1.5 uppercase tracking-wider">
+                    Rank: {result.customer_rank}
+                  </p>
+                </>
+              )}
             </div>
             <div className="text-right">
-              <strong className="text-xl">{formatPrice(result.total_price)}</strong>
+              <strong className="text-xl">{result.auth_required ? "Rs. --" : formatPrice(result.total_price)}</strong>
               <span className={`mt-2 block rounded-md px-3 py-2 text-xs font-bold ${isRejected ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-white/[.06]"}`}>{result.status}</span>
             </div>
           </div>
 
-          {!whatsappActivated ? (
+          {result.auth_required ? (
+            <div className="mt-6 text-center p-8 rounded-lg border border-yellow-500/20 bg-yellow-500/[.03] space-y-4">
+              <div className="flex flex-col items-center justify-center space-y-2">
+                <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-yellow-500/10 text-yellow-400 text-lg">
+                  🔒
+                </span>
+                <h3 className="text-yellow-400 font-extrabold text-xl">
+                  Authentication Required
+                </h3>
+              </div>
+              <p className="text-sm text-[#a4abbc] max-w-md mx-auto leading-relaxed">
+                This order is associated with a registered Rakexura account. Please log in with the buyer&apos;s account to view the tracking details, status updates, and game activation info.
+              </p>
+              <div className="pt-2 max-w-xs mx-auto">
+                <Link
+                  href={`/login?next=${encodeURIComponent(typeof window !== "undefined" ? window.location.pathname + window.location.search : "/track-order")}`}
+                  className="relative inline-flex items-center justify-center gap-2 w-full py-3 px-6 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#6d4aff] text-white font-extrabold text-sm shadow-[0_0_15px_rgba(139,92,246,0.3)] transition-all hover:scale-[1.01] active:scale-[0.99] border border-[#8b5cf6]/20 select-none cursor-pointer"
+                >
+                  Sign In to View Order
+                </Link>
+              </div>
+            </div>
+          ) : !whatsappActivated ? (
             <div className="mt-6 space-y-4">
               <div className="text-center p-6 rounded-lg border border-emerald-500/20 bg-emerald-500/[.03] space-y-4">
                 <div className="flex flex-col items-center justify-center space-y-2">
