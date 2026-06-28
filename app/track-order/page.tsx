@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { formatPrice } from "@/lib/utils";
 import { Confetti } from "@/components/common/confetti";
+import type { User } from "@supabase/supabase-js";
 
 type TrackedOrder = { 
   order_id: number; 
@@ -50,7 +51,7 @@ function TrackOrderContent() {
   const [whatsappActivated, setWhatsappActivated] = useState(false);
 
   const [showConfetti, setShowConfetti] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
     async function loadCurrentUser() {

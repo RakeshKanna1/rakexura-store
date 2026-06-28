@@ -749,11 +749,11 @@ export async function approveMilestoneRequest(formData: FormData) {
 
   if (ticketError || !ticket) throw new Error("Ticket not found");
 
-  // 1. Update ticket status to 'Approved' and append authorized code to message
+  // 1. Update ticket status to 'resolved' and append authorized code to message
   const { error: updateError } = await supabase
     .from("support_tickets")
     .update({
-      status: "Approved",
+      status: "resolved",
       message: `${ticket.message}\n\n[Approved Code: ${promoCode}]`,
       updated_at: new Date().toISOString()
     })
