@@ -208,7 +208,8 @@ export function CheckoutForm() {
     orderTotal: number, 
     values: Data, 
     items: Array<{ title: string; platform: string; quantity: number }>,
-    customerEmail?: string
+    customerEmail?: string,
+    userId?: string
   ) {
     try {
       const response = await fetch("/api/notifications/order", {
@@ -221,6 +222,7 @@ export function CheckoutForm() {
           customerEmail,
           total: orderTotal,
           items,
+          userId,
         }),
       });
       const result = await response.json().catch(() => null);
@@ -451,7 +453,7 @@ export function CheckoutForm() {
       void notifyOwner("CHECKOUT-NEEDS-REVIEW", finalTotal, values, [
         ...items.map((item) => ({ title: String(item.title), platform: String(item.platform), quantity: Number(item.quantity) })),
         ...bundles.map((item) => ({ title: String(item.title), platform: "Bundle", quantity: Number(item.quantity) })),
-      ], customerEmail);
+      ], customerEmail, user?.id);
       return toast.error(error.message);
     }
     
@@ -460,7 +462,7 @@ export function CheckoutForm() {
     void notifyOwner(reference, finalTotal, values, [
       ...items.map((item) => ({ title: String(item.title), platform: String(item.platform), quantity: Number(item.quantity) })),
       ...bundles.map((item) => ({ title: String(item.title), platform: "Bundle", quantity: Number(item.quantity) })),
-    ], customerEmail);
+    ], customerEmail, user?.id);
     
     // Save metadata for WhatsApp redirection link before clearing
     const titles = [...lines.map((l) => l.game.title), ...bundleLines.map((b) => b.bundle.title)].join(", ") || "Game";

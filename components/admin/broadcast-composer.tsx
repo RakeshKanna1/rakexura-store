@@ -120,6 +120,8 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
           <option value="Steam">Steam</option>
           <option value="Epic">Epic</option>
           <option value="Offline">Offline</option>
+          <option value="Xbox">Xbox</option>
+          <option value="Nvidia GeForce">Nvidia GeForce</option>
         </select>
 
         <button onClick={sendGiftGame} disabled={giftPending} className="btn mt-5 w-full btn-primary bg-[#8b5cf6] hover:bg-[#7c3aed] text-white">

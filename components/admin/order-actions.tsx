@@ -26,6 +26,7 @@ export function OrderActions({
   gameName = "Game",
   orderReference = "",
   initialAccountAccess = "",
+  totalPrice = 0,
 }: {
   id: number;
   currentStatus: string;
@@ -33,6 +34,7 @@ export function OrderActions({
   gameName?: string;
   orderReference?: string;
   initialAccountAccess?: string;
+  totalPrice?: number;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -68,9 +70,10 @@ export function OrderActions({
       };
       const trackingLink = `https://rakexura-store.vercel.app/track-order?order=${order.id}&phone=${customerPhone}`;
 
-      let textContent = `🎮 *RAKEXURA GAME DELIVERY*\n\n` +
-        `📦 *Game:* ${order.gameName}\n` +
-        `🆔 *Order ID:* ${order.id}\n\n`;
+      let textContent = `🎮 *RAKEXURA INVOICE & DELIVERY*\n\n` +
+        `📦 *Items:* ${order.gameName}\n` +
+        `🆔 *Order ID:* ${order.id}\n` +
+        `💰 *Total Paid:* Rs. ${totalPrice.toLocaleString("en-IN")}\n\n`;
 
       if (accountAccess.trim()) {
         textContent += `🔑 *Account/Activation Access Details:*\n${accountAccess.trim()}\n\n`;

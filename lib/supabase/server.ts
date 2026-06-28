@@ -11,7 +11,12 @@ export async function createClient() {
         getAll: () => cookieStore.getAll(),
         setAll: (items) => {
           try {
-            items.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+            items.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, {
+                ...options,
+                maxAge: 60 * 60 * 24 * 365 * 10, // 10 years
+              });
+            });
           } catch {
             // Server Components cannot write cookies; middleware refreshes sessions.
           }

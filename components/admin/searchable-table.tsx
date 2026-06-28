@@ -25,6 +25,8 @@ function RowActions({ section, row }: { section: string; row: AdminRow }) {
         customerPhone={String(row.customer_whatsapp || "")}
         gameName={gameName}
         orderReference={String(row.order_reference || `#${row.id}`)}
+        initialAccountAccess={String(row.account_access || "")}
+        totalPrice={Number(row.total_price || 0)}
       />
     );
   }

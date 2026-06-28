@@ -20,6 +20,7 @@ type OrderNotice = {
   customerEmail?: string;
   total?: number;
   items?: OrderNoticeItem[];
+  userId?: string;
 };
 
 function price(value: unknown) {
@@ -115,6 +116,27 @@ export async function POST(request: Request) {
         });
       } catch (custEmailError) {
         console.error("Failed to send invoice email to customer:", custEmailError);
+      }
+    }
+
+    // 2.5 Also send push notification and database notification as customer invoice fallback
+    if (order.userId) {
+      try {
+        const supabase = await createClient();
+        const customerMessage = makeCustomerInvoiceMessage(order);
+        const title = `Order Placed: ${order.reference ?? ""}`;
+        
+        await supabase.from("notifications").insert({
+          user_id: order.userId,
+          title: title,
+          message: customerMessage,
+          type: "order",
+          link: "/dashboard/orders",
+        });
+
+        await sendPushNotification(order.userId, title, customerMessage, "/dashboard/orders");
+      } catch (custPushError) {
+        console.error("Failed to send customer push invoice:", custPushError);
       }
     }
 

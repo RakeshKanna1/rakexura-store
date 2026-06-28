@@ -128,8 +128,9 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
         const gameTitle = game?.title || "Unknown Game";
         const coverUrl = game?.cover_image ? assetUrl(game.cover_image) : null;
         return (
-          <div
+          <Link
             key={String(row.id)}
+            href="/dashboard/orders"
             className="group relative flex flex-col overflow-hidden rounded-lg border border-white/[.06] bg-[#0c0e18]/80 transition-all duration-300 hover:-translate-y-1 hover:border-[#facc15]/30 hover:shadow-[0_8px_24px_rgba(250,204,21,0.06)]"
           >
             {/* Card Image */}
@@ -174,7 +175,7 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                 </div>
               )}
             </div>
-          </div>
+          </Link>
         );
       })}
     </div>

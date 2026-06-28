@@ -321,7 +321,12 @@ export async function updateOrderStatus(formData: FormData) {
     let notifMessage = "";
     if (status === "Delivered" || status === "Completed") {
       notifTitle = "Order Delivered";
-      notifMessage = "Your game has been successfully added to your library.";
+      const itemLines = items
+        .map((item) => `${item.title}${item.platform ? ` (${item.platform})` : ""} x${item.quantity}`)
+        .join(", ");
+      const fallbackTotal = items.reduce((sum, item) => sum + Number(item.price ?? 0) * item.quantity, 0);
+      const total = Number(order.total_price ?? fallbackTotal).toLocaleString("en-IN");
+      notifMessage = `Your game has been successfully added to your library. Invoice: ${itemLines} - Total Paid: Rs. ${total}`;
     } else if (status === "Verified") {
       notifTitle = "Payment Verified";
       notifMessage = "Payment verified. Preparing your game delivery now.";

@@ -50,6 +50,25 @@ function TrackOrderContent() {
   const [whatsappActivated, setWhatsappActivated] = useState(false);
 
   const [showConfetti, setShowConfetti] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    async function loadCurrentUser() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUser(user);
+    }
+    void loadCurrentUser();
+  }, []);
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setCurrentUser(null);
+    toast.success("Signed out successfully");
+    // Clear tracked order details to require re-tracking
+    setResult(null);
+  }
 
   const track = useCallback(async () => {
     if (!order.trim() || phone.replace(/\D/g, "").length < 10) return toast.error("Enter your order reference and full WhatsApp number");
@@ -182,17 +201,35 @@ function TrackOrderContent() {
                   Authentication Required
                 </h3>
               </div>
-              <p className="text-sm text-[#a4abbc] max-w-md mx-auto leading-relaxed">
-                This order is associated with a registered Rakexura account. Please log in with the buyer&apos;s account to view the tracking details, status updates, and game activation info.
-              </p>
-              <div className="pt-2 max-w-xs mx-auto">
-                <Link
-                  href={`/login?next=${encodeURIComponent(typeof window !== "undefined" ? window.location.pathname + window.location.search : "/track-order")}`}
-                  className="relative inline-flex items-center justify-center gap-2 w-full py-3 px-6 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#6d4aff] text-white font-extrabold text-sm shadow-[0_0_15px_rgba(139,92,246,0.3)] transition-all hover:scale-[1.01] active:scale-[0.99] border border-[#8b5cf6]/20 select-none cursor-pointer"
-                >
-                  Sign In to View Order
-                </Link>
-              </div>
+              {currentUser ? (
+                <>
+                  <p className="text-sm text-[#a4abbc] max-w-md mx-auto leading-relaxed">
+                    You are currently signed in as <strong className="text-white">{currentUser.email}</strong>. This order is associated with a different Rakexura account. Please sign out and log in with the correct buyer&apos;s account.
+                  </p>
+                  <div className="pt-2 max-w-xs mx-auto">
+                    <button
+                      onClick={handleSignOut}
+                      className="relative inline-flex items-center justify-center gap-2 w-full py-3 px-6 rounded-lg bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm shadow-[0_0_15px_rgba(220,38,38,0.3)] transition-all hover:scale-[1.01] active:scale-[0.99] border border-red-500/20 select-none cursor-pointer"
+                    >
+                      Sign Out / Switch Account
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-[#a4abbc] max-w-md mx-auto leading-relaxed">
+                    This order is associated with a registered Rakexura account. Please log in with the buyer&apos;s account to view the tracking details, status updates, and game activation info.
+                  </p>
+                  <div className="pt-2 max-w-xs mx-auto">
+                    <Link
+                      href={`/login?next=${encodeURIComponent(typeof window !== "undefined" ? window.location.pathname + window.location.search : "/track-order")}`}
+                      className="relative inline-flex items-center justify-center gap-2 w-full py-3 px-6 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#6d4aff] text-white font-extrabold text-sm shadow-[0_0_15px_rgba(139,92,246,0.3)] transition-all hover:scale-[1.01] active:scale-[0.99] border border-[#8b5cf6]/20 select-none cursor-pointer"
+                    >
+                      Sign In to View Order
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           ) : !whatsappActivated ? (
             <div className="mt-6 space-y-4">
