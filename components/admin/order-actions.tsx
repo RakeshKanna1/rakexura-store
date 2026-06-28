@@ -92,16 +92,12 @@ export function OrderActions({
       try {
         const result = await updateOrderStatus(formData);
         
-        let description = "";
-        if (result.customerEmailSent) {
-          description = "Customer email notification sent.";
-          toast.success(result.message, { description });
-        } else if (result.customerEmailError) {
-          description = `Email notification failed: ${result.customerEmailError.slice(0, 120)}`;
-          toast.warning(result.message, { description });
+        if (result.customerEmailError) {
+          toast.warning(result.message, { 
+            description: `Email notification failed: ${result.customerEmailError.slice(0, 120)}` 
+          });
         } else {
-          description = "Email notification skipped (no email address found).";
-          toast.success(result.message, { description });
+          toast.success(result.message);
         }
 
         router.refresh();
