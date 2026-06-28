@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { sendEmail } from "@/lib/email";
-import { cleanPhone, sendWhatsAppText } from "@/lib/whatsapp";
 import { createClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 
@@ -370,21 +369,10 @@ export async function updateOrderStatus(formData: FormData) {
   }
 
   const reference = order.order_reference || `#${id}`;
-  const statusMessage: Record<string, string> = {
-    Verified: `Hi ${order.customer_name}, payment for Rakexura order ${reference} has been verified. We are preparing your game delivery now.`,
-    Processing: `Hi ${order.customer_name}, your Rakexura order ${reference} is now being prepared for delivery.`,
-    Delivered: `Hi ${order.customer_name}, your Rakexura order ${reference} has been delivered. Please check the delivery details and contact us if you need activation help.`,
-    Rejected: `Hi ${order.customer_name}, we could not verify payment for Rakexura order ${reference}. Please reply with a clear payment screenshot or contact us for help.`,
-  };
-  const normalizedPhone = cleanPhone(order.customer_whatsapp);
-  const customerMessage = statusMessage[status] ?? `Your Rakexura order ${reference} is now ${status}.`;
-  const customerDelivery = await sendWhatsAppText(normalizedPhone, customerMessage);
+
   return {
     status,
     message: `Order ${reference} marked as ${status}.`,
-    customerMessageSent: customerDelivery.ok,
-    customerMessageSkipped: Boolean(customerDelivery.skipped),
-    customerMessageError: customerDelivery.error ?? customerDelivery.reason ?? null,
     customerEmailSent: emailSent,
     customerEmailError: emailError,
   };

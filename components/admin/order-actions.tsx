@@ -93,26 +93,15 @@ export function OrderActions({
         const result = await updateOrderStatus(formData);
         
         let description = "";
-        if (result.customerMessageSent) {
-          description += "WhatsApp sent. ";
-        } else if (result.customerMessageError) {
-          description += `WhatsApp failed: ${result.customerMessageError.slice(0, 80)}. `;
-        } else {
-          description += "WhatsApp skipped. ";
-        }
-
         if (result.customerEmailSent) {
-          description += "Email sent.";
-        } else if (result.customerEmailError) {
-          description += `Email failed: ${result.customerEmailError.slice(0, 80)}.`;
-        } else {
-          description += "Email skipped.";
-        }
-
-        if (result.customerMessageSent || result.customerEmailSent) {
+          description = "Customer email notification sent.";
           toast.success(result.message, { description });
-        } else {
+        } else if (result.customerEmailError) {
+          description = `Email notification failed: ${result.customerEmailError.slice(0, 120)}`;
           toast.warning(result.message, { description });
+        } else {
+          description = "Email notification skipped (no email address found).";
+          toast.success(result.message, { description });
         }
 
         router.refresh();
