@@ -11,12 +11,13 @@ export default async function RewardsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/dashboard/rewards");
 
-  const [, { data: offers }, { data: referral }, { count: libraryCount }, { count: referralCount }] = await Promise.all([
+  const [, { data: offers }, { data: referral }, { count: libraryCount }, { count: referralCount }, { data: redemptions }] = await Promise.all([
     supabase.from("user_rewards").select("points,level").eq("user_id", user.id).maybeSingle(),
-    supabase.from("reward_offers").select("id,title,points_cost").eq("active", true).order("points_cost"),
+    supabase.from("reward_offers").select("id,title,points_cost,coupons(code)").eq("active", true).order("points_cost"),
     supabase.from("referrals").select("code").eq("referrer_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
     supabase.from("customer_library").select("id", { count: "exact", head: true }).eq("user_id", user.id).neq("platform", "Gifted"),
     supabase.from("referrals").select("id", { count: "exact", head: true }).eq("referrer_id", user.id),
+    supabase.from("reward_redemptions").select("offer_id").eq("user_id", user.id),
   ]);
 
   const purchasePoints = (libraryCount ?? 0) * 100;
@@ -47,7 +48,7 @@ export default async function RewardsPage() {
         </div>
       </div>
       <div className="mt-8">
-        <RewardsCenter points={totalPoints} offers={offers ?? []} initialCode={referral?.code} />
+        <RewardsCenter points={totalPoints} offers={offers ?? []} initialCode={referral?.code} redemptions={redemptions ?? []} />
       </div>
     </div>
   );

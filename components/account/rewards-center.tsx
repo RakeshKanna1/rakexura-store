@@ -6,14 +6,49 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
-type Offer = { id: number; title: string; points_cost: number };
+type Offer = { 
+  id: number; 
+  title: string; 
+  points_cost: number;
+  coupons?: { code: string } | Array<{ code: string }> | null;
+};
 
-export function RewardsCenter({ points, offers, initialCode }: { points: number; offers: Offer[]; initialCode?: string | null }) {
+export function RewardsCenter({ 
+  points, 
+  offers, 
+  initialCode,
+  redemptions = []
+}: { 
+  points: number; 
+  offers: Offer[]; 
+  initialCode?: string | null;
+  redemptions?: Array<{ offer_id: number }>;
+}) {
   const router = useRouter();
   const [claimCode, setClaimCode] = useState("");
   const [referralCode, setReferralCode] = useState(initialCode ?? "");
   const [working, setWorking] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(false);
+  
+  const [localRedeemed, setLocalRedeemed] = useState<number[]>([]);
+  const [newlyRedeemedCodes, setNewlyRedeemedCodes] = useState<Record<number, string>>({});
+
+  const redeemedIds = new Set(redemptions.map((r) => r.offer_id));
+
+  async function copyCoupon(code: string) {
+    if (!code) return;
+    await navigator.clipboard.writeText(code);
+    toast.success(`Coupon code "${code}" copied to clipboard!`);
+  }
+
+  const getCouponCode = (offer: Offer) => {
+    const coupons = offer.coupons;
+    if (!coupons) return "";
+    if (Array.isArray(coupons)) {
+      return coupons[0]?.code || "";
+    }
+    return coupons.code || "";
+  };
 
   useEffect(() => {
     router.refresh();
@@ -59,7 +94,14 @@ export function RewardsCenter({ points, offers, initialCode }: { points: number;
     const { data, error } = await createClient().rpc("redeem_reward_offer", { p_offer_id: offer.id });
     setWorking(null);
     if (error) return toast.error(error.message);
-    toast.success(data || "Reward redeemed");
+    
+    // Save locally
+    setLocalRedeemed(prev => [...prev, offer.id]);
+    if (data && data !== "Reward redeemed") {
+      setNewlyRedeemedCodes(prev => ({ ...prev, [offer.id]: data }));
+    }
+    
+    toast.success("Reward redeemed successfully!");
     router.refresh();
   }
   async function createCode() {
@@ -184,20 +226,42 @@ export function RewardsCenter({ points, offers, initialCode }: { points: number;
           <h2 className="text-xl font-black">Redeem rewards</h2>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {offers.map((offer) => (
-            <article key={offer.id} className="premium-panel rounded-md p-5 bg-[#0f0c22]/40 border-[#8b5cf6]/10">
-              <Sparkles size={18} className="text-[#ffb800]" />
-              <h3 className="mt-4 font-black">{offer.title}</h3>
-              <p className="mt-2 text-sm text-[#8991a6]">{offer.points_cost} points</p>
-              <button
-                onClick={() => redeem(offer)}
-                disabled={working !== null || points < offer.points_cost}
-                className="btn btn-primary mt-5 w-full disabled:cursor-not-allowed disabled:opacity-45"
-              >
-                {working === `offer-${offer.id}` ? "Redeeming..." : "Redeem"}
-              </button>
-            </article>
-          ))}
+          {offers.map((offer) => {
+            const isRedeemed = redeemedIds.has(offer.id) || localRedeemed.includes(offer.id);
+            const couponCode = newlyRedeemedCodes[offer.id] || getCouponCode(offer) || "VOUCHER-REDEEMED";
+
+            return (
+              <article key={offer.id} className="premium-panel rounded-md p-5 bg-[#0f0c22]/40 border-[#8b5cf6]/10">
+                <Sparkles size={18} className="text-[#ffb800]" />
+                <h3 className="mt-4 font-black">{offer.title}</h3>
+                <p className="mt-2 text-sm text-[#8991a6]">{offer.points_cost} points</p>
+                
+                {isRedeemed ? (
+                  <div className="mt-5 space-y-2">
+                    <span className="text-xs font-bold text-[#70efbb] uppercase tracking-wider block">✓ Redeemed</span>
+                    <div className="flex h-11 items-center justify-between rounded border border-[#8b5cf6]/30 bg-black/45 px-3">
+                      <code className="text-xs font-mono font-bold text-white select-all">{couponCode}</code>
+                      <button
+                        onClick={() => copyCoupon(couponCode)}
+                        className="text-[#b9a4ff] hover:text-white p-1 transition-colors"
+                        title="Copy Coupon Code"
+                      >
+                        <Copy size={15} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => redeem(offer)}
+                    disabled={working !== null || points < offer.points_cost}
+                    className="btn btn-primary mt-5 w-full disabled:cursor-not-allowed disabled:opacity-45"
+                  >
+                    {working === `offer-${offer.id}` ? "Redeeming..." : "Redeem"}
+                  </button>
+                )}
+              </article>
+            );
+          })}
           {!offers.length && (
             <p className="rounded-md border border-white/[.08] p-6 text-sm text-[#8991a6]">
               Reward offers will appear here when enabled by Rakexura.
