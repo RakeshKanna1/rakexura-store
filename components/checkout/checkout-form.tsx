@@ -101,11 +101,11 @@ export function CheckoutForm() {
           const platform = line.platform || "Steam";
           const g = line.game;
           const value = getCheckoutLinePrice(g, platform);
-          return Number(value ?? 0) <= 99;
+          return Number(value ?? 0) * (line.quantity || 1) <= 99;
         });
         const hasLowPricedBundle = bundleLines.some((line) => {
           if (!line || !line.bundle) return false;
-          return Number(line.bundle.bundle_price || 0) <= 99;
+          return Number(line.bundle.bundle_price || 0) * (line.quantity || 1) <= 99;
         });
         if (hasLowPricedGame || hasLowPricedBundle) {
           setCoupon(null);
@@ -251,11 +251,11 @@ export function CheckoutForm() {
         const platform = line.platform || "Steam";
         const g = line.game;
         const value = getCheckoutLinePrice(g, platform);
-        return Number(value ?? 0) <= 99;
+        return Number(value ?? 0) * (line.quantity || 1) <= 99;
       });
       const hasLowPricedBundle = bundleLines.some((line) => {
         if (!line || !line.bundle) return false;
-        return Number(line.bundle.bundle_price || 0) <= 99;
+        return Number(line.bundle.bundle_price || 0) * (line.quantity || 1) <= 99;
       });
       if (hasLowPricedGame || hasLowPricedBundle) {
         setCoupon(null);

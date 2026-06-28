@@ -55,13 +55,13 @@ export function ProductActions({ game }: { game: Game }) {
   useEffect(() => {
     if (coupon && !isDiamondOrPlatinumCoupon(coupon.code)) {
       const basePrice = price(game, selected);
-      if (basePrice <= 99) {
+      if (basePrice * quantity <= 99) {
         setCoupon(null);
         setCouponCode("");
         toast.error("Coupon removed: General coupons can only be applied to games priced above Rs. 99.");
       }
     }
-  }, [selected, coupon, game, setCoupon]);
+  }, [selected, coupon, game, quantity, setCoupon]);
 
   const basePrice = price(game, selected);
   const gameSubtotal = basePrice * quantity;
@@ -77,7 +77,7 @@ export function ProductActions({ game }: { game: Game }) {
     // Check game price restriction for general coupons (non-Diamond/Platinum)
     const basePrice = price(game, selected);
     const isDiamondOrPlat = isDiamondOrPlatinumCoupon(normalized);
-    if (!isDiamondOrPlat && basePrice <= 99) {
+    if (!isDiamondOrPlat && basePrice * quantity <= 99) {
       setCoupon(null);
       setCheckingCoupon(false);
       return toast.error("General coupons can only be applied to games priced above Rs. 99.");
