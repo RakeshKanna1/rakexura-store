@@ -202,7 +202,13 @@ export function CheckoutForm() {
   }
   async function copyReference() { await navigator.clipboard.writeText(orderReference); toast.success("Order reference copied"); }
   async function copyUpi() { await navigator.clipboard.writeText(UPI_ID); toast.success("UPI ID copied"); }
-  async function notifyOwner(reference: string, orderTotal: number, values: Data, items: Array<{ title: string; platform: string; quantity: number }>) {
+  async function notifyOwner(
+    reference: string, 
+    orderTotal: number, 
+    values: Data, 
+    items: Array<{ title: string; platform: string; quantity: number }>,
+    customerEmail?: string
+  ) {
     try {
       const response = await fetch("/api/notifications/order", {
         method: "POST",
@@ -211,6 +217,7 @@ export function CheckoutForm() {
           reference,
           customerName: values.name,
           customerWhatsApp: values.whatsapp,
+          customerEmail,
           total: orderTotal,
           items,
         }),
@@ -423,6 +430,8 @@ export function CheckoutForm() {
 
     const finalTotal = total;
     const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const customerEmail = user?.email || undefined;
     let proofPath = "FREEBIE-LOYALTY-REWARD";
 
     if (proof) {
@@ -441,7 +450,7 @@ export function CheckoutForm() {
       void notifyOwner("CHECKOUT-NEEDS-REVIEW", finalTotal, values, [
         ...items.map((item) => ({ title: String(item.title), platform: String(item.platform), quantity: Number(item.quantity) })),
         ...bundles.map((item) => ({ title: String(item.title), platform: "Bundle", quantity: Number(item.quantity) })),
-      ]);
+      ], customerEmail);
       return toast.error(error.message);
     }
     
@@ -450,7 +459,7 @@ export function CheckoutForm() {
     void notifyOwner(reference, finalTotal, values, [
       ...items.map((item) => ({ title: String(item.title), platform: String(item.platform), quantity: Number(item.quantity) })),
       ...bundles.map((item) => ({ title: String(item.title), platform: "Bundle", quantity: Number(item.quantity) })),
-    ]);
+    ], customerEmail);
     
     // Save metadata for WhatsApp redirection link before clearing
     const titles = [...lines.map((l) => l.game.title), ...bundleLines.map((b) => b.bundle.title)].join(", ") || "Game";

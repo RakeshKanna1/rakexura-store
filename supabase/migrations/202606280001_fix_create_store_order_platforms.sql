@@ -144,7 +144,7 @@ begin
           v_order_qty := v_order_qty + greatest(1, least(5, coalesce((v_line->>'quantity')::int, 1)));
         end loop;
         if v_order_qty < 3 then
-          raise exception 'This code requires a minimum selection of 3 games to unlock your 10% discount.';
+          raise exception 'This code requires a minimum selection of 3 games to unlock your 10%% discount.';
         end if;
       end;
     end if;

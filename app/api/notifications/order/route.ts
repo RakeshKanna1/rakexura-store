@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { createClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
+import { sendWhatsAppText } from "@/lib/whatsapp";
 
 export const runtime = "nodejs";
 
@@ -63,17 +64,94 @@ function makeOwnerMessage(order: OrderNotice) {
     .join("\n");
 }
 
+function makeCustomerInvoiceMessage(order: OrderNotice) {
+  const items = order.items?.length
+    ? order.items.map((item) => {
+        const title = item.title ?? "Game";
+        const platform = item.platform ? ` (${item.platform})` : "";
+        const quantity = item.quantity ?? 1;
+        const itemPrice = Number(item.price ?? 0);
+        return `- ${title}${platform} x${quantity}${itemPrice ? ` - Rs. ${price(itemPrice)}` : ""}`;
+      })
+    : ["- Order item"];
+
+  return [
+    `Thank you for your order at Rakexura Store!`,
+    "",
+    `Order Reference: ${order.reference ?? ""}`.trim(),
+    `Customer Name: ${order.customerName ?? "Customer"}`,
+    `Amount Paid: Rs. ${price(orderTotal(order))}`,
+    "",
+    "Items Purchased:",
+    ...items,
+    "",
+    "Your payment proof has been received and is under review. Our team will verify it shortly and send your activation details via WhatsApp.",
+    "If you have any questions, feel free to contact us on WhatsApp.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 export async function POST(request: Request) {
   try {
     const order = (await request.json().catch(() => ({}))) as OrderNotice;
     const message = makeOwnerMessage(order);
 
+    // 1. Send notification email to the owner
     const email = await sendEmail({
       to: process.env.OWNER_EMAIL ?? process.env.NEXT_PUBLIC_OWNER_EMAIL,
       subject: `New Rakexura order ${order.reference ?? ""}`.trim(),
       text: message,
     });
 
+    // 2. Send invoice email to the customer
+    if (order.customerEmail) {
+      try {
+        const customerMessage = makeCustomerInvoiceMessage(order);
+        await sendEmail({
+          to: order.customerEmail,
+          subject: `Rakexura Store Invoice - Order ${order.reference ?? ""}`.trim(),
+          text: customerMessage,
+        });
+      } catch (custEmailError) {
+        console.error("Failed to send invoice email to customer:", custEmailError);
+      }
+    }
+
+    // 3. Send WhatsApp (SMS) notifications
+    try {
+      const ownerWhatsApp = process.env.OWNER_WHATSAPP_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+      if (ownerWhatsApp) {
+        const itemsList = order.items?.map(i => `${i.title} (${i.platform || 'Steam'}) x${i.quantity ?? 1}`).join(', ') || 'Game';
+        const text = `🛒 *New Rakexura Order Received!*\n\n` +
+          `• *Reference:* ${order.reference ?? "N/A"}\n` +
+          `• *Customer:* ${order.customerName ?? "Customer"}\n` +
+          `• *WhatsApp:* ${order.customerWhatsApp ?? "N/A"}\n` +
+          `• *Email:* ${order.customerEmail ?? "N/A"}\n` +
+          `• *Total:* Rs. ${price(orderTotal(order))}\n` +
+          `• *Items:* ${itemsList}\n\n` +
+          `Please verify the payment proof and deliver from the admin dashboard.`;
+        await sendWhatsAppText(ownerWhatsApp, text);
+      }
+    } catch (waOwnerError) {
+      console.error("Failed to send WhatsApp notification to owner:", waOwnerError);
+    }
+
+    try {
+      if (order.customerWhatsApp) {
+        const text = `Hello ${order.customerName ?? 'Customer'},\n\n` +
+          `Thank you for ordering with *Rakexura Store*! 🎮\n\n` +
+          `• *Order Reference:* ${order.reference ?? "N/A"}\n` +
+          `• *Total Amount:* Rs. ${price(orderTotal(order))}\n\n` +
+          `We have received your payment proof. Our team is verifying it right now. Once verified, your activation details will be delivered directly here!\n\n` +
+          `Have a great day!`;
+        await sendWhatsAppText(order.customerWhatsApp, text);
+      }
+    } catch (waCustError) {
+      console.error("Failed to send WhatsApp notification to customer:", waCustError);
+    }
+
+    // 4. Send database in-app & push notification to admins
     try {
       const supabase = await createClient();
       const { data: admins } = await supabase.from("profiles").select("id").eq("role", "admin");
