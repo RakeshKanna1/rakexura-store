@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { toast } from "sonner";
+
 import { createClient } from "@/lib/supabase/client";
 import { useCartStore } from "@/stores/cart-store";
 import type { Bundle, BundleCartLine, CartLine, Game, Platform } from "@/types/store";

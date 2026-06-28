@@ -25,7 +25,6 @@ export function OrderActions({
   customerPhone = "",
   gameName = "Game",
   orderReference = "",
-  isSubscription: _isSubscription = false,
   initialAccountAccess = "",
 }: {
   id: number;
@@ -33,7 +32,6 @@ export function OrderActions({
   customerPhone?: string;
   gameName?: string;
   orderReference?: string;
-  isSubscription?: boolean;
   initialAccountAccess?: string;
 }) {
   const router = useRouter();
@@ -68,7 +66,7 @@ export function OrderActions({
         gameName,
         id: orderReference || String(id),
       };
-      const trackingLink = `${window.location.origin}/track-order?order=${order.id}&phone=${customerPhone}`;
+      const trackingLink = `https://rakexura-store.vercel.app/track-order?order=${order.id}&phone=${customerPhone}`;
 
       let textContent = `🎮 *RAKEXURA GAME DELIVERY*\n\n` +
         `📦 *Game:* ${order.gameName}\n` +

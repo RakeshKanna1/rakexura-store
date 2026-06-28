@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Check, Circle, Clipboard, Clock3, HelpCircle, LifeBuoy, MessageCircle, Search, X, ShieldCheck } from "lucide-react";
@@ -46,7 +46,7 @@ function TrackOrderContent() {
   const [loading, setLoading] = useState(false);
   const [whatsappActivated, setWhatsappActivated] = useState(false);
 
-  async function track() {
+  const track = useCallback(async () => {
     if (!order.trim() || phone.replace(/\D/g, "").length < 10) return toast.error("Enter your order reference and full WhatsApp number");
     setLoading(true);
     const supabase = createClient();
@@ -58,7 +58,7 @@ function TrackOrderContent() {
     const casted = row as TrackedOrder;
     setResult(casted);
     setWhatsappActivated(typeof window !== "undefined" && localStorage.getItem("activated_" + casted.order_ref) === "true");
-  }
+  }, [order, phone]);
 
   // Auto-run if query params are complete
   useEffect(() => {
@@ -76,7 +76,7 @@ function TrackOrderContent() {
     if (order && phone.replace(/\D/g, "").length >= 10) {
       void track();
     }
-  }, [order, phone]);
+  }, [order, phone, track]);
 
   async function copyOrder() { if (!result) return; await navigator.clipboard.writeText(result.order_ref); toast.success("Order reference copied"); }
   

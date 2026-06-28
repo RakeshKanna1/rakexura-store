@@ -36,7 +36,7 @@ export default async function AdminBundlesPage({ searchParams }: { searchParams:
       <section className="mt-8 grid gap-3">
         {bundles?.map((bundle) => {
           const gameList = bundle.bundle_games
-            ?.map((bg: any) => bg.games?.title)
+            ?.map((bg: { games: { title: string }[] | null }) => bg.games?.[0]?.title)
             .filter(Boolean)
             .join(", ") || "No games linked";
 

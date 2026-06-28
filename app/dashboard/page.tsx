@@ -275,8 +275,8 @@ export default async function DashboardPage() {
                             </p>
                           );
                         }
-                        const usage = order.coupon_usage as any;
-                        const couponCode = usage?.[0]?.coupons?.code;
+                        const usage = order.coupon_usage as { coupons: { code: string }[] }[] | null;
+                        const couponCode = usage?.[0]?.coupons?.[0]?.code;
                         return (
                           <p className="mt-1.5 text-[10px] font-bold text-[#c4b5fd] flex items-center gap-1">
                             <TicketPercent size={11} className="text-[#facc15]" />

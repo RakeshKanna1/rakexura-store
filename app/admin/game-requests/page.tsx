@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { redirect } from "next/navigation";
 import { updateRequestStatus } from "@/app/admin/actions";
 import { createClient } from "@/lib/supabase/server";

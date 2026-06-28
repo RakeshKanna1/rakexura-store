@@ -6,7 +6,7 @@ import Link from "next/link";
 import { OrderActions } from "@/components/admin/order-actions";
 import { archiveGame, moderateProof, moderateReview, toggleCoupon, updateRequestStatus } from "@/app/admin/actions";
 
-type AdminRow = Record<string, any> & { id?: number; screenshot_url?: string; proof_url?: string; media_urls?: string[]; media_links?: string[] };
+type AdminRow = Record<string, unknown> & { id?: number; screenshot_url?: string; proof_url?: string; media_urls?: string[]; media_links?: string[] };
 
 function SubmitButton({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "positive" | "danger" }) {
   const color = tone === "positive" ? "border-[#00d68f]/30 text-[#70efbb]" : tone === "danger" ? "border-red-400/30 text-red-300" : "border-white/10 text-[#c8cedc]";
@@ -134,7 +134,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
       </div>
       {!filtered.length && (
         <p className="p-10 text-center text-[#8991a6]">
-          No records found matching "{query}".
+          No records found matching &quot;{query}&quot;.
         </p>
       )}
     </div>

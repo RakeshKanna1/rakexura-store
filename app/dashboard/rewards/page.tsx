@@ -11,7 +11,7 @@ export default async function RewardsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/dashboard/rewards");
 
-  const [{ data: reward }, { data: offers }, { data: referral }, { count: libraryCount }, { count: referralCount }] = await Promise.all([
+  const [, { data: offers }, { data: referral }, { count: libraryCount }, { count: referralCount }] = await Promise.all([
     supabase.from("user_rewards").select("points,level").eq("user_id", user.id).maybeSingle(),
     supabase.from("reward_offers").select("id,title,points_cost").eq("active", true).order("points_cost"),
     supabase.from("referrals").select("code").eq("referrer_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),

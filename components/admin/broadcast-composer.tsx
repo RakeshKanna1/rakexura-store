@@ -107,7 +107,7 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
       <div className="premium-panel h-fit rounded-lg p-5">
         <Gift className="text-[#facc15]" />
         <h2 className="mt-4 text-lg font-black">Giveaway / Gift Game</h2>
-        <p className="mt-2 text-sm leading-6 text-[#8991a6]">Send a game directly to this customer's library and orders page at Rs. 0 as a giveaway.</p>
+        <p className="mt-2 text-sm leading-6 text-[#8991a6]">Send a game directly to this customer&apos;s library and orders page at Rs. 0 as a giveaway.</p>
         
         <label className="mt-4 block text-xs font-bold text-[#8991a8]">Select Game</label>
         <select value={giftGameId} onChange={(e) => setGiftGameId(e.target.value)} className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-3">
