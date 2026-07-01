@@ -24,7 +24,12 @@ export async function GET(request: Request) {
   const handleRedirect = async (destination: string) => {
     const response = NextResponse.redirect(new URL(destination, request.url));
     allCookies.forEach((cookie) => {
-      response.cookies.set(cookie.name, cookie.value);
+      response.cookies.set(cookie.name, cookie.value, {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365 * 10, // 10 years
+        sameSite: "lax",
+        secure: true,
+      });
     });
     return response;
   };
