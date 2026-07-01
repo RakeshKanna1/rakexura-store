@@ -53,6 +53,10 @@ export function StoreCloudSync() {
     async function start() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!active || !user) return;
+      
+      // Notify owner/admins if this is a first-time customer signup/login
+      void fetch("/api/notifications/new-user", { method: "POST" }).catch(console.error);
+
       const [{ data: cartRows, error: cartError }, { data: bundleRows, error: bundleError }, { data: wishlistRows, error: wishlistError }] = await Promise.all([
         supabase.from("cart_items").select("variant_type,quantity,games(*)").eq("user_id", user.id),
         supabase.from("cart_bundles").select("quantity,bundles(*,bundle_games(games(id,title)))").eq("user_id", user.id),

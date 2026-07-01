@@ -8,6 +8,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/common/button";
 import { ReviewForm } from "@/components/reviews/review-form";
 import { createClient } from "@/lib/supabase/client";
+import { AuthModal } from "@/components/auth/auth-modal";
+import type { User } from "@supabase/supabase-js";
 import { formatPrice, isDiamondOrPlatinumCoupon } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import type { Game, Platform } from "@/types/store";
@@ -39,6 +41,18 @@ export function ProductActions({ game }: { game: Game }) {
   const [checkingCoupon, setCheckingCoupon] = useState(false);
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [checkedAuth, setCheckedAuth] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      setCheckedAuth(true);
+    });
+  }, []);
 
   // Dynamic validation check for RAKETHREE quantity constraints on the game details page
   useEffect(() => {
@@ -327,9 +341,17 @@ export function ProductActions({ game }: { game: Game }) {
               <Button 
                 className="w-full border border-white/10 bg-white/[.06] text-white hover:bg-white/[.1]" 
                 onClick={() => { 
-                  add(game, selected); 
-                  setStoreQuantity(game.id, selected, quantity);
-                  toast.success(`${game.title} added to cart`); 
+                  const action = () => {
+                    add(game, selected); 
+                    setStoreQuantity(game.id, selected, quantity);
+                    toast.success(`${game.title} added to cart`); 
+                  };
+                  if (checkedAuth && !user) {
+                    setPendingAction(() => action);
+                    setShowAuthModal(true);
+                  } else {
+                    action();
+                  }
                 }}
               >
                 <ShoppingBag size={18} /> Add to cart
@@ -337,9 +359,17 @@ export function ProductActions({ game }: { game: Game }) {
               <Button 
                 className="w-full" 
                 onClick={() => { 
-                  add(game, selected); 
-                  setStoreQuantity(game.id, selected, quantity);
-                  router.push("/checkout"); 
+                  const action = () => {
+                    add(game, selected); 
+                    setStoreQuantity(game.id, selected, quantity);
+                    router.push("/checkout"); 
+                  };
+                  if (checkedAuth && !user) {
+                    setPendingAction(() => action);
+                    setShowAuthModal(true);
+                  } else {
+                    action();
+                  }
                 }}
               >
                 Buy now
@@ -353,6 +383,7 @@ export function ProductActions({ game }: { game: Game }) {
       </div>
       <ReviewForm gameId={game.id} gameTitle={game.title} />
       <Confetti active={celebrate} onComplete={() => setCelebrate(false)} />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onContinueAsGuest={() => { if (pendingAction) pendingAction(); setShowAuthModal(false); }} />
       {/* Sticky Bottom Bar for Mobile View Only */}
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/90 p-3.5 backdrop-blur-lg lg:hidden">
         <div className="flex items-center justify-between gap-4">
@@ -386,9 +417,17 @@ export function ProductActions({ game }: { game: Game }) {
                   });
                   return;
                 }
-                add(game, selected);
-                setStoreQuantity(game.id, selected, quantity);
-                router.push("/checkout");
+                const action = () => {
+                  add(game, selected);
+                  setStoreQuantity(game.id, selected, quantity);
+                  router.push("/checkout");
+                };
+                if (checkedAuth && !user) {
+                  setPendingAction(() => action);
+                  setShowAuthModal(true);
+                } else {
+                  action();
+                }
               }}
               className={`rounded-md px-5 py-2.5 text-xs font-black text-white active:scale-95 transition-all ${
                 game.out_of_stock
