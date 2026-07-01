@@ -326,7 +326,7 @@ export async function updateOrderStatus(formData: FormData) {
         .join(", ");
       const fallbackTotal = items.reduce((sum, item) => sum + Number(item.price ?? 0) * item.quantity, 0);
       const total = Number(order.total_price ?? fallbackTotal).toLocaleString("en-IN");
-      notifMessage = `Your game has been successfully added to your library. Invoice: ${itemLines} - Total Paid: Rs. ${total}`;
+      notifMessage = `Your game has been successfully added to your library. +100 Rank Points added to your profile! Invoice: ${itemLines} - Total Paid: Rs. ${total}`;
     } else if (status === "Verified") {
       notifTitle = "Payment Verified";
       notifMessage = "Payment verified. Preparing your game delivery now.";

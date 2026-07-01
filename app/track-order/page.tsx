@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatPrice } from "@/lib/utils";
 import { Confetti } from "@/components/common/confetti";
 import type { User } from "@supabase/supabase-js";
+import { AnimatePresence, motion } from "framer-motion";
 
 type TrackedOrder = { 
   order_id: number; 
@@ -51,6 +52,7 @@ function TrackOrderContent() {
   const [whatsappActivated, setWhatsappActivated] = useState(false);
 
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showPointsAnimation, setShowPointsAnimation] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -86,6 +88,11 @@ function TrackOrderContent() {
 
     if (casted.status === "Delivered" || casted.status === "Completed") {
       setShowConfetti(true);
+      const key = `animated_points_${casted.order_ref}`;
+      if (typeof window !== "undefined" && !sessionStorage.getItem(key)) {
+        setShowPointsAnimation(true);
+        sessionStorage.setItem(key, "true");
+      }
       setTimeout(() => {
         const el = document.getElementById("credentials-section");
         if (el) {
@@ -282,6 +289,13 @@ function TrackOrderContent() {
                 </div>
               </div>
 
+              {!isRejected && active < 3 && (
+                <div className="mt-3 flex items-center gap-2.5 rounded-lg border border-[#facc15]/15 bg-gradient-to-r from-amber-500/[0.03] to-yellow-500/[0.03] p-3 text-xs text-[#facc15] font-bold">
+                  <span className="text-sm">🏆</span>
+                  <span>Rank Points: You will earn <span className="underline font-black">+100 Rank Points</span> upon successful delivery of this order!</span>
+                </div>
+              )}
+
               {(result.status === "Delivered" || result.status === "Completed") && (
                 <div id="credentials-section" className="space-y-4 mt-6">
                   <div className="text-center p-6 rounded-lg border border-emerald-500/20 bg-emerald-500/[.03] space-y-2">
@@ -345,6 +359,53 @@ function TrackOrderContent() {
           )}
         </article>
       )}
+
+      {/* Points Awarded Animation Overlay */}
+      <AnimatePresence>
+        {showPointsAnimation && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] grid place-items-center bg-black/80 p-4 backdrop-blur-md"
+            onClick={() => setShowPointsAnimation(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.8, y: 10 }}
+              className="relative w-full max-w-sm rounded-2xl border border-amber-400/30 bg-gradient-to-b from-[#110e29] to-[#070514] p-6 text-center shadow-[0_0_50px_rgba(251,191,36,0.25)]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Floating Glow */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.15),transparent_70%)] pointer-events-none" />
+
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 text-amber-400 text-3xl font-black shadow-[0_0_20px_rgba(245,158,11,0.2)] animate-bounce mb-4">
+                🏆
+              </div>
+
+              <h3 className="text-2xl font-black text-white bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">
+                +100 Rank Points
+              </h3>
+              <p className="mt-1 text-sm font-bold text-amber-200 uppercase tracking-widest">
+                Loyalty Awarded!
+              </p>
+              
+              <p className="mt-3 text-xs leading-relaxed text-[#9ea6b9]">
+                Your purchase has been verified and delivered. 100 XP points have been successfully added to your Rakexura account profile!
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setShowPointsAnimation(false)}
+                className="mt-5 w-full rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 py-2.5 text-xs font-black text-black shadow-lg shadow-amber-500/20 transition active:scale-95 cursor-pointer"
+              >
+                Claim & Continue
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
