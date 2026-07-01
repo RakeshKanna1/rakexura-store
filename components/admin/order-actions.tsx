@@ -19,6 +19,21 @@ function cleanPhone(value?: string | null) {
   return digits;
 }
 
+function isStatusPassed(current: string, target: string) {
+  if (current === target) return true;
+  if (current === "Delivered") return true;
+  if (current === "Rejected") return true;
+  if (target === "Rejected") return false;
+
+  const order = ["Pending", "Verified", "Processing", "Delivered"];
+  const currentIndex = order.indexOf(current);
+  const targetIndex = order.indexOf(target);
+  if (currentIndex !== -1 && targetIndex !== -1) {
+    return currentIndex >= targetIndex;
+  }
+  return false;
+}
+
 export function OrderActions({
   id,
   currentStatus,
@@ -113,18 +128,33 @@ export function OrderActions({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
-        {actions.map(({ status, label, icon: Icon, tone }) => (
-          <button
-            key={status}
-            type="button"
-            disabled={pending || currentStatus === status}
-            onClick={() => update(status, label)}
-            className={`inline-flex min-h-10 items-center gap-2 rounded-md border bg-black/20 px-3 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-35 ${tone}`}
-          >
-            <Icon size={14} />
-            {currentStatus === status ? `${status} done` : label}
-          </button>
-        ))}
+        {actions.map(({ status, label, icon: Icon, tone }) => {
+          const isDone = isStatusPassed(currentStatus, status);
+          const showDoneText = status === "Rejected"
+            ? currentStatus === "Rejected"
+            : (currentStatus === "Rejected" ? false : isDone);
+
+          return (
+            <button
+              key={status}
+              type="button"
+              disabled={pending || isDone}
+              onClick={() => update(status, label)}
+              className={`inline-flex min-h-10 items-center gap-2 rounded-md border px-3 text-xs font-bold transition ${
+                isDone
+                  ? "bg-white/[0.05] cursor-default opacity-60 pointer-events-none"
+                  : "bg-black/20 cursor-pointer"
+              } ${
+                isDone
+                  ? tone.split(" ").filter((t) => !t.startsWith("hover:")).join(" ")
+                  : tone
+              }`}
+            >
+              <Icon size={14} />
+              {showDoneText ? `${status} done` : label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="mt-4 p-4 rounded-lg border border-[#8b5cf6]/20 bg-[#8b5cf6]/5 space-y-3">
