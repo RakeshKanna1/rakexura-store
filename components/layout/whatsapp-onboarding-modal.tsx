@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
-import { Bell, MessageCircle, Shield, ArrowRight, Loader2 } from "lucide-react";
+import { Bell, MessageCircle, Shield, ArrowRight, Loader2, X } from "lucide-react";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -48,6 +48,17 @@ export function WhatsAppOnboardingModal() {
       const hasWhatsapp = profile && profile.whatsapp && profile.whatsapp.trim() !== "";
       const isNotificationSupported = typeof window !== "undefined" && "Notification" in window && "serviceWorker" in navigator && "PushManager" in window;
       const needsNotifications = isNotificationSupported && Notification.permission === "default";
+
+      // Daily Prompt Logic: Don't show if prompted within the last 24 hours
+      const lastPrompt = typeof window !== "undefined" ? localStorage.getItem("last_wp_onboard_prompt_time") : null;
+      const now = Date.now();
+      const oneDay = 24 * 60 * 60 * 1000;
+      const hasPromptedRecently = lastPrompt && (now - Number(lastPrompt) < oneDay);
+
+      if (hasPromptedRecently) {
+        setIsOpen(false);
+        return;
+      }
 
       if (!hasWhatsapp) {
         setStep(1);
@@ -178,36 +189,51 @@ export function WhatsAppOnboardingModal() {
   };
 
   const handleSkipOrAcknowledge = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("last_wp_onboard_prompt_time", Date.now().toString());
+    }
     setIsOpen(false);
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-2xl border border-[#8b5cf6]/20 bg-[#0c0a1a] p-6 shadow-2xl md:p-8">
-        
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+      <div className="w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#05070f]/95 p-6 shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-xl md:p-8 relative">
+        {/* Glow Effects */}
+        <div className="absolute -left-16 -top-16 h-36 w-36 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute -right-16 -bottom-16 h-36 w-36 rounded-full bg-violet-600/10 blur-3xl pointer-events-none" />
+
+        {/* Close/Skip Button top-right */}
+        <button
+          onClick={handleSkipOrAcknowledge}
+          className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-full bg-white/[0.05] text-[#8991a6] hover:bg-white/10 hover:text-white transition-colors"
+          aria-label="Skip onboarding"
+        >
+          <X size={16} />
+        </button>
+
         {/* Step Indicators */}
         <div className="flex items-center justify-center gap-2 mb-6">
-          <span className={`h-1.5 w-10 rounded-full transition-all duration-300 ${step === 1 ? "bg-[#8b5cf6]" : "bg-white/20"}`} />
-          <span className={`h-1.5 w-10 rounded-full transition-all duration-300 ${step === 2 ? "bg-[#8b5cf6]" : "bg-white/20"}`} />
+          <span className={`h-1.5 w-10 rounded-full transition-all duration-300 ${step === 1 ? "bg-[#facc15]" : "bg-white/20"}`} />
+          <span className={`h-1.5 w-10 rounded-full transition-all duration-300 ${step === 2 ? "bg-[#facc15]" : "bg-white/20"}`} />
         </div>
 
         {step === 1 ? (
           <div>
-            <div className="flex justify-center mb-4 text-[#8b5cf6]">
+            <div className="flex justify-center mb-4 text-[#facc15]">
               <MessageCircle size={40} className="animate-pulse" />
             </div>
-            <h2 className="text-2xl font-black text-white text-center bg-gradient-to-r from-white to-[#b9a4ff] bg-clip-text text-transparent">
+            <h2 className="text-2xl font-black text-white text-center bg-gradient-to-r from-white via-amber-200 to-[#facc15] bg-clip-text text-transparent">
               📱 Link Your WhatsApp
             </h2>
-            <p className="mt-4 text-sm text-[#9ea6b9] text-center leading-relaxed">
+            <p className="mt-4 text-xs text-[#9ea6b9] text-center leading-relaxed">
               To ensure instant delivery of your game activation details, please link your active WhatsApp number before continuing.
             </p>
 
             <form onSubmit={handleWhatsappSubmit} className="mt-6 space-y-4">
               <div>
-                <label htmlFor="whatsapp-phone" className="block text-xs font-bold uppercase tracking-wider text-[#8b5cf6]">
+                <label htmlFor="whatsapp-phone" className="block text-xs font-bold uppercase tracking-wider text-[#facc15]">
                   WhatsApp Number
                 </label>
                 <input
@@ -217,14 +243,14 @@ export function WhatsAppOnboardingModal() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="e.g., +91 98765 43210"
-                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/45 px-4 py-3 text-sm text-white placeholder-white/30 focus:border-[#8b5cf6] focus:outline-none"
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white placeholder-white/30 focus:border-[#facc15] focus:outline-none transition-colors"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-lg bg-[#00d68f] py-3 font-semibold text-black transition hover:bg-[#00b076] disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-1.5"
+                className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 py-3 font-black text-black transition shadow-lg shadow-amber-500/20 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-1.5 text-sm"
               >
                 {isLoading ? (
                   <Loader2 size={18} className="animate-spin" />
@@ -234,17 +260,25 @@ export function WhatsAppOnboardingModal() {
                   </>
                 )}
               </button>
+
+              <button
+                type="button"
+                onClick={handleSkipOrAcknowledge}
+                className="w-full rounded-xl border border-white/10 bg-white/[0.02] py-2.5 text-xs font-semibold text-[#8991a6] hover:bg-white/5 hover:text-white transition"
+              >
+                Configure Later / Skip
+              </button>
             </form>
           </div>
         ) : (
           <div>
-            <div className="flex justify-center mb-4 text-[#8b5cf6]">
+            <div className="flex justify-center mb-4 text-[#facc15]">
               <Bell size={40} className="animate-bounce" />
             </div>
-            <h2 className="text-2xl font-black text-white text-center bg-gradient-to-r from-white to-[#b9a4ff] bg-clip-text text-transparent">
+            <h2 className="text-2xl font-black text-white text-center bg-gradient-to-r from-white via-amber-200 to-[#facc15] bg-clip-text text-transparent">
               🔔 Enable Notifications
             </h2>
-            <p className="mt-4 text-sm text-[#9ea6b9] text-center leading-relaxed">
+            <p className="mt-4 text-xs text-[#9ea6b9] text-center leading-relaxed">
               Get real-time updates directly on your device lock screen when your orders are processed and ready for activation.
             </p>
 
@@ -253,7 +287,7 @@ export function WhatsAppOnboardingModal() {
                 type="button"
                 onClick={handleEnableNotifications}
                 disabled={isLoading}
-                className="w-full rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 py-3 font-bold text-white shadow-lg shadow-violet-500/20 hover:from-violet-500 hover:to-indigo-500 transition flex items-center justify-center gap-2"
+                className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 py-3 font-black text-black shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 text-sm"
               >
                 {isLoading ? (
                   <Loader2 size={18} className="animate-spin" />
@@ -267,7 +301,7 @@ export function WhatsAppOnboardingModal() {
               <button
                 type="button"
                 onClick={handleSkipOrAcknowledge}
-                className="w-full rounded-lg border border-white/10 bg-white/[0.02] py-3 text-xs font-semibold text-[#8991a6] hover:bg-white/5 hover:text-white transition"
+                className="w-full rounded-xl border border-white/10 bg-white/[0.02] py-3 text-xs font-semibold text-[#8991a6] hover:bg-white/5 hover:text-white transition"
               >
                 Configure Later / Skip
               </button>

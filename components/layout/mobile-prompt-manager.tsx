@@ -41,9 +41,14 @@ export function MobilePromptManager() {
           if ("Notification" in window && "serviceWorker" in navigator && "PushManager" in window) {
             const permission = Notification.permission;
             
-            if (permission !== "granted") {
-              const hasShownPush = sessionStorage.getItem("shown_mobile_push_prompt");
-              if (!hasShownPush) {
+            if (permission !== "granted" && permission !== "denied") {
+              // Daily Prompt Logic: Don't show if prompted within the last 24 hours
+              const lastPushPrompt = localStorage.getItem("last_mobile_push_prompt_time");
+              const now = Date.now();
+              const oneDay = 24 * 60 * 60 * 1000;
+              const hasPromptedRecently = lastPushPrompt && (now - Number(lastPushPrompt) < oneDay);
+
+              if (!hasPromptedRecently) {
                 setShowPrompt("push");
               }
             }
@@ -63,9 +68,16 @@ export function MobilePromptManager() {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           if ("Notification" in window) {
-            if (Notification.permission !== "granted") {
-              const { sendPushEncouragement } = await import("@/app/admin/actions");
-              await sendPushEncouragement();
+            if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+              const lastPushPrompt = localStorage.getItem("last_mobile_push_prompt_time");
+              const now = Date.now();
+              const oneDay = 24 * 60 * 60 * 1000;
+              const hasPromptedRecently = lastPushPrompt && (now - Number(lastPushPrompt) < oneDay);
+
+              if (!hasPromptedRecently) {
+                const { sendPushEncouragement } = await import("@/app/admin/actions");
+                await sendPushEncouragement();
+              }
             }
           }
         }
@@ -81,7 +93,7 @@ export function MobilePromptManager() {
     if (showPrompt === "login") {
       sessionStorage.setItem("shown_mobile_login_prompt", "true");
     } else if (showPrompt === "push") {
-      sessionStorage.setItem("shown_mobile_push_prompt", "true");
+      localStorage.setItem("last_mobile_push_prompt_time", Date.now().toString());
     }
     setShowPrompt(null);
   };
@@ -148,7 +160,7 @@ export function MobilePromptManager() {
         throw error;
       }
 
-      sessionStorage.setItem("shown_mobile_push_prompt", "true");
+      localStorage.setItem("last_mobile_push_prompt_time", Date.now().toString());
       setShowPrompt(null);
       toast.success("Push notifications enabled successfully!");
     } catch (err) {
@@ -162,7 +174,7 @@ export function MobilePromptManager() {
   if (!showPrompt) return null;
 
   return (
-    <div className="fixed bottom-16 left-4 right-4 lg:bottom-6 lg:right-6 lg:left-auto z-[200] max-w-sm w-[calc(100%-2rem)] sm:w-full mx-auto lg:mx-0 rounded-xl border border-white/[0.08] bg-black/95 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-fade-in-up">
+    <div className="fixed bottom-16 left-4 right-4 lg:bottom-6 lg:right-6 lg:left-auto z-[200] max-w-sm w-[calc(100%-2rem)] sm:w-full mx-auto lg:mx-0 rounded-xl border border-white/[0.08] bg-[#05070f]/95 p-4 shadow-[0_15px_40px_rgba(0,0,0,0.85)] backdrop-blur-xl animate-fade-in-up">
       <button 
         type="button" 
         onClick={handleDismiss} 
@@ -175,7 +187,7 @@ export function MobilePromptManager() {
       {showPrompt === "login" && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#8b5cf6]/10 text-[#c9bcff]">
+            <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#facc15]/10 text-[#facc15]">
               <LogIn size={16} />
             </div>
             <h4 className="text-sm font-bold text-white">Sign in to Rakexura</h4>
@@ -193,7 +205,7 @@ export function MobilePromptManager() {
             </button>
             <button
               onClick={handleLoginRedirect}
-              className="flex-1 rounded-md bg-white py-2 text-xs font-black text-black hover:bg-neutral-100 transition"
+              className="flex-1 rounded-md bg-[#facc15] text-black hover:bg-[#fbbf24] py-2 text-xs font-black transition"
               type="button"
             >
               Sign In
@@ -224,7 +236,7 @@ export function MobilePromptManager() {
             <button
               onClick={handleEnablePush}
               disabled={loading}
-              className="flex-1 rounded-md bg-gradient-to-r from-violet-600 to-indigo-600 py-2 text-xs font-black text-white shadow-lg shadow-violet-500/20 hover:from-violet-500 hover:to-indigo-500 transition flex items-center justify-center gap-1.5"
+              className="flex-1 rounded-md bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 py-2 text-xs font-black text-black shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-1.5"
               type="button"
             >
               {loading ? (
