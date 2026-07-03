@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { sendEmail } from "@/lib/email";
 import { createClient } from "@/lib/supabase/server";
@@ -410,6 +410,7 @@ export async function saveAccountAccess(formData: FormData) {
   revalidatePath("/admin/orders");
   revalidatePath("/dashboard/orders");
   revalidatePath("/track");
+  revalidateTag("deliveries");
   return { success: true };
 }
 
@@ -424,6 +425,7 @@ export async function moderateReview(formData: FormData) {
   if (decision === "delete" && Array.isArray(review?.media_urls) && review.media_urls.length) await supabase.storage.from("review-media").remove(review.media_urls);
   revalidatePath("/admin/reviews");
   revalidatePath("/reviews");
+  revalidateTag("reviews");
 }
 
 export async function updateRequestStatus(formData: FormData) {
@@ -480,6 +482,7 @@ export async function archiveGame(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/games");
   revalidatePath("/games");
+  revalidateTag("games");
 }
 
 function optionalNumber(value: FormDataEntryValue | null) {
@@ -545,6 +548,7 @@ export async function saveGame(formData: FormData) {
   revalidatePath("/admin/games");
   revalidatePath("/");
   revalidatePath("/games");
+  revalidateTag("games");
   redirect("/admin/games");
 }
 
@@ -581,6 +585,7 @@ export async function moderateProof(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/media");
   revalidatePath("/");
+  revalidateTag("proofs");
 }
 
 export async function saveBundle(formData: FormData) {
@@ -613,6 +618,7 @@ export async function saveBundle(formData: FormData) {
   const { error: gamesError } = await supabase.from("bundle_games").insert(gameIds.map((gameId) => ({ bundle_id: bundleId, game_id: gameId })));
   if (gamesError) throw new Error(gamesError.message);
   revalidatePath("/admin/bundles"); revalidatePath("/bundles"); revalidatePath("/");
+  revalidateTag("bundles");
   redirect("/admin/bundles");
 }
 
@@ -623,6 +629,7 @@ export async function toggleBundle(formData: FormData) {
   const { error } = await supabase.from("bundles").update({ active }).eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/bundles"); revalidatePath("/bundles"); revalidatePath("/");
+  revalidateTag("bundles");
 }
 
 export async function deleteBundle(formData: FormData) {
@@ -639,6 +646,7 @@ export async function deleteBundle(formData: FormData) {
   revalidatePath("/admin/bundles"); 
   revalidatePath("/bundles"); 
   revalidatePath("/");
+  revalidateTag("bundles");
 }
 
 export async function saveMarqueeMessage(formData: FormData) {
