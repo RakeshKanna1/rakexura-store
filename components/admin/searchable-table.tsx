@@ -110,7 +110,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
             <tr>
               {headers.map((header) => (
                 <th key={header} className="p-4 capitalize">
-                  {header === "usage_limit" ? "Global Stock (Usage Limit)" : header.replaceAll("_", " ")}
+                  {header === "usage_limit" ? "Global Limit" : header === "per_user_limit" ? "Limit Per User" : header === "used_count" ? "Times Used" : header.replaceAll("_", " ")}
                 </th>
               ))}
               {hasActions && <th className="p-4">Actions</th>}

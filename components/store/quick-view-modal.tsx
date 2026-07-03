@@ -77,17 +77,45 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
 
     const { data, error } = await supabase
       .from("coupons")
-      .select("code,discount_type,discount_value,minimum_order,starts_at,expires_at,active")
+      .select("id,code,discount_type,discount_value,minimum_order,starts_at,expires_at,active,usage_limit,per_user_limit")
       .eq("code", normalized)
       .eq("active", true)
       .maybeSingle();
 
-    setCheckingCoupon(false);
-
     if (error || !data || (data.expires_at && new Date(data.expires_at) <= new Date()) || (data.starts_at && new Date(data.starts_at) > new Date())) {
+      setCheckingCoupon(false);
       setCoupon(null);
       return toast.error("This coupon is invalid or not active");
     }
+
+    if (data.usage_limit !== null) {
+      const { count: globalUses } = await supabase
+        .from("coupon_usage")
+        .select("id", { count: "exact", head: true })
+        .eq("coupon_id", data.id);
+      if ((globalUses ?? 0) >= data.usage_limit) {
+        setCheckingCoupon(false);
+        setCoupon(null);
+        return toast.error("This coupon code has reached its global usage limit.");
+      }
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { count } = await supabase
+        .from("coupon_usage")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("coupon_id", data.id);
+      const userLimit = data.per_user_limit ?? 1;
+      if (count && count >= userLimit) {
+        setCheckingCoupon(false);
+        setCoupon(null);
+        return toast.error(`You have already redeemed this coupon the maximum allowed ${userLimit} time(s).`);
+      }
+    }
+
+    setCheckingCoupon(false);
 
     setCoupon({
       code: data.code,

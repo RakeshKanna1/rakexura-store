@@ -542,7 +542,15 @@ export async function saveCoupon(formData: FormData) {
   const discountValue = optionalNumber(formData.get("discount_value"));
   if (!/^[A-Z0-9_-]{3,24}$/.test(code) || !discountValue || discountValue <= 0) throw new Error("Enter a valid coupon code and discount");
   if (!["percentage", "flat"].includes(discountType)) throw new Error("Invalid discount type");
-  const payload = { code, discount_type: discountType, discount_value: discountValue, minimum_order: optionalNumber(formData.get("minimum_order")) ?? 0, usage_limit: optionalNumber(formData.get("usage_limit")), expires_at: String(formData.get("expires_at") ?? "") || null };
+  const payload = { 
+    code, 
+    discount_type: discountType, 
+    discount_value: discountValue, 
+    minimum_order: optionalNumber(formData.get("minimum_order")) ?? 0, 
+    usage_limit: optionalNumber(formData.get("usage_limit")), 
+    per_user_limit: optionalNumber(formData.get("per_user_limit")) ?? 1,
+    expires_at: String(formData.get("expires_at") ?? "") || null 
+  };
   const rawId = String(formData.get("id") ?? "");
   const query = rawId ? supabase.from("coupons").update(payload).eq("id", Number(rawId)) : supabase.from("coupons").insert({ ...payload, active: true });
   const { error } = await query;

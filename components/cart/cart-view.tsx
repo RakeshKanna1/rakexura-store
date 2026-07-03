@@ -103,9 +103,35 @@ export function CartView() {
       return toast.error("This code requires a minimum selection of 3 games to unlock your 10% discount.");
     }
 
-    const { data, error } = await supabase.from("coupons").select("code,discount_type,discount_value,minimum_order,starts_at,expires_at,active").eq("code", normalized).eq("active", true).maybeSingle();
+    const { data, error } = await supabase.from("coupons").select("id,code,discount_type,discount_value,minimum_order,starts_at,expires_at,active,usage_limit,per_user_limit").eq("code", normalized).eq("active", true).maybeSingle();
     setChecking(false);
     if (error || !data || (data.expires_at && new Date(data.expires_at) <= new Date()) || (data.starts_at && new Date(data.starts_at) > new Date())) { setCoupon(null); return toast.error("This coupon is not active"); }
+
+    if (data.usage_limit !== null) {
+      const { count: globalUses } = await supabase
+        .from("coupon_usage")
+        .select("id", { count: "exact", head: true })
+        .eq("coupon_id", data.id);
+      if ((globalUses ?? 0) >= data.usage_limit) {
+        setCoupon(null);
+        return toast.error("This coupon code has reached its global usage limit.");
+      }
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { count } = await supabase
+        .from("coupon_usage")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("coupon_id", data.id);
+      const userLimit = data.per_user_limit ?? 1;
+      if (count && count >= userLimit) {
+        setCoupon(null);
+        return toast.error(`You have already redeemed this coupon the maximum allowed ${userLimit} time(s).`);
+      }
+    }
+
     if (subtotal < Number(data.minimum_order ?? 0)) return toast.error(`Minimum order is ${formatPrice(Number(data.minimum_order))}`);
     setCoupon({ code: data.code, discount_type: data.discount_type, discount_value: Number(data.discount_value), minimum_order: Number(data.minimum_order ?? 0) });
     toast.success("Coupon applied");

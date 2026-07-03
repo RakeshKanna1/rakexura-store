@@ -368,7 +368,7 @@ export function CheckoutForm() {
 
     const { data, error } = await supabase
       .from("coupons")
-      .select("id,code,discount_type,discount_value,minimum_order,starts_at,expires_at,active")
+      .select("id,code,discount_type,discount_value,minimum_order,starts_at,expires_at,active,usage_limit,per_user_limit")
       .eq("code", normalized)
       .eq("active", true)
       .maybeSingle();
@@ -379,6 +379,18 @@ export function CheckoutForm() {
       return toast.error("This coupon is invalid or not active");
     }
 
+    if (data.usage_limit !== null) {
+      const { count: globalUses } = await supabase
+        .from("coupon_usage")
+        .select("id", { count: "exact", head: true })
+        .eq("coupon_id", data.id);
+      if ((globalUses ?? 0) >= data.usage_limit) {
+        setCoupon(null);
+        setCheckingCoupon(false);
+        return toast.error("This coupon code has reached its global usage limit.");
+      }
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const { count } = await supabase
@@ -386,10 +398,11 @@ export function CheckoutForm() {
         .select("id", { count: "exact", head: true })
         .eq("user_id", user.id)
         .eq("coupon_id", data.id);
-      if (count && count > 0) {
+      const userLimit = data.per_user_limit ?? 1;
+      if (count && count >= userLimit) {
         setCoupon(null);
         setCheckingCoupon(false);
-        return toast.error("You have already redeemed this coupon once.");
+        return toast.error(`You have already redeemed this coupon the maximum allowed ${userLimit} time(s).`);
       }
     }
 
