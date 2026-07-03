@@ -326,7 +326,20 @@ export async function updateOrderStatus(formData: FormData) {
         .join(", ");
       const fallbackTotal = items.reduce((sum, item) => sum + Number(item.price ?? 0) * item.quantity, 0);
       const total = Number(order.total_price ?? fallbackTotal).toLocaleString("en-IN");
-      notifMessage = `Your game has been successfully added to your library. +100 Rank Points added to your profile! Invoice: ${itemLines} - Total Paid: Rs. ${total}`;
+      
+      let awardPoints = 100;
+      const gameIds = items.map((i) => i.gameId).filter(Boolean) as number[];
+      if (gameIds.length > 0) {
+        const { data: dbGames } = await supabase
+          .from("games")
+          .select("is_subscription")
+          .in("id", gameIds);
+        if (dbGames?.some((g) => g.is_subscription)) {
+          awardPoints = 200;
+        }
+      }
+
+      notifMessage = `Your game has been successfully added to your library. +${awardPoints} Rank Points added to your profile! Invoice: ${itemLines} - Total Paid: Rs. ${total}`;
     } else if (status === "Verified") {
       notifTitle = "Payment Verified";
       notifMessage = "Payment verified. Preparing your game delivery now.";

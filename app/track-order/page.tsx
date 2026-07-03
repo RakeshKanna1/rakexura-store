@@ -54,6 +54,7 @@ function TrackOrderContent() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showPointsAnimation, setShowPointsAnimation] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [hasSubscription, setHasSubscription] = useState(false);
 
   useEffect(() => {
     async function loadCurrentUser() {
@@ -85,6 +86,19 @@ function TrackOrderContent() {
     const casted = row as TrackedOrder;
     setResult(casted);
     setWhatsappActivated(typeof window !== "undefined" && localStorage.getItem("activated_" + casted.order_ref) === "true");
+
+    let isSub = false;
+    const gameIds = ((casted.items || []) as Array<{ type?: string; game_id?: number }>)
+      .filter((item) => item.type === "game" && item.game_id)
+      .map((item) => item.game_id as number);
+    if (gameIds.length > 0) {
+      const { data: dbGames } = await supabase
+        .from("games")
+        .select("is_subscription")
+        .in("id", gameIds);
+      isSub = dbGames?.some((g) => g.is_subscription) ?? false;
+    }
+    setHasSubscription(isSub);
 
     if (casted.status === "Delivered" || casted.status === "Completed") {
       setShowConfetti(true);
@@ -292,7 +306,7 @@ function TrackOrderContent() {
               {!isRejected && active < 3 && (
                 <div className="mt-3 flex items-center gap-2.5 rounded-lg border border-[#facc15]/15 bg-gradient-to-r from-amber-500/[0.03] to-yellow-500/[0.03] p-3 text-xs text-[#facc15] font-bold">
                   <span className="text-sm">🏆</span>
-                  <span>Rank Points: You will earn <span className="underline font-black">+100 Rank Points</span> upon successful delivery of this order!</span>
+                  <span>Rank Points: You will earn <span className="underline font-black">+{hasSubscription ? "200" : "100"} Rank Points</span> upon successful delivery of this order!</span>
                 </div>
               )}
 
@@ -385,14 +399,14 @@ function TrackOrderContent() {
               </div>
 
               <h3 className="text-2xl font-black text-white bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">
-                +100 Rank Points
+                +{hasSubscription ? "200" : "100"} Rank Points
               </h3>
               <p className="mt-1 text-sm font-bold text-amber-200 uppercase tracking-widest">
                 Loyalty Awarded!
               </p>
               
               <p className="mt-3 text-xs leading-relaxed text-[#9ea6b9]">
-                Your purchase has been verified and delivered. 100 XP points have been successfully added to your Rakexura account profile!
+                Your purchase has been verified and delivered. {hasSubscription ? "200" : "100"} XP points have been successfully added to your Rakexura account profile!
               </p>
 
               <button
