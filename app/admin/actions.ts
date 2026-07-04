@@ -524,6 +524,7 @@ export async function saveGame(formData: FormData) {
     duration: String(formData.get("duration") ?? "").trim() || null,
     original_price: optionalNumber(formData.get("original_price")),
     sale_price: optionalNumber(formData.get("sale_price")),
+    activation_slots: optionalNumber(formData.get("activation_slots")),
     genres: formData.getAll("genres").map(String),
     available_platforms: platforms,
     offer_enabled: formData.get("offer_enabled") === "on",

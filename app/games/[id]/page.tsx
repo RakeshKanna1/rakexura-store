@@ -340,14 +340,26 @@ export default async function GamePage({ params }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {platforms.map((platform) => (
-                  <tr key={platform} className="border-t border-white/[.07]">
-                    <td className="p-4 font-bold">{platform}</td>
-                    <td className="p-4">{formatPrice(platformPrice(game, platform))}</td>
-                    <td className="p-4 text-[#a0a8c0]">Digital assisted delivery</td>
-                    <td className="p-4 text-[#70efbb]">Available</td>
-                  </tr>
-                ))}
+                {platforms.map((platform) => {
+                  const isOutOfSlots = typeof game.activation_slots === "number" && game.activation_slots === 0;
+                  const isLowSlots = typeof game.activation_slots === "number" && game.activation_slots > 0 && game.activation_slots <= 3;
+                  return (
+                    <tr key={platform} className="border-t border-white/[.07]">
+                      <td className="p-4 font-bold">{platform}</td>
+                      <td className="p-4">{formatPrice(platformPrice(game, platform))}</td>
+                      <td className="p-4 text-[#a0a8c0]">Digital assisted delivery</td>
+                      <td className="p-4">
+                        {isOutOfSlots ? (
+                          <span className="text-red-400 font-medium">Out of slots</span>
+                        ) : isLowSlots ? (
+                          <span className="text-amber-400 font-medium">{game.activation_slots} slots left</span>
+                        ) : (
+                          <span className="text-[#70efbb]">Available</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -419,6 +431,14 @@ export default async function GamePage({ params }: Props) {
                   <span className="text-[#7f879d]">Publisher</span>
                   <span className="font-semibold text-white truncate max-w-[65%] text-right" title={game.publisher}>
                     {game.publisher}
+                  </span>
+                </div>
+              )}
+              {typeof game.activation_slots === "number" && (
+                <div className="flex justify-between items-center gap-4">
+                  <span className="text-[#7f879d]">Activation Slots</span>
+                  <span className="font-semibold text-[#ffca55]">
+                    {game.activation_slots > 0 ? `${game.activation_slots} available` : "Out of slots"}
                   </span>
                 </div>
               )}

@@ -47,7 +47,7 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
         <label className="text-sm font-bold md:col-span-2">Short description<textarea name="description" defaultValue={game?.description ?? ""} rows={3} className={`${input} h-auto py-3`} /></label>
         <label className="text-sm font-bold md:col-span-2">Full description<textarea name="long_description" defaultValue={game?.long_description ?? ""} rows={6} className={`${input} h-auto py-3`} /></label>
         
-        {["original_price", "sale_price", "steam_price", "epic_price", "offline_price", "online_price", "xbox_price", "geforce_price"].map((field) => (
+        {["original_price", "sale_price", "steam_price", "epic_price", "offline_price", "online_price", "xbox_price", "geforce_price", "activation_slots"].map((field) => (
           <label key={field} className="text-sm font-bold capitalize">
             {field.replaceAll("_", " ")}
             <input 
