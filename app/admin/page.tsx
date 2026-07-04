@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BarChart3, Boxes, ImageIcon, LifeBuoy, MessageSquareText, PackageCheck, Plus, Send, TicketPercent, Trophy, Users, ArrowUpRight, Layers } from "lucide-react";
+import { BarChart3, Boxes, ImageIcon, LifeBuoy, MessageSquareText, PackageCheck, Plus, Send, TicketPercent, Trophy, Users, ArrowUpRight, Layers, Flame } from "lucide-react";
 import { AdminAccessDenied } from "@/components/admin/access-denied";
 import { AdminOnboarding } from "@/components/admin/admin-onboarding";
 import { createClient } from "@/lib/supabase/server";
@@ -18,7 +18,8 @@ const sections = [
   ["game-requests", "Requests", "Community game demand", Send],
   ["support", "Support", "Customer ticket conversations", LifeBuoy],
   ["media", "Media manager", "Proofs and promotional assets", ImageIcon],
-  ["analytics", "Analytics", "Traffic and sales events", BarChart3]
+  ["analytics", "Analytics", "Traffic and sales events", BarChart3],
+  ["flash-sales", "Flash sales", "Manage countdown sales and discounts", Flame]
 ] as const;
 
 export default async function AdminPage() {

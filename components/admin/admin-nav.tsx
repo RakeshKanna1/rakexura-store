@@ -20,7 +20,8 @@ import {
   TicketPercent, 
   Trophy, 
   Users,
-  Layers
+  Layers,
+  Flame
 } from "lucide-react";
 
 const navigation = [
@@ -33,6 +34,7 @@ const navigation = [
   ["/admin/rewards", "Ranks", Trophy],
   ["/admin/customers", "Customers", Users],
   ["/admin/coupons", "Coupons", TicketPercent],
+  ["/admin/flash-sales", "Flash sales", Flame],
   ["/admin/reviews", "Reviews", MessageSquareText],
   ["/admin/requests", "Vouchers", Trophy],
   ["/admin/game-requests", "Requests", Send],

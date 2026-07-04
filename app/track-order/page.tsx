@@ -10,6 +10,7 @@ import { formatPrice } from "@/lib/utils";
 import { Confetti } from "@/components/common/confetti";
 import type { User } from "@supabase/supabase-js";
 import { AnimatePresence, motion } from "framer-motion";
+import { ReviewForm } from "@/components/reviews/review-form";
 
 type TrackedOrder = { 
   order_id: number; 
@@ -330,6 +331,21 @@ function TrackOrderContent() {
                       <p className="text-[10px] text-[#8991a6] leading-relaxed">
                         Please use these credentials/details to activate or access your game. If you face any issues, click the WhatsApp Help button below.
                       </p>
+                    </div>
+                  )}
+
+                  {/* Customer Review Section */}
+                  {result.items && result.items.length > 0 && (
+                    <div className="mt-6 pt-6 border-t border-white/[.08] space-y-4">
+                      {result.items
+                        .filter((item) => item.game_id)
+                        .map((item) => (
+                          <ReviewForm
+                            key={item.game_id}
+                            gameId={Number(item.game_id)}
+                            gameTitle={item.title}
+                          />
+                        ))}
                     </div>
                   )}
                 </div>

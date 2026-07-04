@@ -999,3 +999,70 @@ export async function sendPushEncouragement() {
 
   return { success: true };
 }
+
+export async function saveFlashSale(formData: FormData) {
+  const supabase = await getAdminClient();
+  const rawId = String(formData.get("id") ?? "");
+  const game_id = Number(formData.get("game_id"));
+  const sale_price = Number(formData.get("sale_price"));
+  const starts_at = String(formData.get("starts_at") ?? "");
+  const ends_at = String(formData.get("ends_at") ?? "");
+  const active = formData.get("active") === "on" || formData.get("active") === "true";
+
+  if (!game_id || isNaN(game_id)) throw new Error("Game is required");
+  if (isNaN(sale_price) || sale_price < 0) throw new Error("Enter a valid sale price");
+  if (!starts_at || !ends_at) throw new Error("Starts at and Ends at times are required");
+
+  const payload = {
+    game_id,
+    sale_price,
+    starts_at: new Date(starts_at).toISOString(),
+    ends_at: new Date(ends_at).toISOString(),
+    active,
+  };
+
+  const query = rawId 
+    ? supabase.from("flash_sales").update(payload).eq("id", Number(rawId)) 
+    : supabase.from("flash_sales").insert(payload);
+
+  const { error } = await query;
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/flash-sales");
+  revalidatePath("/");
+  revalidateTag("games");
+  redirect("/admin/flash-sales");
+}
+
+export async function toggleFlashSale(formData: FormData) {
+  const supabase = await getAdminClient();
+  const id = idFrom(formData);
+  const active = String(formData.get("active")) === "true";
+
+  const { error } = await supabase
+    .from("flash_sales")
+    .update({ active })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/flash-sales");
+  revalidatePath("/");
+  revalidateTag("games");
+}
+
+export async function deleteFlashSale(formData: FormData) {
+  const supabase = await getAdminClient();
+  const id = idFrom(formData);
+
+  const { error } = await supabase
+    .from("flash_sales")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/flash-sales");
+  revalidatePath("/");
+  revalidateTag("games");
+}

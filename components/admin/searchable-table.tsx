@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Search, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { OrderActions } from "@/components/admin/order-actions";
-import { archiveGame, moderateProof, moderateReview, toggleCoupon, updateRequestStatus } from "@/app/admin/actions";
+import { archiveGame, moderateProof, moderateReview, toggleCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale } from "@/app/admin/actions";
 
 type AdminRow = Record<string, unknown> & { id?: number; screenshot_url?: string; proof_url?: string; media_urls?: string[]; media_links?: string[] };
 
@@ -69,6 +69,7 @@ function RowActions({ section, row }: { section: string; row: AdminRow }) {
   if (section === "support") return <Link href={`/dashboard/support/${id}`} className="inline-flex min-h-9 items-center gap-2 rounded border border-white/10 bg-black/20 px-3 text-xs font-bold text-[#f8e38a]"><ExternalLink size={13} /> Open conversation</Link>;
   if (section === "games") return <div className="flex gap-2"><Link href={`/admin/games?edit=${id}`} className="rounded border border-white/10 bg-black/20 px-3 py-2 text-xs font-bold text-[#c8cedc]">Edit</Link><form action={archiveGame}><input type="hidden" name="id" value={id} /><input type="hidden" name="archived" value={String(!row.archived)} /><SubmitButton tone={row.archived ? "positive" : "danger"}>{row.archived ? "Restore" : "Archive"}</SubmitButton></form></div>;
   if (section === "media") return <div className="flex gap-2">{!row.approved && <form action={moderateProof}><input type="hidden" name="id" value={id} /><input type="hidden" name="decision" value="approve" /><SubmitButton tone="positive">Approve</SubmitButton></form>}<form action={moderateProof}><input type="hidden" name="id" value={id} /><input type="hidden" name="decision" value="delete" /><SubmitButton tone="danger">Delete</SubmitButton></form></div>;
+  if (section === "flash-sales") return <div className="flex gap-2"><Link href={`/admin/flash-sales?edit=${id}`} className="rounded border border-white/10 bg-black/20 px-3 py-2 text-xs font-bold text-[#c8cedc]">Edit</Link><form action={toggleFlashSale}><input type="hidden" name="id" value={id} /><input type="hidden" name="active" value={String(!row.active)} /><SubmitButton tone={row.active ? "danger" : "positive"}>{row.active ? "Disable" : "Enable"}</SubmitButton></form><form action={deleteFlashSale}><input type="hidden" name="id" value={id} /><SubmitButton tone="danger">Delete</SubmitButton></form></div>;
   return null;
 }
 

@@ -9,6 +9,7 @@ import { AdminAccessDenied } from "@/components/admin/access-denied";
 import { MediaManager } from "@/components/admin/media-manager";
 import { OrderActions } from "@/components/admin/order-actions";
 import { SearchableTable } from "@/components/admin/searchable-table";
+import { FlashSaleForm } from "@/components/admin/flash-sale-form";
 
 const sources = {
   games: { title: "Game management", table: "games", select: "id,title,steam_price,epic_price,offline_price,online_price,xbox_price,geforce_price,is_subscription,online_activation,duration,archived", order: "id" },
@@ -20,6 +21,7 @@ const sources = {
   requests: { title: "Game requests", table: "game_requests", select: "id,game_name,platform,votes,status,created_at", order: "created_at" },
   media: { title: "Media manager", table: "customer_proofs", select: "id,image_url,caption,proof_type,approved,created_at", order: "created_at" },
   analytics: { title: "Analytics events", table: "analytics_events", select: "id,event_type,event_value,game_id,created_at", order: "created_at" },
+  "flash-sales": { title: "Flash sale management", table: "flash_sales", select: "id,game_id,sale_price,starts_at,ends_at,active", order: "ends_at" },
 } as const;
 
 type AdminRow = Record<string, unknown> & { id?: number; screenshot_url?: string; proof_url?: string; media_urls?: string[]; media_links?: string[] };
@@ -72,6 +74,17 @@ export default async function AdminSection({ params, searchParams }: { params: P
     editingCoupon = coupon;
   }
 
+  let editingFlashSale = null;
+  let gamesList: Array<{ id: number; title: string }> = [];
+  if (section === "flash-sales") {
+    const { data: dbGames } = await supabase.from("games").select("id,title").eq("archived", false).order("title");
+    gamesList = dbGames || [];
+    if (query.edit && /^\d+$/.test(query.edit)) {
+      const { data: flashSale } = await supabase.from("flash_sales").select("id,game_id,sale_price,starts_at,ends_at,active").eq("id", Number(query.edit)).maybeSingle();
+      editingFlashSale = flashSale;
+    }
+  }
+
   if (section === "orders") {
     await Promise.all(rows.map(async (row) => {
       if (!row.screenshot_url) return;
@@ -109,7 +122,7 @@ export default async function AdminSection({ params, searchParams }: { params: P
 
   const hidden = new Set(["screenshot_url", "proof_url", "media_urls", "media_links"]);
   const headers = (rows[0] ? Object.keys(rows[0]) : source.select.split(",")).filter((header) => !hidden.has(header));
-  const hasActions = ["games", "orders", "reviews", "coupons", "requests", "support", "media"].includes(section);
+  const hasActions = ["games", "orders", "reviews", "coupons", "requests", "support", "media", "flash-sales"].includes(section);
 
   return (
     <div className="py-10">
@@ -123,9 +136,24 @@ export default async function AdminSection({ params, searchParams }: { params: P
         </div>
         <span className="rounded bg-white/[.05] px-3 py-2 text-xs font-bold">{rows.length} records</span>
       </div>
+      {section === "flash-sales" && (
+        <aside className="mt-6 flex gap-3 rounded-md border border-[#facc15]/25 bg-[#facc15]/[.07] p-4 text-sm text-[#fbeab8]">
+          <HelpCircle className="mt-0.5 shrink-0" size={18} />
+          <div>
+            <strong className="text-white">How Flash Sales Work</strong>
+            <ul className="mt-1 list-decimal pl-4 space-y-1 leading-6">
+              <li>Choose an active game from the dropdown and set the discounted <b>Sale Price</b> in Rupees.</li>
+              <li>Define the <b>Starts at</b> and <b>Ends at</b> times (this controls when the countdown starts and stops).</li>
+              <li>Ensure the <b>Active</b> toggle is checked.</li>
+              <li>The storefront homepage will automatically display the card with a ticking real-time countdown timer, and hide it when the sale expires.</li>
+            </ul>
+          </div>
+        </aside>
+      )}
       {section === "games" && <GameForm game={editingGame} genres={genres} />}
       {section === "coupons" && <CouponForm coupon={editingCoupon} />}
       {section === "media" && <MediaManager />}
+      {section === "flash-sales" && <FlashSaleForm flashSale={editingFlashSale} games={gamesList} />}
       
       <div className="mt-8">
         <SearchableTable rows={rows} headers={headers} section={section} hasActions={hasActions} />
