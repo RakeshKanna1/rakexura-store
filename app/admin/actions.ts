@@ -1028,6 +1028,36 @@ export async function saveFlashSale(formData: FormData) {
   const { error } = await query;
   if (error) throw new Error(error.message);
 
+  // Send push notification if set to active
+  if (active) {
+    try {
+      const { data: game } = await supabase.from("games").select("title").eq("id", game_id).maybeSingle();
+      const gameTitle = game?.title || "A hot title";
+      const title = "🔥 Flash Sale Alert!";
+      const message = `${gameTitle} is now on Flash Sale for only Rs. ${sale_price}! Get it before the timer ends.`;
+      const link = `/games/${game_id}`;
+      
+      const { data: profiles } = await supabase.from("profiles").select("id");
+      if (profiles && profiles.length > 0) {
+        await supabase.from("notifications").insert(
+          profiles.map(({ id }) => ({
+            user_id: id,
+            title,
+            message,
+            type: "promotion",
+            link
+          }))
+        );
+        
+        Promise.allSettled(
+          profiles.map(({ id }) => sendPushNotification(id, title, message, link))
+        ).catch((err) => console.error("Push delivery error:", err));
+      }
+    } catch (err) {
+      console.error("Failed to send flash sale push updates:", err);
+    }
+  }
+
   revalidatePath("/admin/flash-sales");
   revalidatePath("/");
   revalidateTag("games");
@@ -1045,6 +1075,43 @@ export async function toggleFlashSale(formData: FormData) {
     .eq("id", id);
 
   if (error) throw new Error(error.message);
+
+  // Send push notification if toggled to active
+  if (active) {
+    try {
+      const { data: sale } = await supabase
+        .from("flash_sales")
+        .select("game_id, sale_price, games(title)")
+        .eq("id", id)
+        .maybeSingle();
+        
+      if (sale) {
+        const gameTitle = (sale.games as any)?.title || "A hot title";
+        const title = "🔥 Flash Sale Alert!";
+        const message = `${gameTitle} is now on Flash Sale for only Rs. ${sale.sale_price}! Get it before the timer ends.`;
+        const link = `/games/${sale.game_id}`;
+        
+        const { data: profiles } = await supabase.from("profiles").select("id");
+        if (profiles && profiles.length > 0) {
+          await supabase.from("notifications").insert(
+            profiles.map(({ id }) => ({
+              user_id: id,
+              title,
+              message,
+              type: "promotion",
+              link
+            }))
+          );
+          
+          Promise.allSettled(
+            profiles.map(({ id }) => sendPushNotification(id, title, message, link))
+          ).catch((err) => console.error("Push delivery error:", err));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to send toggle flash sale push updates:", err);
+    }
+  }
 
   revalidatePath("/admin/flash-sales");
   revalidatePath("/");
