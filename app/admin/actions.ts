@@ -1087,7 +1087,7 @@ export async function toggleFlashSale(formData: FormData) {
         .maybeSingle();
         
       if (sale) {
-        const gameTitle = (sale.games as any)?.title || "A hot title";
+        const gameTitle = (sale.games as unknown as { title?: string })?.title || "A hot title";
         const title = "🔥 Flash Sale Alert!";
         const message = `${gameTitle} is now on Flash Sale for only Rs. ${sale.sale_price}! Get it before the timer ends.`;
         const link = `/games/${sale.game_id}`;
