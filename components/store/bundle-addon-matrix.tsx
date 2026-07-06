@@ -49,6 +49,7 @@ export function BundleAddonMatrix({ games, excludeId }: { games: Game[]; exclude
           return (
             <label
               key={g.id}
+              htmlFor={`addon-checkbox-${g.id}`}
               className={`flex items-center gap-3 rounded-md border p-3.5 cursor-pointer transition duration-300 ${
                 isChecked
                   ? "border-[#facc15] bg-[#b89412]/10 shadow-[0_0_15px_rgba(250,204,21,0.15)]"
@@ -56,6 +57,8 @@ export function BundleAddonMatrix({ games, excludeId }: { games: Game[]; exclude
               }`}
             >
               <input
+                id={`addon-checkbox-${g.id}`}
+                name={`addon_checkbox_${g.id}`}
                 type="checkbox"
                 checked={isChecked}
                 onChange={(e) => {

@@ -249,11 +249,13 @@ export function ProductActions({ game }: { game: Game }) {
 
         {/* Polished Minimalist Coupon Input Field inside Game Details */}
         <div className="border-t border-white/[.08] pt-4">
-          <label className="mb-2 flex items-center gap-2 text-xs font-bold text-[#8991a8]">
+          <label htmlFor="loyalty-coupon-input" className="mb-2 flex items-center gap-2 text-xs font-bold text-[#8991a8]">
             <TicketPercent size={14} className="text-[#facc15]" /> Apply Loyalty Coupon
           </label>
           <div className="flex gap-2">
             <input 
+              id="loyalty-coupon-input"
+              name="coupon_code"
               value={couponCode} 
               onChange={(e) => setCouponCode(e.target.value.toUpperCase())} 
               placeholder="DIAMONDFREE" 

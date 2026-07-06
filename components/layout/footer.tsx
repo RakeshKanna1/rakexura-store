@@ -74,10 +74,10 @@ export function Footer() {
             Occasional new-game and deal updates. No noisy daily mail.
           </p>
           <form onSubmit={subscribe} className="flex gap-2">
-            <label className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded border border-white/10 bg-[#0c0c0c] px-3 focus-within:border-[#facc15]/50 transition-colors">
+            <label htmlFor="footer-email-input" className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded border border-white/10 bg-[#0c0c0c] px-3 focus-within:border-[#facc15]/50 transition-colors">
               <Mail size={15} className="text-[#646b7b]" />
               <span className="sr-only">Email address</span>
-              <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" placeholder="Your email" className="min-w-0 flex-1 bg-transparent text-xs text-white outline-none" />
+              <input id="footer-email-input" name="email" value={email} onChange={(event) => setEmail(event.target.value)} type="email" placeholder="Your email" className="min-w-0 flex-1 bg-transparent text-xs text-white outline-none" />
             </label>
             <button className="rounded bg-[#facc15] px-4 text-xs font-black text-black hover:bg-[#fbbf24] active:scale-[0.96] transition-all">Join</button>
           </form>
