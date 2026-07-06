@@ -3,7 +3,14 @@ import { notFound } from "next/navigation";
 import { BundlePurchaseButton } from "@/components/store/bundle-purchase-button";
 import { OfferCountdown } from "@/components/store/offer-countdown";
 import { assetUrl, formatPrice } from "@/lib/utils";
-import { getBundle } from "@/lib/supabase/queries";
+import { getBundle, getBundles } from "@/lib/supabase/queries";
+
+export async function generateStaticParams() {
+  const bundles = await getBundles();
+  return bundles.map((bundle) => ({
+    id: String(bundle.id),
+  }));
+}
 
 export default async function BundlePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

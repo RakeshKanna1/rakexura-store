@@ -8,10 +8,9 @@ import { MediaGallery } from "@/components/store/media-gallery";
 import { ProductActions } from "@/components/store/product-actions";
 import { RecentlyViewedTracker } from "@/components/store/recently-viewed";
 import { assetUrl, formatPrice } from "@/lib/utils";
-import { getGame, getGames } from "@/lib/supabase/queries";
-import { createClient } from "@/lib/supabase/server";
-import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
+import { getGame, getGames, getGameReviews } from "@/lib/supabase/queries";
 import type { Platform, Game } from "@/types/store";
+import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
 import { PremiumAmbientEffect } from "@/components/animations/premium-ambient";
 
 type Props = { params: Promise<{ id: string }> };
@@ -134,6 +133,13 @@ function titleSize(title: string) {
   if (title.length > 30) return "text-[clamp(2.4rem,5.8vw,5.4rem)]";
   if (title.length > 20) return "text-[clamp(2.7rem,6.3vw,6rem)]";
   return "text-[clamp(3rem,7vw,6.8rem)]";
+}
+
+export async function generateStaticParams() {
+  const games = await getGames();
+  return games.map((game) => ({
+    id: String(game.id),
+  }));
 }
 
 export default async function GamePage({ params }: Props) {
@@ -456,14 +462,7 @@ export default async function GamePage({ params }: Props) {
 }
 
 async function ReviewsSection({ gameId }: { gameId: number }) {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("reviews")
-    .select("*")
-    .eq("game_id", gameId)
-    .eq("approved", true)
-    .order("created_at", { ascending: false });
-  const finalReviews = data || [];
+  const finalReviews = await getGameReviews(gameId);
 
   return (
     <section className="premium-panel rounded-md p-6">

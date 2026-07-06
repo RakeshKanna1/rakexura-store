@@ -17,9 +17,8 @@ export function AuthModal({ isOpen, onClose, onContinueAsGuest }: AuthModalProps
   const [loading, setLoading] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
 
-  const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(window.location.pathname)}`;
-
   async function socialLogin(provider: "google" | "discord") {
+    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(window.location.pathname)}`;
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
@@ -36,6 +35,7 @@ export function AuthModal({ isOpen, onClose, onContinueAsGuest }: AuthModalProps
       return toast.error("Enter a valid email address");
     }
     setLoading(true);
+    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(window.location.pathname)}`;
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
