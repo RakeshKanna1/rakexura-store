@@ -13,16 +13,20 @@ export function RealtimeNotifications() {
     let active = true;
 
     async function setupRealtime() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user || !active) return;
-      
-      channel = supabase
-        .channel(`notifications:${user.id}`)
-        .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, (payload) => {
-          const notification = payload.new as NotificationRow;
-          toast(notification.title || "Rakexura update", { description: notification.message });
-        })
-        .subscribe();
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || !active) return;
+        
+        channel = supabase
+          .channel(`notifications:${user.id}`)
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, (payload) => {
+            const notification = payload.new as NotificationRow;
+            toast(notification.title || "Rakexura update", { description: notification.message });
+          })
+          .subscribe();
+      } catch (err) {
+        console.warn("Could not setup realtime notifications:", err);
+      }
     }
 
     void setupRealtime();
