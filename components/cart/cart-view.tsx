@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Heart, Minus, Package, Plus, ShieldCheck, TicketPercent, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/common/empty-state";
 import { createClient } from "@/lib/supabase/client";
@@ -43,8 +43,14 @@ export function CartView() {
   const setBundleQuantity = useCartStore((state) => state.setBundleQuantity);
   const coupon = useCartStore((state) => state.coupon);
   const setCoupon = useCartStore((state) => state.setCoupon);
-  const [code, setCode] = useState(coupon?.code ?? "");
+  const [code, setCode] = useState("");
   const [checking, setChecking] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    if (coupon) setCode(coupon.code);
+  }, [coupon]);
 
   const subtotal = lines.reduce((sum, line) => sum + linePrice(line) * line.quantity, 0) + bundles.reduce((sum, line) => sum + Number(line.bundle.bundle_price) * line.quantity, 0);
   const catalogSavings = lines.reduce((sum, line) => sum + Math.max(0, Number(line.game.original_price ?? linePrice(line)) - linePrice(line)) * line.quantity, 0) + bundles.reduce((sum, line) => sum + Math.max(0, Number(line.bundle.original_price) - Number(line.bundle.bundle_price)) * line.quantity, 0);
@@ -136,6 +142,8 @@ export function CartView() {
     setCoupon({ code: data.code, discount_type: data.discount_type, discount_value: Number(data.discount_value), minimum_order: Number(data.minimum_order ?? 0) });
     toast.success("Coupon applied");
   }
+
+  if (!mounted) return null;
 
   if (!lines.length && !bundles.length) return <EmptyState icon={Heart} title="Your cart is waiting" description="Add a game or combo bundle. Your cart stays available on this device and syncs when you sign in." href="/games" action="Browse games" />;
 

@@ -253,8 +253,10 @@ export function GameCard({
   const platforms = availablePlatforms(game);
 
   const [isMobile, setIsMobile] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768 && !isHighEndDevice());
     };
@@ -269,7 +271,7 @@ export function GameCard({
     onQuickView,
     add,
     toggleWishlist,
-    saved,
+    saved: mounted && saved,
     price,
     original,
     discount,

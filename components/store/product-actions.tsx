@@ -37,7 +37,7 @@ export function ProductActions({ game }: { game: Game }) {
   const lines = useCartStore((state) => state.lines);
   const coupon = useCartStore((state) => state.coupon);
   const setCoupon = useCartStore((state) => state.setCoupon);
-  const [couponCode, setCouponCode] = useState(coupon?.code ?? "");
+  const [couponCode, setCouponCode] = useState("");
   const [checkingCoupon, setCheckingCoupon] = useState(false);
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
@@ -45,14 +45,22 @@ export function ProductActions({ game }: { game: Game }) {
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [checkedAuth, setCheckedAuth] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
       setCheckedAuth(true);
     });
   }, []);
+
+  useEffect(() => {
+    if (mounted && coupon) {
+      setCouponCode(coupon.code);
+    }
+  }, [mounted, coupon]);
 
   // Dynamic validation check for RAKETHREE quantity constraints on the game details page
   useEffect(() => {
@@ -79,8 +87,10 @@ export function ProductActions({ game }: { game: Game }) {
 
   const basePrice = price(game, selected);
   const gameSubtotal = basePrice * quantity;
-  const couponSavings = coupon && gameSubtotal >= coupon.minimum_order ? Math.min(gameSubtotal, coupon.discount_type === "percentage" ? gameSubtotal * coupon.discount_value / 100 : coupon.discount_value) : 0;
+  const activeCoupon = mounted ? coupon : null;
+  const couponSavings = activeCoupon && gameSubtotal >= activeCoupon.minimum_order ? Math.min(gameSubtotal, activeCoupon.discount_type === "percentage" ? gameSubtotal * activeCoupon.discount_value / 100 : activeCoupon.discount_value) : 0;
   const discountedPrice = Math.max(0, gameSubtotal - couponSavings);
+  const isSaved = mounted && saved;
 
   async function checkCoupon() {
     const normalized = couponCode.trim().toUpperCase();
@@ -271,14 +281,14 @@ export function ProductActions({ game }: { game: Game }) {
             </button>
           </div>
           <AnimatePresence>
-            {coupon && (
+            {activeCoupon && (
               <motion.div 
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 className="mt-2 flex items-center justify-between text-[11px] text-[#70efbb]"
               >
-                <span>Coupon &quot;{coupon.code}&quot; applied</span>
+                <span>Coupon &quot;{activeCoupon.code}&quot; applied</span>
                 <button type="button" onClick={() => { setCoupon(null); setCouponCode(""); }} className="underline hover:text-white transition-colors">Remove</button>
               </motion.div>
             )}
@@ -325,7 +335,7 @@ export function ProductActions({ game }: { game: Game }) {
               </AnimatePresence>
             </div>
           </div>
-          <button onClick={() => { toggle(game.id); toast(saved ? "Removed from wishlist" : "Saved to wishlist"); }} className="grid h-11 w-11 place-items-center rounded-md bg-white/[.07]" aria-label="Save game"><Heart size={20} fill={saved ? "currentColor" : "none"} /></button>
+          <button onClick={() => { toggle(game.id); toast(saved ? "Removed from wishlist" : "Saved to wishlist"); }} className="grid h-11 w-11 place-items-center rounded-md bg-white/[.07]" aria-label="Save game"><Heart size={20} fill={isSaved ? "currentColor" : "none"} /></button>
         </div>
 
         {typeof game.activation_slots === "number" && game.activation_slots > 0 && <div className="flex items-center gap-2 rounded-md bg-[#ffb800]/[.06] px-3 py-2 text-xs text-[#ffca55]"><Zap size={15} /> {game.activation_slots} activation slots currently available</div>}
