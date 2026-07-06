@@ -4,10 +4,9 @@ import { fallbackGames } from "@/lib/fallback-data";
 import type { Bundle, CustomerProof, FlashSale, Game, RecentDelivery, Review } from "@/types/store";
 
 function getStaticClient() {
-  return createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
+  return createSupabaseClient(url, key);
 }
 
 export const getGames = unstable_cache(
@@ -58,6 +57,7 @@ export const getBundles = unstable_cache(
 
 export const getBundle = unstable_cache(
   async (id: number): Promise<Bundle | null> => {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return null;
     const supabase = getStaticClient();
     const { data } = await supabase
       .from("bundles")
