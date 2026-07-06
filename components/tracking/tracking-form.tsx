@@ -78,11 +78,11 @@ export function TrackingForm() {
         <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
           <label htmlFor="tracking-form-order-ref" className="text-xs font-bold text-[#aeb5c8]">
             Order reference
-            <input id="tracking-form-order-ref" name="order_ref" value={order} onChange={(event) => setOrder(event.target.value)} placeholder="RKX-2606-000123" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none focus:border-[#facc15]" />
+            <input id="tracking-form-order-ref" name="order_ref" value={order} onChange={(event) => setOrder(event.target.value)} autoComplete="off" placeholder="RKX-2606-000123" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none focus:border-[#facc15]" />
           </label>
           <label htmlFor="tracking-form-phone" className="text-xs font-bold text-[#aeb5c8]">
             WhatsApp number
-            <input id="tracking-form-phone" name="phone" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="91 98765 43210" inputMode="tel" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none focus:border-[#facc15]" />
+            <input id="tracking-form-phone" name="phone" value={phone} onChange={(event) => setPhone(event.target.value)} autoComplete="tel" placeholder="91 98765 43210" inputMode="tel" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none focus:border-[#facc15]" />
           </label>
           <button onClick={track} disabled={loading} className="btn btn-primary mt-auto min-h-12 disabled:opacity-50">
             <Search size={17} />

@@ -275,6 +275,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
                         placeholder="Gamer tag"
+                        autoComplete="name"
                         className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#6974ff] text-white" 
                       />
                     </label>
@@ -286,6 +287,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
+                      autoComplete="email"
                       className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#6974ff] text-white" 
                     />
                   </label>
@@ -307,6 +309,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                       onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
                       placeholder="123456"
                       pattern="[0-9]{6,8}"
+                      autoComplete="one-time-code"
                       className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#6974ff] text-center text-xl font-bold tracking-[0.2em] text-white" 
                     />
                   </label>
