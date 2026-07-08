@@ -148,7 +148,7 @@ export default async function GamePage({ params }: Props) {
   if (!game || game.archived) notFound();
 
   const bannerUrl = assetUrl(game.banner_image || game.cover_image);
-  preload(bannerUrl, { as: "image", fetchPriority: "high" });
+  preload(bannerUrl, { as: "image", fetchPriority: "high", crossOrigin: "anonymous" });
 
   const tags = [...(game.genres ?? []), ...(game.tags ?? [])].slice(0, 7);
   const screenshots = (game.screenshots ?? []).filter(Boolean);
@@ -312,6 +312,7 @@ export default async function GamePage({ params }: Props) {
         className="absolute inset-0 h-full w-full object-cover" 
         loading="eager"
         decoding="sync"
+        crossOrigin="anonymous"
         {...{ fetchPriority: "high" }}
       />
       <div className="absolute inset-0" style={{ background: heroBackground }} />
