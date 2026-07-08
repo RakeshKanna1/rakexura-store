@@ -36,61 +36,42 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
         return;
       }
 
-      // Fetch user profile to get display name
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("display_name")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      const customerName = profile?.display_name || user.email?.split("@")[0] || "Verified customer";
-
-      const { error, status } = await supabase
-        .from("reviews")
-        .insert([
-          {
-            user_id: user.id,
-            game_id: gameId,
-            rating: rating,
-            comment: comment.trim(),
-            message: comment.trim(), // Populate message for compatibility with queries/triggers
-            customer_name: customerName,
-            approved: false, // Sends to moderation queue
-            verified_purchase: true
-          }
-        ]);
+      const { error } = await supabase.rpc("submit_verified_review", {
+        p_game_id: gameId,
+        p_rating: rating,
+        p_message: comment.trim(),
+        p_media_urls: []
+      });
 
       if (error) {
         throw error;
       }
 
-      if (status === 201) {
-        toast.success("We received your request. Thanks for the review!");
-        
-        // Reset state variables completely on completion
-        const submittedComment = comment.trim();
-        setComment("");
-        setRating(5);
-        setHoverRating(null);
-        
-        // Dismiss error/pending toasts and close
-        toast.dismiss();
-        onClose();
+      toast.success("We received your request. Thanks for the review!");
+      
+      // Reset state variables completely on completion
+      const submittedComment = comment.trim();
+      setComment("");
+      setRating(5);
+      setHoverRating(null);
+      
+      // Dismiss error/pending toasts and close
+      toast.dismiss();
+      onClose();
 
-        // Trigger owner push notification (only goes to owner/admin)
-        try {
-          await fetch("/api/notifications/review", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              gameTitle,
-              rating,
-              comment: submittedComment
-            })
-          });
-        } catch (err) {
-          console.error("Failed to trigger review notification:", err);
-        }
+      // Trigger owner push notification (only goes to owner/admin)
+      try {
+        await fetch("/api/notifications/review", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            gameTitle,
+            rating,
+            comment: submittedComment
+          })
+        });
+      } catch (err) {
+        console.error("Failed to trigger review notification:", err);
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to submit review");
