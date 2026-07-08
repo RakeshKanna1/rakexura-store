@@ -11,6 +11,7 @@ const supabaseHostname = (() => {
 })();
 
 const nextConfig: NextConfig = {
+  crossOrigin: "anonymous",
   images: {
     unoptimized: true,
     remotePatterns: [
