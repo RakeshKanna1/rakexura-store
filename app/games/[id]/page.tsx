@@ -1,6 +1,6 @@
 import { Suspense, type CSSProperties } from "react";
+import { preload } from "react-dom";
 import type { Metadata } from "next";
-import Image from "next/image";
 import { BadgeCheck, Check, KeyRound, MonitorCog, ShieldCheck, Star, Zap } from "lucide-react";
 import { notFound } from "next/navigation";
 import { GameShelf } from "@/components/store/game-shelf";
@@ -146,6 +146,9 @@ export default async function GamePage({ params }: Props) {
   const { id } = await params;
   const game = await getGame(Number(id));
   if (!game || game.archived) notFound();
+
+  const bannerUrl = assetUrl(game.banner_image || game.cover_image);
+  preload(bannerUrl, { as: "image", fetchPriority: "high" });
 
   const tags = [...(game.genres ?? []), ...(game.tags ?? [])].slice(0, 7);
   const screenshots = (game.screenshots ?? []).filter(Boolean);
@@ -303,7 +306,14 @@ export default async function GamePage({ params }: Props) {
     {premiumTheme && <PremiumAmbientEffect theme={premiumTheme} />}
     <RecentlyViewedTracker gameId={game.id} />
     <section className={`game-detail-hero relative min-h-[560px] overflow-hidden rounded-xl border ${heroBorderClass}`}>
-      <Image src={assetUrl(game.banner_image || game.cover_image)} alt={game.title} fill priority className="object-cover" sizes="100vw" />
+      <img 
+        src={bannerUrl} 
+        alt={game.title} 
+        className="absolute inset-0 h-full w-full object-cover" 
+        loading="eager"
+        decoding="sync"
+        {...{ fetchPriority: "high" }}
+      />
       <div className="absolute inset-0" style={{ background: heroBackground }} />
       <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-end p-7 md:p-14">
         {game.is_premium && (
