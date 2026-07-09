@@ -7,6 +7,8 @@
 
 .scroller {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   white-space: nowrap;
   text-align: center;
   font-size: 2.25rem;
@@ -15,9 +17,11 @@
   will-change: transform;
 }
 
-.scroller span {
+.scroller > div {
   flex-shrink: 0;
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
 }
 

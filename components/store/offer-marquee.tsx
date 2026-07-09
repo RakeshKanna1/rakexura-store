@@ -35,7 +35,7 @@ export async function OfferMarquee() {
 
   // Render a single joined row of items inside the parallax scroll track
   const marqueeContent = (
-    <div className="flex items-center">
+    <>
       {messages.map((item, index) => {
         const Icon = iconMap[item.icon_key] ?? Sparkles;
         const badgeText = badgeMap[item.icon_key] || "INFO";
@@ -52,7 +52,7 @@ export async function OfferMarquee() {
           </span>
         );
       })}
-    </div>
+    </>
   );
 
   return (

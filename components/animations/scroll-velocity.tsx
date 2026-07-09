@@ -12,7 +12,7 @@ import {
 } from 'framer-motion';
 import './scroll-velocity.css';
 
-function useElementWidth(ref: React.RefObject<HTMLSpanElement | null>) {
+function useElementWidth(ref: React.RefObject<HTMLDivElement | null>) {
   const [width, setWidth] = useState(0);
 
   useLayoutEffect(() => {
@@ -73,7 +73,7 @@ function VelocityText({
     { clamp: false }
   );
 
-  const copyRef = useRef<HTMLSpanElement>(null);
+  const copyRef = useRef<HTMLDivElement>(null);
   const copyWidth = useElementWidth(copyRef);
 
   function wrap(min: number, max: number, v: number) {
@@ -101,19 +101,19 @@ function VelocityText({
     baseX.set(baseX.get() + moveBy);
   });
 
-  const spans = [];
+  const divs = [];
   for (let i = 0; i < numCopies; i++) {
-    spans.push(
-      <span className={className} key={i} ref={i === 0 ? copyRef : null}>
+    divs.push(
+      <div className={className} key={i} ref={i === 0 ? copyRef : null}>
         {children}
-      </span>
+      </div>
     );
   }
 
   return (
     <div className={parallaxClassName} style={parallaxStyle}>
       <motion.div className={scrollerClassName} style={{ x, ...scrollerStyle }}>
-        {spans}
+        {divs}
       </motion.div>
     </div>
   );
