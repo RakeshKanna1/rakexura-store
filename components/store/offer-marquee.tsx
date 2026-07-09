@@ -66,7 +66,6 @@ export async function OfferMarquee() {
         numCopies={4} 
         stiffness={300}
         damping={40}
-        scrollerClassName="flex items-center" 
       />
     </aside>
   );
