@@ -18,8 +18,10 @@ export function HeroCarousel({ games }: { games: Game[] }) {
   const [active, setActive] = useState(0);
   const swiperRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [isMobile, setIsMobile] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -49,10 +51,12 @@ export function HeroCarousel({ games }: { games: Game[] }) {
           {games.map((game, index) => (
             <SwiperSlide key={game.id}>
               <article className="hero-frame relative min-h-[420px] overflow-hidden rounded-xl md:min-h-[570px]">
-                {!isMobile && active === index && game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i) ? (
-                  <video src={game.trailer_url} poster={assetUrl(game.banner_image || game.cover_image)} autoPlay muted loop playsInline className="hero-media absolute inset-0 h-full w-full object-cover" />
-                ) : (
-                  <Image src={assetUrl(game.banner_image || game.cover_image)} alt="" fill priority={index === 0} className="hero-media object-cover" sizes="100vw" />
+                {/* Always render the static Image first for fast SSR and LCP priority */}
+                <Image src={assetUrl(game.banner_image || game.cover_image)} alt="" fill priority={index === 0} className="hero-media object-cover" sizes="100vw" />
+                
+                {/* Overlay video player client-side after hydration on desktop viewports */}
+                {mounted && !isMobile && active === index && game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i) && (
+                  <video src={game.trailer_url} autoPlay muted loop playsInline className="hero-media absolute inset-0 h-full w-full object-cover z-0" />
                 )}
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,11,.97)_0%,rgba(3,5,11,.68)_38%,rgba(3,5,11,.08)_78%),linear-gradient(0deg,rgba(3,5,11,.8),transparent_50%)]" />
                 <motion.div key={`${active}-${game.id}`} initial={{ opacity: 0, y: 24 }} animate={active === index ? { opacity: 1, y: 0 } : { opacity: .75, y: 12 }} transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} className="relative z-10 flex min-h-[420px] max-w-4xl flex-col justify-end p-5 pb-16 pt-8 md:min-h-[570px] md:justify-end md:pb-20 md:pt-14 md:px-14">
