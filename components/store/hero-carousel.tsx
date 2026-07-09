@@ -19,6 +19,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
   const swiperRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [isMobile, setIsMobile] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [loadVideo, setLoadVideo] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -27,7 +28,21 @@ export function HeroCarousel({ games }: { games: Game[] }) {
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+
+    const handleLoad = () => {
+      setTimeout(() => setLoadVideo(true), 1500);
+    };
+
+    if (document.readyState === "complete") {
+      setTimeout(() => setLoadVideo(true), 1500);
+    } else {
+      window.addEventListener("load", handleLoad);
+    }
+
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+      window.removeEventListener("load", handleLoad);
+    };
   }, []);
 
   if (!games.length) return null;
@@ -56,7 +71,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
 
                 
                 {/* Overlay video player client-side after hydration on desktop viewports */}
-                {mounted && !isMobile && active === index && game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i) && (
+                {mounted && !isMobile && loadVideo && active === index && game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i) && (
                   <video src={game.trailer_url} autoPlay muted loop playsInline className="hero-media absolute inset-0 h-full w-full object-cover z-0" />
                 )}
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,11,.97)_0%,rgba(3,5,11,.68)_38%,rgba(3,5,11,.08)_78%),linear-gradient(0deg,rgba(3,5,11,.8),transparent_50%)]" />
