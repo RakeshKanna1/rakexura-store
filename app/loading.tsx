@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { DecryptedText } from "@/components/animations/decrypted-text";
 
 export default function Loading() {
   return (
@@ -29,11 +30,11 @@ export default function Loading() {
           </div>
         </div>
 
-        <strong className="mt-8 block text-lg font-black tracking-[0.25em] text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-200 animate-pulse">
-          RAKEXURA
+        <strong className="mt-8 block text-lg font-black tracking-[0.25em] text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-200">
+          <DecryptedText text="RAKEXURA" delay={150} speed={40} />
         </strong>
         <p className="mt-2 text-xs tracking-[0.15em] text-[#8f96a8] font-semibold uppercase opacity-75">
-          Entering Premium Marketplace
+          <DecryptedText text="ENTERING PREMIUM MARKETPLACE" delay={450} speed={25} />
         </p>
       </div>
     </div>
