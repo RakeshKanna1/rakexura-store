@@ -306,6 +306,7 @@ export default async function GamePage({ params }: Props) {
     {premiumTheme && <PremiumAmbientEffect theme={premiumTheme} />}
     <RecentlyViewedTracker gameId={game.id} />
     <section className={`game-detail-hero relative min-h-[560px] overflow-hidden rounded-xl border ${heroBorderClass}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img 
         src={bannerUrl} 
         alt={game.title} 

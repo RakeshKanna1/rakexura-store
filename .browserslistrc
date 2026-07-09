@@ -1,0 +1,9 @@
+# Browserslist configuration for modern browsers
+# Drops support for dead/legacy browsers (like IE 11) to save on polyfills and JS bundle size
+
+> 0.5%
+last 2 versions
+Firefox ESR
+not dead
+not IE 11
+not op_mini all

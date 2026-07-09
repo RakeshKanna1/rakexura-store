@@ -3,10 +3,14 @@ import { unstable_cache } from "next/cache";
 import { fallbackGames } from "@/lib/fallback-data";
 import type { Bundle, CustomerProof, FlashSale, Game, RecentDelivery, Review } from "@/types/store";
 
+let staticClient: ReturnType<typeof createSupabaseClient> | null = null;
+
 function getStaticClient() {
+  if (staticClient) return staticClient;
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
-  return createSupabaseClient(url, key);
+  staticClient = createSupabaseClient(url, key);
+  return staticClient;
 }
 
 export const getGames = unstable_cache(
@@ -25,8 +29,8 @@ export const getGames = unstable_cache(
   { revalidate: 60, tags: ["games"] }
 );
 
-export const getGame = unstable_cache(
-  async (id: number): Promise<Game | null> => {
+export const getGame = (id: number) => unstable_cache(
+  async (): Promise<Game | null> => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return fallbackGames.find((game) => game.id === id) ?? null;
     const supabase = getStaticClient();
     const { data } = await supabase.from("games").select("*").eq("id", id).maybeSingle();
@@ -35,9 +39,9 @@ export const getGame = unstable_cache(
     }
     return data as Game | null;
   },
-  ["game-detail"],
+  ["game-detail", String(id)],
   { revalidate: 60, tags: ["games"] }
-);
+)();
 
 export const getBundles = unstable_cache(
   async (): Promise<Bundle[]> => {
@@ -55,8 +59,8 @@ export const getBundles = unstable_cache(
   { revalidate: 60, tags: ["bundles"] }
 );
 
-export const getBundle = unstable_cache(
-  async (id: number): Promise<Bundle | null> => {
+export const getBundle = (id: number) => unstable_cache(
+  async (): Promise<Bundle | null> => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return null;
     const supabase = getStaticClient();
     const { data } = await supabase
@@ -68,9 +72,9 @@ export const getBundle = unstable_cache(
       .maybeSingle();
     return data as Bundle | null;
   },
-  ["bundle-detail"],
+  ["bundle-detail", String(id)],
   { revalidate: 60, tags: ["bundles"] }
-);
+)();
 
 export const getReviews = unstable_cache(
   async (limit = 8): Promise<Review[]> => {
@@ -88,16 +92,16 @@ export const getReviews = unstable_cache(
   { revalidate: 60, tags: ["reviews"] }
 );
 
-export const getGameReviews = unstable_cache(
-  async (gameId: number, limit = 10): Promise<Review[]> => {
+export const getGameReviews = (gameId: number, limit = 10) => unstable_cache(
+  async (): Promise<Review[]> => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return [];
     const supabase = getStaticClient();
     const { data } = await supabase.from("reviews").select("*, games(title)").eq("game_id", gameId).eq("approved", true).order("created_at", { ascending: false }).limit(limit);
     return (data ?? []) as Review[];
   },
-  ["game-reviews-list"],
+  ["game-reviews-list", String(gameId), String(limit)],
   { revalidate: 60, tags: ["reviews"] }
-);
+)();
 
 export const getFlashSales = unstable_cache(
   async (): Promise<FlashSale[]> => {

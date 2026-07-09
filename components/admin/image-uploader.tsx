@@ -35,5 +35,58 @@ export function ImageUploader({ name, label, initial, type }: { name: string; la
     finally { setUploading(false); }
   }
   function drop(event: DragEvent<HTMLLabelElement>) { event.preventDefault(); void upload(event.dataTransfer.files[0]); }
-  return <div className={type === "banner" ? "md:col-span-2" : ""}><label className="text-sm font-bold">{label}<input name={name} value={value} onChange={(event) => setValue(event.target.value)} placeholder={type === "cover" ? "/Assets/Featured/game.webp" : "/Assets/Banners/game.webp"} className="mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm outline-none focus:border-[#facc15]" /></label><label onDragOver={(event) => event.preventDefault()} onDrop={drop} className={`mt-3 flex cursor-pointer items-center justify-center overflow-hidden rounded-md border border-dashed border-white/15 bg-black/20 transition hover:border-[#facc15]/50 ${type === "cover" ? "aspect-[3/4] max-w-[230px]" : "aspect-video w-full"}`}>{value ? <span className="relative block h-full w-full"><img src={value} alt={`${label} preview`} className="object-cover w-full h-full rounded-lg" /><span className="absolute inset-x-2 bottom-2 rounded bg-black/75 px-3 py-2 text-center text-xs">Replace image</span></span> : <span className="flex flex-col items-center gap-2 p-5 text-center text-xs text-[#8f96a8]">{uploading ? <Loader2 className="animate-spin text-[#facc15]" /> : <ImageUp className="text-[#facc15]" />}Drop or choose image<small>{dimensions[0]} × {dimensions[1]} WebP output</small></span>}<input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploading} onChange={(event) => void upload(event.target.files?.[0])} /></label></div>;
+  return (
+    <div className={type === "banner" ? "md:col-span-2" : ""}>
+      <label className="text-sm font-bold">
+        {label}
+        <input
+          name={name}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          placeholder={type === "cover" ? "/Assets/Featured/game.webp" : "/Assets/Banners/game.webp"}
+          className="mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm outline-none focus:border-[#facc15]"
+        />
+      </label>
+      <label
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={drop}
+        className={`mt-3 flex cursor-pointer items-center justify-center overflow-hidden rounded-md border border-dashed border-white/15 bg-black/20 transition hover:border-[#facc15]/50 ${
+          type === "cover" ? "aspect-[3/4] max-w-[230px]" : "aspect-video w-full"
+        }`}
+      >
+        {value ? (
+          <span className="relative block h-full w-full">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={value}
+              alt={`${label} preview`}
+              className="object-cover w-full h-full rounded-lg"
+            />
+            <span className="absolute inset-x-2 bottom-2 rounded bg-black/75 px-3 py-2 text-center text-xs">
+              Replace image
+            </span>
+          </span>
+        ) : (
+          <span className="flex flex-col items-center gap-2 p-5 text-center text-xs text-[#8f96a8]">
+            {uploading ? (
+              <Loader2 className="animate-spin text-[#facc15]" />
+            ) : (
+              <ImageUp className="text-[#facc15]" />
+            )}
+            Drop or choose image
+            <small>
+              {dimensions[0]} × {dimensions[1]} WebP output
+            </small>
+          </span>
+        )}
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="sr-only"
+          disabled={uploading}
+          onChange={(event) => void upload(event.target.files?.[0])}
+        />
+      </label>
+    </div>
+  );
 }

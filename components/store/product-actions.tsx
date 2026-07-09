@@ -219,7 +219,31 @@ export function ProductActions({ game }: { game: Game }) {
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-[#8991a8]">Choose platform</span>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {platforms.map((platform) => <button key={platform} onClick={() => setSelected(platform)} className={`rounded-md border px-3 py-3 text-sm font-semibold transition ${selected === platform ? "border-white bg-white text-black" : "border-white/10 bg-black/20 text-[#bbc1d1] hover:border-white/25"}`}>{game.is_subscription ? (game.duration ? `${platform} (${game.duration})` : (platform === "Steam" ? "1 Month" : platform === "Epic" ? "3 Months" : platform === "Offline" ? "12 Months" : platform)) : platform}</button>)}
+            {platforms.map((platform) => (
+              <button
+                key={platform}
+                type="button"
+                suppressHydrationWarning
+                onClick={() => setSelected(platform)}
+                className={`rounded-md border px-3 py-3 text-sm font-semibold transition ${
+                  selected === platform
+                    ? "border-white bg-white text-black"
+                    : "border-white/10 bg-black/20 text-[#bbc1d1] hover:border-white/25"
+                }`}
+              >
+                {game.is_subscription
+                  ? game.duration
+                    ? `${platform} (${game.duration})`
+                    : platform === "Steam"
+                    ? "1 Month"
+                    : platform === "Epic"
+                    ? "3 Months"
+                    : platform === "Offline"
+                    ? "12 Months"
+                    : platform
+                  : platform}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -266,6 +290,7 @@ export function ProductActions({ game }: { game: Game }) {
             <input 
               id="loyalty-coupon-input"
               name="coupon_code"
+              suppressHydrationWarning
               value={couponCode} 
               onChange={(e) => setCouponCode(e.target.value.toUpperCase())} 
               placeholder="DIAMONDFREE" 
@@ -273,6 +298,7 @@ export function ProductActions({ game }: { game: Game }) {
             />
             <button 
               type="button" 
+              suppressHydrationWarning
               onClick={checkCoupon} 
               disabled={checkingCoupon} 
               className="btn btn-secondary h-10 min-h-10 px-3 text-xs font-semibold"
@@ -335,7 +361,18 @@ export function ProductActions({ game }: { game: Game }) {
               </AnimatePresence>
             </div>
           </div>
-          <button onClick={() => { toggle(game.id); toast(saved ? "Removed from wishlist" : "Saved to wishlist"); }} className="grid h-11 w-11 place-items-center rounded-md bg-white/[.07]" aria-label="Save game"><Heart size={20} fill={isSaved ? "currentColor" : "none"} /></button>
+          <button
+            type="button"
+            suppressHydrationWarning
+            onClick={() => {
+              toggle(game.id);
+              toast(saved ? "Removed from wishlist" : "Saved to wishlist");
+            }}
+            className="grid h-11 w-11 place-items-center rounded-md bg-white/[.07]"
+            aria-label="Save game"
+          >
+            <Heart size={20} fill={isSaved ? "currentColor" : "none"} />
+          </button>
         </div>
 
         {typeof game.activation_slots === "number" && game.activation_slots > 0 && <div className="flex items-center gap-2 rounded-md bg-[#ffb800]/[.06] px-3 py-2 text-xs text-[#ffca55]"><Zap size={15} /> {game.activation_slots} activation slots currently available</div>}
@@ -346,6 +383,7 @@ export function ProductActions({ game }: { game: Game }) {
           <div className="flex items-center gap-3">
             <button
               type="button"
+              suppressHydrationWarning
               disabled={quantity <= 1}
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
               className="flex h-8 w-8 items-center justify-center rounded-md border border-white/10 bg-black/20 text-sm font-semibold transition hover:border-white/20 disabled:opacity-40 disabled:hover:border-white/10 text-white animate-pulse-slow"
@@ -355,6 +393,7 @@ export function ProductActions({ game }: { game: Game }) {
             <span className="w-8 text-center text-sm font-bold text-white">{quantity}</span>
             <button
               type="button"
+              suppressHydrationWarning
               disabled={quantity >= 5}
               onClick={() => setQuantity((q) => Math.min(5, q + 1))}
               className="flex h-8 w-8 items-center justify-center rounded-md border border-white/10 bg-black/20 text-sm font-semibold transition hover:border-white/20 disabled:opacity-40 disabled:hover:border-white/10 text-white"
@@ -367,6 +406,8 @@ export function ProductActions({ game }: { game: Game }) {
         <div className="grid grid-cols-1 gap-2 min-[430px]:grid-cols-2">
           {game.out_of_stock ? (
             <Button 
+              type="button"
+              suppressHydrationWarning
               className="w-full border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20 min-[430px]:col-span-2" 
               onClick={() => { 
                 toast.info("This game is currently out of stock. Please wait for some time, we will notify you once it becomes available!", {
@@ -379,6 +420,8 @@ export function ProductActions({ game }: { game: Game }) {
           ) : (
             <>
               <Button 
+                type="button"
+                suppressHydrationWarning
                 className="w-full border border-white/10 bg-white/[.06] text-white hover:bg-white/[.1]" 
                 onClick={() => { 
                   const action = () => {
@@ -397,6 +440,8 @@ export function ProductActions({ game }: { game: Game }) {
                 <ShoppingBag size={18} /> Add to cart
               </Button>
               <Button 
+                type="button"
+                suppressHydrationWarning
                 className="w-full" 
                 onClick={() => { 
                   const action = () => {
@@ -446,6 +491,7 @@ export function ProductActions({ game }: { game: Game }) {
               }}
               className="rounded-md border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-xs font-bold text-white hover:bg-white/[0.1] active:scale-95 transition-all"
               type="button"
+              suppressHydrationWarning
             >
               Options
             </button>
@@ -475,6 +521,7 @@ export function ProductActions({ game }: { game: Game }) {
                   : "bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20"
               }`}
               type="button"
+              suppressHydrationWarning
             >
               {game.out_of_stock ? "Out of Stock" : "Buy Now"}
             </button>

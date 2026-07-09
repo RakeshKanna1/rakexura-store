@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 // Helper to parse environment variables from .env.local
-const envContent = fs.readFileSync(path.resolve(__dirname, ".env.local"), "utf8");
+const envContent = fs.readFileSync(path.resolve(process.cwd(), ".env.local"), "utf8");
 const env: Record<string, string> = {};
 envContent.split("\n").forEach((line) => {
   const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);

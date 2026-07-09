@@ -136,6 +136,7 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
             {/* Card Image */}
             <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#05060b]">
               {coverUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={coverUrl}
                   alt={gameTitle}
@@ -304,6 +305,7 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                   return (
                     <div key={`${row.id}-${gameId}-${item.platform}`} className="flex gap-3 rounded border border-white/[.05] bg-black/20 p-3">
                       <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-[#08090c]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={assetUrl(game.cover_image)} alt="" className="h-full w-full object-cover" />
                       </div>
                       <div className="min-w-0 flex-1 flex flex-col justify-between">
