@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { assetUrl, formatPrice } from "@/lib/utils";
 import type { FlashSale } from "@/types/store";
+import { BorderGlow } from "@/components/animations/border-glow";
 
 function remaining(end: string, now: number) {
   const distance = Math.max(0, new Date(end).getTime() - now);
@@ -50,26 +51,38 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
           const game = sale.games;
           if (!game) return null;
           return (
-            <Link href={`/games/${game.id}`} key={sale.id} className="premium-panel group grid min-h-56 grid-cols-[40%_1fr] overflow-hidden rounded-md">
-              <div className="relative">
-                <Image src={assetUrl(game.cover_image)} alt="" fill className="object-cover transition duration-500 group-hover:scale-105" />
-              </div>
-              <div className="flex flex-col justify-center p-5">
-                <span className="text-[10px] font-black uppercase tracking-wider text-[#ffca55]">Limited deal</span>
-                <h3 className="mt-2 line-clamp-2 font-black">{game.title}</h3>
-                <strong className="mt-4 text-2xl">{formatPrice(sale.sale_price)}</strong>
-                <div className="mt-4 flex gap-1.5">
-                  {[[timer.h, "H"], [timer.m, "M"], [timer.s, "S"]].map(([value, label]) => (
-                    <span key={label} className="min-w-11 rounded bg-black/35 px-2 py-2 text-center text-xs">
-                      <b className="block text-white">
-                        {mounted ? String(value).padStart(2, "0") : "--"}
-                      </b>
-                      <small className="text-[#7f879d]">{label}</small>
-                    </span>
-                  ))}
+            <BorderGlow
+              key={sale.id}
+              edgeSensitivity={40}
+              glowColor="45 100 50"
+              backgroundColor="#0c0c0c"
+              borderRadius={6}
+              glowRadius={28}
+              glowIntensity={1.2}
+              colors={['#ffca55', '#facc15', '#b59241']}
+              className="w-full h-full"
+            >
+              <Link href={`/games/${game.id}`} className="group grid min-h-56 grid-cols-[40%_1fr] overflow-hidden w-full h-full">
+                <div className="relative">
+                  <Image src={assetUrl(game.cover_image)} alt="" fill className="object-cover transition duration-500 group-hover:scale-105" />
                 </div>
-              </div>
-            </Link>
+                <div className="flex flex-col justify-center p-5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-[#ffca55]">Limited deal</span>
+                  <h3 className="mt-2 line-clamp-2 font-black">{game.title}</h3>
+                  <strong className="mt-4 text-2xl">{formatPrice(sale.sale_price)}</strong>
+                  <div className="mt-4 flex gap-1.5">
+                    {[[timer.h, "H"], [timer.m, "M"], [timer.s, "S"]].map(([value, label]) => (
+                      <span key={label} className="min-w-11 rounded bg-black/35 px-2 py-2 text-center text-xs">
+                        <b className="block text-white">
+                          {mounted ? String(value).padStart(2, "0") : "--"}
+                        </b>
+                        <small className="text-[#7f879d]">{label}</small>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </Link>
+            </BorderGlow>
           );
         })}
       </div>
