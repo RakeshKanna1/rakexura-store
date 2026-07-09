@@ -39,7 +39,7 @@ export const viewport: Viewport = { themeColor: "#05070f", colorScheme: "dark", 
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={geist.variable}>
+    <html lang="en" suppressHydrationWarning className={geist.variable} data-scroll-behavior="smooth">
       <body className={geist.className}>
         <AppProviders>
           <MouseSpotlight />
