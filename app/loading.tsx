@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { DecryptedText } from "@/components/animations/decrypted-text";
+import { ShinyText } from "@/components/animations/shiny-text";
 
 export default function Loading() {
   return (
@@ -30,11 +30,11 @@ export default function Loading() {
           </div>
         </div>
 
-        <strong className="mt-8 block text-lg font-black tracking-[0.25em] text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-200">
-          <DecryptedText text="RAKEXURA" delay={150} speed={40} />
+        <strong className="mt-8 block text-lg font-black tracking-[0.25em]">
+          <ShinyText text="RAKEXURA" type="gold" speed={2.8} />
         </strong>
-        <p className="mt-2 text-xs tracking-[0.15em] text-[#8f96a8] font-semibold uppercase opacity-75">
-          <DecryptedText text="ENTERING PREMIUM MARKETPLACE" delay={450} speed={25} />
+        <p className="mt-2 text-xs tracking-[0.15em] font-semibold uppercase opacity-75">
+          <ShinyText text="ENTERING PREMIUM MARKETPLACE" type="gray" speed={3.2} />
         </p>
       </div>
     </div>
