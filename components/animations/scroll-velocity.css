@@ -11,9 +11,6 @@
   flex-wrap: nowrap;
   white-space: nowrap;
   text-align: center;
-  font-size: 2.25rem;
-  font-weight: bold;
-  letter-spacing: -0.02em;
   will-change: transform;
 }
 
@@ -23,11 +20,4 @@
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: center;
-}
-
-@media (min-width: 768px) {
-  .scroller {
-    font-size: 5rem;
-    line-height: 5rem;
-  }
 }
