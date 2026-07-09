@@ -9,6 +9,7 @@ import { Header } from "@/components/layout/header";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { BackButton } from "@/components/layout/back-button";
 import { MouseSpotlight } from "@/components/animations/mouse-spotlight";
+import { ClickSpark } from "@/components/animations/click-spark";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { WhatsAppFloat } from "@/components/common/whatsapp-float";
 import { WhatsAppOnboardingModal } from "@/components/layout/whatsapp-onboarding-modal";
@@ -45,37 +46,39 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning className={geist.variable} data-scroll-behavior="smooth">
       <body className={geist.className}>
-        <AppProviders>
-          <MouseSpotlight />
-          <CartDrawer />
-          <Header />
-          <div className="relative overflow-hidden border-b border-white/[0.06] bg-[#05070f] py-2 text-center text-[11px] font-semibold tracking-wider text-[#d1d5db]">
-            {/* Soft black overlay */}
-            <div className="absolute inset-0 bg-black/45" />
-            
-            {/* Subtle premium gold radial glow background */}
-            <div className="absolute -inset-x-10 top-0 bottom-0 bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.06),transparent_70%)] pointer-events-none" />
+        <ClickSpark sparkColor="#facc15" sparkSize={10} sparkRadius={24} sparkCount={10} duration={450}>
+          <AppProviders>
+            <MouseSpotlight />
+            <CartDrawer />
+            <Header />
+            <div className="relative overflow-hidden border-b border-white/[0.06] bg-[#05070f] py-2 text-center text-[11px] font-semibold tracking-wider text-[#d1d5db]">
+              {/* Soft black overlay */}
+              <div className="absolute inset-0 bg-black/45" />
+              
+              {/* Subtle premium gold radial glow background */}
+              <div className="absolute -inset-x-10 top-0 bottom-0 bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.06),transparent_70%)] pointer-events-none" />
 
-            {/* Content container */}
-            <div className="relative z-10 flex items-center justify-center gap-1.5 px-4">
-              <span>🔥</span>
-              <strong className="text-[#facc15] font-black drop-shadow-[0_0_8px_rgba(250,204,21,0.25)]">
-                COMBO DEALS:
-              </strong>
-              <span className="text-white/80">Save big on curated game collections!</span>
-              <Link href="/bundles" className="ml-1 text-[#facc15] underline hover:text-[#fbbf24] transition-colors font-bold drop-shadow-[0_0_8px_rgba(250,204,21,0.15)]">
-                View Bundles &rarr;
-              </Link>
+              {/* Content container */}
+              <div className="relative z-10 flex items-center justify-center gap-1.5 px-4">
+                <span>🔥</span>
+                <strong className="text-[#facc15] font-black drop-shadow-[0_0_8px_rgba(250,204,21,0.25)]">
+                  COMBO DEALS:
+                </strong>
+                <span className="text-white/80">Save big on curated game collections!</span>
+                <Link href="/bundles" className="ml-1 text-[#facc15] underline hover:text-[#fbbf24] transition-colors font-bold drop-shadow-[0_0_8px_rgba(250,204,21,0.15)]">
+                  View Bundles &rarr;
+                </Link>
+              </div>
             </div>
-          </div>
-          <main><BackButton />{children}</main>
-          <Footer />
-          <WhatsAppFloat />
-          <WhatsAppOnboardingModal />
-          <MobileNav />
-          <MobilePromptManager />
-          <Toaster theme="dark" richColors position="top-center" />
-        </AppProviders>
+            <main><BackButton />{children}</main>
+            <Footer />
+            <WhatsAppFloat />
+            <WhatsAppOnboardingModal />
+            <MobileNav />
+            <MobilePromptManager />
+            <Toaster theme="dark" richColors position="top-center" />
+          </AppProviders>
+        </ClickSpark>
       </body>
     </html>
   );

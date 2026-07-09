@@ -10,6 +10,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { assetUrl, formatPrice, lowestPrice } from "@/lib/utils";
 import type { Game } from "@/types/store";
+import { BlurText } from "@/components/animations/blur-text";
 
 const AUTOPLAY_DELAY = 6500;
 
@@ -56,7 +57,16 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,11,.97)_0%,rgba(3,5,11,.68)_38%,rgba(3,5,11,.08)_78%),linear-gradient(0deg,rgba(3,5,11,.8),transparent_50%)]" />
                 <motion.div key={`${active}-${game.id}`} initial={{ opacity: 0, y: 24 }} animate={active === index ? { opacity: 1, y: 0 } : { opacity: .75, y: 12 }} transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} className="relative z-10 flex min-h-[420px] max-w-4xl flex-col justify-end p-5 pb-16 pt-8 md:min-h-[570px] md:justify-end md:pb-20 md:pt-14 md:px-14">
                   <p className="eyebrow mb-4">Rakexura spotlight</p>
-                  <h1 className="max-w-md text-5xl md:text-6xl lg:text-[64px] font-extrabold tracking-tight leading-[1.05]">{game.title}</h1>
+                  <h3 className="text-2xl font-black md:text-5xl lg:text-[64px] tracking-tight leading-[1.05]">
+                    <BlurText 
+                      key={`${game.id}-${active === index}`}
+                      text={game.title} 
+                      delay={60} 
+                      animateBy="words" 
+                      direction="bottom" 
+                      stepDuration={0.3} 
+                    />
+                  </h3>
                   <p className="mt-6 max-w-xl text-base leading-7 text-[#d4d8e4] md:text-lg">{game.tagline || game.description || "A standout PC experience, ready for your library."}</p>
                   <div className="mt-7 flex flex-wrap items-center gap-3">
                     <Link href={`/games/${game.id}`} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">View game <ArrowRight size={17} /></Link>
