@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { Flame, Gamepad2, MessageCircle, ShoppingCart, Sparkles, Zap } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { getMarqueeMessages } from "@/lib/supabase/queries";
 import { ScrollVelocity } from "@/components/animations/scroll-velocity";
 
 const iconMap: Record<string, LucideIcon> = {
@@ -21,17 +21,8 @@ const badgeMap: Record<string, string> = {
   spark: "HOT",
 };
 
-const fallback = [
-  { icon_key: "flame", message: "GTA V from Rs. 130" },
-  { icon_key: "gamepad", message: "New games added weekly" },
-  { icon_key: "zap", message: "Fast assisted delivery" },
-  { icon_key: "cart", message: "Buy 3+ games and save 10% with RAKE10" },
-];
-
 export async function OfferMarquee() {
-  const supabase = await createClient();
-  const { data } = await supabase.from("marquee_messages").select("id,message,icon_key").eq("active", true).order("sort_order");
-  const messages = data?.length ? data : fallback;
+  const messages = await getMarqueeMessages();
 
   // Render a single joined row of items inside the parallax scroll track
   const marqueeContent = (
@@ -70,4 +61,6 @@ export async function OfferMarquee() {
     </aside>
   );
 }
+
+
 

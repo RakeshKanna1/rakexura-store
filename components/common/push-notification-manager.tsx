@@ -170,7 +170,7 @@ export function PushNotificationToggle({ isAdmin = false }: { isAdmin?: boolean 
             {isSubscribed ? <Bell size={18} /> : <BellOff size={18} />}
           </div>
           <div>
-            <h4 className="text-sm font-black text-white">Device Notifications</h4>
+            <strong className="text-sm font-black text-white block">Device Notifications</strong>
             <p className="mt-1 text-xs text-[#8991a6]">
               {isSubscribed 
                 ? "You will receive native updates on this device." 

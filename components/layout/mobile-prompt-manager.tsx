@@ -190,7 +190,7 @@ export function MobilePromptManager() {
             <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#facc15]/10 text-[#facc15]">
               <LogIn size={16} />
             </div>
-            <h4 className="text-sm font-bold text-white">Sign in to Rakexura</h4>
+            <strong className="text-sm font-bold text-white">Sign in to Rakexura</strong>
           </div>
           <p className="text-xs leading-relaxed text-[#8991a6]">
             Create an account or login to unlock milestone coupon rewards, save games to your wishlist, and track order deliveries instantly.
@@ -220,7 +220,7 @@ export function MobilePromptManager() {
             <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#facc15]/10 text-[#facc15]">
               <Bell size={16} />
             </div>
-            <h4 className="text-sm font-bold text-white">Enable Notifications</h4>
+            <strong className="text-sm font-bold text-white">Enable Notifications</strong>
           </div>
           <p className="text-xs leading-relaxed text-[#8991a6]">
             Get live, real-time alerts on your phone lock screen when your game payments are verified and game delivery instructions are ready!

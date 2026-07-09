@@ -135,3 +135,73 @@ export const getCustomerProofs = unstable_cache(
   ["customer-proofs-list"],
   { revalidate: 60, tags: ["proofs"] }
 );
+
+export interface MarqueeMessage {
+  id?: number;
+  message: string;
+  icon_key: string;
+}
+
+export const getMarqueeMessages = unstable_cache(
+  async (): Promise<MarqueeMessage[]> => {
+    const fallback = [
+      { icon_key: "flame", message: "GTA V from Rs. 130" },
+      { icon_key: "gamepad", message: "New games added weekly" },
+      { icon_key: "zap", message: "Fast assisted delivery" },
+      { icon_key: "cart", message: "Buy 3+ games and save 10% with RAKE10" },
+    ];
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return fallback;
+    const supabase = getStaticClient();
+    const { data } = await supabase
+      .from("marquee_messages")
+      .select("id,message,icon_key")
+      .eq("active", true)
+      .order("sort_order");
+    if (!data?.length) return fallback;
+    return data as MarqueeMessage[];
+  },
+  ["marquee-messages-list"],
+  { revalidate: 60, tags: ["marquee"] }
+);
+
+export interface StoreCategory {
+  id: number;
+  name: string;
+  icon_key: string;
+}
+
+export const getStoreCategories = unstable_cache(
+  async (): Promise<StoreCategory[]> => {
+    const fallback = [
+      { name: "Action", icon_key: "swords" },
+      { name: "Open World", icon_key: "map" },
+      { name: "Racing", icon_key: "car" },
+      { name: "RPG", icon_key: "wand" },
+      { name: "Horror", icon_key: "ghost" },
+      { name: "Sports", icon_key: "trophy" },
+      { name: "Fighting", icon_key: "crosshair" },
+      { name: "Simulation", icon_key: "bike" },
+      { name: "Shooter", icon_key: "crosshair" },
+      { name: "Survival", icon_key: "ghost" },
+      { name: "Strategy", icon_key: "map" },
+      { name: "Adventure", icon_key: "map" }
+    ];
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      return fallback.map((cat, index) => ({ id: index, ...cat }));
+    }
+    const supabase = getStaticClient();
+    const { data } = await supabase
+      .from("store_categories")
+      .select("id,name,icon_key")
+      .eq("active", true)
+      .order("sort_order");
+    if (!data?.length) {
+      return fallback.map((cat, index) => ({ id: index, ...cat }));
+    }
+    return data as StoreCategory[];
+  },
+  ["store-categories-list"],
+  { revalidate: 60, tags: ["categories"] }
+);
+
+

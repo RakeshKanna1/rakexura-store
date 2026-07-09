@@ -1,28 +1,12 @@
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { Bike, Car, Crosshair, Gamepad2, Ghost, Map, Swords, Trophy, WandSparkles } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { getStoreCategories } from "@/lib/supabase/queries";
 
 const iconMap: Record<string, LucideIcon> = { bike: Bike, car: Car, crosshair: Crosshair, gamepad: Gamepad2, ghost: Ghost, map: Map, swords: Swords, trophy: Trophy, wand: WandSparkles };
-const fallback = [
-  { name: "Action", icon_key: "swords" },
-  { name: "Open World", icon_key: "map" },
-  { name: "Racing", icon_key: "car" },
-  { name: "RPG", icon_key: "wand" },
-  { name: "Horror", icon_key: "ghost" },
-  { name: "Sports", icon_key: "trophy" },
-  { name: "Fighting", icon_key: "crosshair" },
-  { name: "Simulation", icon_key: "bike" },
-  { name: "Shooter", icon_key: "crosshair" },
-  { name: "Survival", icon_key: "ghost" },
-  { name: "Strategy", icon_key: "map" },
-  { name: "Adventure", icon_key: "map" }
-];
 
 export async function CategoryRail() {
-  const supabase = await createClient();
-  const { data } = await supabase.from("store_categories").select("id,name,icon_key").eq("active", true).order("sort_order");
-  const categories = data?.length ? data : fallback.map((cat, index) => ({ id: index, ...cat }));
+  const categories = await getStoreCategories();
 
   return <section className="section-space"><div className="section-head"><div><p className="eyebrow">Find your style</p><h2 className="section-title mt-2 font-semibold tracking-tight">Browse by category</h2></div></div><div className="hide-scrollbar grid auto-cols-[42%] grid-flow-col gap-3 overflow-x-auto pb-2 sm:auto-cols-[26%] lg:grid-flow-row lg:grid-cols-8">{categories.map(({ id, name, icon_key }) => {
     const Icon = iconMap[icon_key] ?? Gamepad2;
@@ -34,3 +18,4 @@ export async function CategoryRail() {
     </Link>;
   })}</div></section>;
 }
+
