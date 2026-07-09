@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, PointerEvent } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { Eye, Heart, ShoppingCart, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -177,17 +177,10 @@ function GameCardInner({
 }
 
 function GameCardDesktop(props: GameCardInnerProps) {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [5, -5]), { stiffness: 180, damping: 22 });
-  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-5, 5]), { stiffness: 180, damping: 22 });
-
   const move = (event: PointerEvent<HTMLElement>) => {
     if (event.pointerType === "touch") return;
 
     const rect = event.currentTarget.getBoundingClientRect();
-    x.set((event.clientX - rect.left) / rect.width - 0.5);
-    y.set((event.clientY - rect.top) / rect.height - 0.5);
     event.currentTarget.style.setProperty("--mouse-x", `${event.clientX - rect.left}px`);
     event.currentTarget.style.setProperty("--mouse-y", `${event.clientY - rect.top}px`);
   };
@@ -196,10 +189,6 @@ function GameCardDesktop(props: GameCardInnerProps) {
 
   const mouseEvents = isTouchMobile ? {} : {
     onPointerMove: move,
-    onPointerLeave: () => {
-      x.set(0);
-      y.set(0);
-    }
   };
 
   return (
@@ -208,7 +197,6 @@ function GameCardDesktop(props: GameCardInnerProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.18 }}
       transition={{ duration: 0.42, ease: [0.2, 0.7, 0.2, 1] }}
-      style={isTouchMobile ? {} : { rotateX, rotateY, transformPerspective: 900 }}
       className={`spotlight-card group relative overflow-hidden rounded-md border transition duration-300 hover:-translate-y-1 ${
         props.game.is_premium 
           ? "border-[#d4af37]/35 bg-[#16130b] hover:border-[#d4af37]/80 hover:shadow-[0_0_25px_rgba(212,175,55,0.25)]" 

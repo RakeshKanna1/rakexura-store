@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { preconnect } from "react-dom";
 import { Toaster } from "sonner";
 import Link from "next/link";
 import { Geist } from "next/font/google";
@@ -38,6 +39,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#05070f", colorScheme: "dark", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://cwvfgxdhearouclomjeq.supabase.co";
+  preconnect(supabaseUrl);
+
   return (
     <html lang="en" suppressHydrationWarning className={geist.variable} data-scroll-behavior="smooth">
       <body className={geist.className}>

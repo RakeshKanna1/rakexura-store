@@ -48,7 +48,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
           {games.map((game, index) => (
             <SwiperSlide key={game.id}>
               <article className="hero-frame relative min-h-[420px] overflow-hidden rounded-xl md:min-h-[570px]">
-                {!isMobile && game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i) ? (
+                {!isMobile && active === index && game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i) ? (
                   <video src={game.trailer_url} poster={assetUrl(game.banner_image || game.cover_image)} autoPlay muted loop playsInline className="hero-media absolute inset-0 h-full w-full object-cover" />
                 ) : (
                   <Image src={assetUrl(game.banner_image || game.cover_image)} alt="" fill priority={index === 0} className="hero-media object-cover" sizes="100vw" />
