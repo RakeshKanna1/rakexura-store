@@ -15,7 +15,7 @@ const AUTOPLAY_DELAY = 6500;
 
 export function HeroCarousel({ games }: { games: Game[] }) {
   const [active, setActive] = useState(0);
-  const swiperRef = useRef<any>(null);
+  const swiperRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [isMobile, setIsMobile] = useState(true);
 
   useEffect(() => {
