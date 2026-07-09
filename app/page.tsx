@@ -1,7 +1,9 @@
-import dynamic from "next/dynamic";
 import { Reveal } from "@/components/animations/reveal";
+import { FireflyCanvas } from "@/components/animations/firefly-canvas";
+import { ReviewWall } from "@/components/reviews/review-wall";
 import { BundleShelf } from "@/components/store/bundle-shelf";
 import { CategoryRail } from "@/components/store/category-rail";
+import { CustomerProofWall } from "@/components/store/customer-proof-wall";
 import { DeliveryGuarantee } from "@/components/store/delivery-guarantee";
 import { HeroCarousel } from "@/components/store/hero-carousel";
 import { FaqPreview } from "@/components/store/faq-preview";
@@ -17,17 +19,6 @@ import { WhatsAppCta } from "@/components/store/whatsapp-cta";
 import { getBundles, getCustomerProofs, getFlashSales, getGames, getRecentDeliveries, getReviews } from "@/lib/supabase/queries";
 import { lowestPrice } from "@/lib/utils";
 
-const FireflyCanvas = dynamic(
-  () => import("@/components/animations/firefly-canvas").then((mod) => mod.FireflyCanvas)
-);
-
-const ReviewWall = dynamic(
-  () => import("@/components/reviews/review-wall").then((mod) => mod.ReviewWall)
-);
-
-const CustomerProofWall = dynamic(
-  () => import("@/components/store/customer-proof-wall").then((mod) => mod.CustomerProofWall)
-);
 
 
 
