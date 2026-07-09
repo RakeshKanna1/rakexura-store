@@ -176,53 +176,6 @@ function GameCardInner({
   );
 }
 
-function GameCardDesktop(props: GameCardInnerProps) {
-  const move = (event: PointerEvent<HTMLElement>) => {
-    if (event.pointerType === "touch") return;
-
-    const rect = event.currentTarget.getBoundingClientRect();
-    event.currentTarget.style.setProperty("--mouse-x", `${event.clientX - rect.left}px`);
-    event.currentTarget.style.setProperty("--mouse-y", `${event.clientY - rect.top}px`);
-  };
-
-  const isTouchMobile = typeof window !== "undefined" && window.innerWidth < 768;
-
-  const mouseEvents = isTouchMobile ? {} : {
-    onPointerMove: move,
-  };
-
-  return (
-    <motion.article
-      initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.18 }}
-      transition={{ duration: 0.42, ease: [0.2, 0.7, 0.2, 1] }}
-      className={`spotlight-card group relative overflow-hidden rounded-md border transition duration-300 hover:-translate-y-1 ${
-        props.game.is_premium 
-          ? "border-[#d4af37]/35 bg-[#16130b] hover:border-[#d4af37]/80 hover:shadow-[0_0_25px_rgba(212,175,55,0.25)]" 
-          : "border-white/[.08] bg-[#11131a] hover:border-[#facc15]/35 hover:bg-[#151922] hover:shadow-[0_14px_38px_rgba(0,0,0,.42)]"
-      }`}
-      {...mouseEvents}
-    >
-      <GameCardInner {...props} />
-    </motion.article>
-  );
-}
-
-function GameCardMobile(props: GameCardInnerProps) {
-  return (
-    <article
-      className={`spotlight-card group relative overflow-hidden rounded-md border transition duration-300 ${
-        props.game.is_premium 
-          ? "border-[#d4af37]/30 bg-[#16130b]" 
-          : "border-white/[.08] bg-[#11131a] hover:border-[#facc15]/35 hover:bg-[#151922]"
-      }`}
-    >
-      <GameCardInner {...props} />
-    </article>
-  );
-}
-
 export function GameCard({
   game,
   priority = false,
@@ -266,9 +219,42 @@ export function GameCard({
     platforms,
   };
 
-  if (isMobile) {
-    return <GameCardMobile {...props} />;
-  }
+  const move = (event: PointerEvent<HTMLElement>) => {
+    if (event.pointerType === "touch") return;
 
-  return <GameCardDesktop {...props} />;
+    const rect = event.currentTarget.getBoundingClientRect();
+    event.currentTarget.style.setProperty("--mouse-x", `${event.clientX - rect.left}px`);
+    event.currentTarget.style.setProperty("--mouse-y", `${event.clientY - rect.top}px`);
+  };
+
+  const showDesktopEffects = !isMobile;
+
+  const mouseEvents = showDesktopEffects ? {
+    onPointerMove: move,
+  } : {};
+
+  const animateProps = showDesktopEffects ? {
+    initial: { opacity: 0, y: 18 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.18 },
+    transition: { duration: 0.42, ease: [0.2, 0.7, 0.2, 1] }
+  } : {};
+
+  const baseCardClasses = "spotlight-card group relative overflow-hidden rounded-md border transition duration-300";
+  const hoverTranslate = showDesktopEffects ? "hover:-translate-y-1" : "";
+  
+  const themeClasses = game.is_premium
+    ? `border-[#d4af37]/30 bg-[#16130b] ${showDesktopEffects ? "border-[#d4af37]/35 hover:border-[#d4af37]/80 hover:shadow-[0_0_25px_rgba(212,175,55,0.25)]" : ""}`
+    : `border-white/[.08] bg-[#11131a] ${showDesktopEffects ? "hover:border-[#facc15]/35 hover:bg-[#151922] hover:shadow-[0_14px_38px_rgba(0,0,0,.42)]" : "hover:border-[#facc15]/35 hover:bg-[#151922]"}`;
+
+  return (
+    <motion.article
+      className={`${baseCardClasses} ${hoverTranslate} ${themeClasses}`}
+      {...animateProps}
+      {...mouseEvents}
+    >
+      <GameCardInner {...props} />
+    </motion.article>
+  );
 }
+
