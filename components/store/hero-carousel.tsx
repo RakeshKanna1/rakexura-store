@@ -82,6 +82,8 @@ export function HeroCarousel({ games }: { games: Game[] }) {
           {games.map((game, index) => (
             <button
               key={game.id}
+              type="button"
+              suppressHydrationWarning
               onClick={() => {
                 if (swiperRef.current) swiperRef.current.slideToLoop(index);
               }}
