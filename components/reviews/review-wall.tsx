@@ -12,7 +12,7 @@ export function ReviewWall({ reviews }: { reviews: Review[] }) {
     <section className="section-space">
       <p className="eyebrow mb-3">Verified feedback</p>
       <h2 className="section-title mb-7">What customers are saying</h2>
-      <Swiper modules={[A11y]} spaceBetween={16} slidesPerView={1.08} breakpoints={{ 640: { slidesPerView: 2.1 }, 1024: { slidesPerView: 3.1 } }}>
+      <Swiper modules={[A11y]} observer={true} observeParents={true} spaceBetween={16} slidesPerView={1.08} breakpoints={{ 640: { slidesPerView: 2.1 }, 1024: { slidesPerView: 3.1 } }}>
         {reviews.slice(0, 10).map((review) => (
           <SwiperSlide key={review.id} className="h-auto">
             <article className="premium-panel h-full rounded-md p-6">

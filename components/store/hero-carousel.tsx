@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, Play } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -15,8 +15,7 @@ const AUTOPLAY_DELAY = 6500;
 
 export function HeroCarousel({ games }: { games: Game[] }) {
   const [active, setActive] = useState(0);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [swiper, setSwiper] = useState<any>(null);
+  const swiperRef = useRef<any>(null);
   const [isMobile, setIsMobile] = useState(true);
 
   useEffect(() => {
@@ -37,7 +36,9 @@ export function HeroCarousel({ games }: { games: Game[] }) {
           modules={[Autoplay, Navigation]}
           autoplay={{ delay: AUTOPLAY_DELAY, disableOnInteraction: false }}
           loop={games.length > 1}
-          onSwiper={setSwiper}
+          observer={true}
+          observeParents={true}
+          onSwiper={(s) => { swiperRef.current = s; }}
           onRealIndexChange={(s) => setActive(s.realIndex)}
           navigation={{ prevEl: ".hero-prev", nextEl: ".hero-next" }}
           className="overflow-hidden rounded-xl"
@@ -82,7 +83,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
             <button
               key={game.id}
               onClick={() => {
-                if (swiper) swiper.slideToLoop(index);
+                if (swiperRef.current) swiperRef.current.slideToLoop(index);
               }}
               className={`featured-now-item w-full rounded p-3 text-left transition duration-300 ease-out cursor-pointer group ${
                 active === index ? "is-active" : ""
