@@ -42,12 +42,6 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
   },
   poweredByHeader: false,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   serverExternalPackages: ["@supabase/ssr", "@supabase/supabase-js"],
   async headers() {
     return [
