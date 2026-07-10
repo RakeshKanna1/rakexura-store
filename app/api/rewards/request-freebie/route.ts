@@ -2,9 +2,20 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { sendEmail } from "@/lib/email";
 import { sendPushNotification } from "@/lib/push";
+import { rateLimiter } from "@/lib/security/rate-limit";
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
+    const rateLimitKey = `rate-limit:request-freebie:${ip}`;
+    const limitRes = await rateLimiter.limit(rateLimitKey, 3, 60);
+    if (!limitRes.success) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again in a minute." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limitRes.reset - Math.floor(Date.now() / 1000))) } }
+      );
+    }
+
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {

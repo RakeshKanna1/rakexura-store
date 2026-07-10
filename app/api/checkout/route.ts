@@ -1,9 +1,20 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isDiamondOrPlatinumCoupon } from "@/lib/utils";
+import { rateLimiter } from "@/lib/security/rate-limit";
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
+    const rateLimitKey = `rate-limit:checkout:${ip}`;
+    const limitRes = await rateLimiter.limit(rateLimitKey, 5, 60);
+    if (!limitRes.success) {
+      return NextResponse.json(
+        { error: "Too many checkout attempts. Please try again in a minute." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil((limitRes.reset - Math.floor(Date.now() / 1000)))) } }
+      );
+    }
+
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     

@@ -1,9 +1,19 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimiter } from "@/lib/security/rate-limit";
 
 export async function updateAccount(formData: FormData) {
+  const headersList = await headers();
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
+  const rateLimitKey = `rate-limit:update-account:${ip}`;
+  const limitRes = await rateLimiter.limit(rateLimitKey, 5, 60);
+  if (!limitRes.success) {
+    redirect("/dashboard/settings?error=Too+many+update+attempts.+Please+wait+a+minute.");
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
