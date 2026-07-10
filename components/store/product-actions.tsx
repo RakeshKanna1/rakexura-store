@@ -470,7 +470,7 @@ export function ProductActions({ game }: { game: Game }) {
       <Confetti active={celebrate} onComplete={() => setCelebrate(false)} />
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onContinueAsGuest={() => { if (pendingAction) pendingAction(); setShowAuthModal(false); }} />
       {/* Sticky Bottom Bar for Mobile View Only */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/90 p-3.5 backdrop-blur-lg lg:hidden">
+      <div className="fixed bottom-[68px] left-0 right-0 z-50 border-t border-white/10 bg-black/90 p-3.5 backdrop-blur-lg lg:hidden">
         <div className="flex items-center justify-between gap-4">
           <div>
             <span className="text-[10px] text-[#8991a8] uppercase font-bold tracking-wider">{selected} edition</span>
