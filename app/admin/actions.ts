@@ -418,14 +418,18 @@ export async function moderateReview(formData: FormData) {
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const decision = String(formData.get("decision"));
-  const { data: review } = decision === "delete" ? await supabase.from("reviews").select("media_urls").eq("id", id).maybeSingle() : { data: null };
+  const { data: review } = await supabase.from("reviews").select("game_id, media_urls").eq("id", id).maybeSingle();
   const query = decision === "delete" ? supabase.from("reviews").delete().eq("id", id) : supabase.from("reviews").update({ approved: decision === "approve" }).eq("id", id);
   const { error } = await query;
   if (error) throw new Error(error.message);
-  if (decision === "delete" && Array.isArray(review?.media_urls) && review.media_urls.length) await supabase.storage.from("review-media").remove(review.media_urls);
+  if (decision === "delete" && review && Array.isArray(review.media_urls) && review.media_urls.length) await supabase.storage.from("review-media").remove(review.media_urls);
   revalidatePath("/admin/reviews");
   revalidatePath("/reviews");
   revalidateTag("reviews");
+  revalidateTag("approved-reviews");
+  if (review?.game_id) {
+    revalidateTag(`game-reviews-${review.game_id}`);
+  }
 }
 
 export async function updateRequestStatus(formData: FormData) {
@@ -483,6 +487,7 @@ export async function archiveGame(formData: FormData) {
   revalidatePath("/admin/games");
   revalidatePath("/games");
   revalidateTag("games");
+  revalidateTag(`game-${id}`);
 }
 
 function optionalNumber(value: FormDataEntryValue | null) {
@@ -550,6 +555,9 @@ export async function saveGame(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/games");
   revalidateTag("games");
+  if (rawId) {
+    revalidateTag(`game-${rawId}`);
+  }
   redirect("/admin/games");
 }
 
@@ -620,6 +628,9 @@ export async function saveBundle(formData: FormData) {
   if (gamesError) throw new Error(gamesError.message);
   revalidatePath("/admin/bundles"); revalidatePath("/bundles"); revalidatePath("/");
   revalidateTag("bundles");
+  if (rawId) {
+    revalidateTag(`bundle-${rawId}`);
+  }
   redirect("/admin/bundles");
 }
 
@@ -631,6 +642,7 @@ export async function toggleBundle(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/bundles"); revalidatePath("/bundles"); revalidatePath("/");
   revalidateTag("bundles");
+  revalidateTag(`bundle-${id}`);
 }
 
 export async function deleteBundle(formData: FormData) {
@@ -648,6 +660,7 @@ export async function deleteBundle(formData: FormData) {
   revalidatePath("/bundles"); 
   revalidatePath("/");
   revalidateTag("bundles");
+  revalidateTag(`bundle-${id}`);
 }
 
 export async function saveMarqueeMessage(formData: FormData) {
@@ -664,6 +677,8 @@ export async function saveMarqueeMessage(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/storefront");
   revalidatePath("/");
+  revalidateTag("marquee");
+  revalidateTag("offers");
 }
 
 export async function updateMarqueeMessage(formData: FormData) {
@@ -677,6 +692,8 @@ export async function updateMarqueeMessage(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/storefront");
   revalidatePath("/");
+  revalidateTag("marquee");
+  revalidateTag("offers");
 }
 
 export async function saveStoreCategory(formData: FormData) {
@@ -694,6 +711,7 @@ export async function saveStoreCategory(formData: FormData) {
   revalidatePath("/admin/games");
   revalidatePath("/");
   revalidatePath("/games");
+  revalidateTag("categories");
 }
 
 export async function updateStoreCategory(formData: FormData) {
@@ -709,6 +727,7 @@ export async function updateStoreCategory(formData: FormData) {
   revalidatePath("/admin/games");
   revalidatePath("/");
   revalidatePath("/games");
+  revalidateTag("categories");
 }
 
 export async function sendStoreAnnouncement(formData: FormData) {

@@ -40,7 +40,7 @@ export const getGame = (id: number) => unstable_cache(
     return data as Game | null;
   },
   ["game-detail", String(id)],
-  { revalidate: 60, tags: ["games"] }
+  { revalidate: 60, tags: ["games", `game-${id}`] }
 )();
 
 export const getBundles = unstable_cache(
@@ -73,7 +73,7 @@ export const getBundle = (id: number) => unstable_cache(
     return data as Bundle | null;
   },
   ["bundle-detail", String(id)],
-  { revalidate: 60, tags: ["bundles"] }
+  { revalidate: 60, tags: ["bundles", `bundle-${id}`] }
 )();
 
 export const getReviews = unstable_cache(
@@ -89,7 +89,7 @@ export const getReviews = unstable_cache(
     return (data ?? []) as Review[];
   },
   ["reviews-list"],
-  { revalidate: 60, tags: ["reviews"] }
+  { revalidate: 60, tags: ["reviews", "approved-reviews"] }
 );
 
 export const getGameReviews = (gameId: number, limit = 10) => unstable_cache(
@@ -100,7 +100,7 @@ export const getGameReviews = (gameId: number, limit = 10) => unstable_cache(
     return (data ?? []) as Review[];
   },
   ["game-reviews-list", String(gameId), String(limit)],
-  { revalidate: 60, tags: ["reviews"] }
+  { revalidate: 60, tags: ["reviews", "approved-reviews", `game-reviews-${gameId}`] }
 )();
 
 export const getFlashSales = unstable_cache(
@@ -161,7 +161,7 @@ export const getMarqueeMessages = unstable_cache(
     return data as MarqueeMessage[];
   },
   ["marquee-messages-list"],
-  { revalidate: 60, tags: ["marquee"] }
+  { revalidate: 60, tags: ["marquee", "offers"] }
 );
 
 export interface StoreCategory {
