@@ -19,7 +19,7 @@ const cspHeader = `
   media-src 'self' blob: data: https://*.supabase.co https://*.supabase.in;
   font-src 'self' data:;
   connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.wa.me https://*.upstash.io https://*.upstash.com;
-  frame-src 'self' https://*.discord.com https://*.google.com;
+  frame-src 'self' https://*.discord.com https://*.google.com https://www.youtube.com https://www.youtube-nocookie.com;
   frame-ancestors 'none';
 `.replace(/\s{2,}/g, " ").trim();
 
