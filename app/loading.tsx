@@ -3,13 +3,16 @@ import { ShinyText } from "@/components/animations/shiny-text";
 
 export default function Loading() {
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#000] overflow-hidden" role="status" aria-label="Loading Rakexura">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-[#05070f] overflow-hidden" role="status" aria-label="Loading Rakexura">
+      {/* Subtle premium gold radial glow background */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.05),transparent_60%)] pointer-events-none" />
+
       {/* Hyper-fast neon progress line tracking across the very top boundary */}
-      <div className="fixed top-0 left-0 right-0 h-[2.5px] bg-white/[0.02] overflow-hidden z-[250]">
+      <div className="fixed top-0 left-0 right-0 h-[2.5px] bg-white/[0.02] overflow-hidden z-[99999]">
         <div className="absolute top-0 bottom-0 left-0 w-2/5 bg-gradient-to-r from-transparent via-[#facc15] to-transparent shadow-[0_0_12px_#facc15] animate-loading-neon-progress" />
       </div>
 
-      <div className="text-center relative">
+      <div className="text-center relative z-10">
         {/* Glow aura */}
         <div className="absolute -inset-8 rounded-full bg-[#facc15]/10 blur-2xl opacity-60 animate-pulse pointer-events-none" />
 
