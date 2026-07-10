@@ -26,6 +26,7 @@ const cspHeader = `
 const nextConfig: NextConfig = {
   crossOrigin: "anonymous",
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
