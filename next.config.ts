@@ -15,7 +15,7 @@ const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline';
   style-src 'self' 'unsafe-inline';
-  img-src 'self' blob: data: https://*.supabase.co https://*.supabase.in https://images.unsplash.com https://wa.me;
+  img-src 'self' blob: data: https://*.supabase.co https://*.supabase.in https://images.unsplash.com https://wa.me https://img.youtube.com https://*.ytimg.com https://*.youtube.com;
   media-src 'self' blob: data: https://*.supabase.co https://*.supabase.in;
   font-src 'self' data:;
   connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.wa.me https://*.upstash.io https://*.upstash.com;
