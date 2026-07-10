@@ -442,7 +442,7 @@ export function ProductActions({ game }: { game: Game }) {
               <Button 
                 type="button"
                 suppressHydrationWarning
-                className="w-full" 
+                className="w-full bg-[#facc15] text-[#080808] hover:bg-[#ffe047] font-black" 
                 onClick={() => { 
                   const action = () => {
                     add(game, selected); 
@@ -469,65 +469,49 @@ export function ProductActions({ game }: { game: Game }) {
       <ReviewForm gameId={game.id} gameTitle={game.title} />
       <Confetti active={celebrate} onComplete={() => setCelebrate(false)} />
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onContinueAsGuest={() => { if (pendingAction) pendingAction(); setShowAuthModal(false); }} />
-      {/* Sticky Bottom Bar for Mobile View Only */}
-      <div className="fixed bottom-[68px] left-0 right-0 z-50 border-t border-white/10 bg-black/90 p-3.5 backdrop-blur-lg lg:hidden">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <span className="text-[10px] text-[#8991a8] uppercase font-bold tracking-wider">{selected} edition</span>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-lg font-black text-[#70efbb]">{formatPrice(discountedPrice)}</span>
-              {couponSavings > 0 && (
-                <span className="text-xs text-[#646b7b] line-through">{formatPrice(gameSubtotal)}</span>
-              )}
+      {/* Sticky Bottom Bar for Mobile View Only - Only show when out of stock */}
+      {game.out_of_stock && (
+        <div className="fixed bottom-[68px] left-0 right-0 z-50 border-t border-white/10 bg-black/90 p-3.5 backdrop-blur-lg lg:hidden">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <span className="text-[10px] text-[#8991a8] uppercase font-bold tracking-wider">{selected} edition</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-lg font-black text-[#70efbb]">{formatPrice(discountedPrice)}</span>
+                {couponSavings > 0 && (
+                  <span className="text-xs text-[#646b7b] line-through">{formatPrice(gameSubtotal)}</span>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => {
-                const element = document.querySelector(".game-detail-buy");
-                if (element) {
-                  element.scrollIntoView({ behavior: "smooth", block: "center" });
-                }
-              }}
-              className="rounded-md border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-xs font-bold text-white hover:bg-white/[0.1] active:scale-95 transition-all"
-              type="button"
-              suppressHydrationWarning
-            >
-              Options
-            </button>
-            <button
-              onClick={() => {
-                if (game.out_of_stock) {
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  const element = document.querySelector(".game-detail-buy");
+                  if (element) {
+                    element.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }
+                }}
+                className="rounded-md border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-xs font-bold text-white hover:bg-white/[0.1] active:scale-95 transition-all"
+                type="button"
+                suppressHydrationWarning
+              >
+                Options
+              </button>
+              <button
+                onClick={() => {
                   toast.info("This game is currently out of stock. Please wait for some time, we will notify you once it becomes available!", {
                     duration: 6000,
                   });
-                  return;
-                }
-                const action = () => {
-                  add(game, selected);
-                  setStoreQuantity(game.id, selected, quantity);
-                  router.push("/checkout");
-                };
-                if (checkedAuth && !user) {
-                  setPendingAction(() => action);
-                  setShowAuthModal(true);
-                } else {
-                  action();
-                }
-              }}
-              className={`rounded-md px-5 py-2.5 text-xs font-black text-white active:scale-95 transition-all ${
-                game.out_of_stock
-                  ? "bg-red-600/40 border border-red-500/25 text-red-200"
-                  : "bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20"
-              }`}
-              type="button"
-              suppressHydrationWarning
-            >
-              {game.out_of_stock ? "Out of Stock" : "Buy Now"}
-            </button>
+                }}
+                className="rounded-md px-5 py-2.5 text-xs font-black text-white active:scale-95 transition-all bg-red-600/40 border border-red-500/25 text-red-200"
+                type="button"
+                suppressHydrationWarning
+              >
+                Out of Stock
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

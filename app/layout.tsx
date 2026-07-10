@@ -13,7 +13,6 @@ import { BackButton } from "@/components/layout/back-button";
 import { MouseSpotlight } from "@/components/animations/mouse-spotlight";
 import { ClickSpark } from "@/components/animations/click-spark";
 import { CartDrawer } from "@/components/cart/cart-drawer";
-import { WhatsAppFloat } from "@/components/common/whatsapp-float";
 import { WhatsAppOnboardingModal } from "@/components/layout/whatsapp-onboarding-modal";
 import { MobilePromptManager } from "@/components/layout/mobile-prompt-manager";
 import "./globals.css";
@@ -74,7 +73,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             </div>
             <main><BackButton />{children}</main>
             <Footer />
-            <WhatsAppFloat />
             <WhatsAppOnboardingModal />
             <MobileNav />
             <MobilePromptManager />
