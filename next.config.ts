@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const supabaseHostname = (() => {
   try {
@@ -74,8 +75,21 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source: "/Assets/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
     ];
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  org: "rakexura",
+  project: "rakexura-store",
+});

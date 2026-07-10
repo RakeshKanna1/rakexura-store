@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { sendEmail } from "@/lib/email";
 import { createClient } from "@/lib/supabase/server";
@@ -14,6 +15,37 @@ async function getAdminClient() {
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
   if (profile?.role !== "admin") redirect("/dashboard");
   return supabase;
+}
+
+async function writeAuditLog(action: string, affectedEntity: string, formData: FormData) {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const headersList = await headers();
+    const ip = headersList.get("x-forwarded-for")?.split(",")[0].trim() || null;
+    const userAgent = headersList.get("user-agent") || null;
+    
+    const id = formData.get("id") || formData.get("ticket_id") || formData.get("userId") || formData.get("gameId") || null;
+    const details: Record<string, unknown> = {};
+    formData.forEach((value, key) => {
+      if (key !== "credentials" && key !== "password" && key !== "token") {
+        details[key] = typeof value === "string" && value.length > 500 ? value.substring(0, 500) + "..." : value;
+      }
+    });
+
+    await supabase.from("audit_logs").insert({
+      admin_id: user.id,
+      action,
+      affected_entity: affectedEntity,
+      entity_id: id ? String(id) : null,
+      ip_address: ip,
+      user_agent: userAgent,
+      details,
+    });
+  } catch (err) {
+    console.error("Failed to write audit log:", err);
+  }
 }
 
 function idFrom(formData: FormData) {
@@ -293,6 +325,7 @@ async function addDeliveredItemsToLibrary(supabase: SupabaseAdmin, order: OrderF
 }
 
 export async function updateOrderStatus(formData: FormData) {
+  await writeAuditLog("UPDATE_ORDER_STATUS", "orders", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const status = String(formData.get("status") ?? "");
@@ -397,6 +430,7 @@ export async function updateOrderStatus(formData: FormData) {
 }
 
 export async function saveAccountAccess(formData: FormData) {
+  await writeAuditLog("SAVE_ACCOUNT_ACCESS", "orders", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const accountAccess = String(formData.get("account_access") ?? "").trim();
@@ -415,6 +449,7 @@ export async function saveAccountAccess(formData: FormData) {
 }
 
 export async function moderateReview(formData: FormData) {
+  await writeAuditLog("MODERATE_REVIEW", "reviews", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const decision = String(formData.get("decision"));
@@ -433,6 +468,7 @@ export async function moderateReview(formData: FormData) {
 }
 
 export async function updateRequestStatus(formData: FormData) {
+  await writeAuditLog("UPDATE_REQUEST_STATUS", "game_requests", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const requestedStatus = String(formData.get("status") ?? "");
@@ -470,6 +506,7 @@ export async function updateRequestStatus(formData: FormData) {
 }
 
 export async function toggleCoupon(formData: FormData) {
+  await writeAuditLog("TOGGLE_COUPON", "coupons", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const active = String(formData.get("active")) === "true";
@@ -479,6 +516,7 @@ export async function toggleCoupon(formData: FormData) {
 }
 
 export async function archiveGame(formData: FormData) {
+  await writeAuditLog("ARCHIVE_GAME", "games", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const archived = String(formData.get("archived")) === "true";
@@ -497,6 +535,7 @@ function optionalNumber(value: FormDataEntryValue | null) {
 }
 
 export async function saveGame(formData: FormData) {
+  await writeAuditLog("SAVE_GAME", "games", formData);
   const supabase = await getAdminClient();
   const rawId = String(formData.get("id") ?? "");
   const title = String(formData.get("title") ?? "").trim();
@@ -562,6 +601,7 @@ export async function saveGame(formData: FormData) {
 }
 
 export async function saveCoupon(formData: FormData) {
+  await writeAuditLog("SAVE_COUPON", "coupons", formData);
   const supabase = await getAdminClient();
   const code = String(formData.get("code") ?? "").trim().toUpperCase();
   const discountType = String(formData.get("discount_type") ?? "percentage");
@@ -586,6 +626,7 @@ export async function saveCoupon(formData: FormData) {
 }
 
 export async function moderateProof(formData: FormData) {
+  await writeAuditLog("MODERATE_PROOF", "customer_proofs", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const decision = String(formData.get("decision") ?? "");
@@ -598,6 +639,7 @@ export async function moderateProof(formData: FormData) {
 }
 
 export async function saveBundle(formData: FormData) {
+  await writeAuditLog("SAVE_BUNDLE", "bundles", formData);
   const supabase = await getAdminClient();
   const rawId = String(formData.get("id") ?? "");
   const title = String(formData.get("title") ?? "").trim();
@@ -635,6 +677,7 @@ export async function saveBundle(formData: FormData) {
 }
 
 export async function toggleBundle(formData: FormData) {
+  await writeAuditLog("TOGGLE_BUNDLE", "bundles", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const active = String(formData.get("active")) === "true";
@@ -646,6 +689,7 @@ export async function toggleBundle(formData: FormData) {
 }
 
 export async function deleteBundle(formData: FormData) {
+  await writeAuditLog("DELETE_BUNDLE", "bundles", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   // First delete associated games mappings in bundle_games relation
@@ -664,6 +708,7 @@ export async function deleteBundle(formData: FormData) {
 }
 
 export async function saveMarqueeMessage(formData: FormData) {
+  await writeAuditLog("SAVE_MARQUEE_MESSAGE", "marquee_messages", formData);
   const supabase = await getAdminClient();
   const message = String(formData.get("message") ?? "").trim();
   if (message.length < 3 || message.length > 160) throw new Error("Announcement must be between 3 and 160 characters");
@@ -682,6 +727,7 @@ export async function saveMarqueeMessage(formData: FormData) {
 }
 
 export async function updateMarqueeMessage(formData: FormData) {
+  await writeAuditLog("UPDATE_MARQUEE_MESSAGE", "marquee_messages", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const decision = String(formData.get("decision") ?? "");
@@ -697,6 +743,7 @@ export async function updateMarqueeMessage(formData: FormData) {
 }
 
 export async function saveStoreCategory(formData: FormData) {
+  await writeAuditLog("SAVE_STORE_CATEGORY", "store_categories", formData);
   const supabase = await getAdminClient();
   const name = String(formData.get("name") ?? "").trim();
   if (name.length < 2 || name.length > 40) throw new Error("Category name must be between 2 and 40 characters");
@@ -715,6 +762,7 @@ export async function saveStoreCategory(formData: FormData) {
 }
 
 export async function updateStoreCategory(formData: FormData) {
+  await writeAuditLog("UPDATE_STORE_CATEGORY", "store_categories", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const decision = String(formData.get("decision") ?? "");
@@ -731,6 +779,7 @@ export async function updateStoreCategory(formData: FormData) {
 }
 
 export async function sendStoreAnnouncement(formData: FormData) {
+  await writeAuditLog("SEND_ANNOUNCEMENT", "announcements", formData);
   const supabase = await getAdminClient();
   const title = String(formData.get("title") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
@@ -764,6 +813,7 @@ export async function sendStoreAnnouncement(formData: FormData) {
 }
 
 export async function adjustRewardPoints(formData: FormData) {
+  await writeAuditLog("ADJUST_POINTS", "user_rewards", formData);
   const supabase = await getAdminClient();
   const userId = String(formData.get("user_id") ?? "");
   const points = Number(formData.get("points"));
@@ -781,6 +831,7 @@ export async function adjustRewardPoints(formData: FormData) {
 }
 
 export async function approveMilestoneRequest(formData: FormData) {
+  await writeAuditLog("APPROVE_MILESTONE", "support_tickets", formData);
   const supabase = await getAdminClient();
   const ticketId = Number(formData.get("ticket_id"));
   const promoCode = String(formData.get("promo_code") ?? "").trim().toUpperCase();
@@ -847,6 +898,7 @@ export async function approveMilestoneRequest(formData: FormData) {
 }
 
 export async function sendSinglePushNotification(formData: FormData) {
+  await writeAuditLog("SEND_PUSH_NOTIFICATION", "profiles", formData);
   const supabase = await getAdminClient();
   const userId = String(formData.get("userId") ?? "");
   const title = String(formData.get("title") ?? "").trim();
@@ -875,6 +927,7 @@ export async function sendSinglePushNotification(formData: FormData) {
 }
 
 export async function giftGameToCustomer(formData: FormData) {
+  await writeAuditLog("GIFT_GAME", "customer_library", formData);
   try {
     const supabase = await getAdminClient();
     const userId = String(formData.get("userId") ?? "");
@@ -981,6 +1034,7 @@ export async function giftGameToCustomer(formData: FormData) {
 }
 
 export async function sendPushEncouragement() {
+  await writeAuditLog("SEND_PUSH_ENCOURAGEMENT", "notifications", new FormData());
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, reason: "Unauthorized" };
@@ -1021,6 +1075,7 @@ export async function sendPushEncouragement() {
 }
 
 export async function saveFlashSale(formData: FormData) {
+  await writeAuditLog("SAVE_FLASH_SALE", "flash_sales", formData);
   const supabase = await getAdminClient();
   const rawId = String(formData.get("id") ?? "");
   const game_id = Number(formData.get("game_id"));
@@ -1085,6 +1140,7 @@ export async function saveFlashSale(formData: FormData) {
 }
 
 export async function toggleFlashSale(formData: FormData) {
+  await writeAuditLog("TOGGLE_FLASH_SALE", "flash_sales", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const active = String(formData.get("active")) === "true";
@@ -1139,6 +1195,7 @@ export async function toggleFlashSale(formData: FormData) {
 }
 
 export async function deleteFlashSale(formData: FormData) {
+  await writeAuditLog("DELETE_FLASH_SALE", "flash_sales", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
 

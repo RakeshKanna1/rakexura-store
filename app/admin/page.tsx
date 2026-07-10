@@ -19,7 +19,8 @@ const sections = [
   ["support", "Support", "Customer ticket conversations", LifeBuoy],
   ["media", "Media manager", "Proofs and promotional assets", ImageIcon],
   ["analytics", "Analytics", "Traffic and sales events", BarChart3],
-  ["flash-sales", "Flash sales", "Manage countdown sales and discounts", Flame]
+  ["flash-sales", "Flash sales", "Manage countdown sales and discounts", Flame],
+  ["audit-logs", "Audit logs", "Detailed administrator action trails", BarChart3]
 ] as const;
 
 export default async function AdminPage() {

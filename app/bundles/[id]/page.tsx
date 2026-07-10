@@ -1,9 +1,26 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { BundlePurchaseButton } from "@/components/store/bundle-purchase-button";
 import { OfferCountdown } from "@/components/store/offer-countdown";
 import { assetUrl, formatPrice } from "@/lib/utils";
 import { getBundle, getBundles } from "@/lib/supabase/queries";
+
+type Props = { params: Promise<{ id: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const bundle = await getBundle(Number(id));
+  return bundle
+    ? {
+        title: bundle.title,
+        description: bundle.description || "Curated game collection bundle from Rakexura Store.",
+        openGraph: {
+          images: [assetUrl(bundle.cover_image)],
+        },
+      }
+    : { title: "Bundle not found" };
+}
 
 export async function generateStaticParams() {
   const bundles = await getBundles();

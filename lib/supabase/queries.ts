@@ -130,11 +130,30 @@ export const getCustomerProofs = unstable_cache(
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return [];
     const supabase = getStaticClient();
     const { data } = await supabase.from("customer_proofs").select("id,image_url,caption,proof_type,created_at").eq("approved", true).order("created_at", { ascending: false }).limit(8);
-    return (data ?? []) as CustomerProof[];
+    return (data || []) as CustomerProof[];
   },
-  ["customer-proofs-list"],
-  { revalidate: 60, tags: ["proofs"] }
+  ["customer-proofs"],
+  { revalidate: 10, tags: ["proofs"] }
 );
+
+/**
+ * Highly scalable full-text catalog search using PostgreSQL FTS.
+ * Seamlessly interfaces with search_games RPC function.
+ */
+export async function searchCatalog(query: string): Promise<Game[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    const term = query.toLowerCase().trim();
+    return fallbackGames.filter(g => g.title.toLowerCase().includes(term) || (g.tagline || "").toLowerCase().includes(term));
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = getStaticClient() as any;
+  const { data, error } = await supabase.rpc("search_games", { p_query: query });
+  if (error || !data) {
+    console.error("FTS search failed:", error);
+    return [];
+  }
+  return data as Game[];
+}
 
 export interface MarqueeMessage {
   id?: number;

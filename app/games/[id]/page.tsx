@@ -301,8 +301,30 @@ export default async function GamePage({ params }: Props) {
     { icon: ShieldCheck, title: "Protected checkout", text: "Trackable order and private customer data" },
     { icon: Zap, title: "Assisted delivery", text: "Status updates from payment to delivery" },
   ];
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": game.title,
+    "image": assetUrl(game.cover_image),
+    "description": game.description || game.tagline || "",
+    "brand": {
+      "@type": "Brand",
+      "name": game.developer || "Rakexura",
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": game.sale_price || game.original_price || 0,
+      "priceCurrency": "INR",
+      "availability": game.out_of_stock ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+      "url": `${process.env.NEXT_PUBLIC_SITE_URL || "https://rakeon-store.vercel.app"}/games/${game.id}`,
+    }
+  };
 
   return <div className="game-page-theme shell relative min-w-0 overflow-x-clip pb-24 pt-7 lg:py-7" style={pageStyle}>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
     {premiumTheme && <PremiumAmbientEffect theme={premiumTheme} />}
     <RecentlyViewedTracker gameId={game.id} />
     <section className={`game-detail-hero relative min-h-[560px] overflow-hidden rounded-xl border ${heroBorderClass}`}>

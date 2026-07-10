@@ -4,6 +4,7 @@ import { sendEmail } from "@/lib/email";
 import { createClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 import { sendWhatsAppText } from "@/lib/whatsapp";
+import { runBackgroundJob } from "@/lib/security/queue";
 
 export const runtime = "nodejs";
 
@@ -95,6 +96,7 @@ function makeCustomerInvoiceMessage(order: OrderNotice) {
 }
 
 export async function POST(request: Request) {
+  try {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
     const rateLimitKey = "rate-limit:notifications-order:" + ip;
     const limitRes = await rateLimiter.limit(rateLimitKey, 5, 60);
@@ -105,107 +107,112 @@ export async function POST(request: Request) {
       );
     }
 
-  try {
     const order = (await request.json().catch(() => ({}))) as OrderNotice;
     const message = makeOwnerMessage(order);
 
-    // 1. Send notification email to the owner
-    const email = await sendEmail({
-      to: process.env.OWNER_EMAIL ?? process.env.NEXT_PUBLIC_OWNER_EMAIL,
-      subject: `New Rakexura order ${order.reference ?? ""}`.trim(),
-      text: message,
-    });
-
-    // 2. Send invoice email to the customer
-    if (order.customerEmail) {
+    runBackgroundJob(async () => {
+      // 1. Send notification email to the owner
       try {
-        const customerMessage = makeCustomerInvoiceMessage(order);
         await sendEmail({
-          to: order.customerEmail,
-          subject: `Rakexura Store Invoice - Order ${order.reference ?? ""}`.trim(),
-          text: customerMessage,
+          to: process.env.OWNER_EMAIL ?? process.env.NEXT_PUBLIC_OWNER_EMAIL,
+          subject: `New Rakexura order ${order.reference ?? ""}`.trim(),
+          text: message,
         });
-      } catch (custEmailError) {
-        console.error("Failed to send invoice email to customer:", custEmailError);
+      } catch (err) {
+        console.error("Failed to send owner notification email:", err);
       }
-    }
 
-    // 2.5 Also send push notification and database notification as customer invoice fallback
-    if (order.userId) {
+      // 2. Send invoice email to the customer
+      if (order.customerEmail) {
+        try {
+          const customerMessage = makeCustomerInvoiceMessage(order);
+          await sendEmail({
+            to: order.customerEmail,
+            subject: `Rakexura Store Invoice - Order ${order.reference ?? ""}`.trim(),
+            text: customerMessage,
+          });
+        } catch (custEmailError) {
+          console.error("Failed to send invoice email to customer:", custEmailError);
+        }
+      }
+
+      // 2.5 Also send push notification and database notification as customer invoice fallback
+      if (order.userId) {
+        try {
+          const supabase = await createClient();
+          const customerMessage = makeCustomerInvoiceMessage(order);
+          const title = `Order Placed: ${order.reference ?? ""}`;
+          
+          await supabase.from("notifications").insert({
+            user_id: order.userId,
+            title: title,
+            message: customerMessage,
+            type: "order",
+            link: "/dashboard/orders",
+          });
+
+          await sendPushNotification(order.userId, title, customerMessage, "/dashboard/orders");
+        } catch (custPushError) {
+          console.error("Failed to send customer push invoice:", custPushError);
+        }
+      }
+
+      // 3. Send WhatsApp (SMS) notifications
+      try {
+        const ownerWhatsApp = process.env.OWNER_WHATSAPP_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+        if (ownerWhatsApp) {
+          const itemsList = order.items?.map(i => `${i.title} (${i.platform || 'Steam'}) x${i.quantity ?? 1}`).join(', ') || 'Game';
+          const text = `🛒 *New Rakexura Order Received!*\n\n` +
+            `• *Reference:* ${order.reference ?? "N/A"}\n` +
+            `• *Customer:* ${order.customerName ?? "Customer"}\n` +
+            `• *WhatsApp:* ${order.customerWhatsApp ?? "N/A"}\n` +
+            `• *Email:* ${order.customerEmail ?? "N/A"}\n` +
+            `• *Total:* Rs. ${price(orderTotal(order))}\n` +
+            `• *Items:* ${itemsList}\n\n` +
+            `Please verify the payment proof and deliver from the admin dashboard.`;
+          await sendWhatsAppText(ownerWhatsApp, text);
+        }
+      } catch (waOwnerError) {
+        console.error("Failed to send WhatsApp notification to owner:", waOwnerError);
+      }
+
+      try {
+        if (order.customerWhatsApp) {
+          const text = `Hello ${order.customerName ?? 'Customer'},\n\n` +
+            `Thank you for ordering with *Rakexura Store*! 🎮\n\n` +
+            `• *Order Reference:* ${order.reference ?? "N/A"}\n` +
+            `• *Total Amount:* Rs. ${price(orderTotal(order))}\n\n` +
+            `We have received your payment proof. Our team is verifying it right now. Once verified, your activation details will be delivered directly here!\n\n` +
+            `Have a great day!`;
+          await sendWhatsAppText(order.customerWhatsApp, text);
+        }
+      } catch (waCustError) {
+        console.error("Failed to send WhatsApp notification to customer:", waCustError);
+      }
+
+      // 4. Send database in-app & push notification to admins
       try {
         const supabase = await createClient();
-        const customerMessage = makeCustomerInvoiceMessage(order);
-        const title = `Order Placed: ${order.reference ?? ""}`;
-        
-        await supabase.from("notifications").insert({
-          user_id: order.userId,
-          title: title,
-          message: customerMessage,
-          type: "order",
-          link: "/dashboard/orders",
-        });
-
-        await sendPushNotification(order.userId, title, customerMessage, "/dashboard/orders");
-      } catch (custPushError) {
-        console.error("Failed to send customer push invoice:", custPushError);
+        const { data: admins } = await supabase.from("profiles").select("id").eq("role", "admin");
+        if (admins && admins.length > 0) {
+          const adminNotifs = admins.map((admin) => ({
+            user_id: admin.id,
+            title: `New Order Placed`,
+            message: `Order ${order.reference ?? ""} placed by ${order.customerName ?? "Customer"} for Rs. ${Number(orderTotal(order)).toLocaleString("en-IN")}.`,
+            type: "order",
+            link: `/admin/orders`,
+          }));
+          await supabase.from("notifications").insert(adminNotifs);
+          await Promise.all(
+            adminNotifs.map((n) => sendPushNotification(n.user_id, n.title, n.message, n.link))
+          );
+        }
+      } catch (dbError) {
+        console.error("Failed to insert admin order notification into Supabase:", dbError);
       }
-    }
+    });
 
-    // 3. Send WhatsApp (SMS) notifications
-    try {
-      const ownerWhatsApp = process.env.OWNER_WHATSAPP_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
-      if (ownerWhatsApp) {
-        const itemsList = order.items?.map(i => `${i.title} (${i.platform || 'Steam'}) x${i.quantity ?? 1}`).join(', ') || 'Game';
-        const text = `🛒 *New Rakexura Order Received!*\n\n` +
-          `• *Reference:* ${order.reference ?? "N/A"}\n` +
-          `• *Customer:* ${order.customerName ?? "Customer"}\n` +
-          `• *WhatsApp:* ${order.customerWhatsApp ?? "N/A"}\n` +
-          `• *Email:* ${order.customerEmail ?? "N/A"}\n` +
-          `• *Total:* Rs. ${price(orderTotal(order))}\n` +
-          `• *Items:* ${itemsList}\n\n` +
-          `Please verify the payment proof and deliver from the admin dashboard.`;
-        await sendWhatsAppText(ownerWhatsApp, text);
-      }
-    } catch (waOwnerError) {
-      console.error("Failed to send WhatsApp notification to owner:", waOwnerError);
-    }
-
-    try {
-      if (order.customerWhatsApp) {
-        const text = `Hello ${order.customerName ?? 'Customer'},\n\n` +
-          `Thank you for ordering with *Rakexura Store*! 🎮\n\n` +
-          `• *Order Reference:* ${order.reference ?? "N/A"}\n` +
-          `• *Total Amount:* Rs. ${price(orderTotal(order))}\n\n` +
-          `We have received your payment proof. Our team is verifying it right now. Once verified, your activation details will be delivered directly here!\n\n` +
-          `Have a great day!`;
-        await sendWhatsAppText(order.customerWhatsApp, text);
-      }
-    } catch (waCustError) {
-      console.error("Failed to send WhatsApp notification to customer:", waCustError);
-    }
-
-    // 4. Send database in-app & push notification to admins
-    try {
-      const supabase = await createClient();
-      const { data: admins } = await supabase.from("profiles").select("id").eq("role", "admin");
-      if (admins && admins.length > 0) {
-        const adminNotifs = admins.map((admin) => ({
-          user_id: admin.id,
-          title: `New Order Placed`,
-          message: `Order ${order.reference ?? ""} placed by ${order.customerName ?? "Customer"} for Rs. ${Number(orderTotal(order)).toLocaleString("en-IN")}.`,
-          type: "order",
-          link: `/admin/orders`,
-        }));
-        await supabase.from("notifications").insert(adminNotifs);
-        await Promise.all(
-          adminNotifs.map((n) => sendPushNotification(n.user_id, n.title, n.message, n.link))
-        );
-      }
-    } catch (dbError) {
-      console.error("Failed to insert admin order notification into Supabase:", dbError);
-    }
-
-    return NextResponse.json({ success: true, ok: true, email }, { status: 200 });
+    return NextResponse.json({ success: true, ok: true }, { status: 200 });
   } catch (error) {
     console.error("Error in order notification route:", error);
     return NextResponse.json({ success: true, ok: true, error: error instanceof Error ? error.message : String(error) }, { status: 200 });
