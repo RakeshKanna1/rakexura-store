@@ -237,7 +237,7 @@ export function GameCard({
     initial: { opacity: 0, y: 18 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true, amount: 0.18 },
-    transition: { duration: 0.42, ease: [0.2, 0.7, 0.2, 1] }
+    transition: { duration: 0.42, ease: [0.2, 0.7, 0.2, 1] as [number, number, number, number] }
   } : {};
 
   const baseCardClasses = "spotlight-card group relative overflow-hidden rounded-md border transition duration-300";

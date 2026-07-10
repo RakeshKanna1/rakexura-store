@@ -21,7 +21,7 @@ export function Reveal({ children, className, delay = 0 }: { children: React.Rea
     initial: { opacity: 0, y: 24 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true, amount: 0.12 },
-    transition: { duration: 0.55, delay, ease: [0.2, 0.7, 0.2, 1] }
+    transition: { duration: 0.55, delay, ease: [0.2, 0.7, 0.2, 1] as [number, number, number, number] }
   };
 
   return (
