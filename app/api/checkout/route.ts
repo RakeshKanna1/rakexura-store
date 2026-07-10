@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isDiamondOrPlatinumCoupon } from "@/lib/utils";
 import { rateLimiter } from "@/lib/security/rate-limit";
+import { logError } from "@/lib/security/logger";
 
 export async function POST(request: Request) {
   try {
@@ -112,11 +113,22 @@ export async function POST(request: Request) {
     });
 
     if (error) {
+      logError({
+        category: "validation_error",
+        message: "Checkout database RPC failed",
+        context: { name, whatsapp, couponCode, paymentReference },
+        error
+      });
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json({ success: true, reference: data }, { status: 200 });
   } catch (error) {
+    logError({
+      category: "internal_error",
+      message: "Checkout API route handler failed",
+      error
+    });
     return NextResponse.json({ error: error instanceof Error ? error.message : "Internal Server Error" }, { status: 500 });
   }
 }

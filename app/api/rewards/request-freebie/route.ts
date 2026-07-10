@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { sendEmail } from "@/lib/email";
 import { sendPushNotification } from "@/lib/push";
 import { rateLimiter } from "@/lib/security/rate-limit";
+import { logError } from "@/lib/security/logger";
 
 export async function POST(request: Request) {
   try {
@@ -112,11 +113,20 @@ export async function POST(request: Request) {
         );
       }
     } catch (err) {
-      console.error("Failed to notify admins of freebie request:", err);
+      logError({
+        category: "internal_error",
+        message: "Failed to notify admins of freebie request",
+        error: err
+      });
     }
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
+    logError({
+      category: "internal_error",
+      message: "Request freebie API route handler failed",
+      error
+    });
     return NextResponse.json({ error: error instanceof Error ? error.message : "Internal Server Error" }, { status: 500 });
   }
 }
