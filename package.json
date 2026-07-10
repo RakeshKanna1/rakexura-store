@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint app components lib stores types middleware.ts next.config.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test-production": "node test-production.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
