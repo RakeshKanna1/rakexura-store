@@ -75,6 +75,7 @@ function obfuscatePhone(phone: string): string {
 /**
  * Deep sanitize object to redact secrets and obfuscate PII.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function sanitize(obj: unknown): any {
   if (obj === null || obj === undefined) return obj;
   
