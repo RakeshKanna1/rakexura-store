@@ -67,7 +67,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
             <SwiperSlide key={game.id}>
               <article className="hero-frame relative min-h-[420px] overflow-hidden rounded-xl md:min-h-[570px]">
                 {/* Always render the static Image first for fast SSR and LCP priority */}
-                <Image src={assetUrl(game.banner_image || game.cover_image)} alt="" fill priority={index === 0} unoptimized className="hero-media object-cover" sizes="100vw" />
+                <Image src={assetUrl(game.banner_image || game.cover_image)} alt={`Spotlight ${game.title} banner`} fill priority={index === 0} className="hero-media object-cover" sizes="100vw" />
 
                 
                 {/* Overlay video player client-side after hydration on desktop viewports */}

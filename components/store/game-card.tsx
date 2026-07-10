@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Eye, Heart, ShoppingCart, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { assetUrl, formatPrice, isHighEndDevice } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
@@ -69,6 +70,11 @@ function GameCardInner({
   discount,
   platforms,
 }: GameCardInnerProps) {
+  const router = useRouter();
+  const handleMouseEnter = () => {
+    router.prefetch(`/games/${game.id}`);
+  };
+
   return (
     <>
       {game.is_premium && (
@@ -82,7 +88,7 @@ function GameCardInner({
           />
         </div>
       )}
-      <Link href={`/games/${game.id}`} className="block aspect-[4/5] overflow-hidden bg-[#08090c]">
+      <Link href={`/games/${game.id}`} prefetch={false} onMouseEnter={handleMouseEnter} className="block aspect-[4/5] overflow-hidden bg-[#08090c]">
         <Image
           src={assetUrl(game.cover_image)}
           alt={game.title}
@@ -129,7 +135,7 @@ function GameCardInner({
       <div className="p-3">
         <p className="mb-1.5 truncate text-[9px] font-bold uppercase tracking-wide text-[#81889a]">{game.is_subscription ? "Service Membership" : (game.genres?.slice(0, 2).join(" / ") || "PC Game")}</p>
 
-        <Link href={`/games/${game.id}`} className="line-clamp-2 min-h-10 text-sm font-bold leading-5">
+        <Link href={`/games/${game.id}`} prefetch={false} onMouseEnter={handleMouseEnter} className="line-clamp-2 min-h-10 text-sm font-bold leading-5">
           {game.title}
         </Link>
 

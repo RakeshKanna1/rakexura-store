@@ -576,6 +576,10 @@ h1, h2, h3, .section-title, .display {
   animation: shine-text 4s linear infinite;
 }
 
+body:has(#rakexura-loading-screen) footer {
+  display: none !important;
+}
+
 
 
 
