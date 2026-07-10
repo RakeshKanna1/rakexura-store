@@ -2,6 +2,8 @@ import "server-only";
 // @ts-expect-error - nodemailer types are not locally installed in devDependencies
 import nodemailer from "nodemailer";
 
+import { fetchWithTimeout } from "@/lib/security/request";
+
 type SendEmailInput = {
   to?: string | null;
   subject: string;
@@ -113,7 +115,7 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
   // Failsafe: Fallback to Resend HTTP API if Nodemailer SMTP fails or is unavailable
   if (apiKey) {
     try {
-      const response = await fetch("https://api.resend.com/emails", {
+      const response = await fetchWithTimeout("https://api.resend.com/emails", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${apiKey}`,

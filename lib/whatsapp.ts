@@ -1,4 +1,5 @@
 import "server-only";
+import { fetchWithTimeout } from "@/lib/security/request";
 
 type SendResult = {
   ok: boolean;
@@ -38,7 +39,7 @@ export async function sendWhatsAppText(to: string | null | undefined, body: stri
   if (!token || !phoneNumberId) return { ok: false, skipped: true, reason: "WhatsApp API env vars are not configured" };
 
   try {
-    const response = await fetch(`https://graph.facebook.com/v20.0/${phoneNumberId}/messages`, {
+    const response = await fetchWithTimeout(`https://graph.facebook.com/v20.0/${phoneNumberId}/messages`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
