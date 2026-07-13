@@ -236,7 +236,6 @@ export function CheckoutForm() {
     const normalized = couponCode.trim().toUpperCase();
     if (!normalized) return toast.error("Enter a coupon code");
     setCheckingCoupon(true);
-    const supabase = createClient();
 
     // Verify that the cart contains non-subscription items to discount
     const hasDiscountableItems = lines.some(line => line && line.game && !line.game.is_subscription) || bundleLines.length > 0;
@@ -246,191 +245,69 @@ export function CheckoutForm() {
       return toast.error("Coupons cannot be applied to subscriptions.");
     }
 
-    // Check game price restriction for general coupons (non-Diamond/Platinum)
-    if (!isDiamondOrPlatinumCoupon(normalized)) {
-      const hasLowPricedGame = lines.some((line) => {
-        if (!line || !line.game || line.game.is_subscription) return false;
+    // Determine the lowest price of any discountable item in the cart
+    let lowestPricedItem = 999999;
+    let discountableCount = 0;
+    lines.forEach(line => {
+      if (line && line.game && !line.game.is_subscription) {
         const platform = line.platform || "Steam";
-        const g = line.game;
-        const value = getCheckoutLinePrice(g, platform);
-        return Number(value ?? 0) * (line.quantity || 1) <= 99;
-      });
-      const hasLowPricedBundle = bundleLines.some((line) => {
-        if (!line || !line.bundle) return false;
-        return Number(line.bundle.bundle_price || 0) * (line.quantity || 1) <= 99;
-      });
-      if (hasLowPricedGame || hasLowPricedBundle) {
-        setCoupon(null);
-        setCheckingCoupon(false);
-        return toast.error("General coupons can only be applied to games priced above Rs. 99.");
+        const val = getCheckoutLinePrice(line.game, platform);
+        if (val < lowestPricedItem) lowestPricedItem = val;
+        discountableCount += (line.quantity || 1);
       }
-    }
-
-    if (normalized === "RAKETHREE") {
-      if (quantity < 3) {
-        setCoupon(null);
-        setCheckingCoupon(false);
-        return toast.error("This code requires a minimum selection of 3 games.");
-      }
-      setCoupon({
-        code: "RAKETHREE",
-        discount_type: "percentage",
-        discount_value: 10,
-        minimum_order: 0
-      });
-      setCheckingCoupon(false);
-      setCelebrate(true);
-      return toast.success("Milestone discount applied! 10% price drop reduction.");
-    }
-
-    // Block free game and high-value triggers for lower-tier ranks (below Diamond: < 4000 points)
-    const isRestrictedCode = normalized === "RAKE20" || normalized === "DIAMONDFREE" || normalized === "DIAMOND-FREEBIE" || normalized === "PLATINUMFREE" || normalized === "PLATINUM-FREEBIE";
-    if (isRestrictedCode) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setCheckingCoupon(false);
-        return toast.error("Sign in to redeem loyalty rewards");
-      }
-      const { data: reward } = await supabase.from("user_rewards").select("points").eq("user_id", user.id).maybeSingle();
-      if ((reward?.points ?? 0) < 4000) {
-        setCheckingCoupon(false);
-        return toast.error("This master code is exclusively restricted to Diamond or Platinum members.");
-      }
-    }
-
-    const isFreeCode = normalized === "DIAMONDFREE" || normalized === "DIAMOND-FREEBIE" || normalized === "PLATINUMFREE" || normalized === "PLATINUM-FREEBIE";
-    if (isFreeCode) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setCheckingCoupon(false);
-        return toast.error("Sign in to redeem loyalty rewards");
-      }
-      const { data: reward } = await supabase.from("user_rewards").select("points").eq("user_id", user.id).maybeSingle();
-      const points = reward?.points ?? 0;
-
-      // Diamond reset exploit prevention
-      if ((normalized === "DIAMONDFREE" || normalized === "DIAMOND-FREEBIE") && points < 4000) {
-        setCheckingCoupon(false);
-        return toast.error("This master code is exclusively restricted to Diamond or Platinum members.");
-      }
-
-      if (normalized === "DIAMONDFREE" || normalized === "DIAMOND-FREEBIE") {
-        const { data: couponsData } = await supabase.from("coupons").select("id").in("code", ["DIAMONDFREE", "DIAMOND-FREEBIE"]);
-        const couponIds = couponsData?.map((c) => c.id) ?? [];
-        if (couponIds.length > 0) {
-          const { count } = await supabase.from("coupon_usage").select("id", { count: "exact", head: true }).eq("user_id", user.id).in("coupon_id", couponIds);
-          if ((count ?? 0) >= 1) {
-            setCheckingCoupon(false);
-            return toast.error("Diamond loyalty freebie has already been claimed and locked.");
-          }
-        }
-        setCoupon({ code: normalized, discount_type: "percentage", discount_value: 100, minimum_order: 0 });
-        setCheckingCoupon(false);
-        setCelebrate(true);
-        return toast.success("Diamond rank freebie applied! Total is Rs. 0.");
-      }
-
-      if (normalized === "PLATINUMFREE" || normalized === "PLATINUM-FREEBIE") {
-        if (points < 10000) {
-          setCheckingCoupon(false);
-          return toast.error("This master code is exclusively restricted to Diamond or Platinum members.");
-        }
-        const { data: couponsData } = await supabase.from("coupons").select("id").in("code", ["PLATINUMFREE", "PLATINUM-FREEBIE"]);
-        const couponIds = couponsData?.map((c) => c.id) ?? [];
-        if (couponIds.length > 0) {
-          const { count } = await supabase.from("coupon_usage").select("id", { count: "exact", head: true }).eq("user_id", user.id).in("coupon_id", couponIds);
-          if ((count ?? 0) >= 3) {
-            setCheckingCoupon(false);
-            return toast.error("Platinum loyalty freebies have reached the maximum limit of 3 redemptions.");
-          }
-        }
-        setCoupon({ code: normalized, discount_type: "percentage", discount_value: 100, minimum_order: 0 });
-        setCheckingCoupon(false);
-        setCelebrate(true);
-        return toast.success("Platinum rank freebie applied! Total is Rs. 0.");
-      }
-    }
-
-    // 2. Milestone Loyalty Coupon check (purchased games >= 3 condition)
-    const isMilestoneCoupon = normalized.startsWith("MILE") || normalized.startsWith("LOYAL") || normalized.startsWith("STAGE") || (normalized.startsWith("PLAT") && normalized !== "PLATINUMFREE" && normalized !== "PLATINUM-FREEBIE");
-    if (isMilestoneCoupon) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setCheckingCoupon(false);
-        return toast.error("Sign in to apply milestone loyalty coupons");
-      }
-      const { count } = await supabase.from("customer_library").select("id", { count: "exact", head: true }).eq("user_id", user.id);
-      if ((count ?? 0) < 3) {
-        setCheckingCoupon(false);
-        return toast.error("Unlock milestone coupons by purchasing 3 or more games on your account profile.");
-      }
-    }
-
-    const { data, error } = await supabase
-      .from("coupons")
-      .select("id,code,discount_type,discount_value,minimum_order,starts_at,expires_at,active,usage_limit,per_user_limit")
-      .eq("code", normalized)
-      .eq("active", true)
-      .maybeSingle();
-
-    if (error || !data || (data.expires_at && new Date(data.expires_at) <= new Date()) || (data.starts_at && new Date(data.starts_at) > new Date())) {
-      setCoupon(null);
-      setCheckingCoupon(false);
-      return toast.error("This coupon is invalid or not active");
-    }
-
-    if (data.usage_limit !== null) {
-      const { count: globalUses } = await supabase
-        .from("coupon_usage")
-        .select("id", { count: "exact", head: true })
-        .eq("coupon_id", data.id);
-      if ((globalUses ?? 0) >= data.usage_limit) {
-        setCoupon(null);
-        setCheckingCoupon(false);
-        return toast.error("This coupon code has reached its global usage limit.");
-      }
-    }
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { count } = await supabase
-        .from("coupon_usage")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .eq("coupon_id", data.id);
-      const userLimit = data.per_user_limit ?? 1;
-      if (count && count >= userLimit) {
-        setCoupon(null);
-        setCheckingCoupon(false);
-        return toast.error(`You have already redeemed this coupon the maximum allowed ${userLimit} time(s).`);
-      }
-    }
-
-    setCheckingCoupon(false);
-
-    if (subtotal < Number(data.minimum_order ?? 0)) {
-      return toast.error(`Minimum order total of ${formatPrice(Number(data.minimum_order))} required`);
-    }
-
-    // Verify if the coupon would result in free game (total = 0) for ranks below Diamond
-    const tempDiscount = Math.min(subtotal, data.discount_type === "percentage" ? subtotal * Number(data.discount_value) / 100 : Number(data.discount_value));
-    if (subtotal - tempDiscount <= 0) {
-      const { data: { user } } = await supabase.auth.getUser();
-      const points = user ? (await supabase.from("user_rewards").select("points").eq("user_id", user.id).maybeSingle()).data?.points ?? 0 : 0;
-      if (points < 4000) {
-        setCoupon(null);
-        return toast.error("Free game checkout codes are restricted to Diamond and Platinum loyalty ranks.");
-      }
-    }
-
-    setCoupon({
-      code: data.code,
-      discount_type: data.discount_type as "percentage" | "flat",
-      discount_value: Number(data.discount_value),
-      minimum_order: Number(data.minimum_order ?? 0)
     });
-    setCelebrate(true);
-    toast.success("Coupon applied");
+    bundleLines.forEach(line => {
+      if (line && line.bundle) {
+        const val = Number(line.bundle.bundle_price || 0);
+        if (val < lowestPricedItem) lowestPricedItem = val;
+        discountableCount += (line.quantity || 1);
+      }
+    });
+
+    try {
+      const response = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: normalized,
+          gamePrice: lowestPricedItem === 999999 ? undefined : lowestPricedItem,
+          subtotal: subtotal,
+          quantity: quantity,
+          cartItemsCount: discountableCount
+        })
+      });
+
+      const resData = await response.json();
+      if (!response.ok || !resData.success) {
+        setCoupon(null);
+        toast.error(resData.error?.message || "This coupon is invalid or not active");
+      } else {
+        // Verify if the coupon would result in free game (total = 0) for ranks below Diamond
+        const tempDiscount = Math.min(subtotal, resData.data.discount_type === "percentage" ? subtotal * Number(resData.data.discount_value) / 100 : Number(resData.data.discount_value));
+        if (subtotal - tempDiscount <= 0) {
+          const supabase = createClient();
+          const { data: { user } } = await supabase.auth.getUser();
+          const points = user ? (await supabase.from("user_rewards").select("points").eq("user_id", user.id).maybeSingle()).data?.points ?? 0 : 0;
+          if (points < 4000) {
+            setCoupon(null);
+            return toast.error("Free game checkout codes are restricted to Diamond and Platinum loyalty ranks.");
+          }
+        }
+
+        setCoupon({
+          code: resData.data.code,
+          discount_type: resData.data.discount_type,
+          discount_value: resData.data.discount_value,
+          minimum_order: resData.data.minimum_order
+        });
+        setCelebrate(true);
+        toast.success("Coupon applied");
+      }
+    } catch {
+      toast.error("Network error during coupon validation.");
+    } finally {
+      setCheckingCoupon(false);
+    }
   }
 
   async function submit(values: Data) {

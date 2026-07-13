@@ -1,7 +1,4 @@
-/**
- * Structured Observability Logger
- * Standardizes error categories and sanitizes secrets, keys, and PII.
- */
+import * as Sentry from "@sentry/nextjs";
 
 export type ErrorCategory =
   | "validation_error"
@@ -19,7 +16,7 @@ export interface LogPayload {
 }
 
 /**
- * Log structured error details to stderr.
+ * Log structured error details to stderr and Sentry.
  */
 export function logError(payload: LogPayload) {
   const { category, message, context = {}, error } = payload;
@@ -40,6 +37,36 @@ export function logError(payload: LogPayload) {
   };
 
   console.error(JSON.stringify(structuredLog));
+
+  // Capture to Sentry with enriched contextual details
+  try {
+    const route = sanitizedContext.route || sanitizedContext.pathname;
+    const userId = sanitizedContext.userId || sanitizedContext.user_id;
+    const requestId = sanitizedContext.requestId || sanitizedContext.request_id;
+    const orderId = sanitizedContext.orderId || sanitizedContext.order_id || sanitizedContext.reference;
+    const operationName = sanitizedContext.operationName || sanitizedContext.operation || sanitizedContext.operation_name;
+
+    Sentry.withScope((scope) => {
+      scope.setTag("category", category);
+      if (route) scope.setTag("route", String(route));
+      if (requestId) scope.setTag("request_id", String(requestId));
+      if (orderId) scope.setTag("order_id", String(orderId));
+      if (operationName) scope.setTag("operation_name", String(operationName));
+      if (userId) scope.setUser({ id: String(userId) });
+
+      scope.setContext("details", sanitizedContext);
+
+      if (error instanceof Error) {
+        Sentry.captureException(error);
+      } else if (error) {
+        Sentry.captureException(new Error(String(error)));
+      } else {
+        Sentry.captureMessage(message, "error");
+      }
+    });
+  } catch (sentryErr) {
+    console.error("Failed to capture error in Sentry:", sentryErr);
+  }
 }
 
 /**
@@ -88,7 +115,7 @@ function sanitize(obj: unknown): any {
     for (const [key, val] of Object.entries(obj)) {
       const lowerKey = key.toLowerCase();
       
-      // Secrets Redaction
+      // Secrets & Screenshot URLs Redaction
       if (
         lowerKey.includes("password") ||
         lowerKey.includes("token") ||
@@ -99,7 +126,11 @@ function sanitize(obj: unknown): any {
         lowerKey.includes("card") ||
         lowerKey.includes("auth") ||
         lowerKey.includes("jwt") ||
-        lowerKey.includes("credentials")
+        lowerKey.includes("credentials") ||
+        lowerKey.includes("screenshot") ||
+        lowerKey.includes("image_url") ||
+        lowerKey.includes("payment_proof") ||
+        lowerKey.includes("proof_path")
       ) {
         res[key] = "[REDACTED_SECRET]";
       }
@@ -121,3 +152,4 @@ function sanitize(obj: unknown): any {
 
   return obj;
 }
+

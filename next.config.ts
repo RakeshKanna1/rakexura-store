@@ -18,7 +18,7 @@ const cspHeader = `
   img-src 'self' blob: data: https://*.supabase.co https://*.supabase.in https://images.unsplash.com https://wa.me https://img.youtube.com https://*.ytimg.com https://*.youtube.com;
   media-src 'self' blob: data: https://*.supabase.co https://*.supabase.in;
   font-src 'self' data:;
-  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.wa.me https://*.upstash.io https://*.upstash.com;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.wa.me https://*.upstash.io https://*.upstash.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io;
   frame-src 'self' https://*.discord.com https://*.google.com https://www.youtube.com https://www.youtube-nocookie.com;
   frame-ancestors 'none';
 `.replace(/\s{2,}/g, " ").trim();

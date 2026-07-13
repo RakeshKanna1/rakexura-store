@@ -7,15 +7,24 @@ import { sendPushNotification } from "@/lib/push";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
-    const rateLimitKey = "rate-limit:notifications-request:" + ip;
-    const limitRes = await rateLimiter.limit(rateLimitKey, 5, 60);
-    if (!limitRes.success) {
-      return NextResponse.json(
-        { error: "Too many requests. Please try again in a minute." },
-        { status: 429, headers: { "Retry-After": String(Math.ceil(limitRes.reset - Math.floor(Date.now() / 1000))) } }
-      );
-    }
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
+  const rateLimitKey = "rate-limit:notifications-request:" + ip;
+  const limitRes = await rateLimiter.limit(rateLimitKey, 5, 60);
+  if (!limitRes.success) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: "Too many requests. Please try again in a minute.",
+          code: "RATE_LIMIT_EXCEEDED"
+        }
+      },
+      {
+        status: 429,
+        headers: { "Retry-After": String(Math.ceil(limitRes.reset - Math.floor(Date.now() / 1000))) }
+      }
+    );
+  }
 
   try {
     const body = await request.json().catch(() => ({}));
@@ -24,7 +33,16 @@ export async function POST(request: Request) {
     const customerEmail = String(body.customerEmail ?? "").trim();
 
     if (gameName.length < 2) {
-      return NextResponse.json({ success: false, ok: false, error: "Game name is required" }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Game name is required",
+            code: "VALIDATION_ERROR"
+          }
+        },
+        { status: 400 }
+      );
     }
 
     const text = [
@@ -61,9 +79,27 @@ export async function POST(request: Request) {
       console.error("Failed to insert admin request notification into Supabase:", dbError);
     }
 
-    return NextResponse.json({ success: true, ok: true, email }, { status: 200 });
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          ok: true,
+          email
+        }
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error in request notification route:", error);
-    return NextResponse.json({ success: true, ok: true, error: error instanceof Error ? error.message : String(error) }, { status: 200 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: error instanceof Error ? error.message : String(error),
+          code: "REQUEST_NOTIFICATION_FAILED"
+        }
+      },
+      { status: 500 }
+    );
   }
 }

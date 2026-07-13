@@ -13,15 +13,33 @@ export async function POST(request: Request) {
     const limitRes = await rateLimiter.limit(rateLimitKey, 5, 60);
     if (!limitRes.success) {
       return NextResponse.json(
-        { error: "Too many requests. Please try again in a minute." },
-        { status: 429, headers: { "Retry-After": String(Math.ceil(limitRes.reset - Math.floor(Date.now() / 1000))) } }
+        {
+          success: false,
+          error: {
+            message: "Too many requests. Please try again in a minute.",
+            code: "RATE_LIMIT_EXCEEDED"
+          }
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(Math.ceil(limitRes.reset - Math.floor(Date.now() / 1000))) }
+        }
       );
     }
 
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Unauthorized",
+            code: "UNAUTHORIZED"
+          }
+        },
+        { status: 401 }
+      );
     }
 
     const body = await request.json().catch(() => ({}));
@@ -45,7 +63,7 @@ export async function POST(request: Request) {
       text: textContent,
     });
 
-    // 2. Notify all admins in-app and via push (only goes to owner/admins)
+    // 2. Notify all admins in-app and via push
     try {
       const { data: admins } = await supabase.from("profiles").select("id").eq("role", "admin");
       if (admins && admins.length > 0) {
@@ -65,10 +83,27 @@ export async function POST(request: Request) {
       console.error("Failed to insert admin review notification into Supabase:", dbError);
     }
 
-    return NextResponse.json({ success: true, ok: true }, { status: 200 });
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          ok: true
+        }
+      },
+      { status: 200 }
+    );
   } catch (error: unknown) {
     console.error("Error in review notification route:", error);
     const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message,
+          code: "INTERNAL_ERROR"
+        }
+      },
+      { status: 500 }
+    );
   }
 }

@@ -137,6 +137,41 @@ async function runSuite() {
     // Note: LocalRateLimiter or Upstash will block at 5 requests/min. If local rate limiter is loaded, it should hit 429 on the 6th call.
     console.log("Rate limiting result:", limitExceeded ? "BLOCKED 429" : "NO BLOCK (Might be running without client IP headers locally)");
 
+    // Test 6: Coupon validation API
+    console.log("\n--- TEST 6: Coupon Validation API ---");
+    const couponVal = await new Promise((resolve) => {
+      const postData = JSON.stringify({});
+      const req = http.request({
+        hostname: "localhost",
+        port: 3001,
+        path: "/api/coupons/validate",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(postData)
+        }
+      }, (res) => {
+        let data = "";
+        res.on("data", (chunk) => { data += chunk; });
+        res.on("end", () => {
+          try { resolve({ statusCode: res.statusCode, body: JSON.parse(data) }); }
+          catch { resolve({ statusCode: res.statusCode, body: data }); }
+        });
+      });
+      req.on("error", () => resolve({ statusCode: 500, body: "" }));
+      req.write(postData);
+      req.end();
+    });
+    console.log(`HTTP Status: ${couponVal.statusCode}`);
+    console.log("Response Body:", couponVal.body);
+
+    if (couponVal.statusCode === 400 && couponVal.body?.success === false && couponVal.body?.error?.code === "VALIDATION_ERROR") {
+      console.log("✅ PASSED: Coupon validation rejected empty payload correctly");
+    } else {
+      console.error("❌ FAILED: Coupon validation returned unexpected response", couponVal.statusCode, couponVal.body);
+      failedTests++;
+    }
+
   } catch (err) {
     console.error("❌ Integration test runner error:", err);
     failedTests++;

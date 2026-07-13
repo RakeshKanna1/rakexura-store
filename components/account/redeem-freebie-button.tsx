@@ -32,7 +32,8 @@ export function RedeemFreebieButton({ points, initialLastRequestDate, isApproved
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error || "Failed to process request");
+        const errorMsg = data.error && typeof data.error === "object" ? data.error.message : (data.error || "Failed to process request");
+        toast.error(errorMsg);
       } else {
         toast.success("Request Pending - Checking verification status!");
         setCooldown(true);

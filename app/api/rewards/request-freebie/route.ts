@@ -12,15 +12,33 @@ export async function POST(request: Request) {
     const limitRes = await rateLimiter.limit(rateLimitKey, 3, 60);
     if (!limitRes.success) {
       return NextResponse.json(
-        { error: "Too many requests. Please try again in a minute." },
-        { status: 429, headers: { "Retry-After": String(Math.ceil(limitRes.reset - Math.floor(Date.now() / 1000))) } }
+        {
+          success: false,
+          error: {
+            message: "Too many requests. Please try again in a minute.",
+            code: "RATE_LIMIT_EXCEEDED"
+          }
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(Math.ceil(limitRes.reset - Math.floor(Date.now() / 1000))) }
+        }
       );
     }
 
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Unauthorized",
+            code: "UNAUTHORIZED"
+          }
+        },
+        { status: 401 }
+      );
     }
 
     // Fetch user profile and rewards points
@@ -41,7 +59,16 @@ export async function POST(request: Request) {
 
     // 1. Gate: Must be Diamond or Platinum (points >= 4000)
     if (userPoints < 4000) {
-      return NextResponse.json({ error: "Insufficient rank points." }, { status: 403 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Insufficient rank points.",
+            code: "INSUFFICIENT_POINTS"
+          }
+        },
+        { status: 403 }
+      );
     }
 
     // 2. Cooldown Gate: 24 hours check
@@ -49,7 +76,16 @@ export async function POST(request: Request) {
       const lastRequest = new Date(profile.last_request_date).getTime();
       const diff = Date.now() - lastRequest;
       if (diff < 24 * 60 * 60 * 1000) {
-        return NextResponse.json({ error: "A waiting period of 24 hours is active." }, { status: 429 });
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              message: "A waiting period of 24 hours is active.",
+              code: "COOLDOWN_ACTIVE"
+            }
+          },
+          { status: 429 }
+        );
       }
     }
 
@@ -120,13 +156,30 @@ export async function POST(request: Request) {
       });
     }
 
-    return NextResponse.json({ success: true }, { status: 200 });
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          ok: true
+        }
+      },
+      { status: 200 }
+    );
   } catch (error) {
     logError({
       category: "internal_error",
       message: "Request freebie API route handler failed",
       error
     });
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: error instanceof Error ? error.message : "Internal Server Error",
+          code: "INTERNAL_ERROR"
+        }
+      },
+      { status: 500 }
+    );
   }
 }

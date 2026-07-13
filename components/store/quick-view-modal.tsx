@@ -6,9 +6,8 @@ import Link from "next/link";
 import { Heart, ShoppingBag, X, TicketPercent } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
-import { assetUrl, formatPrice, lowestPrice, isDiamondOrPlatinumCoupon } from "@/lib/utils";
+import { assetUrl, formatPrice, lowestPrice } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
-import { createClient } from "@/lib/supabase/client";
 import type { Game } from "@/types/store";
 import { availablePlatforms } from "./game-card";
 import { Confetti } from "@/components/common/confetti";
@@ -31,100 +30,38 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
     const normalized = couponCode.trim().toUpperCase();
     if (!normalized) return toast.error("Enter a coupon code");
     setCheckingCoupon(true);
-    const supabase = createClient();
 
-    // Check game price restriction for general coupons (non-Diamond/Platinum)
-    const lowestVal = game ? lowestPrice(game) : 0;
-    const isDiamondOrPlat = isDiamondOrPlatinumCoupon(normalized);
-    if (!isDiamondOrPlat && lowestVal <= 99) {
-      setCoupon(null);
-      setCheckingCoupon(false);
-      return toast.error("General coupons can only be applied to games priced above Rs. 99.");
-    }
+    try {
+      const response = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: normalized,
+          gamePrice: lowest,
+          subtotal: lowest,
+          quantity: 1
+        })
+      });
 
-    // 1. DIAMOND FREEBIE check
-    if (normalized === "DIAMONDFREE" || normalized === "DIAMOND-FREEBIE") {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setCheckingCoupon(false);
-        return toast.error("Sign in to redeem Diamond loyalty perks");
-      }
-      const { data: reward } = await supabase.from("user_rewards").select("points").eq("user_id", user.id).maybeSingle();
-      if ((reward?.points ?? 0) < 3000) {
-        setCheckingCoupon(false);
-        return toast.error("Diamond loyalty freebies require Diamond rank (3,000+ points).");
-      }
-      setCoupon({ code: "DIAMONDFREE", discount_type: "percentage", discount_value: 100, minimum_order: 0 });
-      setCheckingCoupon(false);
-      setCelebrate(true);
-      return toast.success("Diamond rank freebie applied! Total is Rs. 0.");
-    }
-
-    // 2. Milestone Loyalty Coupon check (purchased games >= 3 condition)
-    const isMilestoneCoupon = normalized.startsWith("MILE") || normalized.startsWith("LOYAL") || normalized.startsWith("STAGE") || normalized.startsWith("PLAT");
-    if (isMilestoneCoupon) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setCheckingCoupon(false);
-        return toast.error("Sign in to apply milestone loyalty coupons");
-      }
-      const { count } = await supabase.from("customer_library").select("id", { count: "exact", head: true }).eq("user_id", user.id);
-      if ((count ?? 0) < 3) {
-        setCheckingCoupon(false);
-        return toast.error("Unlock milestone coupons by purchasing 3 or more games on your account profile.");
-      }
-    }
-
-    const { data, error } = await supabase
-      .from("coupons")
-      .select("id,code,discount_type,discount_value,minimum_order,starts_at,expires_at,active,usage_limit,per_user_limit")
-      .eq("code", normalized)
-      .eq("active", true)
-      .maybeSingle();
-
-    if (error || !data || (data.expires_at && new Date(data.expires_at) <= new Date()) || (data.starts_at && new Date(data.starts_at) > new Date())) {
-      setCheckingCoupon(false);
-      setCoupon(null);
-      return toast.error("This coupon is invalid or not active");
-    }
-
-    if (data.usage_limit !== null) {
-      const { count: globalUses } = await supabase
-        .from("coupon_usage")
-        .select("id", { count: "exact", head: true })
-        .eq("coupon_id", data.id);
-      if ((globalUses ?? 0) >= data.usage_limit) {
-        setCheckingCoupon(false);
+      const resData = await response.json();
+      if (!response.ok || !resData.success) {
         setCoupon(null);
-        return toast.error("This coupon code has reached its global usage limit.");
+        toast.error(resData.error?.message || "This coupon is invalid or not active");
+      } else {
+        setCoupon({
+          code: resData.data.code,
+          discount_type: resData.data.discount_type,
+          discount_value: resData.data.discount_value,
+          minimum_order: resData.data.minimum_order
+        });
+        setCelebrate(true);
+        toast.success("Coupon applied");
       }
+    } catch {
+      toast.error("Network error during coupon validation.");
+    } finally {
+      setCheckingCoupon(false);
     }
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { count } = await supabase
-        .from("coupon_usage")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .eq("coupon_id", data.id);
-      const userLimit = data.per_user_limit ?? 1;
-      if (count && count >= userLimit) {
-        setCheckingCoupon(false);
-        setCoupon(null);
-        return toast.error(`You have already redeemed this coupon the maximum allowed ${userLimit} time(s).`);
-      }
-    }
-
-    setCheckingCoupon(false);
-
-    setCoupon({
-      code: data.code,
-      discount_type: data.discount_type as "percentage" | "flat",
-      discount_value: Number(data.discount_value),
-      minimum_order: Number(data.minimum_order ?? 0)
-    });
-    setCelebrate(true);
-    toast.success("Coupon applied");
   }
 
   return (

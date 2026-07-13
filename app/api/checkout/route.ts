@@ -119,16 +119,42 @@ export async function POST(request: Request) {
         context: { name, whatsapp, couponCode, paymentReference },
         error
       });
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: error.message,
+            code: "BAD_REQUEST"
+          }
+        },
+        { status: 400 }
+      );
     }
 
-    return NextResponse.json({ success: true, reference: data }, { status: 200 });
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          reference: data
+        }
+      },
+      { status: 200 }
+    );
   } catch (error) {
     logError({
       category: "internal_error",
       message: "Checkout API route handler failed",
       error
     });
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: error instanceof Error ? error.message : "Internal Server Error",
+          code: "INTERNAL_ERROR"
+        }
+      },
+      { status: 500 }
+    );
   }
 }

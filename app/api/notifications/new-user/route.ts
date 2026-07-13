@@ -7,21 +7,39 @@ import { sendPushNotification } from "@/lib/push";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
-    const rateLimitKey = "rate-limit:notifications-new-user:" + ip;
-    const limitRes = await rateLimiter.limit(rateLimitKey, 5, 60);
-    if (!limitRes.success) {
-      return NextResponse.json(
-        { error: "Too many requests. Please try again in a minute." },
-        { status: 429, headers: { "Retry-After": String(Math.ceil(limitRes.reset - Math.floor(Date.now() / 1000))) } }
-      );
-    }
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
+  const rateLimitKey = "rate-limit:notifications-new-user:" + ip;
+  const limitRes = await rateLimiter.limit(rateLimitKey, 5, 60);
+  if (!limitRes.success) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: "Too many requests. Please try again in a minute.",
+          code: "RATE_LIMIT_EXCEEDED"
+        }
+      },
+      {
+        status: 429,
+        headers: { "Retry-After": String(Math.ceil(limitRes.reset - Math.floor(Date.now() / 1000))) }
+      }
+    );
+  }
 
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Unauthorized",
+            code: "UNAUTHORIZED"
+          }
+        },
+        { status: 401 }
+      );
     }
 
     const { data: profile } = await supabase
@@ -31,7 +49,16 @@ export async function POST(request: Request) {
       .maybeSingle();
 
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Profile not found",
+            code: "NOT_FOUND"
+          }
+        },
+        { status: 404 }
+      );
     }
 
     // Only notify if they haven't been notified yet and they are a customer
@@ -80,10 +107,27 @@ export async function POST(request: Request) {
         .eq("id", user.id);
     }
 
-    return NextResponse.json({ success: true, ok: true }, { status: 200 });
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          ok: true
+        }
+      },
+      { status: 200 }
+    );
   } catch (error: unknown) {
     console.error("Error in new-user notification route:", error);
     const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message,
+          code: "INTERNAL_ERROR"
+        }
+      },
+      { status: 500 }
+    );
   }
 }

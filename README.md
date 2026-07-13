@@ -149,6 +149,47 @@ Create a new Vercel project or set the existing project Root Directory to `rakex
 
 ---
 
+## 🏗️ Production Hardening & Stability
+
+A production hardening pass has been performed to enhance security, observability, performance, and developer experience.
+
+### 1. Server-Side Rate Limiting
+Lightweight rate limiting has been integrated for key endpoints (using Upstash Redis in production, falling back to an in-memory token bucket locally):
+* **Checkout API** (`/api/checkout`): Max 5 requests per 60 seconds per IP.
+* **Coupon Validation** (`/api/coupons/validate`): Max 15 requests per 60 seconds per IP.
+* **Review notifications** (`/api/notifications/review`): Max 5 requests per 60 seconds per IP.
+* **Support / Request notifications** (`/api/notifications/request`): Max 5 requests per 60 seconds per IP.
+* **Signup notifications** (`/api/notifications/new-user`): Max 5 requests per 60 seconds per IP.
+* **Loyalty Freebie Request** (`/api/rewards/request-freebie`): Max 3 requests per 60 seconds per IP.
+
+### 2. Sentry & Observability
+The observability logger (`lib/security/logger.ts`) is integrated with Sentry:
+* Context metadata automatically publishes tags for `route`, `request_id`, `order_id`, `operation_name`, and scopes to the authenticated `user_id`.
+* Safe redaction is extended to prevent leaks of passwords, API keys, credentials, tokens, PII (name/email/phone), and **payment proofs / screenshots / URL paths**.
+
+### 3. Server-Side Coupon Validation
+A new rate-limited server-side coupon validation API (`/api/coupons/validate`) checks all coupon attributes (e.g. minimum order price rules, loyalty points thresholds, global/user usage caps, and milestone eligibility) securely on the backend before checkout.
+
+### 4. Database Scaling
+Optimized database indexes on foreign keys have been added (`supabase/migrations/202607130001_additional_scalability_indexes.sql`):
+* `customer_library(user_id)`
+* `referrals(referrer_id)`
+* `coupon_usage(user_id, coupon_id)`
+* `reward_transactions(user_id)`
+* `support_tickets(user_id)`
+
+### 5. API Response Consistency
+All endpoints (checkout, health, status, notifications, rewards) return a unified response format wrapper:
+* **Success:** `{ success: true, data: { ... } }`
+* **Failure:** `{ success: false, error: { message: "...", code: "..." } }`
+* Stack traces are safely withheld from production clients.
+
+### 6. Health & Status
+* **Health API** (`/api/health`): Performs a strict database probe query with a 3s timeout and returns explicit `database: "connected" | "disconnected"` statuses.
+* **Status API** (`/api/status`): Standardized JSON response tracking active Git hashes and environment regions.
+
+---
+
 ## ✅ Verification & Testing
 
 Before deploying, ensure all strict checks pass successfully:

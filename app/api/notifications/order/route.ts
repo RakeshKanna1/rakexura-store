@@ -212,9 +212,26 @@ export async function POST(request: Request) {
       }
     });
 
-    return NextResponse.json({ success: true, ok: true }, { status: 200 });
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          ok: true
+        }
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error in order notification route:", error);
-    return NextResponse.json({ success: true, ok: true, error: error instanceof Error ? error.message : String(error) }, { status: 200 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: error instanceof Error ? error.message : String(error),
+          code: "ORDER_NOTIFICATION_FAILED"
+        }
+      },
+      { status: 500 }
+    );
   }
 }

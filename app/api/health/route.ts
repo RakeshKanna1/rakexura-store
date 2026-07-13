@@ -31,26 +31,36 @@ export async function GET() {
 
     return NextResponse.json(
       {
-        status: "ok",
-        service: "rakexura-store",
-        timestamp,
-        env,
-        latencyMs: Date.now() - start,
+        success: true,
+        data: {
+          status: "ok",
+          database: "connected",
+          service: "rakexura-store",
+          timestamp,
+          env,
+          latencyMs: Date.now() - start,
+        }
       },
       { status: 200 }
     );
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "Unknown error";
-    // Log error internally
     console.error("Health check failure:", errorMsg);
 
     return NextResponse.json(
       {
-        status: "error",
-        service: "rakexura-store",
-        timestamp,
-        env,
-        error: "Service unavailable",
+        success: false,
+        error: {
+          message: "Service unavailable",
+          code: "HEALTH_CHECK_FAILED"
+        },
+        data: {
+          status: "error",
+          database: "disconnected",
+          service: "rakexura-store",
+          timestamp,
+          env,
+        }
       },
       { status: 503 }
     );
