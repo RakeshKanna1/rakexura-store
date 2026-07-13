@@ -95,14 +95,15 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
             role="dialog"
             aria-modal="true"
             aria-label={`${game.title} quick view`}
-            initial={{ opacity: 0, y: 22, scale: 0.97 }}
+            initial={{ opacity: 0, y: 35, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.98 }}
-            className="premium-panel relative grid max-h-[90vh] w-full max-w-4xl overflow-auto rounded-lg md:grid-cols-[42%_1fr]"
+            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+            transition={{ type: "spring", damping: 25, stiffness: 220 }}
+            className="premium-panel relative grid max-h-[90vh] w-full max-w-4xl overflow-auto rounded-lg md:grid-cols-[42%_1fr] border border-white/[0.08] hover:border-purple-500/20 hover:shadow-[0_0_50px_rgba(139,92,246,0.15)] transition-all duration-500"
           >
             <button
               onClick={onClose}
-              className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-black/65 backdrop-blur"
+              className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-black/65 backdrop-blur hover:scale-110 hover:bg-black/85 active:scale-95 transition-all duration-200"
               aria-label="Close quick view"
             >
               <X size={18} />

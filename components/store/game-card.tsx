@@ -96,7 +96,7 @@ function GameCardInner({
           height={550}
           priority={priority}
           sizes="(max-width: 768px) 170px, 240px"
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
+          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
         />
       </Link>
 
@@ -115,7 +115,7 @@ function GameCardInner({
             toggleWishlist(game.id);
             toast(saved ? "Removed from wishlist" : "Saved to wishlist");
           }}
-          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-black/70 backdrop-blur-md"
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-black/70 backdrop-blur-md hover:scale-110 hover:border-white/30 hover:bg-black/90 active:scale-90 transition-all duration-200"
           aria-label={saved ? "Remove from wishlist" : "Add to wishlist"}
         >
           <Heart size={15} fill={saved ? "#facc15" : "none"} className={saved ? "text-[#facc15]" : ""} />
@@ -124,7 +124,7 @@ function GameCardInner({
         {onQuickView && (
           <button
             onClick={() => onQuickView(game)}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-black/70 backdrop-blur-md"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-black/70 backdrop-blur-md hover:scale-110 hover:border-white/30 hover:bg-black/90 active:scale-90 transition-all duration-200"
             aria-label={`Quick view ${game.title}`}
           >
             <Eye size={15} />
@@ -167,10 +167,10 @@ function GameCardInner({
               add(game, defaultPlatform(game));
               toast.success(`${game.title} added to cart`);
             }}
-            className={`grid h-9 w-9 shrink-0 place-items-center rounded border transition ${
+            className={`grid h-9 w-9 shrink-0 place-items-center rounded border transition-all duration-200 hover:scale-110 active:scale-90 ${
               game.out_of_stock
                 ? "border-red-500/30 text-red-500 hover:bg-red-500/10"
-                : "border-[#facc15]/30 text-[#facc15] hover:bg-[#facc15] hover:text-black"
+                : "border-[#facc15]/30 text-[#facc15] hover:bg-[#facc15] hover:text-black hover:border-transparent"
             }`}
             aria-label={game.out_of_stock ? "Out of Stock" : `Add ${game.title} to cart`}
           >
@@ -246,12 +246,12 @@ export function GameCard({
     transition: { duration: 0.42, ease: [0.2, 0.7, 0.2, 1] as [number, number, number, number] }
   } : {};
 
-  const baseCardClasses = "spotlight-card group relative overflow-hidden rounded-md border transition duration-300";
-  const hoverTranslate = showDesktopEffects ? "hover:-translate-y-1" : "";
+  const baseCardClasses = "spotlight-card group relative overflow-hidden rounded-md border transition-all duration-500 ease-out";
+  const hoverTranslate = showDesktopEffects ? "hover:-translate-y-1.5" : "";
   
   const themeClasses = game.is_premium
-    ? `border-[#d4af37]/30 bg-[#16130b] ${showDesktopEffects ? "border-[#d4af37]/35 hover:border-[#d4af37]/80 hover:shadow-[0_0_25px_rgba(212,175,55,0.25)]" : ""}`
-    : `border-white/[.08] bg-[#11131a] ${showDesktopEffects ? "hover:border-[#facc15]/35 hover:bg-[#151922] hover:shadow-[0_14px_38px_rgba(0,0,0,.42)]" : "hover:border-[#facc15]/35 hover:bg-[#151922]"}`;
+    ? `border-[#d4af37]/30 bg-[#16130b] ${showDesktopEffects ? "border-[#d4af37]/35 hover:border-[#d4af37]/80 hover:shadow-[0_0_30px_rgba(212,175,55,0.28),0_14px_38px_rgba(0,0,0,0.5)]" : ""}`
+    : `border-white/[.08] bg-[#11131a] ${showDesktopEffects ? "hover:border-[#facc15]/35 hover:bg-[#151922] hover:shadow-[0_0_30px_rgba(139,92,246,0.14),0_14px_38px_rgba(0,0,0,0.45)]" : "hover:border-[#facc15]/35 hover:bg-[#151922]"}`;
 
   return (
     <motion.article
