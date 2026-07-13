@@ -13,7 +13,7 @@ interface WriteReviewModalProps {
 }
 
 export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModalProps) {
-  const [rating, setRating] = useState(10);
+  const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -52,7 +52,7 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
       // Reset state variables completely on completion
       const submittedComment = comment.trim();
       setComment("");
-      setRating(10);
+      setRating(5);
       setHoverRating(null);
       
       // Dismiss error/pending toasts and close
@@ -83,15 +83,10 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
   const getRatingLabel = (val: number) => {
     switch (val) {
       case 1: return "Terrible 😠";
-      case 2: return "Very Bad 😞";
-      case 3: return "Bad 😕";
-      case 4: return "Disappointing 😐";
-      case 5: return "Average 🙂";
-      case 6: return "Decent 😊";
-      case 7: return "Good 😄";
-      case 8: return "Great 😁";
-      case 9: return "Amazing 😍";
-      case 10: return "Masterpiece! 🤩";
+      case 2: return "Bad 😞";
+      case 3: return "Decent 😊";
+      case 4: return "Great 😁";
+      case 5: return "Excellent! 🤩";
       default: return "";
     }
   };
@@ -144,8 +139,8 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
               </span>
             </div>
             
-            <div className="flex flex-wrap items-center gap-1 rounded-xl border border-white/[0.04] bg-black/35 p-3 shadow-inner">
-              {Array.from({ length: 10 }, (_, index) => index + 1).map((value) => {
+            <div className="flex items-center gap-2.5 rounded-xl border border-white/[0.04] bg-black/35 p-3.5 shadow-inner">
+              {Array.from({ length: 5 }, (_, index) => index + 1).map((value) => {
                 const active = value <= (hoverRating ?? rating);
                 return (
                   <motion.button
@@ -154,18 +149,18 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
                     onClick={() => setRating(value)}
                     onMouseEnter={() => setHoverRating(value)}
                     onMouseLeave={() => setHoverRating(null)}
-                    whileHover={{ scale: 1.25, rotate: 6 }}
-                    whileTap={{ scale: 0.85 }}
+                    whileHover={{ scale: 1.2, rotate: 8 }}
+                    whileTap={{ scale: 0.9 }}
                     transition={{ type: "spring", stiffness: 450, damping: 15 }}
                     aria-label={`Rate ${value} stars`}
                     className="p-1 focus-visible:outline-none cursor-pointer rounded-lg hover:bg-white/[0.03]"
                   >
                     <Star
-                      size={20}
+                      size={28}
                       className={`transition-all duration-200 ${
                         active 
                           ? "text-[#facc15] filter drop-shadow-[0_0_10px_rgba(250,204,21,0.65)]" 
-                          : "text-zinc-600 hover:text-zinc-400"
+                          : "text-zinc-650 hover:text-zinc-500"
                       }`}
                       fill={active ? "currentColor" : "transparent"}
                       strokeWidth={active ? 1.5 : 2}
