@@ -44,14 +44,14 @@ export async function POST(request: Request) {
 
     const body = await request.json().catch(() => ({}));
     const gameTitle = String(body.gameTitle ?? "Game").trim();
-    const rating = Number(body.rating ?? 5);
+    const rating = Number(body.rating ?? 10);
     const comment = String(body.comment ?? "").trim();
 
     const subject = `New Review Submitted for ${gameTitle}`;
     const textContent = `
       Customer: ${user.email}
       Game: ${gameTitle}
-      Rating: ${rating} / 5 stars
+      Rating: ${rating} / 10 stars
       Comment: "${comment}"
     `;
 
