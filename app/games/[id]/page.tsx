@@ -381,8 +381,13 @@ export default async function GamePage({ params }: Props) {
               </thead>
               <tbody>
                 {platforms.map((platform) => {
-                  const isOutOfSlots = typeof game.activation_slots === "number" && game.activation_slots === 0;
-                  const isLowSlots = typeof game.activation_slots === "number" && game.activation_slots > 0 && game.activation_slots <= 3;
+                  const isSharedActivation = platform === "Offline" || platform === "Online";
+                  const isOutOfSlots = isSharedActivation
+                    ? (typeof game.activation_slots === "number" && game.activation_slots === 0)
+                    : game.out_of_stock;
+                  const isLowSlots = isSharedActivation
+                    ? (typeof game.activation_slots === "number" && game.activation_slots > 0 && game.activation_slots <= 3)
+                    : false;
                   return (
                     <tr key={platform} className="border-t border-white/[.07]">
                       <td className="p-4 font-bold">{platform}</td>
@@ -390,7 +395,9 @@ export default async function GamePage({ params }: Props) {
                       <td className="p-4 text-[#a0a8c0]">Digital assisted delivery</td>
                       <td className="p-4">
                         {isOutOfSlots ? (
-                          <span className="text-red-400 font-medium">Out of slots</span>
+                          <span className="text-red-400 font-medium">
+                            {isSharedActivation ? "Out of slots" : "Out of stock"}
+                          </span>
                         ) : isLowSlots ? (
                           <span className="text-amber-400 font-medium">{game.activation_slots} slots left</span>
                         ) : (
