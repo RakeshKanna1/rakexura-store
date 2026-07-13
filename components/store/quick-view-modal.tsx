@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, X, TicketPercent } from "lucide-react";
@@ -14,16 +14,31 @@ import { Confetti } from "@/components/common/confetti";
 
 export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: () => void }) {
   const [celebrate, setCelebrate] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const add = useCartStore((state) => state.add);
   const toggle = useCartStore((state) => state.toggleWishlist);
   const saved = useCartStore((state) => state.wishlistIds.includes(game?.id ?? -1));
   const coupon = useCartStore((state) => state.coupon);
   const setCoupon = useCartStore((state) => state.setCoupon);
-  const [couponCode, setCouponCode] = useState(coupon?.code ?? "");
+  const [couponCode, setCouponCode] = useState("");
   const [checkingCoupon, setCheckingCoupon] = useState(false);
 
+  useEffect(() => {
+    if (mounted && coupon) {
+      setCouponCode(coupon.code);
+    }
+  }, [mounted, coupon]);
+
+  const activeCoupon = mounted ? coupon : null;
+  const isSaved = mounted ? saved : false;
+
   const lowest = game ? lowestPrice(game) : 0;
-  const couponSavings = coupon && lowest >= coupon.minimum_order ? Math.min(lowest, coupon.discount_type === "percentage" ? lowest * coupon.discount_value / 100 : coupon.discount_value) : 0;
+  const couponSavings = activeCoupon && lowest >= activeCoupon.minimum_order ? Math.min(lowest, activeCoupon.discount_type === "percentage" ? lowest * activeCoupon.discount_value / 100 : activeCoupon.discount_value) : 0;
   const discountedPrice = Math.max(0, lowest - couponSavings);
 
   async function checkCoupon() {
@@ -136,14 +151,14 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
                   </button>
                 </div>
                 <AnimatePresence>
-                  {coupon && (
+                  {activeCoupon && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       className="mt-2 flex items-center justify-between text-[11px] text-[#70efbb]"
                     >
-                      <span>Coupon &quot;{coupon.code}&quot; applied</span>
+                      <span>Coupon &quot;{activeCoupon.code}&quot; applied</span>
                       <button
                         type="button"
                         onClick={() => {
@@ -204,12 +219,12 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
                 <button
                   onClick={() => {
                     toggle(game.id);
-                    toast(saved ? "Removed from wishlist" : "Saved to wishlist");
+                    toast(isSaved ? "Removed from wishlist" : "Saved to wishlist");
                   }}
                   className="btn btn-secondary btn-icon"
                   aria-label="Save to wishlist"
                 >
-                  <Heart size={18} fill={saved ? "currentColor" : "none"} />
+                  <Heart size={18} fill={isSaved ? "currentColor" : "none"} />
                 </button>
               </div>
               <Link href={`/games/${game.id}`} className="mt-3 text-center text-sm font-semibold text-[#f6dc73]">
