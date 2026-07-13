@@ -8,7 +8,7 @@ import { GameCard, availablePlatforms } from "./game-card";
 import { QuickViewModal } from "./quick-view-modal";
 import type { Game, Platform } from "@/types/store";
 
-const platforms: Array<"All" | Platform | "Online Activation" | "Pre-orders" | "Subscriptions"> = ["All", "Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce", "Online Activation", "Pre-orders", "Subscriptions"];
+const platforms: Array<"All" | Platform | "Online Activation" | "Pre-orders" | "Subscriptions"> = ["All", "Steam", "Epic", "Xbox", "Nvidia GeForce", "Online Activation", "Pre-orders", "Subscriptions"];
 const sorts = ["Featured", "Price: Low to high", "Price: High to low", "Best sellers", "Latest"] as const;
 
 export function Catalog({ games }: { games: Game[] }) {

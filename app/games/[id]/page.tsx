@@ -153,7 +153,7 @@ export default async function GamePage({ params }: Props) {
   const tags = [...(game.genres ?? []), ...(game.tags ?? [])].slice(0, 7);
   const screenshots = (game.screenshots ?? []).filter(Boolean);
   const features = game.key_features?.length ? game.key_features : game.features ?? [];
-  const platforms = (game.available_platforms ?? ["Steam", "Epic", "Offline"]).filter((platform) => platformPrice(game, platform) > 0);
+  const platforms = (game.available_platforms ?? ["Steam", "Epic"]).filter((platform) => platform !== "Offline" && platform !== "Online" && platformPrice(game, platform) > 0);
   const premiumTheme = game.is_premium ? getPremiumTheme(game.premium_theme, game.title, game.genres) : null;
   const accent = premiumTheme ? getPremiumAccent(premiumTheme) : gameAccent(game.title, game.genres);
 
