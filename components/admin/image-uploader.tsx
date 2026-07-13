@@ -14,7 +14,7 @@ export function ImageUploader({ name, label, initial, type }: { name: string; la
 
   // Ensure existing image strings are assigned directly to the editing state fields
   useEffect(() => {
-    setValue(initial || (type === "cover" ? "/Assets/Featured/game.webp" : "/Assets/Banners/game.webp"));
+    setValue(initial || (type === "cover" ? "/images/fallback-cover.jpg" : "/images/fallback-banner.jpg"));
   }, [initial, type]);
 
   async function upload(file?: File) {
@@ -43,7 +43,7 @@ export function ImageUploader({ name, label, initial, type }: { name: string; la
           name={name}
           value={value}
           onChange={(event) => setValue(event.target.value)}
-          placeholder={type === "cover" ? "/Assets/Featured/game.webp" : "/Assets/Banners/game.webp"}
+          placeholder={type === "cover" ? "/images/fallback-cover.jpg" : "/images/fallback-banner.jpg"}
           className="mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm outline-none focus:border-[#facc15]"
         />
       </label>
