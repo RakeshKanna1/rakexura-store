@@ -59,15 +59,23 @@ export function HeroCarousel({ games }: { games: Game[] }) {
           onSwiper={(s) => { swiperRef.current = s; }}
           onRealIndexChange={(s) => setActive(s.realIndex)}
           navigation={{ prevEl: ".hero-prev", nextEl: ".hero-next" }}
-          className="overflow-hidden rounded-xl"
+          className="overflow-hidden rounded-xl h-[420px] md:h-[570px]"
         >
           <button suppressHydrationWarning={true} className="hero-prev absolute left-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-black/55 backdrop-blur md:grid" aria-label="Previous spotlight"><ChevronLeft /></button>
           <button suppressHydrationWarning={true} className="hero-next absolute right-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-black/55 backdrop-blur md:grid" aria-label="Next spotlight"><ChevronRight /></button>
           {games.map((game, index) => (
             <SwiperSlide key={game.id}>
-              <article className="hero-frame relative min-h-[420px] overflow-hidden rounded-xl md:min-h-[570px]">
+              <article className="hero-frame relative h-full w-full overflow-hidden rounded-xl">
                 {/* Always render the static Image first for fast SSR and LCP priority */}
-                <Image src={assetUrl(game.banner_image || game.cover_image)} alt={`Spotlight ${game.title} banner`} fill priority={index === 0} className="hero-media object-cover" sizes="100vw" />
+                <Image 
+                  src={assetUrl(game.banner_image || game.cover_image)} 
+                  alt={`Spotlight ${game.title} banner`} 
+                  fill 
+                  priority={index === 0} 
+                  fetchPriority={index === 0 ? "high" : "low"}
+                  className="hero-media object-cover" 
+                  sizes="100vw" 
+                />
 
                 
                 {/* Overlay video player client-side after hydration on desktop viewports */}
@@ -75,7 +83,13 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                   <video src={game.trailer_url} autoPlay muted loop playsInline className="hero-media absolute inset-0 h-full w-full object-cover z-0" />
                 )}
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,11,.97)_0%,rgba(3,5,11,.68)_38%,rgba(3,5,11,.08)_78%),linear-gradient(0deg,rgba(3,5,11,.8),transparent_50%)]" />
-                <motion.div key={`${active}-${game.id}`} initial={{ opacity: 0, y: 24 }} animate={active === index ? { opacity: 1, y: 0 } : { opacity: .75, y: 12 }} transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} className="relative z-10 flex min-h-[420px] max-w-4xl flex-col justify-end p-5 pb-16 pt-8 md:min-h-[570px] md:justify-end md:pb-20 md:pt-14 md:px-14">
+                <motion.div 
+                  key={`${active}-${game.id}`} 
+                  initial={{ opacity: 0, y: 24 }} 
+                  animate={active === index ? { opacity: 1, y: 0 } : { opacity: .75, y: 12 }} 
+                  transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} 
+                  className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-5 pb-16 pt-8 md:pb-20 md:pt-14 md:px-14"
+                >
                   <p className="eyebrow mb-4">Rakexura spotlight</p>
                   <h3 className="text-2xl font-black md:text-5xl lg:text-[64px] tracking-tight leading-[1.05]">
                     <BlurText 
@@ -127,6 +141,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                   alt=""
                   fill
                   sizes="36px"
+                  fetchPriority="low"
                   className="object-cover transition duration-300 group-hover:scale-105"
                 />
               </span>
