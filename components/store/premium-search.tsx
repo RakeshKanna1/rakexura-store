@@ -87,6 +87,7 @@ export function PremiumSearch() {
         <span className="sr-only">Search games</span>
         <div className="relative flex-1 min-w-0 h-full flex items-center">
           <input
+            suppressHydrationWarning
             id="premium-search-input"
             name="search"
             value={query}
@@ -133,7 +134,7 @@ export function PremiumSearch() {
                   <strong className="block truncate text-sm">{game.title}</strong>
                   <span className="mt-1 block truncate text-xs text-[#9ba2b3]">{formatPrice(lowestPrice(game))} · {availablePlatforms(game).join(" / ") || "Check availability"}</span>
                 </Link>
-                <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => quickAdd(game)} className="grid h-10 w-10 place-items-center rounded-md border border-[#8b5cf6]/30 text-[#c9bcff] transition hover:bg-[#8b5cf6] hover:text-white" aria-label={`Add ${game.title} to cart`}>
+                <button suppressHydrationWarning type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => quickAdd(game)} className="grid h-10 w-10 place-items-center rounded-md border border-[#8b5cf6]/30 text-[#c9bcff] transition hover:bg-[#8b5cf6] hover:text-white" aria-label={`Add ${game.title} to cart`}>
                   <Plus size={17} />
                 </button>
               </article>
@@ -150,7 +151,7 @@ export function PremiumSearch() {
               <div className="mt-1 flex flex-wrap gap-2 border-t border-white/[.07] p-2 pt-3">
                 <span className="flex items-center gap-1 text-[10px] font-black uppercase text-[#777f91]"><TrendingUp size={12} /> Explore</span>
                 {trendingTerms.map((term) => (
-                  <button key={term} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => setQuery(term)} className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-[#b6bdcc] hover:border-[#8b5cf6]/40">{term}</button>
+                  <button suppressHydrationWarning key={term} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => setQuery(term)} className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-[#b6bdcc] hover:border-[#8b5cf6]/40">{term}</button>
                 ))}
               </div>
             )}
