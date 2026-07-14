@@ -45,12 +45,12 @@ export async function POST(request: Request) {
     const isDiamondOrPlat = isDiamondOrPlatinumCoupon(normalized);
 
     // 1. General coupon price check
-    if (!isDiamondOrPlat && gamePrice !== undefined && Number(gamePrice) <= 99) {
+    if (!isDiamondOrPlat && normalized !== "RAKETHREE" && gamePrice !== undefined && Number(gamePrice) < 99) {
       return NextResponse.json(
         {
           success: false,
           error: {
-            message: "General coupons can only be applied to games priced above Rs. 99.",
+            message: "General coupons can only be applied to games priced at Rs. 99 or above.",
             code: "PRICE_RESTRICTION"
           }
         },

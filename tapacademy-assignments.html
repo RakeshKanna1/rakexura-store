@@ -1,0 +1,1341 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frontend Assignment — 10 Projects | Tap Academy</title>
+<meta name="description" content="Build ten landing pages with HTML, CSS and vanilla JS. Every project ships with its own repo, README and live GitHub Pages link.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;700&family=Fraunces:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Brainfish-reference tokens */
+    --paper:#ffffff;
+    --cream:#fcfff7;
+    --ink:#262626;
+    --black:#000000;
+    --depth:#303030;
+    --rule:#e5e5e5;
+    --muted:#525252;
+    --muted2:#737373;
+    --lime:#a3e635;
+    --mint:#7ee2b8;
+    --mintwash:#dcfff1;
+    --font-sans:"Geist",ui-sans-serif,system-ui,sans-serif;
+    --font-serif:"Fraunces",Georgia,serif;
+    --font-mono:"Geist Mono",ui-monospace,monospace;
+    --shadow-hard:2px 2px 0 0 var(--ink);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:88px}
+  body{
+    background-color:var(--paper);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='900' viewBox='0 0 900 900'%3E%3Cg fill='none' stroke='%23262626' stroke-opacity='.05' stroke-width='1'%3E%3Cpath d='M300,80 C400,85 480,160 470,255 C460,350 380,430 285,425 C190,420 115,340 125,245 C135,150 200,75 300,80 Z'/%3E%3Cpath d='M300,125 C380,130 440,185 432,258 C424,331 360,388 288,383 C216,378 158,315 166,242 C174,169 220,120 300,125 Z'/%3E%3Cpath d='M298,170 C356,174 400,214 394,266 C388,318 340,357 288,353 C236,349 194,305 200,253 C206,201 240,166 298,170 Z'/%3E%3Cpath d='M296,215 C332,218 360,242 356,275 C352,308 322,331 290,328 C258,325 232,297 236,264 C240,231 260,212 296,215 Z'/%3E%3Cpath d='M680,520 C760,525 820,585 812,660 C804,735 730,795 655,788 C580,781 520,715 530,640 C540,565 600,515 680,520 Z'/%3E%3Cpath d='M678,565 C736,569 778,612 772,666 C766,720 712,762 658,756 C604,750 562,704 570,650 C578,596 620,561 678,565 Z'/%3E%3Cpath d='M676,610 C712,613 738,640 734,674 C730,708 698,732 664,728 C630,724 604,695 610,661 C616,627 640,607 676,610 Z'/%3E%3C/g%3E%3C/svg%3E");
+    background-size:900px 900px;
+    color:var(--ink);
+    font-family:var(--font-sans);
+    font-size:16.5px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--lime);color:var(--ink)}
+  a{color:var(--ink)}
+  a:hover{text-decoration-color:var(--ink)}
+  :focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:2px}
+  .serif{font-family:var(--font-serif);font-style:italic;font-weight:500}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:0 28px}
+
+  /* ---------- header ---------- */
+  .site-head{
+    position:sticky;top:0;z-index:50;
+    background:var(--black);
+  }
+  .site-head::after{
+    content:"";display:block;height:2px;
+    background:linear-gradient(90deg,var(--lime),var(--mint),var(--lime));
+    background-size:200% 100%;
+    animation:borderPan 7s linear infinite;
+  }
+  @keyframes borderPan{to{background-position:200% 0}}
+  .site-head :focus-visible{outline-color:var(--paper)}
+  .site-head .wrap{display:flex;align-items:center;gap:28px;height:68px}
+  .brand{display:flex;align-items:center;gap:12px;margin-right:auto;text-decoration:none}
+  .brand-chip{
+    background:#161616;border:1px solid rgba(255,255,255,.16);
+    border-radius:6px;padding:7px 12px;
+    display:flex;align-items:center;
+  }
+  .brand-chip img{height:22px;display:block}
+  .brand-tag{
+    font-family:var(--font-mono);font-size:11px;color:#a3a3a3;
+    letter-spacing:.08em;text-transform:uppercase;
+  }
+  .site-nav{display:flex;gap:24px}
+  .site-nav a{
+    color:var(--paper);font-size:15px;font-weight:500;text-decoration:none;
+    padding:4px 0;position:relative;
+  }
+  .site-nav a::after{
+    content:"";position:absolute;left:0;right:100%;bottom:0;height:2px;
+    background:var(--lime);transition:right .2s ease;
+  }
+  .site-nav a:hover::after{right:0}
+
+  /* ---------- hero ---------- */
+  .hero{padding:96px 0 80px;position:relative;overflow:hidden}
+  .hero::before{
+    content:"";position:absolute;top:-30%;right:-15%;width:60%;height:100%;
+    background:radial-gradient(ellipse at center,rgba(163,230,53,.32),transparent 60%);
+    pointer-events:none;
+  }
+  .hero .wrap{position:relative}
+  .eyebrow{
+    font-family:var(--font-mono);font-size:12px;font-weight:500;
+    letter-spacing:.08em;color:var(--muted);text-transform:uppercase;
+  }
+  .hero h1{
+    font-weight:600;
+    font-size:clamp(42px,6.5vw,76px);
+    line-height:1.08;letter-spacing:-.02em;
+    margin:18px 0 22px;max-width:15ch;
+  }
+  .hero h1 .serif{font-size:1.04em}
+  .hero .lede{max-width:58ch;color:var(--muted);font-size:18px;line-height:1.55}
+  .hero .lede strong{color:var(--ink);font-weight:600}
+  .meta-grid{
+    margin-top:48px;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+  }
+  .meta-grid div{
+    background:var(--cream);border:1px solid var(--rule);border-radius:8px;
+    padding:18px 20px;
+  }
+  .meta-grid dt{
+    font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;
+    color:var(--muted2);text-transform:uppercase;
+  }
+  .meta-grid dd{font-weight:600;margin-top:6px;font-size:18px}
+
+  /* ---------- section scaffolding ---------- */
+  section{padding:80px 0}
+  .band{background:var(--cream);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+  .sec-head.with-logo{align-items:center}
+  .sec-head h2{
+    font-weight:600;font-size:clamp(30px,4vw,40px);letter-spacing:-.02em;
+  }
+  .sec-head .count{font-family:var(--font-mono);color:var(--muted2);font-size:13px}
+  .sec-logo{
+    width:44px;height:44px;flex:none;border-radius:8px;
+    background:var(--paper);border:1px solid var(--ink);
+    display:grid;place-content:center;
+  }
+  .sec-logo img{width:24px;height:24px;display:block}
+  .sec-logo svg{width:24px;height:24px;display:block}
+  .sec-intro{color:var(--muted);max-width:64ch;margin-bottom:36px;font-size:17px}
+  .sec-intro strong{color:var(--ink);font-weight:600}
+
+  /* ---------- rules ---------- */
+  .rules-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .rule{
+    background:var(--cream);border:1px solid var(--rule);border-radius:8px;
+    padding:24px;
+  }
+  .rule h3{font-size:16px;font-weight:600;margin-bottom:6px}
+  .rule h3 .k{
+    font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--ink);
+    border:1px solid var(--ink);border-radius:9999px;padding:2px 8px;
+    margin-right:8px;letter-spacing:.08em;vertical-align:2px;
+  }
+  .rule p{font-size:14.5px;color:var(--muted)}
+
+  /* ---------- project cards ---------- */
+  .group-label{
+    font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted2);
+    margin:44px 0 16px;display:flex;align-items:center;gap:14px;
+  }
+  .group-label::after{content:"";flex:1;height:1px;background:var(--rule)}
+  .projects{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .project{
+    background:var(--paper);border:1px solid var(--ink);border-radius:8px;
+    padding:24px;display:flex;flex-direction:column;gap:14px;
+    transition:box-shadow .15s ease,transform .15s ease;
+  }
+  .project:hover{box-shadow:var(--shadow-hard);transform:translate(-2px,-2px)}
+  .project-top{display:flex;align-items:flex-start;gap:12px}
+  .p-num{
+    font-family:var(--font-mono);font-weight:700;font-size:24px;color:var(--ink);
+    line-height:1;padding-top:4px;
+  }
+  .p-logo{
+    width:30px;height:30px;flex:none;margin-top:1px;
+    border:1px solid var(--rule);border-radius:6px;background:var(--paper);
+    display:grid;place-content:center;
+  }
+  .p-logo img{width:18px;height:18px;display:block}
+  .p-logo svg{width:18px;height:18px;display:block}
+  .project h3{font-weight:600;font-size:21px;line-height:1.2;letter-spacing:-.01em}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+  .chip{
+    font-family:var(--font-mono);font-size:10px;font-weight:500;letter-spacing:.08em;
+    text-transform:uppercase;padding:3px 9px;border-radius:9999px;
+    border:1px solid var(--muted2);color:var(--muted);
+  }
+  .chip.hot{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+  .chip.cool{border-color:var(--ink);color:var(--ink)}
+  .project .brief{font-size:14.5px;color:var(--muted)}
+  .project .brief strong{color:var(--ink);font-weight:600}
+  .project .brief a{color:var(--ink)}
+  .ship{border-top:1px dashed var(--rule);padding-top:14px;margin-top:auto}
+  .ship h4{
+    font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted2);margin-bottom:10px;
+  }
+  .check{display:flex;align-items:flex-start;gap:10px;padding:4px 0;cursor:pointer;font-size:14.5px}
+  .check input{
+    appearance:none;-webkit-appearance:none;flex:none;
+    width:18px;height:18px;margin-top:2px;cursor:pointer;
+    border:1.5px solid var(--ink);border-radius:4px;background:var(--paper);
+    display:grid;place-content:center;transition:background .12s ease;
+  }
+  .check input::before{
+    content:"";width:10px;height:10px;transform:scale(0);transition:transform .1s ease;
+    background:var(--ink);
+    clip-path:polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+  .check input:checked{background:var(--lime)}
+  .check input:checked::before{transform:scale(1)}
+  .check input:checked ~ span{color:var(--muted2);text-decoration:line-through;text-decoration-color:var(--rule)}
+  .check span{transition:color .12s ease}
+  .options{display:flex;flex-wrap:wrap;gap:6px}
+  .opt{
+    font-size:13px;padding:4px 12px;border-radius:9999px;
+    background:var(--cream);border:1px solid var(--rule);color:var(--ink);
+  }
+
+  /* ---------- terminal ---------- */
+  .terminal{
+    background:var(--ink);border:1px solid var(--ink);border-radius:8px;
+    box-shadow:var(--shadow-hard);
+    overflow:hidden;margin-top:8px;
+  }
+  .term-bar{
+    display:flex;align-items:center;gap:6px;padding:12px 16px;
+    border-bottom:1px solid rgba(255,255,255,.16);
+  }
+  .dot{width:10px;height:10px;border-radius:50%;background:#4b4b4b}
+  .dot:first-child{background:#ff6b6b}
+  .dot:nth-child(2){background:var(--lime)}
+  .dot:nth-child(3){background:var(--mint)}
+  .term-bar em{
+    font-family:var(--font-mono);font-size:12px;color:#a3a3a3;
+    font-style:normal;margin-left:8px;
+  }
+  .term-gh{width:18px;height:18px;margin-left:auto;opacity:.85}
+  .terminal pre{
+    padding:20px;overflow-x:auto;
+    font-family:var(--font-mono);font-size:13.5px;line-height:1.85;color:var(--cream);
+  }
+  .terminal .c{color:#a3a3a3}
+  .terminal .y{color:var(--lime)}
+  .steps{margin-top:24px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;counter-reset:step}
+  .step{
+    background:var(--cream);border:1px solid var(--rule);border-radius:8px;
+    padding:20px;counter-increment:step;font-size:14.5px;color:var(--muted);
+  }
+  .step::before{
+    content:"STEP " counter(step);display:block;
+    font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.08em;
+    color:var(--ink);margin-bottom:8px;
+  }
+  .step strong{color:var(--ink)}
+  .callout{
+    margin-top:24px;display:flex;gap:16px;align-items:flex-start;
+    background:var(--paper);border:1px solid var(--ink);
+    border-radius:8px;padding:20px 22px;font-size:15px;
+    box-shadow:var(--shadow-hard);
+  }
+  .callout-logo{
+    width:44px;height:44px;flex:none;border-radius:8px;
+    background:var(--paper);border:1px solid var(--ink);
+    display:grid;place-content:center;
+  }
+  .callout-logo img{width:24px;height:24px;display:block}
+  .callout-logo svg{width:24px;height:24px;display:block}
+  .callout p{color:var(--ink)}
+  .callout code{
+    font-family:var(--font-mono);font-size:13px;background:var(--cream);
+    border:1px solid var(--rule);padding:1px 6px;border-radius:4px;color:var(--ink);
+  }
+
+  /* ---------- readme ---------- */
+  .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+  .why{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:22px}
+  .why .ic{font-size:22px;line-height:1;margin-bottom:10px}
+  .why h3{font-size:16px;font-weight:600;margin-bottom:6px}
+  .why p{font-size:14px;color:var(--muted)}
+  .why p b{color:var(--ink)}
+  .must{
+    background:var(--paper);border:1px solid var(--ink);border-radius:8px;
+    box-shadow:var(--shadow-hard);padding:26px 28px;
+  }
+  .must h3{font-size:17px;font-weight:600;margin-bottom:14px}
+  .must ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:9px 28px}
+  .must li{font-size:14.5px;color:var(--muted);padding-left:26px;position:relative}
+  .must li::before{
+    content:"✓";position:absolute;left:0;top:2px;
+    width:16px;height:16px;display:grid;place-content:center;
+    font-size:10px;font-weight:700;color:var(--ink);
+    background:var(--lime);border:1px solid var(--ink);border-radius:3px;
+  }
+  .must li b{color:var(--ink)}
+  .sec-intro code{
+    font-family:var(--font-mono);font-size:13px;background:var(--paper);
+    border:1px solid var(--rule);padding:1px 6px;border-radius:4px;color:var(--ink);
+  }
+  .tmpl-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 12px}
+  .tmpl-tab{
+    font-family:var(--font-mono);font-size:12px;font-weight:500;
+    padding:6px 13px;border-radius:9999px;cursor:pointer;
+    border:1px solid var(--ink);background:var(--paper);color:var(--ink);
+    transition:box-shadow .12s ease,transform .12s ease;
+  }
+  .tmpl-tab:hover{box-shadow:var(--shadow-hard);transform:translate(-1px,-1px)}
+  .tmpl-tab.active{background:var(--lime)}
+  .tmpl-desc{font-size:14.5px;color:var(--muted);margin-bottom:14px}
+  .term-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .mini-btn{
+    cursor:pointer;font-family:var(--font-sans);font-size:12.5px;font-weight:500;
+    background:transparent;color:var(--cream);
+    border:1px solid rgba(255,255,255,.45);border-radius:4px;padding:5px 12px;
+  }
+  .mini-btn:hover{border-color:var(--cream)}
+  .template-block{margin-top:16px}
+  .copy-btn{
+    margin-left:auto;cursor:pointer;
+    font-family:var(--font-sans);font-size:13px;font-weight:500;
+    background:var(--lime);color:var(--ink);
+    border:1px solid var(--ink);border-radius:4px;padding:6px 14px;
+    transition:box-shadow .12s ease,transform .12s ease;
+  }
+  .copy-btn:hover{box-shadow:2px 2px 0 0 var(--paper);transform:translate(-1px,-1px)}
+  .copy-btn:active{box-shadow:none;transform:translate(1px,1px)}
+  .template-block pre{max-height:520px;overflow:auto}
+  .template-note{margin-top:14px;font-size:14px;color:var(--muted)}
+  .template-note code{
+    font-family:var(--font-mono);font-size:12.5px;background:var(--cream);
+    border:1px solid var(--rule);padding:1px 6px;border-radius:4px;color:var(--ink);
+  }
+
+  /* ---------- resources ---------- */
+  .res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .res-card{
+    background:var(--cream);border:1px solid var(--rule);border-radius:8px;
+    padding:20px;display:flex;flex-direction:column;gap:10px;
+    color:var(--ink);text-decoration:none;
+    transition:box-shadow .15s ease,transform .15s ease,border-color .15s ease;
+  }
+  .res-card:hover{border-color:var(--ink);box-shadow:var(--shadow-hard);transform:translate(-2px,-2px)}
+  .res-logo{
+    width:44px;height:44px;border-radius:8px;background:var(--paper);
+    border:1px solid var(--rule);display:grid;place-content:center;
+    font-family:var(--font-mono);font-weight:700;color:var(--ink);font-size:17px;
+  }
+  .res-logo img{width:26px;height:26px;display:block}
+  .res-logo svg{width:26px;height:26px;display:block}
+  .res-logo.fallback::after{content:attr(data-letter)}
+  .res-card h3{font-size:16px;font-weight:600}
+  .res-card p{font-size:13.5px;color:var(--muted);line-height:1.5}
+  .res-card .dom{
+    font-family:var(--font-mono);font-size:11px;color:var(--muted2);
+    margin-top:auto;letter-spacing:.04em;
+  }
+  .res-card:hover .dom{color:var(--ink)}
+
+  /* ---------- done ---------- */
+  .done-card{
+    background:var(--paper);border:1px solid var(--ink);border-radius:8px;
+    box-shadow:var(--shadow-hard);
+    padding:32px;max-width:640px;
+  }
+  .done-card .check{font-size:15.5px;padding:6px 0}
+
+  /* ---------- footer ---------- */
+  footer{padding:40px 0 56px;color:var(--muted2);font-size:14px}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between}
+  footer .fine{max-width:60ch}
+  footer strong{color:var(--ink)}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:880px){
+    .projects{grid-template-columns:1fr}
+    .rules-grid,.steps,.res-grid{grid-template-columns:1fr 1fr}
+    .why-grid{grid-template-columns:1fr}
+    .meta-grid{grid-template-columns:1fr 1fr}
+    .hero{padding-top:56px}
+  }
+  @media (max-width:560px){
+    .site-nav{display:none}
+    .rules-grid,.steps,.meta-grid,.res-grid{grid-template-columns:1fr}
+    .must ul{grid-template-columns:1fr}
+    .brand-tag{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Tap Academy — Frontend Assignment">
+      <span class="brand-chip"><img src="data:image/png;base64,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" alt="Tap Academy"></span>
+      <span class="brand-tag">Frontend Assignment</span>
+    </a>
+    <nav class="site-nav" aria-label="Page sections">
+      <a href="#rules">Rules</a>
+      <a href="#projects">Projects</a>
+      <a href="#deploy">Deploy</a>
+      <a href="#readme">README</a>
+      <a href="#resources">Resources</a>
+      <a href="#done">Checklist</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Tap Academy · HTML · CSS · Vanilla JS</p>
+      <h1>Build ten.<br>Ship <em class="serif">every</em> one.</h1>
+      <p class="lede">
+        Ten landing pages, built from scratch — no frameworks, no templates.
+        Every project gets <strong>its own repo</strong>, <strong>its own README</strong>,
+        and a <strong>live GitHub Pages link</strong>. By the end, your GitHub profile
+        is a portfolio a recruiter can actually click through.
+      </p>
+      <dl class="meta-grid">
+        <div><dt>Stack</dt><dd>HTML + CSS + JS</dd></div>
+        <div><dt>Repos to ship</dt><dd>10</dd></div>
+        <div><dt>Deploy target</dt><dd>GitHub Pages</dd></div>
+        <div><dt>READMEs</dt><dd>Compulsory in all</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ============ RULES ============ -->
+  <section id="rules">
+    <div class="wrap">
+      <div class="sec-head"><h2>Rules of the game</h2><span class="count">apply to every project</span></div>
+      <div class="rules-grid">
+        <div class="rule">
+          <h3><span class="k">R1</span>Hand-written code</h3>
+          <p>Semantic HTML and CSS written from scratch. No Bootstrap, no Tailwind, no copied templates. Vanilla JS only where a project demands it.</p>
+        </div>
+        <div class="rule">
+          <h3><span class="k">R2</span>Responsive, mobile-first</h3>
+          <p>Every page must work from 360px to desktop. Test in DevTools device mode before you call anything done.</p>
+        </div>
+        <div class="rule">
+          <h3><span class="k">R3</span>Design with references</h3>
+          <p>Study real sites on Refero.design, Godly and Land-book before you code. Rebuild at least one Aceternity UI or Magic UI component in plain CSS.</p>
+        </div>
+        <div class="rule">
+          <h3><span class="k">R4</span>AI is allowed — disclosed</h3>
+          <p>Use Antigravity, Claude or ChatGPT for scaffolding and debugging, but your README must state what AI did and what you wrote yourself. You must be able to explain any 10 lines of your CSS on demand.</p>
+        </div>
+        <div class="rule">
+          <h3><span class="k">R5</span>One repo per project</h3>
+          <p>Ten separate repos, each deployed on GitHub Pages, each with the live link in the repo description.</p>
+        </div>
+        <div class="rule">
+          <h3><span class="k">R6</span>Clones stay honest</h3>
+          <p>Clone projects use placeholder images (picsum.photos, Unsplash) and made-up content, and carry a “not affiliated” note in the README.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROJECTS ============ -->
+  <section id="projects" class="band">
+    <div class="wrap">
+      <div class="sec-head"><h2>The ten projects</h2><span class="count">tick requirements as you build</span></div>
+      <p class="sec-intro">Work in order — difficulty ramps up. Projects <strong>02 and 03</strong> need vanilla JS and Clerk authentication. Projects <strong>07–10</strong> are pixel-close UI clones of screens you use every day.</p>
+
+      <p class="group-label">Core builds · 01–06</p>
+      <div class="projects">
+
+        <article class="project">
+          <div class="project-top">
+            <span class="p-num">01</span>
+            <div>
+              <h3>Personal Portfolio</h3>
+              <div class="chips"><span class="chip hot">Hub project</span><span class="chip">Links all 10</span></div>
+            </div>
+          </div>
+          <p class="brief">Hero, about, skills, projects and contact. This is the <strong>hub</strong>: it must link the live demo and repo of every other project on this list.</p>
+          <div class="ship">
+            <h4>Must ship</h4>
+            <label class="check"><input type="checkbox"><span>Hero with name, role and CTA</span></label>
+            <label class="check"><input type="checkbox"><span>Projects grid linking all 9 other builds</span></label>
+            <label class="check"><input type="checkbox"><span>Working contact section</span></label>
+            <label class="check"><input type="checkbox"><span>Max two font families, deliberately paired</span></label>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="project-top">
+            <span class="p-num">02</span>
+            <div>
+              <h3>E-commerce Website</h3>
+              <div class="chips"><span class="chip hot">Clerk auth</span><span class="chip cool">End-to-end</span><span class="chip">Vanilla JS</span></div>
+            </div>
+          </div>
+          <p class="brief">Landing → product listing (12+ products) → product detail → cart → checkout. Guests can browse; <strong>checkout is locked behind Google login via Clerk</strong>.</p>
+          <div class="ship">
+            <h4>Must ship</h4>
+            <label class="check"><input type="checkbox"><span>Add to cart, update quantity, remove item</span></label>
+            <label class="check"><input type="checkbox"><span>Live total + cart count badge in navbar</span></label>
+            <label class="check"><input type="checkbox"><span>Cart persists on refresh (localStorage)</span></label>
+            <label class="check"><input type="checkbox"><span>Google login via Clerk; user name/photo in navbar</span></label>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="project-top">
+            <span class="p-num">03</span>
+            <div>
+              <h3>Food Delivery App</h3>
+              <div class="chips"><span class="chip hot">Clerk auth</span><span class="chip cool">End-to-end</span><span class="chip">Vanilla JS</span></div>
+            </div>
+          </div>
+          <p class="brief">Swiggy-style flow: landing → restaurant listing with cuisine/veg filters → menu page → cart → order confirmation screen.</p>
+          <div class="ship">
+            <h4>Must ship</h4>
+            <label class="check"><input type="checkbox"><span>Restaurant listing with working filters</span></label>
+            <label class="check"><input type="checkbox"><span>Add to cart from any restaurant menu</span></label>
+            <label class="check"><input type="checkbox"><span>Cart page: items, quantities, delivery fee, grand total</span></label>
+            <label class="check"><input type="checkbox"><span>Clerk Google login required before placing order</span></label>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="project-top">
+            <span class="p-num">04</span>
+            <div>
+              <h3>Product Landing Page</h3>
+              <div class="chips"><span class="chip hot">Pick 1 of 4</span><span class="chip">Design showcase</span></div>
+            </div>
+          </div>
+          <p class="brief">One premium product, maximum polish: big typography, scroll animations, gallery, specs, strong buy CTA. This is the <strong>“make it beautiful”</strong> project.</p>
+          <div class="options">
+            <span class="opt">⌚ Luxury watch</span>
+            <span class="opt">👟 Sneaker drop</span>
+            <span class="opt">📱 Flagship phone</span>
+            <span class="opt">🌸 Perfume brand</span>
+          </div>
+          <div class="ship">
+            <h4>Must ship</h4>
+            <label class="check"><input type="checkbox"><span>Full-bleed hero with display typography</span></label>
+            <label class="check"><input type="checkbox"><span>One Aceternity/Magic UI-style effect, rebuilt in CSS</span></label>
+            <label class="check"><input type="checkbox"><span>Gallery + specs section</span></label>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="project-top">
+            <span class="p-num">05</span>
+            <span class="p-logo"><img src="https://www.google.com/s2/favicons?domain=thetapacademy.com&amp;sz=64" data-alt-src="https://icons.duckduckgo.com/ip3/thetapacademy.com.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+            <div>
+              <h3>Tap Academy Clone</h3>
+              <div class="chips"><span class="chip hot">Asset provided</span><span class="chip">Pixel-close</span></div>
+            </div>
+          </div>
+          <p class="brief">Pixel-close clone of the Tap Academy homepage: navbar, hero, placement stats, course cards, testimonials, footer. Official white logo:
+            <a href="https://d2hqh62t23qj3u.cloudfront.net/assets/TAP%20ACADEMY%20WHITE.svg" target="_blank" rel="noopener">download SVG</a> — save it into your <code style="font-family:var(--font-mono);font-size:13px">/assets</code> folder; it is white, so it only shows on dark backgrounds.</p>
+          <div class="ship">
+            <h4>Must ship</h4>
+            <label class="check"><input type="checkbox"><span>Layout matches the live site section by section</span></label>
+            <label class="check"><input type="checkbox"><span>Logo served locally from /assets</span></label>
+            <label class="check"><input type="checkbox"><span>Fully responsive navbar and grids</span></label>
+            <label class="check"><input type="checkbox"><span>“Educational clone, not affiliated” note in README</span></label>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="project-top">
+            <span class="p-num">06</span>
+            <div>
+              <h3>College Fest Landing Page</h3>
+              <div class="chips"><span class="chip">Countdown</span><span class="chip">Marquee</span></div>
+            </div>
+          </div>
+          <p class="brief">Invent a fest brand and theme. Countdown banner, events grid, schedule, sponsor logo marquee and a registration CTA.</p>
+          <div class="ship">
+            <h4>Must ship</h4>
+            <label class="check"><input type="checkbox"><span>Live countdown timer (vanilla JS)</span></label>
+            <label class="check"><input type="checkbox"><span>Events grid + schedule section</span></label>
+            <label class="check"><input type="checkbox"><span>Infinite sponsor logo marquee (CSS animation)</span></label>
+          </div>
+        </article>
+      </div>
+
+      <p class="group-label">The clone wall · 07–10</p>
+      <div class="projects">
+
+        <article class="project">
+          <div class="project-top">
+            <span class="p-num">07</span>
+            <span class="p-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" fill="#FF0069"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg></span>
+            <div>
+              <h3>Instagram Clone</h3>
+              <div class="chips"><span class="chip cool">UI clone</span><span class="chip">Cards + grid</span></div>
+            </div>
+          </div>
+          <p class="brief">Feed page — stories bar with gradient-ring avatars, post cards with actions — plus a profile page with the 3-column photo grid.</p>
+          <div class="ship">
+            <h4>Must ship</h4>
+            <label class="check"><input type="checkbox"><span>Horizontal-scroll stories bar with gradient rings</span></label>
+            <label class="check"><input type="checkbox"><span>Like button toggles red and updates count (JS)</span></label>
+            <label class="check"><input type="checkbox"><span>Profile page with 3-column photo grid</span></label>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="project-top">
+            <span class="p-num">08</span>
+            <span class="p-logo"><img src="https://www.google.com/s2/favicons?domain=linkedin.com&amp;sz=64" data-alt-src="https://icons.duckduckgo.com/ip3/linkedin.com.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+            <div>
+              <h3>LinkedIn Clone</h3>
+              <div class="chips"><span class="chip cool">UI clone</span><span class="chip">CSS Grid</span></div>
+            </div>
+          </div>
+          <p class="brief">Home feed with the classic 3-column layout: profile card left, feed centre, news right. The best CSS Grid lesson in this whole assignment.</p>
+          <div class="ship">
+            <h4>Must ship</h4>
+            <label class="check"><input type="checkbox"><span>3-column grid that collapses correctly on mobile</span></label>
+            <label class="check"><input type="checkbox"><span>“Start a post” box + post cards with reaction bar</span></label>
+            <label class="check"><input type="checkbox"><span>Reaction toggle or show-more/less on long posts (JS)</span></label>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="project-top">
+            <span class="p-num">09</span>
+            <span class="p-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" fill="#1ED760"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg></span>
+            <div>
+              <h3>Spotify Clone</h3>
+              <div class="chips"><span class="chip cool">UI clone</span><span class="chip">App shell</span></div>
+            </div>
+          </div>
+          <p class="brief">The full app shell: fixed sidebar with playlists, scrollable main area with album card rows, and a sticky player bar at the bottom. Dark theme throughout.</p>
+          <div class="ship">
+            <h4>Must ship</h4>
+            <label class="check"><input type="checkbox"><span>Fixed sidebar + sticky bottom player + scrolling content</span></label>
+            <label class="check"><input type="checkbox"><span>“Made for you” card rows in a grid</span></label>
+            <label class="check"><input type="checkbox"><span>Play/pause toggle with animating progress bar (JS)</span></label>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="project-top">
+            <span class="p-num">10</span>
+            <span class="p-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" fill="#E50914"><path d="m5.398 0 8.348 23.602c2.346.059 4.856.398 4.856.398L10.113 0H5.398zm8.489 0v9.172l4.715 13.33V0h-4.715zM5.398 1.5V24c1.873-.225 2.81-.312 4.715-.398V14.83L5.398 1.5z"/></svg></span>
+            <div>
+              <h3>Netflix Clone</h3>
+              <div class="chips"><span class="chip cool">UI clone</span><span class="chip">Scroll effects</span></div>
+            </div>
+          </div>
+          <p class="brief">Browse page: full-bleed hero banner with Play / More Info, horizontally scrolling poster rows, and a navbar that turns solid on scroll. Placeholder posters only.</p>
+          <div class="ship">
+            <h4>Must ship</h4>
+            <label class="check"><input type="checkbox"><span>Hero banner with title + dual CTAs</span></label>
+            <label class="check"><input type="checkbox"><span>3+ horizontal poster rows with hover-scale</span></label>
+            <label class="check"><input type="checkbox"><span>Navbar switches to solid black on scroll (JS)</span></label>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DEPLOY ============ -->
+  <section id="deploy">
+    <div class="wrap">
+      <div class="sec-head with-logo">
+        <span class="sec-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="GitHub" fill="#181717"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></span>
+        <h2>Ship it</h2><span class="count">repeat for every repo</span>
+      </div>
+      <p class="sec-intro">Pushing code is not deploying. Run the commands, then flip the Pages switch — your site goes live at <strong>username.github.io/repo-name</strong>.</p>
+
+      <div class="terminal">
+        <div class="term-bar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <em>bash — inside your project folder</em>
+          <svg class="term-gh" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" fill="#fcfff7"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        </div>
+        <pre><span class="c"># first-time setup for each project repo</span>
+<span class="y">$</span> git init
+<span class="y">$</span> git add .
+<span class="y">$</span> git commit -m "Initial commit"
+<span class="y">$</span> git branch -M main
+<span class="y">$</span> git remote add origin https://github.com/&lt;username&gt;/&lt;repo-name&gt;.git
+<span class="y">$</span> git push -u origin main
+
+<span class="c"># if GitHub created the repo with a README and push is rejected:</span>
+<span class="y">$</span> git pull origin main --rebase
+<span class="y">$</span> git push -u origin main</pre>
+      </div>
+
+      <div class="steps">
+        <div class="step"><strong>Open repo → Settings → Pages.</strong> Under “Build and deployment”, set Source to <strong>Deploy from a branch</strong>.</div>
+        <div class="step">Choose branch <strong>main</strong> and folder <strong>/ (root)</strong>, then hit <strong>Save</strong>. The build takes about a minute.</div>
+        <div class="step">Copy your live URL and paste it into the <strong>repo description</strong> and your <strong>README</strong>. Then open it on your phone.</div>
+      </div>
+
+      <div class="callout">
+        <span class="callout-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Clerk" fill="#6C47FF"><path d="m21.47 20.829-2.881-2.881a.572.572 0 0 0-.7-.084 6.854 6.854 0 0 1-7.081 0 .576.576 0 0 0-.7.084l-2.881 2.881a.576.576 0 0 0-.103.69.57.57 0 0 0 .166.186 12 12 0 0 0 14.113 0 .58.58 0 0 0 .239-.423.576.576 0 0 0-.172-.453Zm.002-17.668-2.88 2.88a.569.569 0 0 1-.701.084A6.857 6.857 0 0 0 8.724 8.08a6.862 6.862 0 0 0-1.222 3.692 6.86 6.86 0 0 0 .978 3.764.573.573 0 0 1-.083.699l-2.881 2.88a.567.567 0 0 1-.864-.063A11.993 11.993 0 0 1 6.771 2.7a11.99 11.99 0 0 1 14.637-.405.566.566 0 0 1 .232.418.57.57 0 0 1-.168.448Zm-7.118 12.261a3.427 3.427 0 1 0 0-6.854 3.427 3.427 0 0 0 0 6.854Z"/></svg></span>
+        <p>For projects <strong>02</strong> and <strong>03</strong>: after deploying, add your GitHub Pages URL (e.g. <code>https://&lt;username&gt;.github.io</code>) as an allowed domain in your Clerk dashboard — otherwise Google login works on localhost and silently fails in production. Don’t lose an evening to this.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ README ============ -->
+  <section id="readme" class="band">
+    <div class="wrap">
+      <div class="sec-head"><h2>The README rule</h2><span class="count">non-negotiable · in all 10 repos</span></div>
+      <p class="sec-intro">The README is the <strong>landing page of your code</strong>. Here's why it matters more than you think:</p>
+      <div class="why-grid">
+        <div class="why"><div class="ic">👀</div><h3>Recruiters read it first</h3><p>Nobody opens your CSS file. They open your repo, read the README for 30 seconds, and decide. A repo without a README looks abandoned — <b>a great README looks professional</b>.</p></div>
+        <div class="why"><div class="ic">🔎</div><h3>Google &amp; AI crawl GitHub</h3><p>GitHub pages rank in Google search and feed AI assistants like ChatGPT, Perplexity &amp; Gemini. Every README you publish is <b>a mini SEO page for you — and for TAP Academy</b>. That's GEO: Generative Engine Optimization, the 2026 evolution of SEO.</p></div>
+        <div class="why"><div class="ic">📈</div><h3>Consistency compounds</h3><p>When hundreds of TAP Academy students publish repos carrying the <b>same rich TAP Academy section</b> — placement in 60 days, AR classrooms, mock interviews — search engines start associating those keywords with the brand. Your repo becomes part of that story.</p></div>
+      </div>
+
+      <div class="must">
+        <h3>✅ Every README must include</h3>
+        <ul>
+          <li><b>Project name + one-line pitch</b> — what is it, in one sentence</li>
+          <li><b>Live demo link</b> — your GitHub Pages URL, right at the top</li>
+          <li><b>1–2 screenshots</b> — desktop + mobile view</li>
+          <li><b>Features list</b> — the sections you built, as bullets</li>
+          <li><b>Tech stack</b> — HTML · CSS · JS · AI-assisted features</li>
+          <li><b>Design references</b> — Refero / Godly / Aceternity links you used</li>
+          <li><b>AI tools used</b> — what you asked AI to build, honestly</li>
+          <li><b>What I learned</b> — 2–3 lines in your own words</li>
+          <li><b>About TAP Academy section</b> — keep it exactly as in the templates</li>
+          <li><b>Clone disclaimer</b> — on projects 05 and 07–10, always</li>
+        </ul>
+      </div>
+
+      <p class="group-label">The kit · 10 ready-made templates</p>
+      <p class="sec-intro" style="margin-bottom:0">One template per project, each with a different style on top and the same complete <strong>TAP Academy SEO section</strong> inside. Copy → paste into <strong>README.md</strong> → replace every <code>{{PLACEHOLDER}}</code> with your details. <strong>Leave the TAP Academy section as-is.</strong></p>
+
+      <div class="tmpl-tabs" id="tmplTabs" role="tablist" aria-label="README templates"></div>
+      <p class="tmpl-desc" id="tmplDesc"></p>
+
+      <div class="terminal template-block">
+        <div class="term-bar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <em>📄 <span id="tmplFile">README.md</span></em>
+          <div class="term-actions">
+            <button class="mini-btn" id="dlBtn" type="button">Download .md</button>
+            <button class="copy-btn" id="copyTemplate" type="button">Copy template</button>
+          </div>
+        </div>
+        <pre id="readme-template" tabindex="0"></pre>
+      </div>
+      <p class="template-note">How to use: pick your project's tab, hit <code>Copy template</code> (or <code>Download .md</code>), save it as <code>README.md</code> in your repo root, and replace every <code>{{PLACEHOLDER}}</code> with your details. Everything else stays — especially the TAP Academy section at the bottom of every template.</p>
+    </div>
+  </section>
+
+  <!-- ============ RESOURCES ============ -->
+  <section id="resources">
+    <div class="wrap">
+      <div class="sec-head"><h2>The toolbox</h2><span class="count">bookmark all of these</span></div>
+      <p class="sec-intro">Every tool referenced in the rules, in one place. <strong>Inspiration before code:</strong> spend 20 minutes here before you open your editor, not after.</p>
+
+      <p class="group-label">Inspiration</p>
+      <div class="res-grid">
+        <a class="res-card" href="https://www.awwwards.com" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="A"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" fill="#222222"><path d="m14.72 5.6-2.24 8.68-2.12-8.68H7.47l-2.12 8.68L3.11 5.6H0l4.01 12.65h2.74l2.17-8.18 2.16 8.18h2.74L17.83 5.6zm5.1 10.7c0 1.2.9 2.1 2.09 2.1 1.2 0 2.09-.9 2.09-2.1s-.9-2.12-2.1-2.12c-1.19 0-2.08.9-2.08 2.11"/></svg></span>
+          <h3>Awwwards</h3>
+          <p>Award-winning site design. Study what the best of the web looks like before you build.</p>
+          <span class="dom">awwwards.com ↗</span>
+        </a>
+        <a class="res-card" href="https://godly.website" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="G"><img src="https://www.google.com/s2/favicons?domain=godly.website&amp;sz=128" data-alt-src="https://icons.duckduckgo.com/ip3/godly.website.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+          <h3>Godly</h3>
+          <p>A curated wall of astronomically good landing pages, updated constantly.</p>
+          <span class="dom">godly.website ↗</span>
+        </a>
+        <a class="res-card" href="https://land-book.com" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="L"><img src="https://www.google.com/s2/favicons?domain=land-book.com&amp;sz=128" data-alt-src="https://icons.duckduckgo.com/ip3/land-book.com.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+          <h3>Land-book</h3>
+          <p>Huge landing page gallery, filterable by industry and style.</p>
+          <span class="dom">land-book.com ↗</span>
+        </a>
+        <a class="res-card" href="https://refero.design" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="R"><img src="https://www.google.com/s2/favicons?domain=refero.design&amp;sz=128" data-alt-src="https://icons.duckduckgo.com/ip3/refero.design.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+          <h3>Refero</h3>
+          <p>Real screens from real products — search any UI pattern by page type.</p>
+          <span class="dom">refero.design ↗</span>
+        </a>
+      </div>
+
+      <p class="group-label">Components &amp; effects</p>
+      <div class="res-grid">
+        <a class="res-card" href="https://ui.aceternity.com" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="A"><img src="https://www.google.com/s2/favicons?domain=ui.aceternity.com&amp;sz=128" data-alt-src="https://icons.duckduckgo.com/ip3/ui.aceternity.com.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+          <h3>Aceternity UI</h3>
+          <p>Spotlight cards, beams, hover glows. Study the effect, rebuild it in plain CSS.</p>
+          <span class="dom">ui.aceternity.com ↗</span>
+        </a>
+        <a class="res-card" href="https://magicui.design" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="M"><img src="https://www.google.com/s2/favicons?domain=magicui.design&amp;sz=128" data-alt-src="https://icons.duckduckgo.com/ip3/magicui.design.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+          <h3>Magic UI</h3>
+          <p>Marquees, number tickers, animated grids — same deal: understand, then rebuild.</p>
+          <span class="dom">magicui.design ↗</span>
+        </a>
+        <a class="res-card" href="https://uiverse.io" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="U"><img src="https://www.google.com/s2/favicons?domain=uiverse.io&amp;sz=128" data-alt-src="https://icons.duckduckgo.com/ip3/uiverse.io.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+          <h3>Uiverse</h3>
+          <p>Thousands of open-source buttons, loaders and cards in pure HTML/CSS.</p>
+          <span class="dom">uiverse.io ↗</span>
+        </a>
+        <a class="res-card" href="https://codepen.io" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="C"><img src="https://www.google.com/s2/favicons?domain=codepen.io&amp;sz=128" data-alt-src="https://icons.duckduckgo.com/ip3/codepen.io.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+          <h3>CodePen</h3>
+          <p>See how any front-end trick is built — search literally any effect.</p>
+          <span class="dom">codepen.io ↗</span>
+        </a>
+      </div>
+
+      <p class="group-label">Color &amp; typography</p>
+      <div class="res-grid">
+        <a class="res-card" href="https://coolors.co" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="C"><img src="https://www.google.com/s2/favicons?domain=coolors.co&amp;sz=128" data-alt-src="https://icons.duckduckgo.com/ip3/coolors.co.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+          <h3>Coolors</h3>
+          <p>Generate and lock five-color palettes in seconds. Press spacebar, thank us later.</p>
+          <span class="dom">coolors.co ↗</span>
+        </a>
+        <a class="res-card" href="https://fonts.google.com" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="F"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" fill="#4285F4"><path d="M4 2.8A3.6 3.6 0 1 0 4 10a3.6 3.6 0 0 0 0-7.2zm7.6 0v18.4h7.2a5.2 5.2 0 1 1 0-10.4 4 4 0 1 1 0-8zm7.2 0v8a4 4 0 1 0 0-8zm0 8v10.4A5.2 5.2 0 0 0 24 16a5.2 5.2 0 0 0-5.2-5.2zm-7.7-7.206L0 21.199h8.8l2.3-3.64Z"/></svg></span>
+          <h3>Google Fonts</h3>
+          <p>Free fonts for every project. Max two families per page, remember.</p>
+          <span class="dom">fonts.google.com ↗</span>
+        </a>
+        <a class="res-card" href="https://typescale.com" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="T"><img src="https://www.google.com/s2/favicons?domain=typescale.com&amp;sz=128" data-alt-src="https://icons.duckduckgo.com/ip3/typescale.com.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+          <h3>Type Scale</h3>
+          <p>Pick a ratio, get a harmonious heading hierarchy for the whole page.</p>
+          <span class="dom">typescale.com ↗</span>
+        </a>
+        <a class="res-card" href="https://www.fontpair.co" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="F"><img src="https://www.google.com/s2/favicons?domain=fontpair.co&amp;sz=128" data-alt-src="https://icons.duckduckgo.com/ip3/fontpair.co.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+          <h3>FontPair</h3>
+          <p>Pre-matched Google Font pairings for when you're stuck choosing.</p>
+          <span class="dom">fontpair.co ↗</span>
+        </a>
+      </div>
+
+      <p class="group-label">Assets &amp; icons</p>
+      <div class="res-grid">
+        <a class="res-card" href="https://unsplash.com" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="U"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" fill="#262626"><path d="M7.5 6.75V0h9v6.75h-9zm9 3.75H24V24H0V10.5h7.5v6.75h9V10.5z"/></svg></span>
+          <h3>Unsplash</h3>
+          <p>Free high-res photography for heroes and galleries.</p>
+          <span class="dom">unsplash.com ↗</span>
+        </a>
+        <a class="res-card" href="https://picsum.photos" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="P"><img src="https://www.google.com/s2/favicons?domain=picsum.photos&amp;sz=128" data-alt-src="https://icons.duckduckgo.com/ip3/picsum.photos.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+          <h3>Picsum Photos</h3>
+          <p>Instant placeholder images by URL — perfect for the clone projects.</p>
+          <span class="dom">picsum.photos ↗</span>
+        </a>
+        <a class="res-card" href="https://lucide.dev" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="L"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" fill="#F56565"><path d="M18.483 1.123a1.09 1.09 0 0 0-.752.362 1.09 1.09 0 0 0 .088 1.54 11.956 11.956 0 0 1 4 8.946 7.62 7.62 0 0 1-7.637 7.636 7.62 7.62 0 0 1-7.637-7.636 3.255 3.255 0 0 1 3.273-3.273c1.82 0 3.273 1.45 3.273 3.273a1.09 1.09 0 0 0 1.09 1.09 1.09 1.09 0 0 0 1.092-1.09c0-3-2.455-5.455-5.455-5.455s-5.454 2.455-5.454 5.455c0 5.408 4.408 9.818 9.818 9.818 5.41 0 9.818-4.41 9.818-9.818A14.16 14.16 0 0 0 19.272 1.4a1.09 1.09 0 0 0-.789-.277ZM9.818 2.15C4.408 2.151 0 6.561 0 11.97a14.16 14.16 0 0 0 4.8 10.637 1.09 1.09 0 0 0 1.54-.096 1.09 1.09 0 0 0-.095-1.54 11.957 11.957 0 0 1-4.063-9 7.62 7.62 0 0 1 7.636-7.637 7.62 7.62 0 0 1 7.637 7.636 3.256 3.256 0 0 1-3.273 3.273 3.256 3.256 0 0 1-3.273-3.273 1.09 1.09 0 0 0-1.09-1.09 1.09 1.09 0 0 0-1.092 1.09c0 3 2.455 5.455 5.455 5.455s5.454-2.455 5.454-5.455c0-5.408-4.408-9.818-9.818-9.818z"/></svg></span>
+          <h3>Lucide</h3>
+          <p>Clean, consistent SVG icons — copy as SVG straight into your HTML.</p>
+          <span class="dom">lucide.dev ↗</span>
+        </a>
+        <a class="res-card" href="https://haikei.app" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="H"><img src="https://www.google.com/s2/favicons?domain=haikei.app&amp;sz=128" data-alt-src="https://icons.duckduckgo.com/ip3/haikei.app.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+          <h3>Haikei</h3>
+          <p>Generate SVG waves, blobs and gradients for section backgrounds.</p>
+          <span class="dom">haikei.app ↗</span>
+        </a>
+      </div>
+
+      <p class="group-label">Docs &amp; shipping</p>
+      <div class="res-grid">
+        <a class="res-card" href="https://developer.mozilla.org" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="M"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" fill="#262626"><path d="m21.538 1.1-6.745 21.8h-2.77L18.77 1.1ZM24 1.1v21.8h-2.462V1.1Zm-12 0v21.8H9.538V1.1Zm-2.462 0L2.77 22.9H0L6.746 1.1Z"/></svg></span>
+          <h3>MDN Web Docs</h3>
+          <p>The source of truth for HTML, CSS and JS. When in doubt, MDN.</p>
+          <span class="dom">developer.mozilla.org ↗</span>
+        </a>
+        <a class="res-card" href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="C"><img src="https://www.google.com/s2/favicons?domain=css-tricks.com&amp;sz=128" data-alt-src="https://icons.duckduckgo.com/ip3/css-tricks.com.ico" alt="" loading="lazy" onerror="if(this.dataset.altSrc){this.src=this.dataset.altSrc;this.removeAttribute('data-alt-src')}else{var r=this.closest('.res-logo');if(r){r.classList.add('fallback');this.remove()}else{this.parentElement.remove()}}"></span>
+          <h3>CSS-Tricks</h3>
+          <p>The legendary Flexbox and Grid guides. Keep both open while building.</p>
+          <span class="dom">css-tricks.com ↗</span>
+        </a>
+        <a class="res-card" href="https://clerk.com/docs" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="C"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" fill="#6C47FF"><path d="m21.47 20.829-2.881-2.881a.572.572 0 0 0-.7-.084 6.854 6.854 0 0 1-7.081 0 .576.576 0 0 0-.7.084l-2.881 2.881a.576.576 0 0 0-.103.69.57.57 0 0 0 .166.186 12 12 0 0 0 14.113 0 .58.58 0 0 0 .239-.423.576.576 0 0 0-.172-.453Zm.002-17.668-2.88 2.88a.569.569 0 0 1-.701.084A6.857 6.857 0 0 0 8.724 8.08a6.862 6.862 0 0 0-1.222 3.692 6.86 6.86 0 0 0 .978 3.764.573.573 0 0 1-.083.699l-2.881 2.88a.567.567 0 0 1-.864-.063A11.993 11.993 0 0 1 6.771 2.7a11.99 11.99 0 0 1 14.637-.405.566.566 0 0 1 .232.418.57.57 0 0 1-.168.448Zm-7.118 12.261a3.427 3.427 0 1 0 0-6.854 3.427 3.427 0 0 0 0 6.854Z"/></svg></span>
+          <h3>Clerk Docs</h3>
+          <p>Everything for the Google login in projects 02 and 03.</p>
+          <span class="dom">clerk.com/docs ↗</span>
+        </a>
+        <a class="res-card" href="https://pages.github.com" target="_blank" rel="noopener">
+          <span class="res-logo" data-letter="G"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" fill="#222222"><path d="M14.088 13.126h-.296V9.858h.998c.815 0 1.094.47 1.094.98s-.28.98-1.094.98h-.701v1.308zm0-1.582h.74a.642.642 0 0 0 .733-.705.642.642 0 0 0-.732-.706h-.741zm2.881-.37a1.913 1.913 0 0 0-.653.11v-.262a1.756 1.756 0 0 1 .653-.118c.654 0 .824.297.824.732v1.49h-.17l-.066-.174a1.143 1.143 0 0 1-.657.218.663.663 0 0 1-.763-.702c0-.37.205-.645.776-.68l.575-.035v-.122c0-.318-.113-.457-.519-.457zm-.078.85c-.31.03-.445.192-.445.445 0 .196.048.431.462.431a1.056 1.056 0 0 0 .58-.174v-.758zm1.86.493a.252.252 0 0 0-.083.16c0 .11.053.158.166.17l.74.088c.41.044.598.205.598.584 0 .532-.532.74-1.133.74-.61 0-.976-.178-.976-.657a.609.609 0 0 1 .449-.575v-.005a.321.321 0 0 1-.14-.287.392.392 0 0 1 .166-.297.746.746 0 0 1-.349-.714c0-.449.192-.82.85-.82a1.36 1.36 0 0 1 .349.044h.74v.165l-.365.105a.908.908 0 0 1 .126.505c0 .449-.192.82-.85.82a1.397 1.397 0 0 1-.288-.027zm.127.588c-.288.065-.532.2-.532.48 0 .322.244.413.693.413.435 0 .845-.109.845-.48 0-.221-.105-.309-.37-.34zm.727-1.381c0-.288-.056-.554-.566-.554-.51 0-.567.266-.567.554 0 .288.057.553.567.553.51 0 .566-.266.566-.554zm1.637-.82c.74 0 .828.506.828 1.133v.14h-1.438c.018.379.118.723.61.723a1.665 1.665 0 0 0 .719-.122v.261a1.765 1.765 0 0 1-.719.131c-.736 0-.915-.505-.915-1.133s.179-1.133.915-1.133zm-.61 1.024h1.133c0-.387-.022-.753-.523-.753-.506 0-.597.36-.61.753zm2.601-.052c.619.057.767.266.767.623 0 .336-.213.671-.876.671a2.147 2.147 0 0 1-.649-.109V12.8a1.924 1.924 0 0 0 .654.1c.453 0 .575-.192.575-.397 0-.2-.061-.34-.492-.374-.632-.057-.763-.28-.763-.58 0-.31.2-.645.815-.645a1.627 1.627 0 0 1 .627.11v.26a1.799 1.799 0 0 0-.631-.1c-.432 0-.523.162-.523.376 0 .19.078.29.496.326zm-20.787-.659H1.38a.05.05 0 0 0-.05.05v.522a.05.05 0 0 0 .05.05h.416v.649a1.267 1.267 0 0 1-.351.032c-.305 0-.731-.112-.731-1.048s.443-1.06.86-1.06a1.69 1.69 0 0 1 .614.094.05.05 0 0 0 .06-.05l.12-.504a.047.047 0 0 0-.02-.039 1.715 1.715 0 0 0-.903-.165C.73 9.748 0 10.05 0 11.508s.837 1.675 1.542 1.675a1.736 1.736 0 0 0 .938-.25.043.043 0 0 0 .016-.038v-1.628a.05.05 0 0 0-.05-.05zm5.545-1.294a.05.05 0 0 0-.05-.05H7.34a.05.05 0 0 0-.05.05v1.161h-.936V9.923a.05.05 0 0 0-.05-.05h-.6a.05.05 0 0 0-.05.05v3.145a.05.05 0 0 0 .05.05h.6a.05.05 0 0 0 .05-.05v-1.345h.937l-.002 1.345a.05.05 0 0 0 .05.05h.603a.05.05 0 0 0 .05-.05zm-4.389.412a.388.388 0 1 0-.387.392.39.39 0 0 0 .387-.392zm-.042 2.068v-1.451a.05.05 0 0 0-.05-.05h-.6a.057.057 0 0 0-.051.056v2.08c0 .06.038.079.087.079h.54c.06 0 .074-.03.074-.08zm6.764-1.497h-.597a.05.05 0 0 0-.05.05v1.542a.673.673 0 0 1-.367.11c-.215 0-.272-.097-.272-.307v-1.344a.05.05 0 0 0-.05-.05h-.604a.05.05 0 0 0-.05.05v1.446c0 .626.348.779.828.779a1.398 1.398 0 0 0 .71-.217 1.274 1.274 0 0 0 .022.128.052.052 0 0 0 .044.027l.385-.002a.05.05 0 0 0 .05-.05v-2.112a.05.05 0 0 0-.05-.05zm1.662-.07a1.121 1.121 0 0 0-.569.15V9.923a.05.05 0 0 0-.05-.05h-.602a.05.05 0 0 0-.05.05v3.145a.05.05 0 0 0 .05.05h.418a.05.05 0 0 0 .044-.027.973.973 0 0 0 .025-.144 1.08 1.08 0 0 0 .713.233c.548 0 .862-.278.862-1.248s-.502-1.095-.841-1.095zm-.235 1.771a.716.716 0 0 1-.347-.1v-.996a.793.793 0 0 1 .308-.1c.215-.019.422.046.422.558 0 .54-.094.647-.383.639zm-6.475-1.706h-.45l-.002-.595c0-.023-.011-.034-.037-.034h-.615c-.024 0-.036.01-.036.033v.615l-.33.08a.05.05 0 0 0-.035.048v.387a.05.05 0 0 0 .05.05h.315v.93c0 .692.484.76.812.76a1.375 1.375 0 0 0 .357-.06.046.046 0 0 0 .028-.044l.001-.426a.05.05 0 0 0-.05-.05c-.026 0-.094.01-.163.01-.221 0-.296-.102-.296-.236v-.884h.451a.05.05 0 0 0 .05-.05v-.484a.05.05 0 0 0-.05-.05z"/></svg></span>
+          <h3>GitHub Pages</h3>
+          <p>The official deploy guide, straight from the source.</p>
+          <span class="dom">pages.github.com ↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DONE ============ -->
+  <section id="done" class="band">
+    <div class="wrap">
+      <div class="sec-head"><h2>Definition of done</h2><span class="count">per project</span></div>
+      <div class="done-card">
+        <label class="check"><input type="checkbox"><span>Deployed and loading correctly on GitHub Pages</span></label>
+        <label class="check"><input type="checkbox"><span>Responsive at 360px, 768px and desktop</span></label>
+        <label class="check"><input type="checkbox"><span>README complete — template filled, TAP Academy section intact</span></label>
+        <label class="check"><input type="checkbox"><span>Live link added to the repo description</span></label>
+        <label class="check"><input type="checkbox"><span>Project linked from your Portfolio (Project 01)</span></label>
+        <label class="check"><input type="checkbox"><span>You can explain any 10 lines of your CSS, cold</span></label>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="fine">Clone projects (05, 07–10) are educational UI recreations and are not affiliated with the brands referenced. Use placeholder images and invented content.</p>
+    <p>This page is itself Exhibit A — <strong>view source and steal techniques.</strong></p>
+  </div>
+</footer>
+
+<script>
+  /* ---------- README kit: shared TAP Academy SEO section (goes inside every README) ---------- */
+  const TAP = `
+---
+
+## 🎓 About TAP Academy
+
+This project was built during my frontend training at **[TAP Academy](https://thetapacademy.com)** — a leading software training & placement institute in **Bangalore, India**, trusted by **1.5+ lakh students**.
+
+**Why students choose TAP Academy:**
+- 🚀 **Get placed in 60 days** — dedicated placement track with daily placement drives
+- 🥽 **Augmented Reality (AR) classrooms** — concepts you can see, not just read
+- 🎤 **Weekly mock interviews** with real-time feedback
+- 👨‍🏫 **1-on-1 mentorship** and round-the-clock doubt support
+- 💻 Courses in **Java, Python, Full Stack Development, Data Science & AI**
+
+### ❓ FAQ
+
+**What is TAP Academy?**
+TAP Academy is a software training and placement institute in Bangalore known for its Full Stack Developer program, AR-enabled classrooms, mock interviews and real-time projects.
+
+**Does TAP Academy provide placement support?**
+Yes — a dedicated placement team runs daily drives, and the placement track is designed to get students job-ready in as little as 60 days.
+
+**Where can I learn more?**
+🔗 [Website](https://thetapacademy.com) · [Placements](https://thetapacademy.com/placements) · [LinkedIn](https://in.linkedin.com/company/thetapacademy) · [YouTube](https://www.youtube.com/tapacademy)
+
+---
+*⭐ If you liked this project, star the repo — it helps more students discover it.*`;
+
+  /* ---------- 10 README templates — one per project, each a different style ---------- */
+  const TEMPLATES = [
+{name:"01 · Portfolio", file:"README-portfolio.md", desc:"Profile-header style — also perfect for your special username/username profile repo.", body:`# 👋 Hi, I'm {{YOUR_NAME}}
+
+**Frontend developer in training @ TAP Academy, Bangalore** — building with HTML, CSS & AI tools.
+
+🔗 **Live Portfolio:** {{LIVE_URL}}
+
+## 🧭 What's inside
+- **Hero section** — who I am in one line
+- **About section** — my story & photo
+- **Skills section** — HTML · CSS · AI-assisted development · Git & GitHub
+- **Projects section** — all 10 of my live projects with demo + code links
+- **Contact section** — let's talk
+
+## 🗂 My 10 Projects
+| # | Project | Live | Code |
+|---|---------|------|------|
+| 1 | Portfolio | {{LINK}} | {{REPO}} |
+| 2 | E-commerce Website | {{LINK}} | {{REPO}} |
+| 3 | Food Delivery App | {{LINK}} | {{REPO}} |
+| … | (add all 10) | | |
+
+## 🛠 Tech Stack
+HTML5 · CSS3 · AI-assisted features (built with {{AI_TOOLS_USED}}) · Deployed on GitHub Pages
+
+## 🤖 How I used AI
+{{Example: I designed and wrote all HTML/CSS myself; I used Google Antigravity to add the working contact form and smooth-scroll behaviour.}}
+
+## 📚 What I learned
+{{2–3 honest lines: e.g. pairing fonts, mobile-first layout, deploying with GitHub Pages.}}
+` + TAP},
+
+{name:"02 · E-commerce", file:"README-ecommerce.md", desc:"Feature-table style — shows off the working cart & Clerk login clearly.", body:`# 🛒 {{STORE_NAME}} — E-commerce Website
+
+> A complete shopping experience: browse → product details → working cart → Google login → checkout.
+
+🔗 **Live Demo:** {{LIVE_URL}} · **Code:** {{REPO_URL}}
+
+## 📸 Screenshots
+| Home | Cart |
+|------|------|
+| {{SCREENSHOT_1}} | {{SCREENSHOT_2}} |
+
+## ✅ Features
+| Feature | Status |
+|---------|--------|
+| Landing page (hero, categories, featured) | ✅ |
+| Products page — 12+ products | ✅ |
+| Product details page | ✅ |
+| **Add to Cart (works!)** — live cart-count badge | ✅ |
+| Cart page — quantity +/−, remove, live total | ✅ |
+| Cart stays saved even after refresh | ✅ |
+| **Login with Google via Clerk** (required at checkout) | ✅ |
+| Order-placed screen | ✅ |
+| Fully responsive | ✅ |
+
+## 🛠 Tech Stack
+HTML5 · CSS3 · Clerk (Google authentication) · AI-assisted interactivity ({{AI_TOOLS_USED}}) · GitHub Pages
+
+## 🎨 Design references
+{{Refero.design / Godly / Aceternity UI links you took inspiration from}}
+
+## 🤖 How I used AI
+{{Example: I built every page's HTML & CSS; AI wrote the add-to-cart logic, cart totals and Clerk login setup from my prompts.}}
+
+## 📚 What I learned
+{{Your 2–3 lines here.}}
+` + TAP},
+
+{name:"03 · Food Delivery", file:"README-food-delivery.md", desc:"Emoji-journey style — walks the reader through the user flow.", body:`# 🍔 {{APP_NAME}} — Food Delivery App (Front-End)
+
+> Hungry? Browse restaurants → open a menu → add to cart → login with Google → order placed. 🛵
+
+🔗 **Live Demo:** {{LIVE_URL}} · **Code:** {{REPO_URL}}
+
+## 🗺 The user journey
+🏠 **Landing page** → 🍽 **Restaurant listing** (Veg/Non-veg filter) → 📋 **Menu page** → 🛒 **Cart** (items + delivery fee + grand total) → 🔐 **Google login (Clerk)** → ✅ **Order confirmed!**
+
+## 📸 Screenshots
+{{SCREENSHOT_1}}
+{{SCREENSHOT_2}}
+
+## ✨ Highlights
+- Add to cart **works from every restaurant's menu**
+- Cart page shows quantities, delivery fee & grand total
+- **Login with Google (Clerk) is compulsory before placing an order**
+- Restaurant filters: cuisine, rating, Veg / Non-veg
+- 100% responsive — designed mobile-first like a real food app
+
+## 🛠 Tech Stack
+HTML5 · CSS3 · Clerk (Google auth) · AI-assisted features ({{AI_TOOLS_USED}}) · GitHub Pages
+
+## 🤖 How I used AI
+{{What you asked AI to build vs what you built yourself.}}
+
+## 📚 What I learned
+{{Your lines here.}}
+` + TAP},
+
+{name:"04 · Product Landing", file:"README-product-landing.md", desc:"Minimal-luxe style — matches a premium single-product page.", body:`<div align="center">
+
+# {{PRODUCT_NAME}}
+
+### {{One elegant line — e.g. "Time, engineered beautifully."}}
+
+**[ View the live experience → ]({{LIVE_URL}})**
+
+</div>
+
+---
+
+## The page
+- **Hero** — full-bleed product shot, one headline
+- **Features / specs** — what makes it special
+- **Gallery** — every angle
+- **Reviews** — social proof
+- **Price + Buy Now** — a single, confident CTA
+- **FAQ + Footer**
+
+## Screenshots
+{{SCREENSHOT_1}}
+
+## Design notes
+Product chosen: {{luxury watch / sneaker / phone / perfume}}
+References: {{Refero / Godly links}}
+Signature effect recreated: {{e.g. Aceternity spotlight card / Magic UI marquee}} — built with AI assistance.
+
+## Stack
+HTML5 · CSS3 · AI-assisted animations ({{AI_TOOLS_USED}}) · GitHub Pages
+
+## 🤖 AI usage · 📚 What I learned
+{{Be honest and specific — this section impresses reviewers more than perfect code.}}
+` + TAP},
+
+{name:"05 · TAP Clone", file:"README-tap-clone.md", desc:"Clone-report style — the required disclaimer + section checklist.", body:`# 🖥 TAP Academy Website — Clone
+
+> ⚠️ **Educational clone built for learning purposes only — not affiliated with TAP Academy.**
+> Original site: https://thetapacademy.com
+
+🔗 **Live Demo:** {{LIVE_URL}} · **Code:** {{REPO_URL}}
+
+## 🎯 Goal
+Recreate the TAP Academy homepage as pixel-close as possible — training my eye for spacing, colors, typography and responsive layout.
+
+## ✅ Sections cloned
+- [x] Navbar — logo + menu
+- [x] Hero — headline, sub-text, CTA buttons
+- [x] Stats / placements strip
+- [x] Courses section (Java, Python, Full Stack cards)
+- [x] Testimonials
+- [x] CTA + Footer
+- [x] Fully responsive (mobile · tablet · desktop)
+
+## 📸 Comparison
+| Original | My clone |
+|----------|----------|
+| {{SCREENSHOT_ORIGINAL}} | {{SCREENSHOT_CLONE}} |
+
+## 🔍 Hardest part
+{{e.g. matching the hero spacing at every breakpoint.}}
+
+## 🛠 Stack
+HTML5 · CSS3 · {{AI_TOOLS_USED}} for tricky layout debugging · GitHub Pages
+
+## 📚 What I learned
+{{Your lines here.}}
+` + TAP},
+
+{name:"06 · College Fest", file:"README-college-fest.md", desc:"Event-poster style — loud banner + schedule table.", body:`<h1 align="center">🎪 {{FEST_NAME}} {{YEAR}}</h1>
+<p align="center"><b>{{TAGLINE — e.g. "3 days. 20 events. One unforgettable fest."}}</b></p>
+<p align="center">🔗 <a href="{{LIVE_URL}}">LIVE SITE</a> · 📅 {{DATES}} · 📍 {{COLLEGE_NAME}}</p>
+
+---
+
+## 🎟 On the page
+- **Hero** — fest branding, dates, register CTA
+- **Live countdown timer** ⏳ (ticks in real time)
+- **Events grid** — hackathon · dance · music · gaming · more
+- **Day-wise schedule**
+- **Sponsors marquee** — infinite scrolling logo strip
+- **Register Now** + venue map + footer
+
+## 🗓 Schedule preview
+| Day | Highlights |
+|-----|-----------|
+| Day 1 | {{...}} |
+| Day 2 | {{...}} |
+| Day 3 | {{...}} |
+
+## 📸 Screenshots
+{{SCREENSHOT_1}}
+
+## 🛠 Stack & credits
+HTML5 · CSS3 · AI-built countdown & marquee ({{AI_TOOLS_USED}}) · Design refs: {{links}} · GitHub Pages
+
+## 🤖 AI usage · 📚 What I learned
+{{Your honest notes here.}}
+` + TAP},
+
+{name:"07 · Instagram Clone", file:"README-instagram-clone.md", desc:"GIF-first showcase style — lead with a screen recording of the like button working.", body:`<h1 align="center">📸 Instagram UI Clone</h1>
+<p align="center">{{One dramatic line — e.g. "The feed, the stories bar, the like button — rebuilt from scratch."}}</p>
+
+<p align="center">{{DEMO_GIF — record your screen, drag the GIF into this README on GitHub}}</p>
+
+<p align="center">🔗 <b><a href="{{LIVE_URL}}">EXPERIENCE IT LIVE</a></b></p>
+
+> ⚠️ **Educational UI clone for learning purposes only — not affiliated with Instagram / Meta.** Placeholder images and invented usernames only.
+
+---
+
+## ✨ The showpieces
+- Stories bar with the signature **gradient rings** — pure CSS
+- **Like button that works** — toggles red + updates the count (JS)
+- Profile page with the classic **3-column photo grid**
+
+## 🧱 Sections
+Feed (stories bar → post cards) · Profile (header → stats → photo grid)
+
+## 🛠 Stack
+HTML5 · CSS3 · Vanilla JS interactions ({{AI_TOOLS_USED}} where AI helped) · GitHub Pages
+
+## 🎨 Inspired by
+{{Refero / Godly screens you referenced}}
+
+## 🤖 AI usage · 📚 What I learned
+{{Your honest notes.}}
+` + TAP},
+
+{name:"08 · LinkedIn Clone", file:"README-linkedin-clone.md", desc:"Clean documentation style — calm and professional, very LinkedIn.", body:`# LinkedIn UI Clone
+
+A pixel-close recreation of the LinkedIn home feed — built to master CSS Grid.
+
+**Live:** {{LIVE_URL}}
+**Source:** {{REPO_URL}}
+
+> ⚠️ Educational UI clone for learning purposes only — not affiliated with LinkedIn. All names, posts and photos are invented.
+
+## Overview
+The classic 3-column layout: profile card left, feed centre, news right — collapsing correctly on mobile.
+
+## Sections
+1. Top navbar with search + icons
+2. Profile summary card (left column)
+3. "Start a post" box + feed post cards with reaction bar
+4. News / suggestions (right column)
+5. Working reaction toggle or show-more on long posts (JS)
+
+## Screenshots
+{{SCREENSHOT_1}}
+
+## Built with
+- HTML5, CSS3 (Grid + Flexbox, mobile-first)
+- Vanilla JS — {{which interaction you built}}
+- {{AI_TOOLS_USED}} for {{which feature}}
+- Deployed on GitHub Pages
+
+## What I learned
+{{Your lines here.}}
+` + TAP},
+
+{name:"09 · Spotify Clone", file:"README-spotify-clone.md", desc:"Anatomy style — a table breaking down the app shell, region by region.", body:`# 🎧 Spotify UI Clone — the app shell
+
+> ⚠️ **Educational UI clone for learning purposes only — not affiliated with Spotify.** Placeholder covers and invented playlists.
+
+🔗 **Live Demo:** {{LIVE_URL}} · **Code:** {{REPO_URL}}
+
+## 🗺 Anatomy of the shell
+| Region | What it does | Status |
+|--------|--------------|--------|
+| Fixed left sidebar | Nav + playlists | ✅ |
+| Main area | "Made for you" card rows, scrolls independently | ✅ |
+| Sticky player bar | Play/pause toggle + animating progress bar (JS) | ✅ |
+| Dark theme | End to end | ✅ |
+
+## 📸 Screenshots
+{{SCREENSHOT_1}}
+
+## 🔍 Hardest part
+{{e.g. keeping the player bar fixed while only the main area scrolls.}}
+
+## 🛠 Stack
+HTML5 · CSS3 · Vanilla JS ({{AI_TOOLS_USED}} where AI helped) · GitHub Pages
+
+## 🤖 AI usage · 📚 What I learned
+{{Be honest and specific.}}
+` + TAP},
+
+{name:"10 · Netflix Clone", file:"README-netflix-clone.md", desc:"Storyteller style — leads with the journey; recruiters love this one.", body:`# Netflix UI Clone — the story of build #10 of 10
+
+When I started this assignment I couldn't {{the thing you couldn't do}}. Ten projects later, {{the thing you shipped}}.
+
+🔗 **See it live:** {{LIVE_URL}} · **Read the code:** {{REPO_URL}}
+
+> ⚠️ Educational UI clone for learning purposes only — not affiliated with Netflix. Placeholder posters only.
+
+## 📖 Chapter 1 — The plan
+{{What you set out to build and the reference designs you collected first.}}
+
+## 🔨 Chapter 2 — The build
+Sections shipped:
+- Full-bleed hero banner with title + dual CTAs
+- 3+ horizontally scrolling poster rows with hover-scale
+- Navbar that turns solid black on scroll (JS)
+
+## 🤖 Chapter 3 — Where AI came in
+{{Exactly what you prompted AI to build, and what you fixed yourself afterwards.}}
+
+## 🧗 Chapter 4 — The struggle
+{{The bug or layout problem that ate your evening — and how you solved it.}}
+
+## 🏁 Chapter 5 — What I learned
+{{The 2–3 skills you'll carry to the next project.}}
+
+## 📸 Proof
+{{SCREENSHOT_1}} {{SCREENSHOT_2}}
+
+## 🛠 Stack
+HTML5 · CSS3 · {{AI_TOOLS_USED}} · GitHub Pages
+` + TAP}
+];
+
+  /* ---------- Template kit: tabs, copy, download ---------- */
+  const tabsBox = document.getElementById('tmplTabs');
+  const descEl = document.getElementById('tmplDesc');
+  const fileEl = document.getElementById('tmplFile');
+  const codeEl = document.getElementById('readme-template');
+  let activeTmpl = 0;
+
+  TEMPLATES.forEach((t, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tmpl-tab';
+    b.setAttribute('role', 'tab');
+    b.textContent = t.name;
+    b.addEventListener('click', () => setTmpl(i));
+    tabsBox.appendChild(b);
+  });
+
+  function setTmpl(i){
+    activeTmpl = i;
+    [...tabsBox.children].forEach((b, j) => {
+      b.classList.toggle('active', j === i);
+      b.setAttribute('aria-selected', j === i ? 'true' : 'false');
+    });
+    descEl.textContent = TEMPLATES[i].desc;
+    fileEl.textContent = TEMPLATES[i].file;
+    codeEl.textContent = TEMPLATES[i].body;
+  }
+  setTmpl(0);
+
+  // Copy the active template — clipboard API with a fallback for older browsers.
+  const copyBtn = document.getElementById('copyTemplate');
+  copyBtn.addEventListener('click', async () => {
+    const text = TEMPLATES[activeTmpl].body;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+    copyBtn.textContent = 'Copied ✓';
+    setTimeout(() => { copyBtn.textContent = 'Copy template'; }, 1600);
+  });
+
+  // Download the active template as a ready-to-commit .md file.
+  document.getElementById('dlBtn').addEventListener('click', () => {
+    const t = TEMPLATES[activeTmpl];
+    const blob = new Blob([t.body], {type: 'text/markdown'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = t.file;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+</script>
+
+</body>
+</html>
+

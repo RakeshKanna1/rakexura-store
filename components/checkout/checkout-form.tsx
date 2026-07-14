@@ -18,6 +18,7 @@ import { useCartStore } from "@/stores/cart-store";
 import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
 import type { Game } from "@/types/store";
 import { Confetti } from "@/components/common/confetti";
+import { EmptyState } from "@/components/common/empty-state";
 
 const schema = z.object({ name: z.string().min(2), whatsapp: z.string().regex(/^\+?[0-9 ]{10,16}$/, "Enter a valid WhatsApp number"), paymentReference: z.string().optional() });
 type Data = z.infer<typeof schema>;
@@ -52,8 +53,10 @@ export function CheckoutForm() {
   const [finalAmount, setFinalAmount] = useState(0);
   const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(null);
   const [postPurchasePhone, setPostPurchasePhone] = useState("");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     async function loadGames() {
       const supabase = createClient();
       const { data } = await supabase.from("games").select("*").eq("archived", false);
@@ -95,22 +98,22 @@ export function CheckoutForm() {
         toast.error("Coupon removed: Coupons cannot be applied to subscriptions.");
         return;
       }
-      if (!isDiamondOrPlatinumCoupon(coupon.code)) {
+      if (!isDiamondOrPlatinumCoupon(coupon.code) && coupon.code !== "RAKETHREE") {
         const hasLowPricedGame = lines.some((line) => {
           if (!line || !line.game || line.game.is_subscription) return false;
           const platform = line.platform || "Steam";
           const g = line.game;
           const value = getCheckoutLinePrice(g, platform);
-          return Number(value ?? 0) * (line.quantity || 1) <= 99;
+          return Number(value ?? 0) * (line.quantity || 1) < 99;
         });
         const hasLowPricedBundle = bundleLines.some((line) => {
           if (!line || !line.bundle) return false;
-          return Number(line.bundle.bundle_price || 0) * (line.quantity || 1) <= 99;
+          return Number(line.bundle.bundle_price || 0) * (line.quantity || 1) < 99;
         });
         if (hasLowPricedGame || hasLowPricedBundle) {
           setCoupon(null);
           setCouponCode("");
-          toast.error("Coupon removed: General coupons can only be applied to games priced above Rs. 99.");
+          toast.error("Coupon removed: General coupons can only be applied to games priced at Rs. 99 or above.");
         }
       }
     }
@@ -185,6 +188,22 @@ export function CheckoutForm() {
   const discount = subtotal - total;
   const { register, handleSubmit, trigger, getValues, formState: { errors, isSubmitting } } = useForm<Data>({ resolver: zodResolver(schema) });
   const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent("RAKESH KANNA M")}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent("Rakexura game order")}`;
+
+  if (!mounted) {
+    return <div className="glass mx-auto max-w-2xl h-80 rounded-lg animate-pulse bg-white/[.02]" />;
+  }
+
+  if (!lines.length && !bundleLines.length && !orderReference) {
+    return (
+      <EmptyState
+        icon={LockKeyhole}
+        title="Your cart is empty"
+        description="Add some games or bundles to your cart before proceeding to checkout."
+        href="/games"
+        action="Browse games"
+      />
+    );
+  }
 
   async function nextDetails() {
     if (await trigger(["name", "whatsapp"])) {
@@ -280,6 +299,7 @@ export function CheckoutForm() {
       const resData = await response.json();
       if (!response.ok || !resData.success) {
         setCoupon(null);
+        toast.dismiss();
         toast.error(resData.error?.message || "This coupon is invalid or not active");
       } else {
         // Verify if the coupon would result in free game (total = 0) for ranks below Diamond
@@ -290,6 +310,7 @@ export function CheckoutForm() {
           const points = user ? (await supabase.from("user_rewards").select("points").eq("user_id", user.id).maybeSingle()).data?.points ?? 0 : 0;
           if (points < 4000) {
             setCoupon(null);
+            toast.dismiss();
             return toast.error("Free game checkout codes are restricted to Diamond and Platinum loyalty ranks.");
           }
         }
@@ -301,9 +322,11 @@ export function CheckoutForm() {
           minimum_order: resData.data.minimum_order
         });
         setCelebrate(true);
+        toast.dismiss();
         toast.success("Coupon applied");
       }
     } catch {
+      toast.dismiss();
       toast.error("Network error during coupon validation.");
     } finally {
       setCheckingCoupon(false);
@@ -379,8 +402,8 @@ export function CheckoutForm() {
       <AnimatePresence mode="wait">
         {step === 1 && <motion.section key="details" initial={{ opacity: 0, x: 14 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -14 }} className="glass mx-auto max-w-2xl space-y-5 rounded-lg p-6">
           <div><p className="eyebrow">Step 1 of 3</p><h2 className="mt-2 text-xl font-bold">Where should we send your game?</h2><p className="muted mt-2 text-sm">These details are private and used only for payment review, delivery, and support.</p></div>
-          <label className="block text-sm font-semibold">Name<input {...register("name")} autoComplete="name" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#facc15]" />{errors.name && <small className="text-[#ff7373]">Enter your name</small>}</label>
-          <label className="block text-sm font-semibold">WhatsApp number<input {...register("whatsapp")} inputMode="tel" autoComplete="tel" placeholder="+91 98765 43210" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#facc15]" />{errors.whatsapp && <small className="text-[#ff7373]">{errors.whatsapp.message}</small>}</label>
+          <label className="block text-sm font-semibold">Name<input suppressHydrationWarning {...register("name")} autoComplete="name" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#facc15]" />{errors.name && <small className="text-[#ff7373]">Enter your name</small>}</label>
+          <label className="block text-sm font-semibold">WhatsApp number<input suppressHydrationWarning {...register("whatsapp")} inputMode="tel" autoComplete="tel" placeholder="+91 98765 43210" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#facc15]" />{errors.whatsapp && <small className="text-[#ff7373]">{errors.whatsapp.message}</small>}</label>
           <Button type="button" onClick={nextDetails} className="w-full">Continue to payment <ChevronRight size={17} /></Button>
         </motion.section>}
         {step === 2 && <motion.section key="payment" initial={{ opacity: 0, x: 14 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -14 }} className="glass mx-auto max-w-2xl rounded-lg p-6">
@@ -396,6 +419,7 @@ export function CheckoutForm() {
             </h4>
             <div className="flex items-center gap-2">
               <input
+                suppressHydrationWarning
                 type="text"
                 placeholder="PROMO OR RANK CODE"
                 value={couponCode}
@@ -403,6 +427,7 @@ export function CheckoutForm() {
                 className="h-11 flex-1 min-w-0 rounded-md border border-white/10 bg-black/25 px-3.5 text-xs font-bold uppercase tracking-wider outline-none focus:border-[#facc15] text-white"
               />
               <button
+                suppressHydrationWarning
                 type="button"
                 onClick={applyCheckoutCoupon}
                 disabled={checkingCoupon}
@@ -420,6 +445,7 @@ export function CheckoutForm() {
                   <span>Active perk: Coupon <span className="underline">{coupon.code}</span> applied ({coupon.discount_type === "percentage" ? `${coupon.discount_value}% off` : `${formatPrice(coupon.discount_value)} off`})</span>
                 )}
                 <button
+                  suppressHydrationWarning
                   type="button"
                   onClick={() => {
                     setCoupon(null);
@@ -446,22 +472,22 @@ export function CheckoutForm() {
               {total > 0 ? (
                 <>
                   <h2 className="text-xl font-bold">Pay exactly {formatPrice(total)}</h2>
-                  <div className="mt-4 rounded-md border border-white/10 bg-black/25 p-3"><span className="block text-[11px] font-bold uppercase tracking-wider text-[#8991a6]">UPI ID</span><button type="button" onClick={copyUpi} className="mt-1 flex min-h-10 w-full items-center justify-between gap-3 text-left text-sm font-bold"><span className="truncate">{UPI_ID}</span><Clipboard size={16} /></button><div className="mt-2 grid grid-cols-2 gap-2"><a href={upiUrl} className="btn btn-secondary min-h-10 text-xs">Open GPay</a><a href={upiUrl} className="btn btn-secondary min-h-10 text-xs">Open PhonePe</a></div></div>
+                  <div className="mt-4 rounded-md border border-white/10 bg-black/25 p-3"><span className="block text-[11px] font-bold uppercase tracking-wider text-[#8991a6]">UPI ID</span><button suppressHydrationWarning type="button" onClick={copyUpi} className="mt-1 flex min-h-10 w-full items-center justify-between gap-3 text-left text-sm font-bold"><span className="truncate">{UPI_ID}</span><Clipboard size={16} /></button><div className="mt-2 grid grid-cols-2 gap-2"><a href={upiUrl} className="btn btn-secondary min-h-10 text-xs">Open GPay</a><a href={upiUrl} className="btn btn-secondary min-h-10 text-xs">Open PhonePe</a></div></div>
                   <ol className="mt-3 space-y-2 text-sm leading-6 text-[#aeb5c6]"><li><b className="text-white">1.</b> Scan the QR or open your UPI app.</li><li><b className="text-white">2.</b> Pay the exact total.</li><li><b className="text-white">3.</b> Upload the successful payment screenshot.</li></ol>
-                  <label className="mt-5 block text-sm font-semibold">UPI reference <span className="muted font-normal">(optional)</span><input {...register("paymentReference")} className="mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#facc15]" /></label>
+                  <label className="mt-5 block text-sm font-semibold">UPI reference <span className="muted font-normal">(optional)</span><input suppressHydrationWarning {...register("paymentReference")} className="mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#facc15]" /></label>
                 </>
-              ) : (
+              ) : subtotal > 0 ? (
                 <div className="p-4 rounded-md border border-[#00d68f]/20 bg-[#00d68f]/[.05] text-[#70efbb] mb-4">
                   <h3 className="font-black text-lg">Exclusive Rank Perk Active</h3>
                   <p className="mt-2 text-sm leading-relaxed text-[#c4eade]">Your total is Rs. 0. Bypassing payment scan requirement. Please upload any placeholder screenshot to complete your free loyalty checkout review.</p>
                 </div>
-              )}
+              ) : null}
               {/* Screenshot Uploader Component (Permanently Visible) */}
-              <label className="mt-4 flex min-h-20 cursor-pointer items-center gap-3 rounded-md border border-dashed border-white/15 bg-white/[.03] p-4 text-sm transition hover:border-[#facc15]/50"><ImageUp className="shrink-0 text-[#facc15]" /><span className="min-w-0"><b className="block truncate">{proof ? proof.name : "Choose payment screenshot"}</b><small className="muted">JPG, PNG, or WebP, maximum 5 MB</small></span><input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => chooseProof(event.target.files?.[0] ?? null)} /></label>
+              <label className="mt-4 flex min-h-20 cursor-pointer items-center gap-3 rounded-md border border-dashed border-white/15 bg-white/[.03] p-4 text-sm transition hover:border-[#facc15]/50"><ImageUp className="shrink-0 text-[#facc15]" /><span className="min-w-0"><b className="block truncate">{proof ? proof.name : "Choose payment screenshot"}</b><small className="muted">JPG, PNG, or WebP, maximum 5 MB</small></span><input suppressHydrationWarning type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => chooseProof(event.target.files?.[0] ?? null)} /></label>
             </div>
           </div>
           
-          <div className="mt-6 grid grid-cols-2 gap-2"><button type="button" onClick={() => { setStep(1); if (typeof window !== "undefined") window.scrollTo(0, 0); }} className="btn btn-secondary"><ChevronLeft size={17} /> Back</button><Button type="button" onClick={nextPayment}>Review order <ChevronRight size={17} /></Button></div>
+          <div className="mt-6 grid grid-cols-2 gap-2"><button suppressHydrationWarning type="button" onClick={() => { setStep(1); if (typeof window !== "undefined") window.scrollTo(0, 0); }} className="btn btn-secondary"><ChevronLeft size={17} /> Back</button><Button type="button" onClick={nextPayment}>Review order <ChevronRight size={17} /></Button></div>
         </motion.section>}
         {step === 3 && <motion.section key="review" initial={{ opacity: 0, x: 14 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -14 }} className="glass mx-auto max-w-2xl rounded-lg p-6">
           <p className="eyebrow">Step 3 of 3</p><h2 className="mt-2 text-xl font-bold">Confirm your order</h2>
@@ -518,7 +544,7 @@ export function CheckoutForm() {
               <span className="text-[#facc15]">{formatPrice(total)}</span>
             </div>
           </div>
-          <div className="mt-6 grid grid-cols-2 gap-2"><button type="button" onClick={() => { setStep(2); if (typeof window !== "undefined") window.scrollTo(0, 0); }} className="btn btn-secondary"><ChevronLeft size={17} /> Back</button><Button disabled={isSubmitting || (!lines.length && !bundleLines.length)}>{isSubmitting ? "Creating order..." : "Confirm order"}</Button></div>
+          <div className="mt-6 grid grid-cols-2 gap-2"><button suppressHydrationWarning type="button" onClick={() => { setStep(2); if (typeof window !== "undefined") window.scrollTo(0, 0); }} className="btn btn-secondary"><ChevronLeft size={17} /> Back</button><Button disabled={isSubmitting || (!lines.length && !bundleLines.length)}>{isSubmitting ? "Creating order..." : "Confirm order"}</Button></div>
           <p className="mt-5 flex items-start gap-2 text-xs leading-5 text-[#8991a6]"><LockKeyhole size={15} className="mt-0.5 shrink-0" /> Your proof is private and readable only by authorized Rakexura staff.</p>
         </motion.section>}
       </AnimatePresence>
@@ -533,7 +559,7 @@ export function CheckoutForm() {
           <h2 className="mt-2 text-3xl font-black">Payment review started</h2>
           <p className="muted mt-3 text-sm leading-6">Save this reference. Use it with your WhatsApp number to track delivery.</p>
           
-          <button type="button" onClick={copyReference} className="mt-5 inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-md border border-white/10 bg-black/25 text-xl font-black tracking-wide">
+          <button suppressHydrationWarning type="button" onClick={copyReference} className="mt-5 inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-md border border-white/10 bg-black/25 text-xl font-black tracking-wide">
             <Clipboard size={18} /> {orderReference}
           </button>
 

@@ -34,13 +34,20 @@ export function BundleAddonMatrix({ games, excludeId }: { games: Game[]; exclude
 
   if (filteredGames.length < 3) return null;
 
+  const mainGamesCount = lines.filter((l) => !selectedAddons.includes(Number(l.game.id))).length;
+  const needed = Math.max(0, 3 - mainGamesCount - selectedAddons.length);
+
   return (
     <div className="mt-8 rounded-lg border border-dashed border-[#8b5cf6]/20 bg-[#0c0a1a]/80 p-5 shadow-[0_12px_36px_rgba(0,0,0,0.3)]">
       <h3 className="text-sm font-black uppercase tracking-wider text-white mb-2">
-        Want to select 3 more games to unlock your bundle offer?
+        {needed > 0
+          ? `Want to select ${needed} more ${needed === 1 ? "game" : "games"} to unlock your bundle offer?`
+          : "Milestone bundle offer unlocked!"}
       </h3>
       <p className="text-xs text-[#8991a6] mb-4">
-        Select exactly 3 games to complete your milestone bundle and get 10% off the entire cart!
+        {needed > 0
+          ? `Select exactly ${needed} more ${needed === 1 ? "game" : "games"} to complete your milestone bundle and get 10% off the entire cart!`
+          : "You are now eligible to apply the RAKETHREE coupon code for 10% off the entire cart!"}
       </p>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {filteredGames.map((g) => {
@@ -64,36 +71,26 @@ export function BundleAddonMatrix({ games, excludeId }: { games: Game[]; exclude
                 onChange={(e) => {
                   let next = [...selectedAddons];
                   if (e.target.checked) {
-                    if (next.length < 3) {
-                      next.push(g.id);
-                      add(g, "Steam");
-                    } else {
-                      toast.error("You can select up to 3 add-on games");
-                    }
+                    next.push(g.id);
+                    add(g, "Steam");
                   } else {
                     next = next.filter((id) => id !== g.id);
                     remove(g.id, "Steam");
                   }
                   setSelectedAddons(next);
 
-                  if (next.length === 3) {
-                    const hasLowPricedGame = next.some((id) => {
-                      const addonGame = games.find((item) => item.id === id);
-                      if (!addonGame) return false;
-                      const priceValue = Number(addonGame.steam_price || addonGame.sale_price || 0);
-                      return priceValue <= 99;
-                    });
-                    if (hasLowPricedGame) {
-                      toast.error("General coupons like RAKETHREE cannot be applied if any selected game is Rs. 99 or less.");
-                    } else {
-                      setCoupon({
-                        code: "RAKETHREE",
-                        discount_type: "percentage",
-                        discount_value: 10,
-                        minimum_order: 0,
-                      });
-                      toast.success("Milestone bundle completed! RAKETHREE coupon injected.");
-                    }
+                  // Calculate the total games that will be in the cart after this change
+                  const cartGames = [
+                    ...lines
+                      .filter((l) => !selectedAddons.includes(Number(l.game.id)) && Number(l.game.id) !== g.id)
+                      .map((l) => l.game),
+                    ...next.map((id) => games.find((item) => item.id === id)).filter(Boolean) as Game[],
+                  ];
+                  const totalGamesInCart = cartGames.length;
+
+                  if (totalGamesInCart >= 3) {
+                    toast.dismiss();
+                    toast.success("Milestone bundle completed! You can now apply the RAKETHREE coupon code.");
                   } else {
                     if (coupon?.code === "RAKETHREE") {
                       setCoupon(null);
