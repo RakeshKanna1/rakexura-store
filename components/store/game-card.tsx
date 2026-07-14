@@ -123,6 +123,7 @@ function GameCardInner({
 
         {onQuickView && (
           <button
+            suppressHydrationWarning={true}
             onClick={() => onQuickView(game)}
             className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-black/70 backdrop-blur-md hover:scale-110 hover:border-white/30 hover:bg-black/90 active:scale-90 transition-all duration-200"
             aria-label={`Quick view ${game.title}`}

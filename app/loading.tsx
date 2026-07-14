@@ -3,7 +3,7 @@ import { ShinyText } from "@/components/animations/shiny-text";
 
 export default function Loading() {
   return (
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center overflow-hidden" style={{ backgroundColor: "#05070f" }} role="status" aria-label="Loading Rakexura">
+    <div id="global-loading-screen" className="fixed inset-0 z-[99999] flex items-center justify-center overflow-hidden" style={{ backgroundColor: "#05070f" }} role="status" aria-label="Loading Rakexura">
       {/* Subtle premium gold radial glow background */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.05),transparent_60%)] pointer-events-none" />
 

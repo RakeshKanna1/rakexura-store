@@ -13,12 +13,12 @@ const supabaseHostname = (() => {
 
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline';
+  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com;
   style-src 'self' 'unsafe-inline';
   img-src 'self' blob: data: https://*.supabase.co https://*.supabase.in https://images.unsplash.com https://wa.me https://img.youtube.com https://*.ytimg.com https://*.youtube.com;
   media-src 'self' blob: data: https://*.supabase.co https://*.supabase.in;
   font-src 'self' data:;
-  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.wa.me https://*.upstash.io https://*.upstash.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.wa.me https://*.upstash.io https://*.upstash.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://vitals.vercel-insights.com https://vitals.vercel-analytics.com;
   frame-src 'self' https://*.discord.com https://*.google.com https://www.youtube.com https://www.youtube-nocookie.com;
   frame-ancestors 'none';
 `.replace(/\s{2,}/g, " ").trim();

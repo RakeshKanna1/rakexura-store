@@ -580,6 +580,9 @@ body:has(#rakexura-loading-screen) footer {
   display: none !important;
 }
 
-
-
-
+/* Ensure the page transition wrapper doesn't apply containing block transforms or opacity when loading */
+.page-transition-wrapper:has(#global-loading-screen) {
+  transform: none !important;
+  scale: none !important;
+  opacity: 1 !important;
+}

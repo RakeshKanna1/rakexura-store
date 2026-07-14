@@ -19,6 +19,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
   if (isMobile) {
     return (
       <motion.div
+        className="page-transition-wrapper"
         initial={{ opacity: 0.75 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.2 }}
@@ -30,6 +31,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
 
   return (
     <motion.div
+      className="page-transition-wrapper"
       initial={{ opacity: 0, y: 12, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
