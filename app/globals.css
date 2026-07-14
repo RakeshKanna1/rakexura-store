@@ -585,4 +585,8 @@ body:has(#rakexura-loading-screen) footer {
   transform: none !important;
   scale: none !important;
   opacity: 1 !important;
+  will-change: auto !important;
+  filter: none !important;
+  perspective: none !important;
+  contain: none !important;
 }
