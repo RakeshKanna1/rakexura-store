@@ -34,6 +34,7 @@ function getCheckoutLinePrice(g: Game, platform: string) {
 }
 
 export function CheckoutForm() {
+  const { register, handleSubmit, trigger, getValues, reset, formState: { errors, isSubmitting } } = useForm<Data>({ resolver: zodResolver(schema) });
   const router = useRouter();
   const [celebrate, setCelebrate] = useState(false);
   const lines = useCartStore((state) => state.lines);
@@ -57,13 +58,31 @@ export function CheckoutForm() {
 
   useEffect(() => {
     setMounted(true);
-    async function loadGames() {
+    async function loadData() {
       const supabase = createClient();
       const { data } = await supabase.from("games").select("*").eq("archived", false);
       if (data) setGames(data);
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("display_name, whatsapp")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        const defaultName = profile?.display_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "";
+        const defaultWhatsApp = profile?.whatsapp || "";
+
+        reset({
+          name: defaultName,
+          whatsapp: defaultWhatsApp,
+          paymentReference: "",
+        });
+      }
     }
-    void loadGames();
-  }, []);
+    void loadData();
+  }, [reset]);
 
   const gamesTotal = lines.reduce((sum, line) => {
     if (!line || !line.game) return sum;
@@ -186,7 +205,6 @@ export function CheckoutForm() {
   }
   
   const discount = subtotal - total;
-  const { register, handleSubmit, trigger, getValues, formState: { errors, isSubmitting } } = useForm<Data>({ resolver: zodResolver(schema) });
   const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent("RAKESH KANNA M")}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent("Rakexura game order")}`;
 
   if (!mounted) {
