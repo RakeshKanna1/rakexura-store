@@ -141,6 +141,7 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                   src={coverUrl}
                   alt={gameTitle}
                   className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  loading="lazy"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#101424] to-[#080a12]">
@@ -306,7 +307,7 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                     <div key={`${row.id}-${gameId}-${item.platform}`} className="flex gap-3 rounded border border-white/[.05] bg-black/20 p-3">
                       <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-[#08090c]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={assetUrl(game.cover_image)} alt="" className="h-full w-full object-cover" />
+                        <img src={assetUrl(game.cover_image)} alt="" className="h-full w-full object-cover" loading="lazy" />
                       </div>
                       <div className="min-w-0 flex-1 flex flex-col justify-between">
                         <div>

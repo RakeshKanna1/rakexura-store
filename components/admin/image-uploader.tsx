@@ -61,6 +61,7 @@ export function ImageUploader({ name, label, initial, type }: { name: string; la
               src={value}
               alt={`${label} preview`}
               className="object-cover w-full h-full rounded-lg"
+              loading="lazy"
             />
             <span className="absolute inset-x-2 bottom-2 rounded bg-black/75 px-3 py-2 text-center text-xs">
               Replace image
