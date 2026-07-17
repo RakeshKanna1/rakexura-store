@@ -10,6 +10,8 @@ import { MediaManager } from "@/components/admin/media-manager";
 import { OrderActions } from "@/components/admin/order-actions";
 import { SearchableTable } from "@/components/admin/searchable-table";
 import { FlashSaleForm } from "@/components/admin/flash-sale-form";
+import { CampaignForm } from "@/components/admin/campaign-form";
+import { CampaignGameForm } from "@/components/admin/campaign-game-form";
 
 const sources = {
   games: { title: "Game management", table: "games", select: "id,title,steam_price,epic_price,offline_price,online_price,xbox_price,geforce_price,is_subscription,online_activation,duration,archived", order: "id" },
@@ -23,6 +25,8 @@ const sources = {
   analytics: { title: "Analytics events", table: "analytics_events", select: "id,event_type,event_value,game_id,created_at", order: "created_at" },
   "flash-sales": { title: "Flash sale management", table: "flash_sales", select: "id,game_id,sale_price,starts_at,ends_at,active", order: "ends_at" },
   "audit-logs": { title: "Admin audit logs", table: "audit_logs", select: "id,admin_id,action,affected_entity,entity_id,ip_address,created_at", order: "created_at" },
+  campaigns: { title: "Campaign management", table: "campaigns", select: "id,name,slug,starts_at,ends_at,active", order: "id" },
+  "campaign-games": { title: "Campaign game overrides", table: "campaign_games", select: "id,campaign_id,game_id,campaign_price,stock_limit", order: "id" },
 } as const;
 
 type AdminRow = Record<string, unknown> & { id?: number; screenshot_url?: string; proof_url?: string; media_urls?: string[]; media_links?: string[] };
@@ -86,6 +90,25 @@ export default async function AdminSection({ params, searchParams }: { params: P
     }
   }
 
+  let editingCampaign = null;
+  if (section === "campaigns" && query.edit && /^\d+$/.test(query.edit)) {
+    const { data: campaign } = await supabase.from("campaigns").select("id,name,slug,starts_at,ends_at,theme_color,banner_image,active").eq("id", Number(query.edit)).maybeSingle();
+    editingCampaign = campaign;
+  }
+
+  let editingCampaignGame = null;
+  let campaignsList: Array<{ id: number; name: string }> = [];
+  if (section === "campaign-games") {
+    const { data: dbCampaigns } = await supabase.from("campaigns").select("id,name").order("name");
+    campaignsList = dbCampaigns || [];
+    const { data: dbGames } = await supabase.from("games").select("id,title").eq("archived", false).order("title");
+    gamesList = dbGames || [];
+    if (query.edit && /^\d+$/.test(query.edit)) {
+      const { data: campaignGame } = await supabase.from("campaign_games").select("id,campaign_id,game_id,campaign_price,stock_limit").eq("id", Number(query.edit)).maybeSingle();
+      editingCampaignGame = campaignGame;
+    }
+  }
+
   if (section === "orders") {
     await Promise.all(rows.map(async (row) => {
       if (!row.screenshot_url) return;
@@ -123,7 +146,7 @@ export default async function AdminSection({ params, searchParams }: { params: P
 
   const hidden = new Set(["screenshot_url", "proof_url", "media_urls", "media_links"]);
   const headers = (rows[0] ? Object.keys(rows[0]) : source.select.split(",")).filter((header) => !hidden.has(header));
-  const hasActions = ["games", "orders", "reviews", "coupons", "requests", "support", "media", "flash-sales"].includes(section);
+  const hasActions = ["games", "orders", "reviews", "coupons", "requests", "support", "media", "flash-sales", "campaigns", "campaign-games"].includes(section);
 
   return (
     <div className="py-10">
@@ -155,6 +178,8 @@ export default async function AdminSection({ params, searchParams }: { params: P
       {section === "coupons" && <CouponForm coupon={editingCoupon} />}
       {section === "media" && <MediaManager />}
       {section === "flash-sales" && <FlashSaleForm flashSale={editingFlashSale} games={gamesList} />}
+      {section === "campaigns" && <CampaignForm campaign={editingCampaign} />}
+      {section === "campaign-games" && <CampaignGameForm campaignGame={editingCampaignGame} campaigns={campaignsList} games={gamesList} />}
       
       <div className="mt-8">
         <SearchableTable rows={rows} headers={headers} section={section} hasActions={hasActions} />

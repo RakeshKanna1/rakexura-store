@@ -1210,3 +1210,132 @@ export async function deleteFlashSale(formData: FormData) {
   revalidatePath("/");
   revalidateTag("games");
 }
+
+export async function saveCampaign(formData: FormData) {
+  await writeAuditLog("SAVE_CAMPAIGN", "campaigns", formData);
+  const supabase = await getAdminClient();
+  const rawId = String(formData.get("id") ?? "");
+  const name = String(formData.get("name") ?? "");
+  const slug = String(formData.get("slug") ?? "").toLowerCase().trim();
+  const starts_at = String(formData.get("starts_at") ?? "");
+  const ends_at = String(formData.get("ends_at") ?? "");
+  const theme_color = String(formData.get("theme_color") ?? "#facc15");
+  const banner_image = String(formData.get("banner_image") ?? "");
+  const active = formData.get("active") === "on" || formData.get("active") === "true";
+
+  if (!name) throw new Error("Name is required");
+  if (!slug) throw new Error("Slug is required");
+  if (!starts_at || !ends_at) throw new Error("Starts at and Ends at times are required");
+
+  const payload = {
+    name,
+    slug,
+    starts_at: new Date(starts_at).toISOString(),
+    ends_at: new Date(ends_at).toISOString(),
+    theme_color,
+    banner_image: banner_image || null,
+    active,
+  };
+
+  const query = rawId 
+    ? supabase.from("campaigns").update(payload).eq("id", Number(rawId)) 
+    : supabase.from("campaigns").insert(payload);
+
+  const { error } = await query;
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/campaigns");
+  revalidatePath(`/sale/${slug}`);
+  revalidatePath("/");
+  revalidateTag("campaigns");
+}
+
+export async function toggleCampaign(formData: FormData) {
+  await writeAuditLog("TOGGLE_CAMPAIGN", "campaigns", formData);
+  const supabase = await getAdminClient();
+  const id = idFrom(formData);
+  const active = String(formData.get("active")) === "true";
+
+  const { error } = await supabase
+    .from("campaigns")
+    .update({ active })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/campaigns");
+  revalidatePath("/");
+  revalidateTag("campaigns");
+}
+
+export async function deleteCampaign(formData: FormData) {
+  await writeAuditLog("DELETE_CAMPAIGN", "campaigns", formData);
+  const supabase = await getAdminClient();
+  const id = idFrom(formData);
+
+  const { error } = await supabase
+    .from("campaigns")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/campaigns");
+  revalidatePath("/");
+  revalidateTag("campaigns");
+}
+
+export async function saveCampaignGame(formData: FormData) {
+  await writeAuditLog("SAVE_CAMPAIGN_GAME", "campaign_games", formData);
+  const supabase = await getAdminClient();
+  const rawId = String(formData.get("id") ?? "");
+  const campaign_id = Number(formData.get("campaign_id"));
+  const game_id = Number(formData.get("game_id"));
+  const campaign_price = Number(formData.get("campaign_price"));
+  const stock_limit = formData.get("stock_limit") ? Number(formData.get("stock_limit")) : null;
+
+  if (!campaign_id) throw new Error("Campaign is required");
+  if (!game_id) throw new Error("Game is required");
+  if (isNaN(campaign_price) || campaign_price < 0) throw new Error("Enter a valid campaign price");
+
+  const payload = {
+    campaign_id,
+    game_id,
+    campaign_price,
+    stock_limit,
+  };
+
+  const query = rawId 
+    ? supabase.from("campaign_games").update(payload).eq("id", Number(rawId)) 
+    : supabase.from("campaign_games").insert(payload);
+
+  const { error } = await query;
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/campaign-games");
+  revalidatePath("/");
+  revalidateTag("games");
+  revalidateTag("campaigns");
+}
+
+export async function toggleCampaignGame() {
+  revalidatePath("/admin/campaign-games");
+}
+
+export async function deleteCampaignGame(formData: FormData) {
+  await writeAuditLog("DELETE_CAMPAIGN_GAME", "campaign_games", formData);
+  const supabase = await getAdminClient();
+  const id = idFrom(formData);
+
+  const { error } = await supabase
+    .from("campaign_games")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/campaign-games");
+  revalidatePath("/");
+  revalidateTag("games");
+  revalidateTag("campaigns");
+}

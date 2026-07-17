@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BarChart3, Boxes, ImageIcon, LifeBuoy, MessageSquareText, PackageCheck, Plus, Send, TicketPercent, Trophy, Users, ArrowUpRight, Layers, Flame } from "lucide-react";
+import { BarChart3, Boxes, ImageIcon, LifeBuoy, MessageSquareText, PackageCheck, Plus, Send, TicketPercent, Trophy, Users, ArrowUpRight, Layers, Flame, CalendarRange, Percent } from "lucide-react";
 import { AdminAccessDenied } from "@/components/admin/access-denied";
 import { AdminOnboarding } from "@/components/admin/admin-onboarding";
 import { createClient } from "@/lib/supabase/server";
@@ -20,6 +20,8 @@ const sections = [
   ["media", "Media manager", "Proofs and promotional assets", ImageIcon],
   ["analytics", "Analytics", "Traffic and sales events", BarChart3],
   ["flash-sales", "Flash sales", "Manage countdown sales and discounts", Flame],
+  ["campaigns", "Campaigns", "Manage seasonal sales and campaign dates", CalendarRange],
+  ["campaign-games", "Campaign overrides", "Seasonal discount campaign prices for games", Percent],
   ["audit-logs", "Audit logs", "Detailed administrator action trails", BarChart3]
 ] as const;
 
