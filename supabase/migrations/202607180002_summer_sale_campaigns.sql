@@ -1,6 +1,7 @@
 -- Migration: 202607180002_summer_sale_campaigns.sql
 -- Add support for promotional sale campaigns (e.g. Summer Sale, Winter Sale) and game price overrides.
 
+
 -- 1. Create Campaigns Table
 CREATE TABLE IF NOT EXISTS public.campaigns (
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -9,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.campaigns (
   starts_at timestamp with time zone NOT NULL,
   ends_at timestamp with time zone NOT NULL,
   banner_image text,
-  theme_color text DEFAULT '#facc15' check (theme_color DEFAULT '#facc15' IS NOT NULL OR char_length(theme_color) between 4 and 7),
+  theme_color text DEFAULT '#facc15' check (theme_color IS NOT NULL AND char_length(theme_color) between 4 and 7),
   active boolean NOT NULL DEFAULT false,
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
   check (starts_at < ends_at)
