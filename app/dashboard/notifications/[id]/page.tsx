@@ -15,7 +15,7 @@ export default async function NotificationDetailPage({ params }: { params: Promi
   // Fetch specific notification
   const { data: notification } = await supabase
     .from("notifications")
-    .select("*")
+    .select("id,read,title,message,type,link")
     .eq("id", Number(id))
     .eq("user_id", user.id)
     .maybeSingle();

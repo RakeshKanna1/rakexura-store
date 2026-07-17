@@ -45,9 +45,13 @@ export function PremiumSearch() {
     let saved: string[] = [];
     try { saved = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]"); } catch { saved = []; }
     setRecent(saved);
-    void createClient().from("games").select("*").or("archived.is.null,archived.eq.false").then(({ data }) => {
-      const games = (data as Game[] | null) ?? [];
-      setAllGames(games);
+    void createClient()
+      .from("games")
+      .select("id, title, tagline, description, genres, cover_image, sale_price, original_price, steam_price, epic_price, offline_price, online_price, xbox_price, geforce_price, available_platforms, is_subscription")
+      .or("archived.is.null,archived.eq.false")
+      .then(({ data }) => {
+        const games = (data as Game[] | null) ?? [];
+        setAllGames(games);
       
       const initialSuggestions = [...games];
       initialSuggestions.sort((a, b) => {

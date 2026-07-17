@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, ExternalLink } from "lucide-react";
+import { Search, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { OrderActions } from "@/components/admin/order-actions";
 import { archiveGame, moderateProof, moderateReview, toggleCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale } from "@/app/admin/actions";
@@ -82,6 +82,8 @@ function display(value: unknown) {
 
 export function SearchableTable({ rows, headers, section, hasActions }: { rows: AdminRow[]; headers: string[]; section: string; hasActions: boolean }) {
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(0);
+  const pageSize = 15;
 
   const filtered = rows.filter((row) => {
     if (!query) return true;
@@ -93,13 +95,19 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
     });
   });
 
+  const totalPages = Math.ceil(filtered.length / pageSize);
+  const paginated = filtered.slice(page * pageSize, (page + 1) * pageSize);
+
   return (
     <div className="space-y-4">
       <div className="flex max-w-md items-center gap-3 rounded-md border border-white/10 bg-black/25 px-4 py-1 text-sm outline-none focus-within:border-[#8b5cf6]">
         <Search size={16} className="text-[#8991a6] shrink-0" />
         <input
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setPage(0);
+          }}
           placeholder={`Search ${section}...`}
           className="h-10 w-full bg-transparent outline-none placeholder:text-[#767e90] text-white"
         />
@@ -118,7 +126,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
             </tr>
           </thead>
           <tbody>
-            {filtered.map((row, index) => (
+            {paginated.map((row, index) => (
               <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
                 {headers.map((header) => (
                   <td key={header} className="max-w-72 truncate p-4">
@@ -139,6 +147,35 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
         <p className="p-10 text-center text-[#8991a6]">
           No records found matching &quot;{query}&quot;.
         </p>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-white/[0.07] pt-4 text-xs font-semibold text-[#8991a6]">
+          <span>
+            Showing {page * pageSize + 1} to {Math.min((page + 1) * pageSize, filtered.length)} of {filtered.length} entries
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={page === 0}
+              onClick={() => setPage((p) => p - 1)}
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-black/20 hover:bg-white/[.06] hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#8991a6] cursor-pointer"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span className="px-2 text-white">
+              Page {page + 1} of {totalPages}
+            </span>
+            <button
+              type="button"
+              disabled={page === totalPages - 1}
+              onClick={() => setPage((p) => p + 1)}
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-black/20 hover:bg-white/[.06] hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#8991a6] cursor-pointer"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

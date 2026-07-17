@@ -2,7 +2,7 @@
 
 import { Search, SlidersHorizontal } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { lowestPrice, matchesSearchQuery } from "@/lib/utils";
 import { GameCard, availablePlatforms } from "./game-card";
 import { QuickViewModal } from "./quick-view-modal";
@@ -19,6 +19,12 @@ export function Catalog({ games }: { games: Game[] }) {
   const [budget, setBudget] = useState("All");
   const [sort, setSort] = useState<(typeof sorts)[number]>("Featured");
   const [quickView, setQuickView] = useState<Game | null>(null);
+  const [visibleCount, setVisibleCount] = useState(24);
+
+  useEffect(() => {
+    setVisibleCount(24);
+  }, [query, platform, genre, budget, sort]);
+
   const genres = useMemo(() => ["All", ...new Set(games.flatMap((game) => game.genres ?? []).filter(Boolean))], [games]);
   const selectedGenre = genres.includes(genre) ? genre : "All";
   const filtered = useMemo(() => {
@@ -130,10 +136,21 @@ export function Catalog({ games }: { games: Game[] }) {
         {filtered.length} {filtered.length === 1 ? "game" : "games"}
       </p>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
-        {filtered.map((game) => (
+        {filtered.slice(0, visibleCount).map((game) => (
           <GameCard key={game.id} game={game} onQuickView={setQuickView} />
         ))}
       </div>
+      {filtered.length > visibleCount && (
+        <div className="mt-10 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((prev) => prev + 24)}
+            className="btn btn-secondary px-8 py-3 text-sm font-bold tracking-wide cursor-pointer"
+          >
+            Load More Games
+          </button>
+        </div>
+      )}
       {!filtered.length && (
         <div className="my-20 text-center">
           <h2>No matching games</h2>

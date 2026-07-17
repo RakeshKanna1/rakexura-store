@@ -60,8 +60,11 @@ export function CheckoutForm() {
     setMounted(true);
     async function loadData() {
       const supabase = createClient();
-      const { data } = await supabase.from("games").select("*").eq("archived", false);
-      if (data) setGames(data);
+      const { data } = await supabase
+        .from("games")
+        .select("id, title, steam_price, sale_price, epic_price, offline_price, online_price, xbox_price, geforce_price, is_subscription")
+        .eq("archived", false);
+      if (data) setGames(data as Game[]);
 
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {

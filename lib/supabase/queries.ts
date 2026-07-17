@@ -107,7 +107,7 @@ export const getFlashSales = unstable_cache(
   async (): Promise<FlashSale[]> => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return [];
     const supabase = getStaticClient();
-    const { data } = await supabase.from("flash_sales").select("*, games(*)").eq("active", true).lte("starts_at", new Date().toISOString()).gt("ends_at", new Date().toISOString()).order("ends_at").limit(6);
+    const { data } = await supabase.from("flash_sales").select("*, games(id,title,cover_image)").eq("active", true).lte("starts_at", new Date().toISOString()).gt("ends_at", new Date().toISOString()).order("ends_at").limit(6);
     return (data ?? []) as FlashSale[];
   },
   ["flash-sales-list"],

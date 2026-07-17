@@ -36,7 +36,7 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
   const [{ data: profile }, { data: orders }, { data: rewards }, { data: notifications }, { count: libraryCount }, { count: totalOrdersCount }, { count: referralCount }, { data: latestTicket }, { count: purchasedLibraryCount }] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+    supabase.from("profiles").select("display_name,role,last_request_date").eq("id", user.id).maybeSingle(),
     supabase.from("orders").select("id,order_reference,order_status,total_price,created_at,cart_items,payment_reference,coupon_usage(coupons(code))").eq("user_id", user.id).order("created_at", { ascending: false }).limit(5),
     supabase.from("user_rewards").select("points,level").eq("user_id", user.id).maybeSingle(),
     supabase.from("notifications").select("id,title,message").eq("user_id", user.id).eq("read", false),

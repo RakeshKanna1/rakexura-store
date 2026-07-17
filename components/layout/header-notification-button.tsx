@@ -66,7 +66,7 @@ export function HeaderNotificationButton() {
     const supabase = createClient();
     const { data } = await supabase
       .from("notifications")
-      .select("*")
+      .select("id,title,message,read,link,created_at,type")
       .eq("user_id", uid)
       .order("created_at", { ascending: false })
       .limit(10);

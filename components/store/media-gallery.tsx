@@ -40,6 +40,7 @@ export function MediaGallery({ title, trailer, screenshots }: { title: string; t
               />
             ) : (
               <button
+                suppressHydrationWarning
                 onClick={() => setPlayTrailer(true)}
                 className="group absolute inset-0 h-full w-full overflow-hidden"
                 aria-label={`Play ${title} trailer`}
