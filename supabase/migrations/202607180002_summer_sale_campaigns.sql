@@ -1,7 +1,7 @@
 -- Migration: 202607180002_summer_sale_campaigns.sql
 -- Add support for promotional sale campaigns (e.g. Summer Sale, Winter Sale) and game price overrides.
 
-
+  
 -- 1. Create Campaigns Table
 CREATE TABLE IF NOT EXISTS public.campaigns (
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
