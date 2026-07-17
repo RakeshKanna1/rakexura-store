@@ -1,3 +1,5 @@
+"use client";
+
 import { Percent } from "lucide-react";
 import Link from "next/link";
 import { saveCampaignGame } from "@/app/admin/actions";
