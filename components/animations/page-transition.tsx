@@ -8,6 +8,9 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
   const [isMobile, setIsMobile] = useState(true);
 
   useEffect(() => {
+    // Force scroll back to top of the screen on route mount
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768 && !isHighEndDevice());
     };
