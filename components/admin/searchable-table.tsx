@@ -4,17 +4,28 @@ import { useState } from "react";
 import { Search, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { OrderActions } from "@/components/admin/order-actions";
-import { archiveGame, moderateProof, moderateReview, toggleCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale, toggleCampaign, deleteCampaign, deleteCampaignGame } from "@/app/admin/actions";
+import { archiveGame, moderateProof, moderateReview, toggleCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale, toggleCampaign, deleteCampaign, deleteCampaignGame, deleteCustomerAccount } from "@/app/admin/actions";
 
-type AdminRow = Record<string, unknown> & { id?: number; screenshot_url?: string; proof_url?: string; media_urls?: string[]; media_links?: string[] };
+type AdminRow = Record<string, unknown> & { id?: number | string; screenshot_url?: string; proof_url?: string; media_urls?: string[]; media_links?: string[] };
 
 function SubmitButton({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "positive" | "danger" }) {
-  const color = tone === "positive" ? "border-[#00d68f]/30 text-[#70efbb]" : tone === "danger" ? "border-red-400/30 text-red-300" : "border-white/10 text-[#c8cedc]";
-  return <button type="submit" className={`rounded border bg-black/20 px-3 py-2 text-xs font-bold transition hover:bg-white/[.06] ${color}`}>{children}</button>;
+  const color = tone === "positive" ? "border-[#00d68f]/30 text-[#70efbb]" : tone === "danger" ? "border-red-400/30 text-red-300 hover:bg-red-500/10" : "border-white/10 text-[#c8cedc]";
+  return <button type="submit" className={`rounded border bg-black/20 px-3 py-2 text-xs font-bold transition hover:bg-white/[.06] cursor-pointer ${color}`}>{children}</button>;
 }
 
 function RowActions({ section, row }: { section: string; row: AdminRow }) {
   const id = Number(row.id);
+  if (section === "customers") {
+    const customerId = String(row.id || "");
+    const isAdmin = row.role === "admin";
+    if (isAdmin) return <span className="text-[11px] font-bold text-[#b9a4ff]">Admin Profile</span>;
+    return (
+      <form action={deleteCustomerAccount}>
+        <input type="hidden" name="userId" value={customerId} />
+        <SubmitButton tone="danger">Delete Account</SubmitButton>
+      </form>
+    );
+  }
   if (section === "orders") {
     const items = Array.isArray(row.cart_items) ? row.cart_items as Array<Record<string, unknown>> : [];
     const gameName = items.length ? items.map((item) => String(item.title || "Game")).join(", ") : "Order items";

@@ -1339,3 +1339,35 @@ export async function deleteCampaignGame(formData: FormData) {
   revalidateTag("games");
   revalidateTag("campaigns");
 }
+
+export async function deleteCustomerAccount(formData: FormData) {
+  await writeAuditLog("DELETE_CUSTOMER_ACCOUNT", "profiles", formData);
+  const supabase = await getAdminClient();
+  const userId = String(formData.get("userId") ?? "").trim();
+  if (!userId) throw new Error("Invalid customer ID");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (profile?.role === "admin") {
+    throw new Error("Administrator profiles cannot be deleted");
+  }
+
+  await supabase.from("visitor_logs").delete().eq("user_id", userId);
+  await supabase.from("notifications").delete().eq("user_id", userId);
+  await supabase.from("cart_items").delete().eq("user_id", userId);
+  await supabase.from("support_tickets").delete().eq("user_id", userId);
+
+  const { error } = await supabase
+    .from("profiles")
+    .delete()
+    .eq("id", userId);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/customers");
+  revalidatePath("/admin");
+}

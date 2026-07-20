@@ -149,7 +149,7 @@ export default async function AdminSection({ params, searchParams }: { params: P
 
   const hidden = new Set(["screenshot_url", "proof_url", "media_urls", "media_links"]);
   const headers = (rows[0] ? Object.keys(rows[0]) : source.select.split(",")).filter((header) => !hidden.has(header));
-  const hasActions = ["games", "orders", "reviews", "coupons", "requests", "support", "media", "flash-sales", "campaigns", "campaign-games"].includes(section);
+  const hasActions = ["games", "orders", "customers", "reviews", "coupons", "requests", "support", "media", "flash-sales", "campaigns", "campaign-games"].includes(section);
 
   return (
     <div className="py-10">
