@@ -58,9 +58,9 @@ export function TicketStatusControls({ ticketId, currentStatus, isStaff }: Ticke
         {status.replace("_", " ")}
       </span>
 
-      {/* Action Buttons for Staff and Customer */}
+      {/* Action Buttons: Management options reserved for staff */}
       <div className="flex flex-wrap items-center gap-2">
-        {status !== "resolved" && (
+        {isStaff && status !== "resolved" && (
           <button
             type="button"
             onClick={() => handleStatusChange("resolved")}
@@ -72,7 +72,7 @@ export function TicketStatusControls({ ticketId, currentStatus, isStaff }: Ticke
           </button>
         )}
 
-        {status !== "closed" && (
+        {isStaff && status !== "closed" && (
           <button
             type="button"
             onClick={() => handleStatusChange("closed")}

@@ -1421,6 +1421,9 @@ export async function updateSupportTicketStatus(formData: FormData) {
     .maybeSingle();
 
   const isAdmin = profile?.role === "admin";
+  if (!isAdmin && (newStatus === "resolved" || newStatus === "closed" || newStatus === "approved")) {
+    throw new Error("Only Rakexura staff can mark tickets as resolved or closed.");
+  }
   if (!isAdmin && ticket.user_id !== user.id) {
     throw new Error("Permission denied");
   }
