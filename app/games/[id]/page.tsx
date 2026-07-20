@@ -341,8 +341,8 @@ export default async function GamePage({ params }: Props) {
       <div className="absolute inset-0" style={{ background: heroBackground }} />
       <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-end p-7 md:p-14">
         {game.preorder && (
-          <div className="mb-4 self-start inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 px-4 py-1.5 text-xs font-black uppercase tracking-[.18em] text-amber-300 backdrop-blur-md shadow-[0_0_25px_rgba(245,158,11,0.3)] animate-pulse">
-            <Sparkles size={15} className="text-amber-400" /> Pre-Order Edition • Guaranteed Day 1 Access
+          <div className="mb-4 self-start inline-flex items-center gap-2 rounded border border-[#facc15]/30 bg-[#facc15]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#facc15] backdrop-blur-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#facc15]" /> Pre-Order
           </div>
         )}
         {game.is_premium && !game.preorder && (
@@ -356,7 +356,7 @@ export default async function GamePage({ params }: Props) {
           </div>
         )}
         <p className="eyebrow" style={{ color: accent }}>
-          {game.preorder ? "🔥 OFFICIAL PRE-ORDER RESERVATION" : game.is_premium ? "✦ RAKEXURA EXCLUSIVE ✦" : "Rakexura game page"}
+          {game.preorder ? "Pre-order title" : game.is_premium ? "✦ RAKEXURA EXCLUSIVE ✦" : "Rakexura game page"}
         </p>
         <h1 className={`mt-5 max-w-4xl font-black leading-[.95] ${titleSize(game.title)} ${titleGradientClass}`}>{game.title}</h1>
         <p className="mt-5 text-lg text-[#d7dae4]">{game.tagline}</p>
@@ -365,38 +365,19 @@ export default async function GamePage({ params }: Props) {
     </section>
 
     {game.preorder && (
-      <section className="mt-8 rounded-xl border border-amber-400/30 bg-gradient-to-r from-amber-950/40 via-purple-950/30 to-amber-950/40 p-6 md:p-8 backdrop-blur-md shadow-[0_0_40px_rgba(245,158,11,0.15)]">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-amber-400/20 pb-5">
+      <section className="mt-8 rounded-lg border border-white/10 bg-black/40 p-5 md:p-6 backdrop-blur-md">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <span className="eyebrow text-amber-400 flex items-center gap-1.5"><Sparkles size={14} /> Official Pre-order Guarantee</span>
-            <h2 className="text-2xl font-black text-white mt-1">Pre-order Launch Privileges</h2>
+            <p className="eyebrow text-[#facc15]">Pre-order details</p>
+            <h2 className="text-xl font-bold text-white mt-1">Guaranteed Day 1 Access & Price Lock</h2>
+            <p className="mt-1.5 text-xs text-[#a3abbd] leading-relaxed">Lock in your pre-order price today. Your order reservation is prioritized for key dispatch on official launch day.</p>
           </div>
           {game.release_date && (
-            <div className="flex items-center gap-2 rounded-lg border border-amber-400/30 bg-black/40 px-4 py-2 text-xs font-bold text-amber-300">
-              <Clock size={16} className="text-amber-400" />
-              <span>Official Release: {new Date(game.release_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+            <div className="flex items-center gap-2 rounded border border-white/12 bg-black/60 px-4 py-2.5 text-xs font-semibold text-white">
+              <Clock size={15} className="text-[#facc15]" />
+              <span>Release date: {new Date(game.release_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
             </div>
           )}
-        </div>
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-lg border border-white/10 bg-black/40 p-4">
-            <div className="flex items-center gap-2 font-bold text-amber-300 text-sm">
-              <Zap size={18} className="text-amber-400" /> Guaranteed Day 1 Access
-            </div>
-            <p className="mt-2 text-xs text-[#a3abbd] leading-relaxed">Your order reservation is prioritized for immediate key dispatch on launch day.</p>
-          </div>
-          <div className="rounded-lg border border-white/10 bg-black/40 p-4">
-            <div className="flex items-center gap-2 font-bold text-amber-300 text-sm">
-              <ShieldCheck size={18} className="text-amber-400" /> Price Lock Protection
-            </div>
-            <p className="mt-2 text-xs text-[#a3abbd] leading-relaxed">Lock in your price now. You will never be charged extra if launch prices rise.</p>
-          </div>
-          <div className="rounded-lg border border-white/10 bg-black/40 p-4">
-            <div className="flex items-center gap-2 font-bold text-amber-300 text-sm">
-              <Gift size={18} className="text-amber-400" /> Pre-order DLC & Perks
-            </div>
-            <p className="mt-2 text-xs text-[#a3abbd] leading-relaxed">Includes publisher pre-order bonus content, early pre-loads, and extra rewards.</p>
-          </div>
         </div>
       </section>
     )}
