@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Bell, ExternalLink, Package, ShieldCheck, AlertTriangle, Info, Megaphone } from "lucide-react";
+import { Bell, Check, CheckCheck, ExternalLink, Package, ShieldCheck, AlertTriangle, Info, Megaphone } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
@@ -179,8 +179,9 @@ export function HeaderNotificationButton() {
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="text-[9px] font-black uppercase tracking-wider text-[#facc15] hover:text-[#fbbf24] transition-colors bg-white/[0.03] hover:bg-white/[0.07] px-2.5 py-1 rounded border border-white/5 cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#facc15]/30 bg-[#facc15]/10 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[#facc15] hover:bg-[#facc15]/20 hover:border-[#facc15]/50 transition-all shadow-[0_0_12px_rgba(250,204,21,0.1)] hover:shadow-[0_0_18px_rgba(250,204,21,0.25)] cursor-pointer select-none"
               >
+                <CheckCheck size={13} />
                 Mark all read
               </button>
             )}
@@ -223,22 +224,26 @@ export function HeaderNotificationButton() {
                             {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                           {!n.read ? (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                markAsRead(n.id);
-                              }}
-                              className="flex items-center gap-1.5 text-[10px] font-bold text-[#00d68f] hover:text-[#70efbb] transition-colors cursor-pointer select-none"
-                              title="Mark as read"
-                            >
-                              <span className="h-1.5 w-1.5 rounded-full bg-[#00d68f] animate-pulse" />
-                              Mark read
-                            </button>
+                            <span className="text-[9px] font-bold text-[#00d68f] flex items-center gap-1">
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#00d68f] animate-pulse" /> Unread
+                            </span>
                           ) : (
                             <span className="text-[9px] font-medium text-[#545c6e]">Read</span>
                           )}
                         </div>
                       </div>
+                      {!n.read && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            markAsRead(n.id);
+                          }}
+                          className="absolute top-3.5 right-3.5 grid h-6 w-6 place-items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/25 hover:border-emerald-400 hover:text-emerald-300 transition-all cursor-pointer shadow-[0_0_8px_rgba(0,214,143,0.15)]"
+                          title="Mark as read"
+                        >
+                          <Check size={12} />
+                        </button>
+                      )}
                     </div>
                   );
                 })
