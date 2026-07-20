@@ -386,7 +386,7 @@ export function ProductActions({ game }: { game: Game }) {
               <Button 
                 type="button"
                 suppressHydrationWarning
-                className={`w-full font-black ${game.preorder ? "bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-black hover:from-amber-300 hover:to-yellow-300 shadow-[0_0_20px_rgba(251,191,36,0.3)]" : "bg-[#facc15] text-[#080808] hover:bg-[#ffe047]"}`} 
+                className="w-full bg-[#facc15] text-[#080808] hover:bg-[#ffe047] font-black whitespace-nowrap" 
                 onClick={() => { 
                   const action = () => {
                     add(game, selected); 
@@ -401,7 +401,7 @@ export function ProductActions({ game }: { game: Game }) {
                   }
                 }}
               >
-                {game.preorder ? "⚡ Pre-Order Now" : "Buy now"}
+                {game.preorder ? "Pre-order now" : "Buy now"}
               </Button>
             </>
           )}

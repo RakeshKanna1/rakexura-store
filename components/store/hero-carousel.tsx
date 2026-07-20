@@ -118,8 +118,8 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                       <p className="mt-6 max-w-xl text-base leading-7 text-[#d4d8e4] md:text-lg">{game.tagline || game.description || "A standout PC experience, ready for your library."}</p>
                       <div className="mt-7 flex flex-wrap items-center gap-3">
                         {game.preorder ? (
-                          <Link href={`/games/${game.id}`} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 px-6 text-sm font-black text-black shadow-[0_0_25px_rgba(251,191,36,0.35)] transition hover:-translate-y-0.5 hover:shadow-[0_0_35px_rgba(251,191,36,0.5)]">
-                            <Sparkles size={17} /> Pre-Order Now <ArrowRight size={17} />
+                          <Link href={`/games/${game.id}`} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">
+                            Pre-order now <ArrowRight size={17} />
                           </Link>
                         ) : (
                           <Link href={`/games/${game.id}`} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">View game <ArrowRight size={17} /></Link>
