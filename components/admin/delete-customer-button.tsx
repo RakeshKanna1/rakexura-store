@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteCustomerAccount } from "@/app/admin/actions";
@@ -11,6 +12,7 @@ type DeleteCustomerButtonProps = {
 };
 
 export function DeleteCustomerButton({ userId, customerName }: DeleteCustomerButtonProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -22,6 +24,7 @@ export function DeleteCustomerButton({ userId, customerName }: DeleteCustomerBut
         await deleteCustomerAccount(formData);
         toast.success(`Customer ${customerName ? `"${customerName}"` : ""} deleted successfully.`);
         setConfirmOpen(false);
+        router.refresh();
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Failed to delete customer";
         toast.error(msg);
