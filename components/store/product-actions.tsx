@@ -381,7 +381,7 @@ export function ProductActions({ game }: { game: Game }) {
                   }
                 }}
               >
-                <ShoppingBag size={18} /> {game.preorder ? "Pre-order to cart" : "Add to cart"}
+                <ShoppingBag size={18} /> Add to cart
               </Button>
               <Button 
                 type="button"
