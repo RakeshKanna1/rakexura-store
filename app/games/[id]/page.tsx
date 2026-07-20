@@ -355,12 +355,12 @@ export default async function GamePage({ params }: Props) {
             ✦ Out of Stock
           </div>
         )}
-        <p className="eyebrow" style={{ color: game.preorder ? "#facc15" : accent }}>
+        <p className="eyebrow" style={{ color: accent }}>
           {game.preorder ? "🔥 OFFICIAL PRE-ORDER RESERVATION" : game.is_premium ? "✦ RAKEXURA EXCLUSIVE ✦" : "Rakexura game page"}
         </p>
-        <h1 className={`mt-5 max-w-4xl font-black leading-[.95] ${titleSize(game.title)} ${game.preorder ? "bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-300 bg-clip-text text-transparent filter drop-shadow-[0_2px_15px_rgba(245,158,11,0.4)]" : titleGradientClass}`}>{game.title}</h1>
+        <h1 className={`mt-5 max-w-4xl font-black leading-[.95] ${titleSize(game.title)} ${titleGradientClass}`}>{game.title}</h1>
         <p className="mt-5 text-lg text-[#d7dae4]">{game.tagline}</p>
-        {tags.length > 0 && <div className="mt-6 flex flex-wrap gap-2">{tags.map((tag) => <span key={tag} className={`rounded border px-3 py-2 text-xs font-semibold backdrop-blur ${game.preorder ? "border-amber-400/30 bg-amber-400/10 text-amber-300" : tagClass}`} style={!game.is_premium && !game.preorder ? { borderColor: `${accent}55` } : {}}>{tag}</span>)}</div>}
+        {tags.length > 0 && <div className="mt-6 flex flex-wrap gap-2">{tags.map((tag) => <span key={tag} className={`rounded border px-3 py-2 text-xs font-semibold backdrop-blur ${tagClass}`} style={!game.is_premium ? { borderColor: `${accent}55` } : {}}>{tag}</span>)}</div>}
       </div>
     </section>
 
