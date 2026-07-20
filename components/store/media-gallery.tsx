@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Play } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { A11y, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -14,8 +14,13 @@ function getYoutubeId(url: string) {
 
 export function MediaGallery({ title, trailer, screenshots }: { title: string; trailer?: string | null; screenshots: string[] }) {
   const [playTrailer, setPlayTrailer] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const youtubeId = trailer ? getYoutubeId(trailer) : "";
   const embed = youtubeId ? `https://www.youtube-nocookie.com/embed/${youtubeId}${playTrailer ? "?autoplay=1" : ""}` : "";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (!embed && !trailer?.match(/\.(mp4|webm)(\?.*)?$/i) && !screenshots.length) return null;
 
@@ -71,26 +76,32 @@ export function MediaGallery({ title, trailer, screenshots }: { title: string; t
       )}
 
       {screenshots.length > 0 && (
-        <Swiper
-          modules={[Navigation, A11y]}
-          navigation
-          spaceBetween={12}
-          slidesPerView={1.08}
-          breakpoints={{ 640: { slidesPerView: 2.05 } }}
-        >
-          {screenshots.map((shot) => (
-            <SwiperSlide key={shot}>
-              <div className="relative aspect-video overflow-hidden rounded-md border border-white/[.07]">
-                <Image
-                  src={assetUrl(shot)}
-                  alt={`${title} gameplay screenshot`}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+        mounted ? (
+          <Swiper
+            modules={[Navigation, A11y]}
+            navigation
+            spaceBetween={12}
+            slidesPerView={1.08}
+            breakpoints={{ 640: { slidesPerView: 2.05 } }}
+          >
+            {screenshots.map((shot) => (
+              <SwiperSlide key={shot}>
+                <div className="relative aspect-video overflow-hidden rounded-md border border-white/[.07]">
+                  <Image
+                    src={assetUrl(shot)}
+                    alt={`${title} gameplay screenshot`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        ) : (
+          <div className="w-full h-[200px] bg-[#11131a] rounded-md border border-white/[0.08] animate-pulse flex items-center justify-center">
+            <span className="text-neutral-700 text-xs font-bold uppercase tracking-widest">Loading Media...</span>
+          </div>
+        )
       )}
     </section>
   );

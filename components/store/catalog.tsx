@@ -1,8 +1,8 @@
 "use client";
 
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { lowestPrice, matchesSearchQuery } from "@/lib/utils";
 import { GameCard, availablePlatforms } from "./game-card";
 import { QuickViewModal } from "./quick-view-modal";
@@ -10,6 +10,60 @@ import type { Game, Platform } from "@/types/store";
 
 const platforms: Array<"All" | Platform | "Online Activation" | "Pre-orders" | "Subscriptions"> = ["All", "Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce", "Online Activation", "Pre-orders", "Subscriptions"];
 const sorts = ["Featured", "Price: Low to high", "Price: High to low", "Best sellers", "Latest"] as const;
+
+interface CustomSelectProps {
+  value: string;
+  onChange: (val: string) => void;
+  options: readonly string[] | string[];
+  className?: string;
+}
+
+function CustomSelect({ value, onChange, options, className = "" }: CustomSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className={`relative select-none ${className}`} ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex h-9 w-full items-center justify-between gap-2 rounded-md bg-[#090b10] border border-white/5 hover:border-white/15 px-3 py-1 text-xs font-bold text-white transition-all focus:outline-none"
+      >
+        <span className="truncate">{value}</span>
+        <ChevronDown size={14} className={`text-[#facc15] transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+      {isOpen && (
+        <div data-lenis-prevent className="absolute left-0 mt-1 max-h-60 w-full overflow-y-auto rounded-md border border-white/10 bg-[#0d1016] shadow-2xl py-1 z-50 custom-scrollbar">
+          {options.map((option) => (
+            <button
+              type="button"
+              key={option}
+              onClick={() => {
+                onChange(option);
+                setIsOpen(false);
+              }}
+              className={`flex w-full items-center px-3 py-2 text-left text-xs transition-colors hover:bg-[#facc15] hover:text-black ${
+                value === option ? "text-[#facc15] font-black" : "text-[#8991a6]"
+              }`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function Catalog({ games }: { games: Game[] }) {
   const searchParams = useSearchParams();
@@ -76,16 +130,12 @@ export function Catalog({ games }: { games: Game[] }) {
           <label className="flex min-h-12 items-center gap-2 rounded-md bg-black/20 px-4 text-sm">
             <SlidersHorizontal size={17} className="text-[#facc15]" />
             <span className="sr-only">Sort games</span>
-            <select
-              suppressHydrationWarning
+            <CustomSelect
               value={sort}
-              onChange={(event) => setSort(event.target.value as (typeof sorts)[number])}
-              className="min-w-44 bg-[#0c0d10] outline-none"
-            >
-              {sorts.map((item) => (
-                <option key={item}>{item}</option>
-              ))}
-            </select>
+              onChange={(val) => setSort(val as (typeof sorts)[number])}
+              options={sorts}
+              className="w-44"
+            />
           </label>
         </div>
         <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">
@@ -103,32 +153,23 @@ export function Catalog({ games }: { games: Game[] }) {
           ))}
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
-          <label className="flex items-center justify-between rounded-md bg-black/20 px-4 text-xs font-semibold text-[#a0a8c0]">
+          <label className="flex items-center justify-between rounded-md bg-black/20 px-4 py-2 text-xs font-semibold text-[#a0a8c0]">
             Category
-            <select
-              suppressHydrationWarning
+            <CustomSelect
               value={selectedGenre}
-              onChange={(event) => setGenre(event.target.value)}
-              className="h-10 max-w-[65%] bg-[#0c0d10] text-white outline-none"
-            >
-              {genres.map((item) => (
-                <option key={item}>{item}</option>
-              ))}
-            </select>
+              onChange={(val) => setGenre(val)}
+              options={genres}
+              className="w-48 max-w-[65%]"
+            />
           </label>
-          <label className="flex items-center justify-between rounded-md bg-black/20 px-4 text-xs font-semibold text-[#a0a8c0]">
+          <label className="flex items-center justify-between rounded-md bg-black/20 px-4 py-2 text-xs font-semibold text-[#a0a8c0]">
             Budget
-            <select
-              suppressHydrationWarning
+            <CustomSelect
               value={budget}
-              onChange={(event) => setBudget(event.target.value)}
-              className="h-10 max-w-[65%] bg-[#0c0d10] text-white outline-none"
-            >
-              <option>All</option>
-              <option>Under Rs. 99</option>
-              <option>Rs. 100-199</option>
-              <option>Rs. 200+</option>
-            </select>
+              onChange={(val) => setBudget(val)}
+              options={["All", "Under Rs. 99", "Rs. 100-199", "Rs. 200+"]}
+              className="w-48 max-w-[65%]"
+            />
           </label>
         </div>
       </div>

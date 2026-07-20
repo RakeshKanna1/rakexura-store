@@ -185,7 +185,7 @@ export function HeaderNotificationButton() {
             )}
           </div>
 
-          <div className="max-h-[340px] overflow-y-auto py-2 space-y-2 pr-0.5 hide-scrollbar">
+          <div data-lenis-prevent className="max-h-[340px] overflow-y-auto py-2 space-y-2 pr-1.5 custom-scrollbar">
             {userId ? (
               notifications.length > 0 ? (
                 notifications.map((n) => {

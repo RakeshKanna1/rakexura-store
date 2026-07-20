@@ -68,6 +68,24 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .hide-scrollbar { scrollbar-width: none; scroll-snap-type: inline proximity; }
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar > * { scroll-snap-align: start; }
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 99px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--primary, #8b5cf6);
+}
 .section-space { padding-block: 52px; }
 .section-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
 .section-title { margin: 0; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 600; letter-spacing: -0.025em; }

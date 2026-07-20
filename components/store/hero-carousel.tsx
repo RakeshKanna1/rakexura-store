@@ -50,71 +50,79 @@ export function HeroCarousel({ games }: { games: Game[] }) {
   return (
     <div className="hero-with-featured">
       <div className="min-w-0 relative">
-        <Swiper
-          modules={[Autoplay, Navigation]}
-          autoplay={{ delay: AUTOPLAY_DELAY, disableOnInteraction: false }}
-          loop={games.length > 1}
-          observer={true}
-          observeParents={true}
-          onSwiper={(s) => { swiperRef.current = s; }}
-          onRealIndexChange={(s) => setActive(s.realIndex)}
-          navigation={{ prevEl: ".hero-prev", nextEl: ".hero-next" }}
-          className="overflow-hidden rounded-xl h-[420px] md:h-[570px]"
-        >
-          <button suppressHydrationWarning={true} className="hero-prev absolute left-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-black/55 backdrop-blur md:grid" aria-label="Previous spotlight"><ChevronLeft /></button>
-          <button suppressHydrationWarning={true} className="hero-next absolute right-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-black/55 backdrop-blur md:grid" aria-label="Next spotlight"><ChevronRight /></button>
-          {games.map((game, index) => (
-            <SwiperSlide key={game.id}>
-              <article className="hero-frame relative h-full w-full overflow-hidden rounded-xl">
-                {/* Always render the static Image first for fast SSR and LCP priority */}
-                <Image 
-                  src={assetUrl(game.banner_image || game.cover_image)} 
-                  alt={`Spotlight ${game.title} banner`} 
-                  fill 
-                  priority={index === 0} 
-                  fetchPriority={index === 0 ? "high" : "low"}
-                  className="hero-media object-cover" 
-                  sizes="100vw" 
-                />
-
-                
-                {/* Overlay video player client-side after hydration on desktop viewports */}
-                {mounted && !isMobile && loadVideo && active === index && game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i) && (
-                  <video src={game.trailer_url} autoPlay muted loop playsInline className="hero-media absolute inset-0 h-full w-full object-cover z-0" />
-                )}
-                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,11,.97)_0%,rgba(3,5,11,.68)_38%,rgba(3,5,11,.08)_78%),linear-gradient(0deg,rgba(3,5,11,.8),transparent_50%)]" />
-                <motion.div 
-                  key={`${active}-${game.id}`} 
-                  initial={{ opacity: 0, y: 24 }} 
-                  animate={active === index ? { opacity: 1, y: 0 } : { opacity: .75, y: 12 }} 
-                  transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} 
-                  className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-5 pb-16 pt-8 md:pb-20 md:pt-14 md:px-14"
-                >
-                  <p className="eyebrow mb-4">Rakexura spotlight</p>
-                  <h3 className="text-2xl font-black md:text-5xl lg:text-[64px] tracking-tight leading-[1.05]">
-                    <BlurText 
-                      key={`${game.id}-${active === index}`}
-                      text={game.title} 
-                      delay={60} 
-                      animateBy="words" 
-                      direction="bottom" 
-                      stepDuration={0.3} 
+        {mounted ? (
+          <>
+            <Swiper
+              modules={[Autoplay, Navigation]}
+              autoplay={{ delay: AUTOPLAY_DELAY, disableOnInteraction: false }}
+              loop={games.length > 1}
+              observer={true}
+              observeParents={true}
+              onSwiper={(s) => { swiperRef.current = s; }}
+              onRealIndexChange={(s) => setActive(s.realIndex)}
+              navigation={{ prevEl: ".hero-prev", nextEl: ".hero-next" }}
+              className="overflow-hidden rounded-xl h-[420px] md:h-[570px]"
+            >
+              <button suppressHydrationWarning={true} className="hero-prev absolute left-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-black/55 backdrop-blur md:grid" aria-label="Previous spotlight"><ChevronLeft /></button>
+              <button suppressHydrationWarning={true} className="hero-next absolute right-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-black/55 backdrop-blur md:grid" aria-label="Next spotlight"><ChevronRight /></button>
+              {games.map((game, index) => (
+                <SwiperSlide key={game.id}>
+                  <article className="hero-frame relative h-full w-full overflow-hidden rounded-xl">
+                    {/* Always render the static Image first for fast SSR and LCP priority */}
+                    <Image 
+                      src={assetUrl(game.banner_image || game.cover_image)} 
+                      alt={`Spotlight ${game.title} banner`} 
+                      fill 
+                      priority={index === 0} 
+                      fetchPriority={index === 0 ? "high" : "low"}
+                      className="hero-media object-cover" 
+                      sizes="100vw" 
                     />
-                  </h3>
-                  <p className="mt-6 max-w-xl text-base leading-7 text-[#d4d8e4] md:text-lg">{game.tagline || game.description || "A standout PC experience, ready for your library."}</p>
-                  <div className="mt-7 flex flex-wrap items-center gap-3">
-                    <Link href={`/games/${game.id}`} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">View game <ArrowRight size={17} /></Link>
-                    {game.trailer_url && <a href={game.trailer_url} target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/12 bg-black/40 px-5 text-sm font-semibold backdrop-blur hover:bg-black/60"><Play size={16} fill="currentColor" /> Trailer</a>}
-                    <span className="rounded-md bg-black/45 px-4 py-3 text-sm font-semibold backdrop-blur">From {formatPrice(lowestPrice(game))}</span>
-                  </div>
-                </motion.div>
-              </article>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-        <div className="absolute inset-x-6 bottom-5 z-20 flex gap-2 md:inset-x-16">
-          {games.map((game, index) => <span key={game.id} className="h-0.5 flex-1 overflow-hidden bg-white/20"><span key={active === index ? `active-${game.id}` : game.id} className={`block h-full origin-left bg-[#facc15] ${active === index ? "animate-[hero-progress_6.5s_linear_forwards]" : index < active ? "scale-x-100" : "scale-x-0"}`} /></span>)}
-        </div>
+
+                    
+                    {/* Overlay video player client-side after hydration on desktop viewports */}
+                    {mounted && !isMobile && loadVideo && active === index && game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i) && (
+                      <video src={game.trailer_url} autoPlay muted loop playsInline className="hero-media absolute inset-0 h-full w-full object-cover z-0" />
+                    )}
+                    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,11,.97)_0%,rgba(3,5,11,.68)_38%,rgba(3,5,11,.08)_78%),linear-gradient(0deg,rgba(3,5,11,.8),transparent_50%)]" />
+                    <motion.div 
+                      key={`${active}-${game.id}`} 
+                      initial={{ opacity: 0, y: 24 }} 
+                      animate={active === index ? { opacity: 1, y: 0 } : { opacity: .75, y: 12 }} 
+                      transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} 
+                      className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-5 pb-16 pt-8 md:pb-20 md:pt-14 md:px-14"
+                    >
+                      <p className="eyebrow mb-4">Rakexura spotlight</p>
+                      <h3 className="text-2xl font-black md:text-5xl lg:text-[64px] tracking-tight leading-[1.05]">
+                        <BlurText 
+                          key={`${game.id}-${active === index}`}
+                          text={game.title} 
+                          delay={60} 
+                          animateBy="words" 
+                          direction="bottom" 
+                          stepDuration={0.3} 
+                        />
+                      </h3>
+                      <p className="mt-6 max-w-xl text-base leading-7 text-[#d4d8e4] md:text-lg">{game.tagline || game.description || "A standout PC experience, ready for your library."}</p>
+                      <div className="mt-7 flex flex-wrap items-center gap-3">
+                        <Link href={`/games/${game.id}`} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">View game <ArrowRight size={17} /></Link>
+                        {game.trailer_url && <a href={game.trailer_url} target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/12 bg-black/40 px-5 text-sm font-semibold backdrop-blur hover:bg-black/60"><Play size={16} fill="currentColor" /> Trailer</a>}
+                        <span className="rounded-md bg-black/45 px-4 py-3 text-sm font-semibold backdrop-blur">From {formatPrice(lowestPrice(game))}</span>
+                      </div>
+                    </motion.div>
+                  </article>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            <div className="absolute inset-x-6 bottom-5 z-20 flex gap-2 md:inset-x-16">
+              {games.map((game, index) => <span key={game.id} className="h-0.5 flex-1 overflow-hidden bg-white/20"><span key={active === index ? `active-${game.id}` : game.id} className={`block h-full origin-left bg-[#facc15] ${active === index ? "animate-[hero-progress_6.5s_linear_forwards]" : index < active ? "scale-x-100" : "scale-x-0"}`} /></span>)}
+            </div>
+          </>
+        ) : (
+          <div className="w-full h-[420px] md:h-[570px] bg-[#1a1a1a] rounded-xl border border-white/5 animate-pulse flex items-center justify-center">
+            <span className="text-neutral-700 text-xs font-bold uppercase tracking-widest">Loading Spotlight...</span>
+          </div>
+        )}
       </div>
 
       <aside className="featured-now min-w-0" aria-label="Featured games">
