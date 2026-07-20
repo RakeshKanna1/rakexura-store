@@ -217,6 +217,7 @@ export function HeaderNotificationButton() {
                           >
                             Details <ExternalLink size={9} />
                           </Link>
+                        )}
                         <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-white/[0.04] pt-2">
                           <span className="text-[9px] text-[#646b7b] font-mono">
                             {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

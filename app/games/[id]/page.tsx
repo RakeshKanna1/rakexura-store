@@ -1,7 +1,7 @@
 import { Suspense, type CSSProperties } from "react";
 import { preload } from "react-dom";
 import type { Metadata } from "next";
-import { BadgeCheck, Check, Clock, Gift, KeyRound, MonitorCog, ShieldCheck, Sparkles, Star, Zap } from "lucide-react";
+import { BadgeCheck, Check, Clock, KeyRound, MonitorCog, ShieldCheck, Star, Zap } from "lucide-react";
 import { notFound } from "next/navigation";
 import { GameShelf } from "@/components/store/game-shelf";
 import { MediaGallery } from "@/components/store/media-gallery";
