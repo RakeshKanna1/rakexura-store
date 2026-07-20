@@ -15,6 +15,7 @@ import { ClickSpark } from "@/components/animations/click-spark";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { WhatsAppOnboardingModal } from "@/components/layout/whatsapp-onboarding-modal";
 import { MobilePromptManager } from "@/components/layout/mobile-prompt-manager";
+import { VisitorTracker } from "@/components/common/visitor-tracker";
 import "./globals.css";
 
 const geist = Geist({
@@ -49,6 +50,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className={geist.className}>
         <ClickSpark sparkColor="#facc15" sparkSize={10} sparkRadius={24} sparkCount={10} duration={450}>
           <AppProviders>
+            <VisitorTracker />
             <MouseSpotlight />
             <CartDrawer />
             <Header />

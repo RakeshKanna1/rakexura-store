@@ -13,6 +13,8 @@ import { FlashSaleForm } from "@/components/admin/flash-sale-form";
 import { CampaignForm } from "@/components/admin/campaign-form";
 import { CampaignGameForm } from "@/components/admin/campaign-game-form";
 
+import { VisitorAnalytics } from "@/components/admin/visitor-analytics";
+
 const sources = {
   games: { title: "Game management", table: "games", select: "id,title,steam_price,epic_price,offline_price,online_price,xbox_price,geforce_price,is_subscription,online_activation,duration,archived", order: "id" },
   orders: { title: "Customer orders", table: "orders", select: "id,order_reference,customer_name,customer_whatsapp,order_status,total_price,cart_items,screenshot_url,created_at,account_access", order: "created_at" },
@@ -22,7 +24,8 @@ const sources = {
   support: { title: "Support conversations", table: "support_tickets", select: "id,subject,status,user_id,created_at,updated_at", order: "updated_at" },
   requests: { title: "Game requests", table: "game_requests", select: "id,game_name,platform,votes,status,created_at", order: "created_at" },
   media: { title: "Media manager", table: "customer_proofs", select: "id,image_url,caption,proof_type,approved,created_at", order: "created_at" },
-  analytics: { title: "Analytics events", table: "analytics_events", select: "id,event_type,event_value,game_id,created_at", order: "created_at" },
+  analytics: { title: "Analytics & Visitor Monitor", table: "visitor_logs", select: "id,visitor_id,user_name,path,referrer,device_type,created_at", order: "created_at" },
+  visitors: { title: "Live Visitors & Traffic", table: "visitor_logs", select: "id,visitor_id,user_name,path,referrer,device_type,created_at", order: "created_at" },
   "flash-sales": { title: "Flash sale management", table: "flash_sales", select: "id,game_id,sale_price,starts_at,ends_at,active", order: "ends_at" },
   "audit-logs": { title: "Admin audit logs", table: "audit_logs", select: "id,admin_id,action,affected_entity,entity_id,ip_address,created_at", order: "created_at" },
   campaigns: { title: "Campaign management", table: "campaigns", select: "id,name,slug,starts_at,ends_at,active", order: "id" },
@@ -180,6 +183,11 @@ export default async function AdminSection({ params, searchParams }: { params: P
       {section === "flash-sales" && <FlashSaleForm flashSale={editingFlashSale} games={gamesList} />}
       {section === "campaigns" && <CampaignForm campaign={editingCampaign} />}
       {section === "campaign-games" && <CampaignGameForm campaignGame={editingCampaignGame} campaigns={campaignsList} games={gamesList} />}
+      {(section === "analytics" || section === "visitors") && (
+        <div className="mt-8">
+          <VisitorAnalytics />
+        </div>
+      )}
       
       <div className="mt-8">
         <SearchableTable rows={rows} headers={headers} section={section} hasActions={hasActions} />
