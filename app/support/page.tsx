@@ -1,5 +1,4 @@
 import { ArrowUpRight, BadgeCheck, Instagram, MessageCircle, ShieldCheck, Clock, CreditCard, Key } from "lucide-react";
-import Link from "next/link";
 
 export default function SupportPage() {
   const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695";

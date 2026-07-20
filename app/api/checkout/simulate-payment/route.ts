@@ -8,7 +8,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: "Missing orderReference" }, { status: 400 });
     }
 
-    // Initialize Supabase with service role or connection client
     const supabase = createClient();
     
     // 1. Fetch the order
@@ -23,7 +22,6 @@ export async function POST(req: Request) {
     }
 
     // 2. Mark the order as Paid / Approved / Delivered
-    // In production, this matches what updateOrderStatus does in actions.ts:
     const { error: updateError } = await supabase
       .from("orders")
       .update({
@@ -41,14 +39,20 @@ export async function POST(req: Request) {
     if (order.user_id && order.cart_items) {
       const items = Array.isArray(order.cart_items) ? order.cart_items : [];
       const rows = items
-        .filter((item: any) => item.type !== "bundle" && item.game_id)
-        .map((item: any) => ({
-          user_id: order.user_id,
-          game_id: item.game_id,
-          order_id: order.id,
-          platform: item.platform ?? order.variant_type ?? "Steam",
-          delivery_notes: "Delivered automatically via UPI Verification Simulation",
-        }));
+        .filter((item: unknown) => {
+          const it = item as Record<string, unknown>;
+          return it.type !== "bundle" && it.game_id;
+        })
+        .map((item: unknown) => {
+          const it = item as Record<string, unknown>;
+          return {
+            user_id: order.user_id,
+            game_id: it.game_id as number,
+            order_id: order.id,
+            platform: (it.platform as string) ?? order.variant_type ?? "Steam",
+            delivery_notes: "Delivered automatically via UPI Verification Simulation",
+          };
+        });
 
       if (rows.length > 0) {
         await supabase.from("customer_library").upsert(rows, { onConflict: "user_id,game_id,platform" });
@@ -56,7 +60,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true, message: "Payment successfully simulated and order delivered!" });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ success: false, error: errMsg }, { status: 500 });
   }
 }

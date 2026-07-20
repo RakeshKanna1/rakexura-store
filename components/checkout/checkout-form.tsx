@@ -2,11 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
 import { Check, ChevronLeft, ChevronRight, Clipboard, Loader2, LockKeyhole, MessageCircle, ShieldCheck, TicketPercent } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -163,6 +162,13 @@ export function CheckoutForm() {
     return sum + getCheckoutLinePrice(line.game, platform) * (line.quantity || 1);
   }, 0) + bundleTotal;
 
+  const couponEligible = coupon && 
+    (isRankFreebie || (
+      subtotal >= coupon.minimum_order && 
+      (coupon.code !== "RAKE10" || quantity >= 3) && 
+      (coupon.code !== "RAKETHREE" || quantity >= 3)
+    ));
+
   const couponDiscount = couponEligible
     ? Math.min(
         nonSubscriptionSubtotal,
@@ -203,20 +209,24 @@ export function CheckoutForm() {
       total = Math.max(0, subtotal - nonSubscriptionSubtotal);
     }
   }
-  
-  const discount = subtotal - total;
-  const couponEligible = coupon && 
-    (isRankFreebie || (
-      subtotal >= coupon.minimum_order && 
-      (coupon.code !== "RAKE10" || quantity >= 3) && 
-      (coupon.code !== "RAKETHREE" || quantity >= 3)
-    ));
 
   // Generate UPI deep-link prefilled with merchant ID, dynamic amount, and order reference ID
   const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent("RAKESH KANNA M")}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent(orderReference || "Rakexura Game Order")}`;
 
   // QR Code generator URL (Lightweight, fast, 100% free API)
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUrl)}`;
+
+  const handlePaymentSuccess = useCallback(() => {
+    setPaymentCompleted(true);
+    setCelebrate(true);
+    const titles = [...lines.map((l) => l.game.title), ...bundleLines.map((b) => b.bundle.title)].join(", ") || "Game";
+    setPurchasedTitles(titles);
+    setFinalAmount(total);
+    setAppliedCouponCode(couponEligible && coupon ? coupon.code : null);
+    setPostPurchasePhone(getValues("whatsapp").replace(/\D/g, ""));
+    clear();
+    setCoupon(null);
+  }, [total, lines, bundleLines, couponEligible, coupon, getValues, clear, setCoupon]);
 
   // Polling database status in real-time when on Step 2
   useEffect(() => {
@@ -237,19 +247,7 @@ export function CheckoutForm() {
     }, 2500);
 
     return () => clearInterval(interval);
-  }, [orderReference, step, total]);
-
-  function handlePaymentSuccess() {
-    setPaymentCompleted(true);
-    setCelebrate(true);
-    const titles = [...lines.map((l) => l.game.title), ...bundleLines.map((b) => b.bundle.title)].join(", ") || "Game";
-    setPurchasedTitles(titles);
-    setFinalAmount(total);
-    setAppliedCouponCode(couponEligible && coupon ? coupon.code : null);
-    setPostPurchasePhone(getValues("whatsapp").replace(/\D/g, ""));
-    clear();
-    setCoupon(null);
-  }
+  }, [orderReference, step, total, handlePaymentSuccess]);
 
   // Simulator handler for developer checkout testing
   async function simulatePaymentSuccess() {
@@ -297,14 +295,20 @@ export function CheckoutForm() {
       if (order?.user_id && order.cart_items) {
         const itemsList = Array.isArray(order.cart_items) ? order.cart_items : [];
         const rows = itemsList
-          .filter((item: any) => item.type !== "bundle" && item.game_id)
-          .map((item: any) => ({
-            user_id: order.user_id,
-            game_id: item.game_id,
-            order_id: order.id,
-            platform: item.platform ?? order.variant_type ?? "Steam",
-            delivery_notes: "Loyalty reward free order processed automatically",
-          }));
+          .filter((item: unknown) => {
+            const it = item as Record<string, unknown>;
+            return it.type !== "bundle" && it.game_id;
+          })
+          .map((item: unknown) => {
+            const it = item as Record<string, unknown>;
+            return {
+              user_id: order.user_id,
+              game_id: it.game_id as number,
+              order_id: order.id,
+              platform: (it.platform as string) ?? order.variant_type ?? "Steam",
+              delivery_notes: "Loyalty reward free order processed automatically",
+            };
+          });
 
         if (rows.length > 0) {
           await supabase.from("customer_library").upsert(rows, { onConflict: "user_id,game_id,platform" });
@@ -313,8 +317,9 @@ export function CheckoutForm() {
 
       toast.success("Free reward checkout successfully processed!");
       handlePaymentSuccess();
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      toast.error(errMsg);
     } finally {
       setCreatingOrder(false);
     }
@@ -364,8 +369,9 @@ export function CheckoutForm() {
         setOrderReference(String(data));
         setStep(2);
         if (typeof window !== "undefined") window.scrollTo(0, 0);
-      } catch (err: any) {
-        toast.error("Failed to initialize payment reference: " + err.message);
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        toast.error("Failed to initialize payment reference: " + errMsg);
       } finally {
         setCreatingOrder(false);
       }
