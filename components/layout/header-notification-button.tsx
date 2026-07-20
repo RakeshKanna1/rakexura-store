@@ -217,20 +217,26 @@ export function HeaderNotificationButton() {
                           >
                             Details <ExternalLink size={9} />
                           </Link>
-                        )}
-                        <span className="absolute bottom-3 right-3 text-[9px] text-[#646b7b] font-semibold">
-                          {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
+                        <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-white/[0.04] pt-2">
+                          <span className="text-[9px] text-[#646b7b] font-mono">
+                            {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                          {!n.read ? (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                markAsRead(n.id);
+                              }}
+                              className="inline-flex items-center gap-1 rounded bg-[#00d68f]/10 hover:bg-[#00d68f]/20 border border-[#00d68f]/30 px-2 py-0.5 text-[9px] font-bold text-[#70efbb] transition-all cursor-pointer select-none"
+                              title="Mark as read"
+                            >
+                              <Check size={10} /> Mark read
+                            </button>
+                          ) : (
+                            <span className="text-[9px] font-semibold text-[#545c6e]">Read</span>
+                          )}
+                        </div>
                       </div>
-                      {!n.read && (
-                        <button
-                          onClick={() => markAsRead(n.id)}
-                          className="absolute top-3.5 right-3.5 opacity-0 group-hover:opacity-100 transition-opacity grid h-5 w-5 place-items-center rounded-full bg-white/[0.05] hover:bg-[#00d68f]/20 text-[#a0a8c0] hover:text-[#00d68f] cursor-pointer"
-                          title="Mark as read"
-                        >
-                          <Check size={12} />
-                        </button>
-                      )}
                     </div>
                   );
                 })
