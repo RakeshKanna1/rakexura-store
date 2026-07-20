@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Search, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { OrderActions } from "@/components/admin/order-actions";
-import { archiveGame, moderateProof, moderateReview, toggleCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale, toggleCampaign, deleteCampaign, deleteCampaignGame, deleteCustomerAccount } from "@/app/admin/actions";
+import { DeleteCustomerButton } from "@/components/admin/delete-customer-button";
+import { archiveGame, moderateProof, moderateReview, toggleCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale, toggleCampaign, deleteCampaign, deleteCampaignGame } from "@/app/admin/actions";
 
 type AdminRow = Record<string, unknown> & { id?: number | string; screenshot_url?: string; proof_url?: string; media_urls?: string[]; media_links?: string[] };
 
@@ -19,12 +20,7 @@ function RowActions({ section, row }: { section: string; row: AdminRow }) {
     const customerId = String(row.id || "");
     const isAdmin = row.role === "admin";
     if (isAdmin) return <span className="text-[11px] font-bold text-[#b9a4ff]">Admin Profile</span>;
-    return (
-      <form action={deleteCustomerAccount}>
-        <input type="hidden" name="userId" value={customerId} />
-        <SubmitButton tone="danger">Delete Account</SubmitButton>
-      </form>
-    );
+    return <DeleteCustomerButton userId={customerId} customerName={String(row.display_name || "")} />;
   }
   if (section === "orders") {
     const items = Array.isArray(row.cart_items) ? row.cart_items as Array<Record<string, unknown>> : [];

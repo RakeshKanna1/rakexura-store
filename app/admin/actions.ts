@@ -1356,10 +1356,33 @@ export async function deleteCustomerAccount(formData: FormData) {
     throw new Error("Administrator profiles cannot be deleted");
   }
 
-  await supabase.from("visitor_logs").delete().eq("user_id", userId);
-  await supabase.from("notifications").delete().eq("user_id", userId);
-  await supabase.from("cart_items").delete().eq("user_id", userId);
-  await supabase.from("support_tickets").delete().eq("user_id", userId);
+  // Clean up all related records to avoid foreign key blocks
+  await Promise.allSettled([
+    supabase.from("visitor_logs").delete().eq("user_id", userId),
+    supabase.from("notifications").delete().eq("user_id", userId),
+    supabase.from("cart_items").delete().eq("user_id", userId),
+    supabase.from("cart_bundles").delete().eq("user_id", userId),
+    supabase.from("wishlist").delete().eq("user_id", userId),
+    supabase.from("support_tickets").delete().eq("user_id", userId),
+    supabase.from("game_requests").delete().eq("user_id", userId),
+    supabase.from("reviews").delete().eq("user_id", userId),
+    supabase.from("user_milestones").delete().eq("user_id", userId),
+    supabase.from("points_history").delete().eq("user_id", userId),
+    supabase.from("reward_claims").delete().eq("user_id", userId),
+    supabase.from("web_push_subscriptions").delete().eq("user_id", userId),
+  ]);
+
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (serviceKey) {
+    try {
+      const { createClient: createAdmin } = await import("@supabase/supabase-js");
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://cwvfgxdhearouclomjeq.supabase.co";
+      const adminAuthClient = createAdmin(supabaseUrl, serviceKey);
+      await adminAuthClient.auth.admin.deleteUser(userId);
+    } catch {
+      // Fallback to profile deletion if auth admin service role is unavailable
+    }
+  }
 
   const { error } = await supabase
     .from("profiles")
