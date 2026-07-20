@@ -152,6 +152,7 @@ export function HeaderNotificationButton() {
   return (
     <div ref={dropdownRef} className="relative">
       <button
+        suppressHydrationWarning
         onClick={() => setOpen(!open)}
         className="btn btn-secondary relative h-11 min-h-11 px-3 hover:border-[#facc15]/30 hover:bg-white/[.08]"
         aria-label="Open notifications"
