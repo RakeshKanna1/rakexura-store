@@ -87,6 +87,8 @@ export function ProductActions({ game }: { game: Game }) {
 
   const basePrice = price(game, selected);
   const gameSubtotal = basePrice * quantity;
+  const originalUnitPrice = Number(game.original_price ?? 0);
+  const originalSubtotal = originalUnitPrice > basePrice ? originalUnitPrice * quantity : 0;
   const activeCoupon = mounted ? coupon : null;
   const couponSavings = activeCoupon && gameSubtotal >= activeCoupon.minimum_order ? Math.min(gameSubtotal, activeCoupon.discount_type === "percentage" ? gameSubtotal * activeCoupon.discount_value / 100 : activeCoupon.discount_value) : 0;
   const discountedPrice = Math.max(0, gameSubtotal - couponSavings);
@@ -256,7 +258,7 @@ export function ProductActions({ game }: { game: Game }) {
         <div className="flex items-end justify-between border-t border-white/[.08] pt-5">
           <div>
             <span className="text-xs text-[#8991a8]">Current price</span>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-baseline gap-2 mt-1">
               <AnimatePresence mode="wait">
                 {couponSavings > 0 ? (
                   <motion.div 
@@ -264,21 +266,41 @@ export function ProductActions({ game }: { game: Game }) {
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 5 }}
-                    className="flex items-center gap-2"
+                    className="flex flex-wrap items-baseline gap-2"
                   >
-                    <del className="text-sm text-[#646b7b]">{formatPrice(gameSubtotal)}</del>
-                    <strong className="block text-3xl text-[#70efbb]">{formatPrice(discountedPrice)}</strong>
+                    {originalSubtotal > 0 && (
+                      <del className="text-sm font-medium text-[#7a8296] line-through decoration-dashed decoration-red-500/70">{formatPrice(originalSubtotal)}</del>
+                    )}
+                    <del className="text-sm text-[#646b7b] line-through">{formatPrice(gameSubtotal)}</del>
+                    <strong className="text-3xl font-black text-[#70efbb]">{formatPrice(discountedPrice)}</strong>
                   </motion.div>
                 ) : (
-                  <motion.strong 
+                  <motion.div 
                     key="regular"
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 5 }}
-                    className="block text-3xl text-white"
+                    className="flex flex-wrap items-baseline gap-2.5"
                   >
-                    {formatPrice(gameSubtotal)}
-                  </motion.strong>
+                    {originalSubtotal > 0 && (
+                      <>
+                        <del className="text-base font-semibold text-[#8991a8] line-through decoration-dashed decoration-red-500/70 select-none">
+                          {formatPrice(originalSubtotal)}
+                        </del>
+                        <strong className="text-3xl font-black text-white">
+                          {formatPrice(gameSubtotal)}
+                        </strong>
+                        <span className="rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-xs font-black text-emerald-400">
+                          -{Math.round(((originalSubtotal - gameSubtotal) / originalSubtotal) * 100)}%
+                        </span>
+                      </>
+                    )}
+                    {originalSubtotal <= 0 && (
+                      <strong className="block text-3xl font-black text-white">
+                        {formatPrice(gameSubtotal)}
+                      </strong>
+                    )}
+                  </motion.div>
                 )}
               </AnimatePresence>
             </div>
@@ -359,12 +381,12 @@ export function ProductActions({ game }: { game: Game }) {
                   }
                 }}
               >
-                <ShoppingBag size={18} /> Add to cart
+                <ShoppingBag size={18} /> {game.preorder ? "Pre-order to cart" : "Add to cart"}
               </Button>
               <Button 
                 type="button"
                 suppressHydrationWarning
-                className="w-full bg-[#facc15] text-[#080808] hover:bg-[#ffe047] font-black" 
+                className={`w-full font-black ${game.preorder ? "bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-black hover:from-amber-300 hover:to-yellow-300 shadow-[0_0_20px_rgba(251,191,36,0.3)]" : "bg-[#facc15] text-[#080808] hover:bg-[#ffe047]"}`} 
                 onClick={() => { 
                   const action = () => {
                     add(game, selected); 
@@ -379,7 +401,7 @@ export function ProductActions({ game }: { game: Game }) {
                   }
                 }}
               >
-                Buy now
+                {game.preorder ? "⚡ Pre-Order Now" : "Buy now"}
               </Button>
             </>
           )}

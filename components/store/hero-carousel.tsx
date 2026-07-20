@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Play, Sparkles } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -92,7 +92,19 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                       transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} 
                       className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-5 pb-16 pt-8 md:pb-20 md:pt-14 md:px-14"
                     >
-                      <p className="eyebrow mb-4">Rakexura spotlight</p>
+                      <p className="eyebrow mb-4 flex items-center gap-2">
+                        {game.preorder ? (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 text-xs font-black text-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.2)]">
+                            <span className="relative flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+                            </span>
+                            PRE-ORDER SPOTLIGHT
+                          </span>
+                        ) : (
+                          "Rakexura spotlight"
+                        )}
+                      </p>
                       <h3 className="text-2xl font-black md:text-5xl lg:text-[64px] tracking-tight leading-[1.05]">
                         <BlurText 
                           key={`${game.id}-${active === index}`}
@@ -105,9 +117,17 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                       </h3>
                       <p className="mt-6 max-w-xl text-base leading-7 text-[#d4d8e4] md:text-lg">{game.tagline || game.description || "A standout PC experience, ready for your library."}</p>
                       <div className="mt-7 flex flex-wrap items-center gap-3">
-                        <Link href={`/games/${game.id}`} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">View game <ArrowRight size={17} /></Link>
+                        {game.preorder ? (
+                          <Link href={`/games/${game.id}`} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 px-6 text-sm font-black text-black shadow-[0_0_25px_rgba(251,191,36,0.35)] transition hover:-translate-y-0.5 hover:shadow-[0_0_35px_rgba(251,191,36,0.5)]">
+                            <Sparkles size={17} /> Pre-Order Now <ArrowRight size={17} />
+                          </Link>
+                        ) : (
+                          <Link href={`/games/${game.id}`} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">View game <ArrowRight size={17} /></Link>
+                        )}
                         {game.trailer_url && <a href={game.trailer_url} target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/12 bg-black/40 px-5 text-sm font-semibold backdrop-blur hover:bg-black/60"><Play size={16} fill="currentColor" /> Trailer</a>}
-                        <span className="rounded-md bg-black/45 px-4 py-3 text-sm font-semibold backdrop-blur">From {formatPrice(lowestPrice(game))}</span>
+                        <span className="rounded-md bg-black/45 px-4 py-3 text-sm font-semibold backdrop-blur">
+                          {game.preorder ? "Pre-order from " : "From "}{formatPrice(lowestPrice(game))}
+                        </span>
                       </div>
                     </motion.div>
                   </article>

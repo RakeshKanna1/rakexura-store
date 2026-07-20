@@ -1,7 +1,7 @@
 import { Suspense, type CSSProperties } from "react";
 import { preload } from "react-dom";
 import type { Metadata } from "next";
-import { BadgeCheck, Check, KeyRound, MonitorCog, ShieldCheck, Star, Zap } from "lucide-react";
+import { BadgeCheck, Check, Clock, Gift, KeyRound, MonitorCog, ShieldCheck, Sparkles, Star, Zap } from "lucide-react";
 import { notFound } from "next/navigation";
 import { GameShelf } from "@/components/store/game-shelf";
 import { MediaGallery } from "@/components/store/media-gallery";
@@ -340,7 +340,12 @@ export default async function GamePage({ params }: Props) {
       />
       <div className="absolute inset-0" style={{ background: heroBackground }} />
       <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-end p-7 md:p-14">
-        {game.is_premium && (
+        {game.preorder && (
+          <div className="mb-4 self-start inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 px-4 py-1.5 text-xs font-black uppercase tracking-[.18em] text-amber-300 backdrop-blur-md shadow-[0_0_25px_rgba(245,158,11,0.3)] animate-pulse">
+            <Sparkles size={15} className="text-amber-400" /> Pre-Order Edition • Guaranteed Day 1 Access
+          </div>
+        )}
+        {game.is_premium && !game.preorder && (
           <div className={`mb-4 self-start inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] backdrop-blur-sm animate-pulse ${badgeClass}`}>
             ★ Premium Listing
           </div>
@@ -350,12 +355,51 @@ export default async function GamePage({ params }: Props) {
             ✦ Out of Stock
           </div>
         )}
-        <p className="eyebrow" style={{ color: accent }}>{game.is_premium ? "✦ RAKEXURA EXCLUSIVE ✦" : "Rakexura game page"}</p>
-        <h1 className={`mt-5 max-w-4xl font-black leading-[.95] ${titleSize(game.title)} ${titleGradientClass}`}>{game.title}</h1>
+        <p className="eyebrow" style={{ color: game.preorder ? "#facc15" : accent }}>
+          {game.preorder ? "🔥 OFFICIAL PRE-ORDER RESERVATION" : game.is_premium ? "✦ RAKEXURA EXCLUSIVE ✦" : "Rakexura game page"}
+        </p>
+        <h1 className={`mt-5 max-w-4xl font-black leading-[.95] ${titleSize(game.title)} ${game.preorder ? "bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-300 bg-clip-text text-transparent filter drop-shadow-[0_2px_15px_rgba(245,158,11,0.4)]" : titleGradientClass}`}>{game.title}</h1>
         <p className="mt-5 text-lg text-[#d7dae4]">{game.tagline}</p>
-        {tags.length > 0 && <div className="mt-6 flex flex-wrap gap-2">{tags.map((tag) => <span key={tag} className={`rounded border px-3 py-2 text-xs font-semibold backdrop-blur ${tagClass}`} style={!game.is_premium ? { borderColor: `${accent}55` } : {}}>{tag}</span>)}</div>}
+        {tags.length > 0 && <div className="mt-6 flex flex-wrap gap-2">{tags.map((tag) => <span key={tag} className={`rounded border px-3 py-2 text-xs font-semibold backdrop-blur ${game.preorder ? "border-amber-400/30 bg-amber-400/10 text-amber-300" : tagClass}`} style={!game.is_premium && !game.preorder ? { borderColor: `${accent}55` } : {}}>{tag}</span>)}</div>}
       </div>
     </section>
+
+    {game.preorder && (
+      <section className="mt-8 rounded-xl border border-amber-400/30 bg-gradient-to-r from-amber-950/40 via-purple-950/30 to-amber-950/40 p-6 md:p-8 backdrop-blur-md shadow-[0_0_40px_rgba(245,158,11,0.15)]">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-amber-400/20 pb-5">
+          <div>
+            <span className="eyebrow text-amber-400 flex items-center gap-1.5"><Sparkles size={14} /> Official Pre-order Guarantee</span>
+            <h2 className="text-2xl font-black text-white mt-1">Pre-order Launch Privileges</h2>
+          </div>
+          {game.release_date && (
+            <div className="flex items-center gap-2 rounded-lg border border-amber-400/30 bg-black/40 px-4 py-2 text-xs font-bold text-amber-300">
+              <Clock size={16} className="text-amber-400" />
+              <span>Official Release: {new Date(game.release_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+            </div>
+          )}
+        </div>
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          <div className="rounded-lg border border-white/10 bg-black/40 p-4">
+            <div className="flex items-center gap-2 font-bold text-amber-300 text-sm">
+              <Zap size={18} className="text-amber-400" /> Guaranteed Day 1 Access
+            </div>
+            <p className="mt-2 text-xs text-[#a3abbd] leading-relaxed">Your order reservation is prioritized for immediate key dispatch on launch day.</p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-black/40 p-4">
+            <div className="flex items-center gap-2 font-bold text-amber-300 text-sm">
+              <ShieldCheck size={18} className="text-amber-400" /> Price Lock Protection
+            </div>
+            <p className="mt-2 text-xs text-[#a3abbd] leading-relaxed">Lock in your price now. You will never be charged extra if launch prices rise.</p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-black/40 p-4">
+            <div className="flex items-center gap-2 font-bold text-amber-300 text-sm">
+              <Gift size={18} className="text-amber-400" /> Pre-order DLC & Perks
+            </div>
+            <p className="mt-2 text-xs text-[#a3abbd] leading-relaxed">Includes publisher pre-order bonus content, early pre-loads, and extra rewards.</p>
+          </div>
+        </div>
+      </section>
+    )}
 
     <div className="game-detail-layout mt-8 grid gap-8 lg:grid-cols-[1fr_390px]">
       <div className="game-detail-main space-y-12">
