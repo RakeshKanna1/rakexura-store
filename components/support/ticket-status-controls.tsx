@@ -58,42 +58,44 @@ export function TicketStatusControls({ ticketId, currentStatus, isStaff }: Ticke
         {status.replace("_", " ")}
       </span>
 
-      {/* Action Buttons: Management options reserved for staff */}
-      <div className="flex flex-wrap items-center gap-2">
-        {isStaff && status !== "resolved" && (
-          <button
-            type="button"
-            onClick={() => handleStatusChange("resolved")}
-            disabled={isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-400 transition hover:bg-emerald-500/20 disabled:opacity-50 cursor-pointer select-none"
-          >
-            {isPending ? <RefreshCw size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
-            Mark as Resolved
-          </button>
-        )}
+      {/* Action Buttons: Strictly reserved for staff */}
+      {isStaff && (
+        <div className="flex flex-wrap items-center gap-2">
+          {status !== "resolved" && (
+            <button
+              type="button"
+              onClick={() => handleStatusChange("resolved")}
+              disabled={isPending}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-400 transition hover:bg-emerald-500/20 disabled:opacity-50 cursor-pointer select-none"
+            >
+              {isPending ? <RefreshCw size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
+              Mark as Resolved
+            </button>
+          )}
 
-        {isStaff && status !== "closed" && (
-          <button
-            type="button"
-            onClick={() => handleStatusChange("closed")}
-            disabled={isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-xs font-bold text-[#8991a6] transition hover:bg-white/10 hover:text-white disabled:opacity-50 cursor-pointer select-none"
-          >
-            Close Ticket
-          </button>
-        )}
+          {status !== "closed" && (
+            <button
+              type="button"
+              onClick={() => handleStatusChange("closed")}
+              disabled={isPending}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-xs font-bold text-[#8991a6] transition hover:bg-white/10 hover:text-white disabled:opacity-50 cursor-pointer select-none"
+            >
+              Close Ticket
+            </button>
+          )}
 
-        {isStaff && (status === "resolved" || status === "closed") && (
-          <button
-            type="button"
-            onClick={() => handleStatusChange("open")}
-            disabled={isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#8b5cf6]/40 bg-[#8b5cf6]/10 px-3 py-1.5 text-xs font-bold text-[#b9a4ff] transition hover:bg-[#8b5cf6]/20 disabled:opacity-50 cursor-pointer select-none"
-          >
-            Reopen Ticket
-          </button>
-        )}
-      </div>
+          {(status === "resolved" || status === "closed") && (
+            <button
+              type="button"
+              onClick={() => handleStatusChange("open")}
+              disabled={isPending}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#8b5cf6]/40 bg-[#8b5cf6]/10 px-3 py-1.5 text-xs font-bold text-[#b9a4ff] transition hover:bg-[#8b5cf6]/20 disabled:opacity-50 cursor-pointer select-none"
+            >
+              Reopen Ticket
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
