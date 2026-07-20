@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Bell, Check, ExternalLink, Package, ShieldCheck, AlertTriangle, Info, Megaphone } from "lucide-react";
+import { Bell, ExternalLink, Package, ShieldCheck, AlertTriangle, Info, Megaphone } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
@@ -228,13 +228,14 @@ export function HeaderNotificationButton() {
                                 e.stopPropagation();
                                 markAsRead(n.id);
                               }}
-                              className="inline-flex items-center gap-1 rounded bg-[#00d68f]/10 hover:bg-[#00d68f]/20 border border-[#00d68f]/30 px-2 py-0.5 text-[9px] font-bold text-[#70efbb] transition-all cursor-pointer select-none"
+                              className="flex items-center gap-1.5 text-[10px] font-bold text-[#00d68f] hover:text-[#70efbb] transition-colors cursor-pointer select-none"
                               title="Mark as read"
                             >
-                              <Check size={10} /> Mark read
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#00d68f] animate-pulse" />
+                              Mark read
                             </button>
                           ) : (
-                            <span className="text-[9px] font-semibold text-[#545c6e]">Read</span>
+                            <span className="text-[9px] font-medium text-[#545c6e]">Read</span>
                           )}
                         </div>
                       </div>
