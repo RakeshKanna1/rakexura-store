@@ -75,10 +75,13 @@ export function CustomSelect({
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            data-lenis-prevent
             initial={{ opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 4, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
             className="absolute left-0 right-0 top-full z-[999] overflow-hidden rounded-lg border border-white/15 bg-[#0e0b1f] p-2 shadow-[0_12px_40px_rgba(0,0,0,0.8)] backdrop-blur-xl"
           >
             {/* Optional Search Filter */}
@@ -97,7 +100,7 @@ export function CustomSelect({
             )}
 
             {/* Options List */}
-            <div className="max-h-60 overflow-y-auto space-y-0.5 custom-scrollbar pr-1">
+            <div data-lenis-prevent className="max-h-60 overflow-y-auto space-y-0.5 custom-scrollbar pr-1">
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((opt) => {
                   const isSelected = opt.value === value;
