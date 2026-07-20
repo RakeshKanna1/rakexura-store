@@ -83,7 +83,7 @@ export function TicketStatusControls({ ticketId, currentStatus, isStaff }: Ticke
           </button>
         )}
 
-        {(status === "resolved" || status === "closed") && (
+        {isStaff && (status === "resolved" || status === "closed") && (
           <button
             type="button"
             onClick={() => handleStatusChange("open")}
