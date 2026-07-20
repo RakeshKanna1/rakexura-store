@@ -291,7 +291,7 @@ export function CheckoutForm() {
       if (error) return toast.error(error.message);
 
       // Add free items directly to customer library
-      const { data: order } = await supabase.from("orders").select("id, user_id, cart_items").eq("order_reference", orderReference).single();
+      const { data: order } = await supabase.from("orders").select("id, user_id, cart_items, variant_type").eq("order_reference", orderReference).single();
       if (order?.user_id && order.cart_items) {
         const itemsList = Array.isArray(order.cart_items) ? order.cart_items : [];
         const rows = itemsList
