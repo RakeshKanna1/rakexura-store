@@ -217,6 +217,12 @@ export function ProductActions({ game }: { game: Game }) {
               suppressHydrationWarning
               value={couponCode} 
               onChange={(e) => setCouponCode(e.target.value.toUpperCase())} 
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  void checkCoupon();
+                }
+              }}
               placeholder="DIAMONDFREE" 
               className="h-10 min-w-0 flex-1 rounded-md border border-white/10 bg-black/20 px-3 text-xs uppercase outline-none focus:border-[#8b5cf6] text-white" 
             />
@@ -257,8 +263,8 @@ export function ProductActions({ game }: { game: Game }) {
 
         <div className="flex items-end justify-between border-t border-white/[.08] pt-5">
           <div>
-            <span className="text-xs text-[#8991a8]">Current price</span>
-            <div className="flex flex-wrap items-baseline gap-2 mt-1">
+            <span className="text-xs font-medium text-[#8991a8]">Current price</span>
+            <div className="flex flex-wrap items-baseline gap-2.5 mt-1.5">
               <AnimatePresence mode="wait">
                 {couponSavings > 0 ? (
                   <motion.div 
@@ -266,13 +272,13 @@ export function ProductActions({ game }: { game: Game }) {
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 5 }}
-                    className="flex flex-wrap items-baseline gap-2"
+                    className="flex flex-wrap items-baseline gap-2.5"
                   >
                     {originalSubtotal > 0 && (
-                      <del className="text-sm font-medium text-[#7a8296] line-through decoration-dashed decoration-red-500/70">{formatPrice(originalSubtotal)}</del>
+                      <del className="text-sm font-medium text-[#8991a8] line-through decoration-red-500/60 select-none">{formatPrice(originalSubtotal)}</del>
                     )}
-                    <del className="text-sm text-[#646b7b] line-through">{formatPrice(gameSubtotal)}</del>
-                    <strong className="text-3xl font-black text-[#70efbb]">{formatPrice(discountedPrice)}</strong>
+                    <del className="text-sm font-medium text-[#8991a8] line-through decoration-red-500/60 select-none">{formatPrice(gameSubtotal)}</del>
+                    <strong className="text-3xl font-black text-[#70efbb] tracking-tight">{formatPrice(discountedPrice)}</strong>
                   </motion.div>
                 ) : (
                   <motion.div 
@@ -284,19 +290,19 @@ export function ProductActions({ game }: { game: Game }) {
                   >
                     {originalSubtotal > 0 && (
                       <>
-                        <del className="text-base font-semibold text-[#8991a8] line-through decoration-dashed decoration-red-500/70 select-none">
+                        <del className="text-base font-medium text-[#8991a8] line-through decoration-red-500/60 select-none">
                           {formatPrice(originalSubtotal)}
                         </del>
-                        <strong className="text-3xl font-black text-white">
+                        <strong className="text-3xl font-black text-white tracking-tight">
                           {formatPrice(gameSubtotal)}
                         </strong>
-                        <span className="rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-xs font-black text-emerald-400">
+                        <span className="inline-flex items-center rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-extrabold text-emerald-400 shadow-sm backdrop-blur-sm">
                           -{Math.round(((originalSubtotal - gameSubtotal) / originalSubtotal) * 100)}%
                         </span>
                       </>
                     )}
                     {originalSubtotal <= 0 && (
-                      <strong className="block text-3xl font-black text-white">
+                      <strong className="block text-3xl font-black text-white tracking-tight">
                         {formatPrice(gameSubtotal)}
                       </strong>
                     )}
@@ -407,8 +413,22 @@ export function ProductActions({ game }: { game: Game }) {
           )}
         </div>
         
-        <div className="grid grid-cols-1 gap-2 border-t border-white/[.08] pt-4 text-[11px] text-[#9ba3b7] min-[430px]:grid-cols-2"><span className="flex items-center gap-1.5"><BadgeCheck size={14} className="text-[#00d68f]" /> Verified seller</span><span className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-[#facc15]" /> Secure payment</span></div>
-        <p className="text-center text-xs leading-5 text-[#7f879d]">Coupon codes can be checked in cart. Payment is reviewed before delivery.</p>
+        {/* Single Epic Games Store Styled Trust Badge Info Block */}
+        <div className="mt-4 rounded-lg bg-black/30 border border-white/[0.07] p-3.5 space-y-2.5">
+          <div className="flex items-center justify-around text-xs font-semibold tracking-tight border-b border-white/[0.06] pb-2.5">
+            <div className="flex items-center gap-1.5 text-emerald-400">
+              <BadgeCheck size={15} className="text-emerald-400 shrink-0" />
+              <span>Verified seller</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-amber-400">
+              <ShieldCheck size={15} className="text-amber-400 shrink-0" />
+              <span>Secure payment</span>
+            </div>
+          </div>
+          <p className="text-center text-[11px] leading-relaxed text-[#8991a8]">
+            Coupon codes can be checked in cart. Payment is reviewed before delivery.
+          </p>
+        </div>
       </div>
       <ReviewForm gameId={game.id} gameTitle={game.title} />
       <Confetti active={celebrate} onComplete={() => setCelebrate(false)} />

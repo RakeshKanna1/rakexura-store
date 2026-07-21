@@ -54,22 +54,22 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <MouseSpotlight />
             <CartDrawer />
             <Header />
-            <div className="relative overflow-hidden border-b border-white/[0.06] bg-[#05070f] py-2 text-center text-[11px] font-semibold tracking-wider text-[#d1d5db]">
-              {/* Soft black overlay */}
-              <div className="absolute inset-0 bg-black/45" />
-              
-              {/* Subtle premium gold radial glow background */}
-              <div className="absolute -inset-x-10 top-0 bottom-0 bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.06),transparent_70%)] pointer-events-none" />
+            <div className="group relative overflow-hidden border-b border-white/[0.08] bg-[#090b11] py-2 text-center text-xs font-medium text-[#9da6b9]">
+              {/* Subtle gold accent background glow */}
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(250,204,21,0.08),transparent_60%)] pointer-events-none" />
 
               {/* Content container */}
-              <div className="relative z-10 flex items-center justify-center gap-1.5 px-4">
-                <span>🔥</span>
-                <strong className="text-[#facc15] font-black drop-shadow-[0_0_8px_rgba(250,204,21,0.25)]">
-                  COMBO DEALS:
-                </strong>
-                <span className="text-white/80">Save big on curated game collections!</span>
-                <Link href="/bundles" className="ml-1 text-[#facc15] underline hover:text-[#fbbf24] transition-colors font-bold drop-shadow-[0_0_8px_rgba(250,204,21,0.15)]">
-                  View Bundles &rarr;
+              <div className="relative z-10 flex flex-wrap items-center justify-center gap-2 px-4">
+                <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/25 bg-amber-400/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-400">
+                  <span>🔥</span> COMBO DEALS
+                </span>
+                <span className="text-white/90 font-medium text-xs">Save big on curated game collections!</span>
+                <Link 
+                  href="/bundles" 
+                  className="inline-flex items-center gap-1 text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors ml-0.5 group/btn"
+                >
+                  <span>View Bundles</span>
+                  <span className="inline-block transition-transform duration-200 group-hover/btn:translate-x-1">&rarr;</span>
                 </Link>
               </div>
             </div>

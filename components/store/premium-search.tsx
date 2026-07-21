@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Clock3, Gamepad2, Plus, Search, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
@@ -31,6 +32,7 @@ function quickPlatform(game: Game) {
 }
 
 export function PremiumSearch() {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [allGames, setAllGames] = useState<Game[]>([]);
   const [results, setResults] = useState<Game[]>([]);
@@ -98,6 +100,14 @@ export function PremiumSearch() {
             onFocus={() => { setOpen(true); setFocused(true); }}
             onBlur={() => { window.setTimeout(() => setOpen(false), 180); setFocused(false); }}
             onChange={(event) => { setQuery(event.target.value); setOpen(true); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && shown.length > 0) {
+                e.preventDefault();
+                remember(shown[0]);
+                router.push(`/games/${shown[0].id}`);
+                setOpen(false);
+              }
+            }}
             autoComplete="off"
             placeholder={focused ? "Search games, genres, platforms" : ""}
             className="w-full h-full border-0 bg-transparent text-white outline-none"

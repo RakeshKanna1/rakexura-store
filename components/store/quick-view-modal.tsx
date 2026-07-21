@@ -177,8 +177,8 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
 
               <div className="mt-6 flex items-end justify-between border-t border-white/[0.08] pt-5">
                 <div>
-                  <span className="text-xs text-[#8991a8]">Current price</span>
-                  <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-[#8991a8]">Current price</span>
+                  <div className="flex items-baseline gap-2.5 mt-1">
                     <AnimatePresence mode="wait">
                       {couponSavings > 0 ? (
                         <motion.div
@@ -186,10 +186,10 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
                           initial={{ opacity: 0, y: -5 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 5 }}
-                          className="flex items-center gap-2"
+                          className="flex items-baseline gap-2.5"
                         >
-                          <del className="text-sm text-[#646b7b]">{formatPrice(lowest)}</del>
-                          <strong className="block text-3xl text-[#70efbb]">{formatPrice(discountedPrice)}</strong>
+                          <del className="text-sm font-medium text-[#8991a8] line-through decoration-red-500 decoration-2 select-none">{formatPrice(lowest)}</del>
+                          <strong className="block text-3xl font-black text-[#70efbb] tracking-tight">{formatPrice(discountedPrice)}</strong>
                         </motion.div>
                       ) : (
                         <motion.strong
@@ -197,7 +197,7 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
                           initial={{ opacity: 0, y: -5 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 5 }}
-                          className="block text-3xl text-white"
+                          className="block text-3xl font-black text-white tracking-tight"
                         >
                           {formatPrice(lowest)}
                         </motion.strong>

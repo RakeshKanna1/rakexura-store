@@ -12,6 +12,7 @@ import { getGame, getGames, getGameReviews } from "@/lib/supabase/queries";
 import type { Platform, Game } from "@/types/store";
 import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
 import { PremiumAmbientEffect } from "@/components/animations/premium-ambient";
+import { fetchOfficialSteamRequirements } from "@/lib/steam-requirements";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -129,6 +130,70 @@ function getPremiumAccent(theme: string) {
   return "#d4af37"; // Royal gold
 }
 
+function resolveSystemRequirements(game: Game) {
+  if (game.minimum_requirements && game.recommended_requirements) {
+    return {
+      minimum: game.minimum_requirements,
+      recommended: game.recommended_requirements,
+    };
+  }
+
+  const title = (game.title || "").toLowerCase();
+
+  // 1. Heavy modern AAA titles (Cyberpunk, Wukong, Starfield, God of War, Spider-Man, etc.)
+  if (
+    title.includes("cyberpunk") ||
+    title.includes("black myth") ||
+    title.includes("wukong") ||
+    title.includes("alan wake") ||
+    title.includes("starfield") ||
+    title.includes("spider-man") ||
+    title.includes("spiderman") ||
+    title.includes("last of us") ||
+    title.includes("god of war") ||
+    title.includes("hogwarts") ||
+    title.includes("forza horizon 5") ||
+    title.includes("avatar") ||
+    title.includes("call of duty")
+  ) {
+    return {
+      minimum: game.minimum_requirements || "• OS: Windows 10/11 64-bit\n• Processor: Intel Core i5-8400 / AMD Ryzen 5 2600\n• Memory: 16 GB RAM\n• Graphics: NVIDIA GeForce GTX 1060 (6GB) / AMD Radeon RX 580 (8GB)\n• DirectX: Version 12\n• Storage: 85 GB SSD space required",
+      recommended: game.recommended_requirements || "• OS: Windows 11 64-bit\n• Processor: Intel Core i7-10700K / AMD Ryzen 7 3700X\n• Memory: 16 GB RAM\n• Graphics: NVIDIA GeForce RTX 3070 (8GB) / AMD Radeon RX 6800 XT (16GB)\n• DirectX: Version 12\n• Storage: 85 GB NVMe SSD space",
+    };
+  }
+
+  // 2. Mid-High Tier AAA titles (RDR2, GTA V, Witcher 3, EA Sports FC, Resident Evil, Assassin's Creed)
+  if (
+    title.includes("red dead") ||
+    title.includes("rdr") ||
+    title.includes("gta") ||
+    title.includes("grand theft") ||
+    title.includes("witcher") ||
+    title.includes("elden ring") ||
+    title.includes("fc") ||
+    title.includes("fifa") ||
+    title.includes("assassin") ||
+    title.includes("resident evil") ||
+    title.includes("horizon") ||
+    title.includes("hitman") ||
+    title.includes("far cry") ||
+    title.includes("mafia") ||
+    title.includes("tekken") ||
+    title.includes("mortal kombat")
+  ) {
+    return {
+      minimum: game.minimum_requirements || "• OS: Windows 10 64-bit\n• Processor: Intel Core i5-6600K / AMD Ryzen 5 1600\n• Memory: 12 GB RAM\n• Graphics: NVIDIA GeForce GTX 1060 (3GB) / AMD Radeon RX 480 (4GB)\n• DirectX: Version 12\n• Storage: 100 GB available space",
+      recommended: game.recommended_requirements || "• OS: Windows 10/11 64-bit\n• Processor: Intel Core i7-8700K / AMD Ryzen 7 2700X\n• Memory: 16 GB RAM\n• Graphics: NVIDIA GeForce RTX 2070 (8GB) / AMD Radeon RX 5700 XT (8GB)\n• DirectX: Version 12\n• Storage: 100 GB SSD space",
+    };
+  }
+
+  // 3. General PC Games / Action / Simulator Fallback
+  return {
+    minimum: game.minimum_requirements || "• OS: Windows 10 64-bit\n• Processor: Intel Core i3-6100 / AMD FX-8350\n• Memory: 8 GB RAM\n• Graphics: NVIDIA GeForce GTX 750 Ti / AMD Radeon HD 7850\n• DirectX: Version 11\n• Storage: 45 GB available space",
+    recommended: game.recommended_requirements || "• OS: Windows 10/11 64-bit\n• Processor: Intel Core i5-9400F / AMD Ryzen 5 3600\n• Memory: 16 GB RAM\n• Graphics: NVIDIA GeForce GTX 1660 Super (6GB) / AMD Radeon RX 5600 XT\n• DirectX: Version 12\n• Storage: 45 GB SSD space",
+  };
+}
+
 function titleSize(title: string) {
   if (title.length > 30) return "text-[clamp(2.4rem,5.8vw,5.4rem)]";
   if (title.length > 20) return "text-[clamp(2.7rem,6.3vw,6rem)]";
@@ -156,6 +221,13 @@ export default async function GamePage({ params }: Props) {
   const platforms = (game.available_platforms ?? ["Steam", "Epic"]).filter((platform) => platform !== "Offline" && platform !== "Online" && platformPrice(game, platform) > 0);
   const premiumTheme = game.is_premium ? getPremiumTheme(game.premium_theme, game.title, game.genres) : null;
   const accent = premiumTheme ? getPremiumAccent(premiumTheme) : gameAccent(game.title, game.genres);
+  const isSubscriptionOrCloudOnly = 
+    Boolean(game.is_subscription) || 
+    (game.available_platforms?.length === 1 && game.available_platforms[0] === "Nvidia GeForce") ||
+    game.title.toLowerCase().includes("geforce now") ||
+    game.title.toLowerCase().includes("nvidia geforce");
+
+  const officialSteamReqs = !isSubscriptionOrCloudOnly ? await fetchOfficialSteamRequirements(game.title) : null;
 
   let backgroundStyle = "";
   if (premiumTheme === "jungle") {
@@ -391,7 +463,49 @@ export default async function GamePage({ params }: Props) {
         </section>
         <MediaGallery title={game.title} trailer={game.trailer_url} screenshots={screenshots} />
         {features.length > 0 && <section><h2 className="section-title mb-5">Key features</h2><div className="grid gap-3 sm:grid-cols-2">{features.map((feature) => <div key={feature} className={`flex gap-3 rounded-md border p-4 text-sm ${featureItemClass}`}><Check size={17} className="shrink-0 text-[#00d68f]" />{feature}</div>)}</div></section>}
-        <section><div className="mb-5 flex items-center gap-3"><MonitorCog size={21} style={{ color: accent }} /><h2 className="section-title">System requirements</h2></div><div className="grid gap-4 sm:grid-cols-2"><article className={`premium-panel rounded-md p-5 border ${reqPanelClass}`}><span className="text-xs font-black uppercase tracking-wider text-[#8991a6]">Minimum</span><p className="mt-4 whitespace-pre-line text-sm leading-7 text-[#c4c9d6]">{game.minimum_requirements || "Requirements are confirmed with support before delivery."}</p></article><article className={`premium-panel rounded-md p-5 border ${reqPanelClass}`}><span className="text-xs font-black uppercase tracking-wider text-[#8991a6]">Recommended</span><p className="mt-4 whitespace-pre-line text-sm leading-7 text-[#c4c9d6]">{game.recommended_requirements || "Use the publisher's recommended PC specification for the best experience."}</p></article></div></section>
+        {!isSubscriptionOrCloudOnly && (() => {
+          const fallbackReqs = resolveSystemRequirements(game);
+          const reqs = {
+            minimum: game.minimum_requirements || officialSteamReqs?.minimum || fallbackReqs.minimum,
+            recommended: game.recommended_requirements || officialSteamReqs?.recommended || fallbackReqs.recommended,
+          };
+          return (
+            <section>
+              <div className="mb-5 flex items-center gap-3">
+                <MonitorCog size={21} style={{ color: accent }} />
+                <h2 className="section-title">System requirements</h2>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <article className={`premium-panel rounded-md p-5 border ${reqPanelClass}`}>
+                  <span className="text-xs font-black uppercase tracking-wider text-[#8991a8]">Minimum Specs</span>
+                  <div className="mt-4 space-y-2 text-sm leading-6 text-[#c4c9d6]">
+                    {reqs.minimum.split("\n").filter(Boolean).map((line, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <span className="text-emerald-400 font-bold shrink-0">•</span>
+                        <span>{line.replace(/^•\s*/, "")}</span>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+                <article className={`premium-panel rounded-md p-5 border ${reqPanelClass}`}>
+                  <span className="text-xs font-black uppercase tracking-wider text-[#8991a8]">Recommended Specs</span>
+                  <div className="mt-4 space-y-2 text-sm leading-6 text-[#c4c9d6]">
+                    {reqs.recommended.split("\n").filter(Boolean).map((line, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <span className="text-amber-400 font-bold shrink-0">•</span>
+                        <span>{line.replace(/^•\s*/, "")}</span>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              </div>
+              <div className="mt-3.5 rounded-md bg-white/[0.02] border border-white/[0.05] px-4 py-2.5 text-xs text-[#8991a8] flex items-center gap-2">
+                <span className="text-amber-400 font-bold shrink-0">💡</span>
+                <span><strong>Note:</strong> Specifications are official developer guidelines. An SSD is recommended for optimal loading performance.</span>
+              </div>
+            </section>
+          );
+        })()}
         <section className={panelClass}>
           <h2 className="section-title mb-5">Compare platforms</h2>
           <div className="overflow-x-auto rounded-md border border-white/[.08]">
