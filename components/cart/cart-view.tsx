@@ -236,6 +236,12 @@ export function CartView() {
               <input
                 value={code}
                 onChange={(event) => setCode(event.target.value.toUpperCase())}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void checkCoupon();
+                  }
+                }}
                 placeholder="RAKE10"
                 aria-label="Coupon code"
                 className="h-11 min-w-0 flex-1 rounded-md border border-white/10 bg-white/[.04] px-3 text-sm uppercase outline-none focus:border-[#8b5cf6]"

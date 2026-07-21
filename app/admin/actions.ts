@@ -1339,3 +1339,137 @@ export async function deleteCampaignGame(formData: FormData) {
   revalidateTag("games");
   revalidateTag("campaigns");
 }
+
+export async function deleteCustomerAccount(formData: FormData) {
+  await writeAuditLog("DELETE_CUSTOMER_ACCOUNT", "profiles", formData);
+  const supabase = await getAdminClient();
+  const userId = String(formData.get("userId") ?? "").trim();
+  if (!userId) throw new Error("Invalid customer ID");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (profile?.role === "admin") {
+    throw new Error("Administrator profiles cannot be deleted");
+  }
+
+  // Clean up all related records to avoid foreign key blocks
+  await Promise.allSettled([
+    supabase.from("visitor_logs").delete().eq("user_id", userId),
+    supabase.from("notifications").delete().eq("user_id", userId),
+    supabase.from("cart_items").delete().eq("user_id", userId),
+    supabase.from("cart_bundles").delete().eq("user_id", userId),
+    supabase.from("wishlist").delete().eq("user_id", userId),
+    supabase.from("support_tickets").delete().eq("user_id", userId),
+    supabase.from("game_requests").delete().eq("user_id", userId),
+    supabase.from("reviews").delete().eq("user_id", userId),
+    supabase.from("user_milestones").delete().eq("user_id", userId),
+    supabase.from("points_history").delete().eq("user_id", userId),
+    supabase.from("reward_claims").delete().eq("user_id", userId),
+    supabase.from("web_push_subscriptions").delete().eq("user_id", userId),
+  ]);
+
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (serviceKey) {
+    try {
+      const { createClient: createAdmin } = await import("@supabase/supabase-js");
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://cwvfgxdhearouclomjeq.supabase.co";
+      const adminAuthClient = createAdmin(supabaseUrl, serviceKey);
+      await adminAuthClient.auth.admin.deleteUser(userId);
+    } catch {
+      // Fallback to profile deletion if auth admin service role is unavailable
+    }
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .delete()
+    .eq("id", userId);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/customers");
+  revalidatePath("/admin");
+}
+
+export async function updateSupportTicketStatus(formData: FormData) {
+  await writeAuditLog("UPDATE_SUPPORT_TICKET_STATUS", "support_tickets", formData);
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const ticketId = Number(formData.get("ticket_id"));
+  const newStatus = String(formData.get("status") ?? "").trim().toLowerCase();
+
+  if (!ticketId || !newStatus) throw new Error("Ticket ID and status are required");
+
+  const { data: ticket, error: fetchErr } = await supabase
+    .from("support_tickets")
+    .select("id, user_id, subject, status")
+    .eq("id", ticketId)
+    .single();
+
+  if (fetchErr || !ticket) throw new Error("Support ticket not found");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, email, display_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const isAdmin = profile?.role === "admin";
+  if (!isAdmin) {
+    throw new Error("Only Rakexura staff members can modify ticket status.");
+  }
+
+  const { error: updateErr } = await supabase
+    .from("support_tickets")
+    .update({
+      status: newStatus,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", ticketId);
+
+  if (updateErr) throw new Error(updateErr.message);
+
+  // Send intimation notifications to customer when resolved or closed
+  if ((newStatus === "resolved" || newStatus === "closed" || newStatus === "approved") && isAdmin) {
+    const notifTitle = newStatus === "resolved" ? "Support Ticket Resolved!" : newStatus === "closed" ? "Support Ticket Closed" : "Support Ticket Approved!";
+    const notifMsg = `Your support ticket #${ticket.id} ("${ticket.subject}") has been marked as ${newStatus} by Rakexura Support.`;
+    const notifLink = `/dashboard/support/${ticket.id}`;
+
+    // 1. In-App Notification
+    await supabase.from("notifications").insert({
+      user_id: ticket.user_id,
+      title: notifTitle,
+      message: notifMsg,
+      type: "support",
+      link: notifLink,
+    });
+
+    // 2. Web Push Notification
+    void sendPushNotification(ticket.user_id, notifTitle, notifMsg, notifLink);
+
+    // 3. Email Intimation
+    const { data: customerProfile } = await supabase
+      .from("profiles")
+      .select("email, display_name")
+      .eq("id", ticket.user_id)
+      .maybeSingle();
+
+    if (customerProfile?.email && customerProfile.email.includes("@")) {
+      void sendEmail({
+        to: customerProfile.email,
+        subject: `[Rakexura Support] Ticket #${ticket.id} Resolved`,
+        text: `Hi ${customerProfile.display_name || "Customer"},\n\nYour support ticket #${ticket.id} ("${ticket.subject}") has been resolved by Rakexura Staff.\n\nYou can view the ticket details and full conversation at:\n${process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app"}/dashboard/support/${ticket.id}\n\nThank you for choosing Rakexura Store!`,
+      });
+    }
+  }
+
+  revalidatePath(`/dashboard/support/${ticketId}`);
+  revalidatePath("/dashboard/support");
+  revalidatePath("/admin/support");
+}

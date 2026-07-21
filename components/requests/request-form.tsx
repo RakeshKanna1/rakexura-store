@@ -1,7 +1,15 @@
 "use client";
+
 import { useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { CustomSelect } from "@/components/common/custom-select";
+
+const platformOptions = [
+  { value: "Steam", label: "Steam", sublabel: "PC Steam Key / Account" },
+  { value: "Epic", label: "Epic Games", sublabel: "Epic Games Store" },
+  { value: "Offline", label: "Offline Mode", sublabel: "Single Player / Offline Access" },
+];
 
 export function RequestForm() {
   const [name, setName] = useState("");
@@ -36,19 +44,27 @@ export function RequestForm() {
 
   return (
     <div className="glass mx-auto max-w-xl space-y-5 rounded-lg p-6">
-      <label className="block text-sm font-semibold">
-        Game name
-        <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Example: Resident Evil 4" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none" />
-      </label>
-      <label className="block text-sm font-semibold">
-        Preferred platform
-        <select value={platform} onChange={(event) => setPlatform(event.target.value)} className="mt-2 h-12 w-full rounded-md border border-white/10 bg-[#090c14] px-4">
-          <option>Steam</option>
-          <option>Epic</option>
-          <option>Offline</option>
-        </select>
-      </label>
-      <button onClick={submit} className="h-12 w-full rounded-md bg-white text-sm font-bold text-black">Submit request</button>
+      <div>
+        <label className="block text-sm font-semibold mb-2">Game name</label>
+        <input
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder="Example: Resident Evil 4, Ghost of Tsushima..."
+          className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#8b5cf6] transition-all"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-semibold mb-2">Preferred platform</label>
+        <CustomSelect
+          options={platformOptions}
+          value={platform}
+          onChange={setPlatform}
+          searchable={false}
+        />
+      </div>
+      <button onClick={submit} className="h-12 w-full rounded-md bg-white text-sm font-bold text-black hover:bg-white/90 transition-all cursor-pointer">
+        Submit request
+      </button>
     </div>
   );
 }

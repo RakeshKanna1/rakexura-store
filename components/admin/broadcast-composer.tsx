@@ -4,6 +4,7 @@ import { BellRing, Gamepad2, Gift, MessageCircle, Send } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { sendStoreAnnouncement, sendSinglePushNotification, giftGameToCustomer } from "@/app/admin/actions";
+import { CustomSelect } from "@/components/common/custom-select";
 
 type Customer = { id: string; display_name: string | null; whatsapp: string | null };
 type GameOption = { id: number; title: string };
@@ -91,43 +92,133 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
     window.open(`https://wa.me/${normalized}?text=${encodeURIComponent(`${title}\n\n${message}\n\n${location.origin}${link}`)}`, "_blank", "noopener,noreferrer");
   }
 
-  return <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
-    <section className="premium-panel rounded-lg p-5 md:p-7"><div className="flex items-center gap-3"><BellRing className="text-[#b9a4ff]" /><div><h2 className="text-xl font-black">Create an update</h2><p className="text-sm text-[#8991a6]">Send a safe in-app notification to every registered customer.</p></div></div><div className="mt-5 flex flex-wrap gap-2"><button onClick={() => applyTemplate("game")} className="btn btn-secondary text-xs"><Gamepad2 size={15} /> New game</button><button onClick={() => applyTemplate("offer")} className="btn btn-secondary text-xs"><Gift size={15} /> Offer</button><button onClick={() => applyTemplate("giveaway")} className="btn btn-secondary text-xs"><Gift size={15} /> Giveaway</button></div><label className="mt-5 block text-sm font-bold">Choose a game <span className="font-normal text-[#8991a6]">(optional)</span><select onChange={(event) => chooseGame(event.target.value)} defaultValue="" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4"><option value="">Custom announcement</option>{games.map((game) => <option key={game.id} value={game.id}>{game.title}</option>)}</select></label><label className="mt-4 block text-sm font-bold">Title<input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={80} className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4" /></label><label className="mt-4 block text-sm font-bold">Message<textarea value={message} onChange={(event) => setMessage(event.target.value)} maxLength={300} rows={5} className="mt-2 w-full rounded-md border border-white/10 bg-black/25 p-4" /></label><label className="mt-4 block text-sm font-bold">Rakexura link<input value={link} onChange={(event) => setLink(event.target.value)} className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4" /></label><button onClick={notifyAll} disabled={pending} className="btn btn-primary mt-5 w-full"><Send size={16} />{pending ? "Sending..." : "Notify all customer accounts"}</button></section>
-    <aside className="space-y-5">
-      <div className="premium-panel h-fit rounded-lg p-5">
-        <MessageCircle className="text-[#20c763]" />
-        <h2 className="mt-4 text-lg font-black">WhatsApp & Device Push</h2>
-        <p className="mt-2 text-sm leading-6 text-[#8991a6]">Choose one customer to send a targeted lockscreen push or WhatsApp chat message.</p>
-        <select value={customerId} onChange={(event) => setCustomerId(event.target.value)} className="mt-5 h-12 w-full rounded-md border border-white/10 bg-black/25 px-3"><option value="">Choose customer</option>{customers.map((item) => <option key={item.id} value={item.id}>{item.display_name || "Customer"} {item.whatsapp ? `· ${item.whatsapp}` : "· no number"}</option>)}</select>
-        <div className="mt-4 rounded-md border border-white/[.07] bg-black/20 p-4 text-xs leading-5 text-[#aab1c1]"><strong className="block text-white">{title}</strong><span className="mt-2 block">{message}</span></div>
-        <button onClick={openWhatsApp} className="btn mt-4 w-full bg-[#20c763] text-black"><MessageCircle size={16} /> Open WhatsApp</button>
-        <button onClick={sendPushToCustomer} disabled={pushPending} className="btn mt-2 w-full btn-primary bg-white text-black"><Send size={16} /> {pushPending ? "Sending Push..." : "Send Device Push"}</button>
-      </div>
+  const gameOptions = [
+    { value: "", label: "Custom announcement" },
+    ...games.map((g) => ({ value: String(g.id), label: g.title })),
+  ];
 
-      <div className="premium-panel h-fit rounded-lg p-5">
-        <Gift className="text-[#facc15]" />
-        <h2 className="mt-4 text-lg font-black">Giveaway / Gift Game</h2>
-        <p className="mt-2 text-sm leading-6 text-[#8991a6]">Send a game directly to this customer&apos;s library and orders page at Rs. 0 as a giveaway.</p>
-        
-        <label className="mt-4 block text-xs font-bold text-[#8991a8]">Select Game</label>
-        <select value={giftGameId} onChange={(e) => setGiftGameId(e.target.value)} className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-3">
-          <option value="">Choose game to gift</option>
-          {games.map((g) => <option key={g.id} value={g.id}>{g.title}</option>)}
-        </select>
+  const customerOptions = [
+    { value: "", label: "Choose customer" },
+    ...customers.map((c) => ({
+      value: c.id,
+      label: c.display_name || "Customer",
+      sublabel: c.whatsapp ? `WhatsApp: ${c.whatsapp}` : "No number saved",
+    })),
+  ];
 
-        <label className="mt-4 block text-xs font-bold text-[#8991a8]">Select Platform</label>
-        <select value={giftPlatform} onChange={(e) => setGiftPlatform(e.target.value)} className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-3">
-          <option value="Steam">Steam</option>
-          <option value="Epic">Epic</option>
-          <option value="Offline">Offline</option>
-          <option value="Xbox">Xbox</option>
-          <option value="Nvidia GeForce">Nvidia GeForce</option>
-        </select>
+  const giftGameOptions = [
+    { value: "", label: "Choose game to gift" },
+    ...games.map((g) => ({ value: String(g.id), label: g.title })),
+  ];
 
-        <button onClick={sendGiftGame} disabled={giftPending} className="btn mt-5 w-full btn-primary bg-[#8b5cf6] hover:bg-[#7c3aed] text-white">
-          <Gift size={16} /> {giftPending ? "Gifting..." : "Gift Game"}
+  const platformOptions = [
+    { value: "Steam", label: "Steam" },
+    { value: "Epic", label: "Epic" },
+    { value: "Offline", label: "Offline" },
+    { value: "Xbox", label: "Xbox" },
+    { value: "Nvidia GeForce", label: "Nvidia GeForce" },
+  ];
+
+  const [selectedGameId, setSelectedGameId] = useState("");
+
+  return (
+    <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
+      <section className="premium-panel rounded-lg p-5 md:p-7">
+        <div className="flex items-center gap-3">
+          <BellRing className="text-[#b9a4ff]" />
+          <div>
+            <h2 className="text-xl font-black">Create an update</h2>
+            <p className="text-sm text-[#8991a6]">Send a safe in-app notification to every registered customer.</p>
+          </div>
+        </div>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <button onClick={() => applyTemplate("game")} className="btn btn-secondary text-xs"><Gamepad2 size={15} /> New game</button>
+          <button onClick={() => applyTemplate("offer")} className="btn btn-secondary text-xs"><Gift size={15} /> Offer</button>
+          <button onClick={() => applyTemplate("giveaway")} className="btn btn-secondary text-xs"><Gift size={15} /> Giveaway</button>
+        </div>
+        <div className="mt-5 block text-sm font-bold">
+          Choose a game <span className="font-normal text-[#8991a6]">(optional)</span>
+          <div className="mt-2">
+            <CustomSelect
+              options={gameOptions}
+              value={selectedGameId}
+              onChange={(val) => {
+                setSelectedGameId(val);
+                chooseGame(val);
+              }}
+              placeholder="Custom announcement"
+            />
+          </div>
+        </div>
+        <label className="mt-4 block text-sm font-bold">
+          Title
+          <input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={80} className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#8b5cf6]" />
+        </label>
+        <label className="mt-4 block text-sm font-bold">
+          Message
+          <textarea value={message} onChange={(event) => setMessage(event.target.value)} maxLength={300} rows={5} className="mt-2 w-full rounded-md border border-white/10 bg-black/25 p-4 text-sm leading-relaxed text-white outline-none focus:border-[#8b5cf6]" />
+        </label>
+        <label className="mt-4 block text-sm font-bold">
+          Rakexura link
+          <input value={link} onChange={(event) => setLink(event.target.value)} className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#8b5cf6]" />
+        </label>
+        <button onClick={notifyAll} disabled={pending} className="btn btn-primary mt-5 w-full">
+          <Send size={16} />{pending ? "Sending..." : "Notify all customer accounts"}
         </button>
-      </div>
-    </aside>
-  </div>;
+      </section>
+
+      <aside className="space-y-5">
+        <div className="premium-panel h-fit rounded-lg p-5">
+          <MessageCircle className="text-[#20c763]" />
+          <h2 className="mt-4 text-lg font-black">WhatsApp & Device Push</h2>
+          <p className="mt-2 text-sm leading-6 text-[#8991a6]">Choose one customer to send a targeted lockscreen push or WhatsApp chat message.</p>
+          <div className="mt-5">
+            <CustomSelect
+              options={customerOptions}
+              value={customerId}
+              onChange={(val) => setCustomerId(val)}
+              placeholder="Choose customer"
+            />
+          </div>
+          <div className="mt-4 rounded-md border border-white/[.07] bg-black/20 p-4 text-xs leading-5 text-[#aab1c1]">
+            <strong className="block text-white">{title}</strong>
+            <span className="mt-2 block">{message}</span>
+          </div>
+          <button onClick={openWhatsApp} className="btn mt-4 w-full bg-[#20c763] text-black"><MessageCircle size={16} /> Open WhatsApp</button>
+          <button onClick={sendPushToCustomer} disabled={pushPending} className="btn mt-2 w-full btn-primary bg-white text-black"><Send size={16} /> {pushPending ? "Sending Push..." : "Send Device Push"}</button>
+        </div>
+
+        <div className="premium-panel h-fit rounded-lg p-5">
+          <Gift className="text-[#facc15]" />
+          <h2 className="mt-4 text-lg font-black">Giveaway / Gift Game</h2>
+          <p className="mt-2 text-sm leading-6 text-[#8991a6]">Send a game directly to this customer&apos;s library and orders page at Rs. 0 as a giveaway.</p>
+          
+          <label className="mt-4 block text-xs font-bold text-[#8991a8]">Select Game</label>
+          <div className="mt-2">
+            <CustomSelect
+              options={giftGameOptions}
+              value={giftGameId}
+              onChange={(val) => setGiftGameId(val)}
+              placeholder="Choose game to gift"
+            />
+          </div>
+
+          <label className="mt-4 block text-xs font-bold text-[#8991a8]">Select Platform</label>
+          <div className="mt-2">
+            <CustomSelect
+              options={platformOptions}
+              value={giftPlatform}
+              onChange={(val) => setGiftPlatform(val)}
+              placeholder="Select platform"
+              searchable={false}
+            />
+          </div>
+
+          <button onClick={sendGiftGame} disabled={giftPending} className="btn mt-5 w-full btn-primary bg-[#8b5cf6] hover:bg-[#7c3aed] text-white">
+            <Gift size={16} /> {giftPending ? "Gifting..." : "Gift Game"}
+          </button>
+        </div>
+      </aside>
+    </div>
+  );
 }

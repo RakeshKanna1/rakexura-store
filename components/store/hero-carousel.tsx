@@ -92,7 +92,9 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                       transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} 
                       className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-5 pb-16 pt-8 md:pb-20 md:pt-14 md:px-14"
                     >
-                      <p className="eyebrow mb-4">Rakexura spotlight</p>
+                      <p className="eyebrow mb-4">
+                        {game.preorder ? "Pre-order spotlight" : "Rakexura spotlight"}
+                      </p>
                       <h3 className="text-2xl font-black md:text-5xl lg:text-[64px] tracking-tight leading-[1.05]">
                         <BlurText 
                           key={`${game.id}-${active === index}`}
@@ -105,7 +107,13 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                       </h3>
                       <p className="mt-6 max-w-xl text-base leading-7 text-[#d4d8e4] md:text-lg">{game.tagline || game.description || "A standout PC experience, ready for your library."}</p>
                       <div className="mt-7 flex flex-wrap items-center gap-3">
-                        <Link href={`/games/${game.id}`} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">View game <ArrowRight size={17} /></Link>
+                        {game.preorder ? (
+                          <Link href={`/games/${game.id}`} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">
+                            Pre-order now <ArrowRight size={17} />
+                          </Link>
+                        ) : (
+                          <Link href={`/games/${game.id}`} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">View game <ArrowRight size={17} /></Link>
+                        )}
                         {game.trailer_url && <a href={game.trailer_url} target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/12 bg-black/40 px-5 text-sm font-semibold backdrop-blur hover:bg-black/60"><Play size={16} fill="currentColor" /> Trailer</a>}
                         <span className="rounded-md bg-black/45 px-4 py-3 text-sm font-semibold backdrop-blur">From {formatPrice(lowestPrice(game))}</span>
                       </div>

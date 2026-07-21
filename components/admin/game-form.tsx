@@ -11,7 +11,7 @@ const input = "mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px
 
 export function GameForm({ game, genres }: { game?: Game | null; genres: string[] }) {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
-    game?.available_platforms ?? ["Steam", "Epic", "Offline"]
+    game?.available_platforms ?? []
   );
   const [isSubscription, setIsSubscription] = useState<boolean>(
     Boolean(game?.is_subscription)
