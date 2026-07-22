@@ -201,12 +201,17 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
           <motion.button
             type="submit"
             disabled={submitting || comment.trim().length < 10}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-            className="w-full relative overflow-hidden group rounded-xl bg-gradient-to-r from-[#00d68f] to-[#00f2fe] py-3.5 px-6 text-sm font-black uppercase tracking-wider text-[#020617] transition-all duration-300 shadow-[0_4px_20px_rgba(0,214,143,0.15)] hover:shadow-[0_8px_30px_rgba(0,242,254,0.35)] disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+            whileHover={submitting || comment.trim().length < 10 ? {} : { scale: 1.01, y: -1 }}
+            whileTap={submitting || comment.trim().length < 10 ? {} : { scale: 0.99 }}
+            className={`w-full relative overflow-hidden rounded-xl py-3.5 px-6 text-xs font-black uppercase tracking-wider transition-all duration-300 ${
+              comment.trim().length >= 10
+                ? "bg-gradient-to-r from-[#8b5cf6] via-[#a78bfa] to-[#facc15] text-black shadow-[0_4px_25px_rgba(139,92,246,0.3)] hover:shadow-[0_8px_30px_rgba(250,204,21,0.45)] cursor-pointer"
+                : "bg-white/[0.04] border border-white/10 text-zinc-500 cursor-not-allowed shadow-none"
+            }`}
           >
             <span className="relative z-10 flex items-center justify-center gap-2">
-              {submitting ? "Publishing Review..." : "Submit Review for moderation"}
+              <Star size={14} className={comment.trim().length >= 10 ? "fill-black text-black" : "text-zinc-600"} />
+              {submitting ? "Publishing Review..." : comment.trim().length < 10 ? "Submit Review (Write 10+ Characters)" : "Submit Review for Moderation"}
             </span>
           </motion.button>
         </form>
