@@ -18,9 +18,9 @@ export function WriteReviewTrigger({ gameId, gameTitle }: WriteReviewTriggerProp
       <button
         type="button"
         onClick={() => setShowModal(true)}
-        className="group/rev inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-extrabold rounded-lg border border-[#8b5cf6]/35 bg-[#8b5cf6]/10 text-[#d8b4fe] hover:bg-[#8b5cf6]/25 hover:border-[#b9a4ff]/60 hover:text-white hover:shadow-[0_0_16px_rgba(139,92,246,0.3)] active:scale-95 transition-all duration-300 cursor-pointer"
+        className="group/rev inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-bold text-[#c4b5fd] hover:bg-[#8b5cf6] hover:border-[#8b5cf6] hover:text-white transition-all cursor-pointer shrink-0"
       >
-        <Star size={13} className="text-[#facc15] fill-[#facc15]/20 group-hover/rev:rotate-12 transition-transform duration-300" />
+        <Star size={13} className="text-[#facc15] fill-[#facc15] group-hover/rev:text-white group-hover/rev:fill-white transition-colors duration-200" />
         <span>Write Review</span>
       </button>
 
