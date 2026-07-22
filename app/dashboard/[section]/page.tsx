@@ -307,24 +307,46 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                 return (
                   <div className="mt-3.5 space-y-3">
                     {hasRockstarGame && (
-                      <a
-                        href={botUrl}
-                        onClick={() => {
-                          try {
-                            window.location.href = tgProtocolUrl;
-                          } catch {}
-                        }}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group/tg inline-flex items-center gap-2 rounded-xl border border-[#0088cc]/40 bg-gradient-to-r from-[#0088cc]/20 via-[#132232] to-[#09121d] px-3.5 py-2 text-xs font-black text-[#38bdf8] hover:border-[#38bdf8]/80 hover:text-white hover:shadow-[0_4px_18px_rgba(0,136,204,0.3)] transition-all active:scale-[0.985]"
-                        title="Click to open Telegram app directly with your order token for activation codes"
-                      >
-                        <div className="grid h-5 w-5 place-items-center rounded-full bg-[#0088cc]/30 text-[#38bdf8] group-hover/tg:bg-[#0088cc] group-hover/tg:text-white transition-all">
-                          <Send size={10} />
+                      <div className="rounded-xl border border-[#0088cc]/35 bg-gradient-to-r from-[#0d1b2a] via-[#091420] to-[#050b12] p-4 shadow-[0_4px_24px_rgba(0,136,204,0.15)] relative overflow-hidden group/tgcard">
+                        {/* Ambient Glow */}
+                        <div className="absolute -right-10 -bottom-10 h-32 w-32 rounded-full bg-[#0088cc]/15 blur-2xl group-hover/tgcard:bg-[#0088cc]/25 transition-all" />
+
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 relative z-10">
+                          <div className="flex items-start gap-3">
+                            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#0088cc]/40 bg-[#0088cc]/20 text-[#38bdf8] shadow-[0_0_15px_rgba(0,136,204,0.3)]">
+                              <Send size={18} />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-black uppercase tracking-wider text-[#38bdf8] bg-[#0088cc]/20 border border-[#0088cc]/30 px-2 py-0.5 rounded-full">
+                                  ⚡ Rockstar Automated Gateway
+                                </span>
+                              </div>
+                              <strong className="mt-1 block text-sm font-black text-white leading-tight">
+                                Rockstar 2FA & Account Activation Bot
+                              </strong>
+                              <p className="mt-0.5 text-[11px] text-[#8991a6] leading-relaxed">
+                                Get instant Social Club verification codes & account setup assistance automatically via Telegram.
+                              </p>
+                            </div>
+                          </div>
+
+                          <a
+                            href={botUrl}
+                            onClick={() => {
+                              try {
+                                window.location.href = tgProtocolUrl;
+                              } catch {}
+                            }}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0088cc] to-[#0284c7] px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-[0_4px_16px_rgba(0,136,204,0.4)] hover:shadow-[0_6px_22px_rgba(0,136,204,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shrink-0"
+                          >
+                            <span>Launch Bot</span>
+                            <ArrowRight size={13} />
+                          </a>
                         </div>
-                        <span>Open Rockstar Telegram Bot</span>
-                        <ArrowRight size={12} className="opacity-70 group-hover/tg:translate-x-0.5 transition-transform" />
-                      </a>
+                      </div>
                     )}
 
                     {isDelivered && Boolean(row.account_access) && (
