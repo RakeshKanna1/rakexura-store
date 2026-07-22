@@ -2,7 +2,7 @@
 
 import { useEffect, useState, PointerEvent } from "react";
 import { motion } from "framer-motion";
-import { Eye, Heart, ShoppingCart, Sparkles, X } from "lucide-react";
+import { Eye, Heart, ShoppingCart, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -153,9 +153,8 @@ function GameCardInner({
             ))}
           </div>
 
-          <div className="mt-2.5 flex items-center gap-1.5 rounded-md border border-[#facc15]/20 bg-[#facc15]/[0.05] px-2 py-1 text-[9px] font-bold text-[#facc15]">
-            <Sparkles size={11} className="shrink-0 text-[#facc15]" />
-            <span className="truncate">Add 3+ games for bonus code</span>
+          <div className="mt-2.5 rounded-md border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-center">
+            <p className="truncate text-[9px] font-medium text-[#8991a6]">Add three more games to attain a code</p>
           </div>
         </div>
 
