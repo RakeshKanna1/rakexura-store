@@ -283,29 +283,49 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
               {(() => {
                 if (section !== "orders") return null;
                 const isDelivered = row.order_status === "Delivered" || row.order_status === "Completed";
-                if (!isDelivered || !row.account_access) return null;
+                const botUsername = (process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || "Rockstar_bot").replace("@", "");
+                const orderRef = String(row.order_reference || row.id);
+                const botUrl = `https://t.me/${botUsername}?start=${encodeURIComponent(orderRef)}`;
 
                 return (
-                  <details className="mt-4 group border border-[#8b5cf6]/35 bg-[#8b5cf6]/5 rounded-md overflow-hidden max-w-md">
-                    <summary className="flex items-center justify-between px-4 py-2.5 text-xs font-black text-[#c4b5fd] cursor-pointer hover:bg-[#8b5cf6]/10 select-none list-none [&::-webkit-details-marker]:hidden">
-                      <span className="flex items-center gap-1.5">🔑 Quick View: Game Activation / Account Credentials</span>
-                      <span className="text-[#8b5cf6] text-[10px] group-open:rotate-180 transition-transform">▼</span>
-                    </summary>
-                    <div className="px-4 py-3 border-t border-[#8b5cf6]/20 bg-black/40 text-xs text-slate-300 leading-relaxed shadow-inner">
-                      <p className="font-bold text-[#cbbfff] mb-1.5">Your Activation / Account Credentials:</p>
-                      <div className="font-mono bg-black/40 p-2.5 rounded border border-white/5 select-all whitespace-pre-wrap">
-                        {String(row.account_access)}
+                  <div className="mt-3.5 space-y-3">
+                    <a
+                      href={botUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group/tg inline-flex items-center gap-2 rounded-xl border border-[#0088cc]/40 bg-gradient-to-r from-[#0088cc]/20 via-[#132232] to-[#09121d] px-3.5 py-2 text-xs font-black text-[#38bdf8] hover:border-[#38bdf8]/80 hover:text-white hover:shadow-[0_4px_18px_rgba(0,136,204,0.3)] transition-all active:scale-[0.985]"
+                      title="Click to open Telegram bot with your order token"
+                    >
+                      <div className="grid h-5 w-5 place-items-center rounded-full bg-[#0088cc]/30 text-[#38bdf8] group-hover/tg:bg-[#0088cc] group-hover/tg:text-white transition-all">
+                        <Send size={10} />
                       </div>
-                      <div className="mt-3 flex items-center justify-between">
-                        <p className="text-[10px] text-[#8991a6]">
-                          Please use these details to access your game.
-                        </p>
-                        <Link href={orderTrackUrl} className="text-[11px] font-black text-[#b9a4ff] hover:underline flex items-center gap-1">
-                          Full Account Details <ArrowRight size={11} />
-                        </Link>
-                      </div>
-                    </div>
-                  </details>
+                      <span>Open Telegram Bot Gateway</span>
+                      <ArrowRight size={12} className="opacity-70 group-hover/tg:translate-x-0.5 transition-transform" />
+                    </a>
+
+                    {isDelivered && Boolean(row.account_access) && (
+                      <details className="group border border-[#8b5cf6]/35 bg-[#8b5cf6]/5 rounded-md overflow-hidden max-w-md">
+                        <summary className="flex items-center justify-between px-4 py-2.5 text-xs font-black text-[#c4b5fd] cursor-pointer hover:bg-[#8b5cf6]/10 select-none list-none [&::-webkit-details-marker]:hidden">
+                          <span className="flex items-center gap-1.5">🔑 Quick View: Game Activation / Account Credentials</span>
+                          <span className="text-[#8b5cf6] text-[10px] group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <div className="px-4 py-3 border-t border-[#8b5cf6]/20 bg-black/40 text-xs text-slate-300 leading-relaxed shadow-inner">
+                          <p className="font-bold text-[#cbbfff] mb-1.5">Your Activation / Account Credentials:</p>
+                          <div className="font-mono bg-black/40 p-2.5 rounded border border-white/5 select-all whitespace-pre-wrap">
+                            {String(row.account_access)}
+                          </div>
+                          <div className="mt-3 flex items-center justify-between">
+                            <p className="text-[10px] text-[#8991a6]">
+                              Please use these details to access your game.
+                            </p>
+                            <Link href={orderTrackUrl} className="text-[11px] font-black text-[#b9a4ff] hover:underline flex items-center gap-1">
+                              Full Account Details <ArrowRight size={11} />
+                            </Link>
+                          </div>
+                        </div>
+                      </details>
+                    )}
+                  </div>
                 );
               })()}
             </div>
