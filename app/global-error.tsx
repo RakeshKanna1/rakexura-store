@@ -21,8 +21,13 @@ export default function GlobalError({
           <h2 className="text-2xl font-black tracking-tight">Something went wrong!</h2>
           <p className="text-sm text-[#8991a6]">The application encountered a critical rendering error.</p>
           <button
-            onClick={() => reset()}
-            className="rounded bg-[#facc15] px-4 py-2 text-sm font-bold text-black hover:bg-[#ffe45c] transition-colors duration-200"
+            onClick={() => {
+              try {
+                reset();
+              } catch {}
+              window.location.reload();
+            }}
+            className="rounded-xl bg-gradient-to-r from-[#8b5cf6] via-[#a78bfa] to-[#facc15] px-6 py-2.5 text-xs font-black uppercase tracking-wider text-black shadow-[0_4px_20px_rgba(139,92,246,0.3)] hover:shadow-[0_6px_25px_rgba(250,204,21,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
           >
             Try again
           </button>
