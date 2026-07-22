@@ -283,25 +283,43 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
               {(() => {
                 if (section !== "orders") return null;
                 const isDelivered = row.order_status === "Delivered" || row.order_status === "Completed";
+                const cartItems = Array.isArray(row.cart_items) ? (row.cart_items as Array<{ game_id?: number; gameId?: number; platform?: string; title?: string }>) : [];
+                const hasRockstarGame = cartItems.some((item) => {
+                  const gId = Number(item.game_id || item.gameId);
+                  const game = gamesMap[gId];
+                  const title = (game?.title || item.title || "").toLowerCase();
+                  const platform = (item.platform || "").toLowerCase();
+                  return (
+                    title.includes("gta") ||
+                    title.includes("grand theft auto") ||
+                    title.includes("red dead") ||
+                    title.includes("rdr") ||
+                    title.includes("rockstar") ||
+                    platform.includes("rockstar")
+                  );
+                });
+
                 const botUsername = (process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || "Rockstar_bot").replace("@", "");
                 const orderRef = String(row.order_reference || row.id);
                 const botUrl = `https://t.me/${botUsername}?start=${encodeURIComponent(orderRef)}`;
 
                 return (
                   <div className="mt-3.5 space-y-3">
-                    <a
-                      href={botUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group/tg inline-flex items-center gap-2 rounded-xl border border-[#0088cc]/40 bg-gradient-to-r from-[#0088cc]/20 via-[#132232] to-[#09121d] px-3.5 py-2 text-xs font-black text-[#38bdf8] hover:border-[#38bdf8]/80 hover:text-white hover:shadow-[0_4px_18px_rgba(0,136,204,0.3)] transition-all active:scale-[0.985]"
-                      title="Click to open Telegram bot with your order token"
-                    >
-                      <div className="grid h-5 w-5 place-items-center rounded-full bg-[#0088cc]/30 text-[#38bdf8] group-hover/tg:bg-[#0088cc] group-hover/tg:text-white transition-all">
-                        <Send size={10} />
-                      </div>
-                      <span>Open Telegram Bot Gateway</span>
-                      <ArrowRight size={12} className="opacity-70 group-hover/tg:translate-x-0.5 transition-transform" />
-                    </a>
+                    {hasRockstarGame && (
+                      <a
+                        href={botUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group/tg inline-flex items-center gap-2 rounded-xl border border-[#0088cc]/40 bg-gradient-to-r from-[#0088cc]/20 via-[#132232] to-[#09121d] px-3.5 py-2 text-xs font-black text-[#38bdf8] hover:border-[#38bdf8]/80 hover:text-white hover:shadow-[0_4px_18px_rgba(0,136,204,0.3)] transition-all active:scale-[0.985]"
+                        title="Click to open Rockstar Telegram bot with your order token for activation codes"
+                      >
+                        <div className="grid h-5 w-5 place-items-center rounded-full bg-[#0088cc]/30 text-[#38bdf8] group-hover/tg:bg-[#0088cc] group-hover/tg:text-white transition-all">
+                          <Send size={10} />
+                        </div>
+                        <span>Open Rockstar Telegram Bot</span>
+                        <ArrowRight size={12} className="opacity-70 group-hover/tg:translate-x-0.5 transition-transform" />
+                      </a>
+                    )}
 
                     {isDelivered && Boolean(row.account_access) && (
                       <details className="group border border-[#8b5cf6]/35 bg-[#8b5cf6]/5 rounded-md overflow-hidden max-w-md">
