@@ -283,21 +283,46 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
               {(() => {
                 if (section !== "orders") return null;
                 const isDelivered = row.order_status === "Delivered" || row.order_status === "Completed";
-                const cartItems = Array.isArray(row.cart_items) ? (row.cart_items as Array<{ game_id?: number; gameId?: number; platform?: string; title?: string }>) : [];
-                const hasRockstarGame = cartItems.some((item) => {
-                  const gId = Number(item.game_id || item.gameId);
-                  const game = gamesMap[gId];
-                  const title = (game?.title || item.title || "").toLowerCase();
-                  const platform = (item.platform || "").toLowerCase();
-                  return (
-                    title.includes("gta") ||
-                    title.includes("grand theft auto") ||
-                    title.includes("red dead") ||
-                    title.includes("rdr") ||
-                    title.includes("rockstar") ||
-                    platform.includes("rockstar")
-                  );
-                });
+                const hasRockstarGame = (() => {
+                  try {
+                    const rawItems = Array.isArray(row.cart_items)
+                      ? row.cart_items
+                      : typeof row.cart_items === "string"
+                      ? JSON.parse(row.cart_items as string)
+                      : [];
+
+                    if (Array.isArray(rawItems) && rawItems.length > 0) {
+                      const match = rawItems.some((item) => {
+                        if (!item || typeof item !== "object") return false;
+                        const itemObj = item as Record<string, unknown>;
+                        const gId = Number(itemObj.game_id || itemObj.gameId);
+                        const game = gId && gamesMap ? gamesMap[gId] : null;
+                        const title = String(game?.title || itemObj.title || itemObj.game_title || "").toLowerCase();
+                        const platform = String(itemObj.platform || "").toLowerCase();
+                        return (
+                          title.includes("gta") ||
+                          title.includes("grand theft auto") ||
+                          title.includes("red dead") ||
+                          title.includes("rdr") ||
+                          title.includes("rockstar") ||
+                          platform.includes("rockstar")
+                        );
+                      });
+                      if (match) return true;
+                    }
+
+                    const mainTitle = String(rowTitle(row) || row.order_reference || "").toLowerCase();
+                    return (
+                      mainTitle.includes("gta") ||
+                      mainTitle.includes("grand theft auto") ||
+                      mainTitle.includes("red dead") ||
+                      mainTitle.includes("rdr") ||
+                      mainTitle.includes("rockstar")
+                    );
+                  } catch {
+                    return false;
+                  }
+                })();
 
                 const botUsername = (process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || "Rockstar_bot").replace("@", "");
                 const orderRef = String(row.order_reference || row.id);
