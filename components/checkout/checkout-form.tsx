@@ -384,10 +384,6 @@ export function CheckoutForm() {
     
     if (error) {
       if (proof) await supabase.storage.from("payment-proofs").remove([proofPath]);
-      void notifyOwner("CHECKOUT-NEEDS-REVIEW", finalTotal, values, [
-        ...items.map((item) => ({ title: String(item.title), platform: String(item.platform), quantity: Number(item.quantity) })),
-        ...bundles.map((item) => ({ title: String(item.title), platform: "Bundle", quantity: Number(item.quantity) })),
-      ], customerEmail, user?.id);
       return toast.error(error.message);
     }
     
