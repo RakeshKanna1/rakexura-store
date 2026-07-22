@@ -25,6 +25,23 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   text-rendering: optimizeLegibility;
 }
+
+/* Force native dark mode for dropdowns, date pickers, and select elements */
+html, select, option, input[type="datetime-local"], input[type="date"], input[type="time"] {
+  color-scheme: dark !important;
+}
+
+select option {
+  background-color: #0e0a1f !important;
+  color: #ffffff !important;
+  padding: 8px 12px !important;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) hue-rotate(240deg) brightness(1.2);
+  cursor: pointer;
+}
 body::after {
   content: "";
   position: fixed;
