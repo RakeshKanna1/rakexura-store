@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Save, ChevronDown, Check } from "lucide-react";
+import { Save, ChevronDown, Check, Crown, Compass, Zap, Flame } from "lucide-react";
 import { saveGame } from "@/app/admin/actions";
 import { ImageUploader } from "@/components/admin/image-uploader";
 import type { Game } from "@/types/store";
@@ -14,13 +14,14 @@ function CustomThemeSelect({ defaultValue }: { defaultValue: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const options = [
-    { value: "royal", label: "Royal Gold (Classic Golden Premium)", color: "text-[#d4af37]" },
-    { value: "jungle", label: "Jungle / Adventure (Emerald & Gold)", color: "text-[#00d68f]" },
-    { value: "cyberpunk", label: "Cyberpunk / Sci-Fi (Neon Cyan & Gold)", color: "text-[#38bdf8]" },
-    { value: "crimson", label: "Crimson / Dark Fantasy (Red & Amber)", color: "text-[#ff4757]" },
+    { value: "royal", label: "Royal Gold (Classic Golden Premium)", color: "text-[#d4af37]", bg: "bg-[#d4af37]/15 border-[#d4af37]/40", Icon: Crown },
+    { value: "jungle", label: "Jungle / Adventure (Emerald & Gold)", color: "text-[#00d68f]", bg: "bg-[#00d68f]/15 border-[#00d68f]/40", Icon: Compass },
+    { value: "cyberpunk", label: "Cyberpunk / Sci-Fi (Neon Cyan & Gold)", color: "text-[#38bdf8]", bg: "bg-[#38bdf8]/15 border-[#38bdf8]/40", Icon: Zap },
+    { value: "crimson", label: "Crimson / Dark Fantasy (Red & Amber)", color: "text-[#ff4757]", bg: "bg-[#ff4757]/15 border-[#ff4757]/40", Icon: Flame },
   ];
 
   const currentOption = options.find((opt) => opt.value === selected) || options[0];
+  const CurrentIcon = currentOption.Icon;
 
   return (
     <div className="relative w-full mt-2">
@@ -31,7 +32,12 @@ function CustomThemeSelect({ defaultValue }: { defaultValue: string }) {
         onClick={() => setIsOpen(!isOpen)}
         className="flex min-h-[46px] w-full items-center justify-between gap-3 rounded-lg border border-[#d4af37]/40 bg-[#0f0c1b] px-4 py-2.5 text-sm font-bold text-white transition-all hover:border-[#d4af37] focus:outline-none shadow-md cursor-pointer"
       >
-        <span className={currentOption.color}>{currentOption.label}</span>
+        <div className="flex items-center gap-2.5">
+          <div className={`grid h-6 w-6 place-items-center rounded-md border ${currentOption.bg} ${currentOption.color}`}>
+            <CurrentIcon size={13} />
+          </div>
+          <span className={currentOption.color}>{currentOption.label}</span>
+        </div>
         <ChevronDown size={16} className={`text-zinc-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
       </button>
 
@@ -41,6 +47,7 @@ function CustomThemeSelect({ defaultValue }: { defaultValue: string }) {
           <div className="absolute left-0 right-0 top-full z-40 mt-1.5 overflow-hidden rounded-xl border border-white/15 bg-[#0b0818] p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.8)] backdrop-blur-2xl">
             {options.map((opt) => {
               const isSelected = opt.value === selected;
+              const OptIcon = opt.Icon;
               return (
                 <button
                   key={opt.value}
@@ -55,7 +62,12 @@ function CustomThemeSelect({ defaultValue }: { defaultValue: string }) {
                       : "text-zinc-300 hover:bg-white/[0.06] hover:text-white border border-transparent"
                   }`}
                 >
-                  <span className={opt.color}>{opt.label}</span>
+                  <div className="flex items-center gap-2.5">
+                    <div className={`grid h-6 w-6 place-items-center rounded-md border ${opt.bg} ${opt.color}`}>
+                      <OptIcon size={12} />
+                    </div>
+                    <span className={opt.color}>{opt.label}</span>
+                  </div>
                   {isSelected && <Check size={14} className="text-[#8b5cf6]" />}
                 </button>
               );

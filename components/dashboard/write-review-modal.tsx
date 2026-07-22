@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Star, X } from "lucide-react";
+import { Star, X, Sparkles, ThumbsUp, Smile, Meh, Frown } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { motion } from "framer-motion";
@@ -39,34 +39,29 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
       const { error } = await supabase.rpc("submit_verified_review", {
         p_game_id: gameId,
         p_rating: rating,
-        p_message: comment.trim(),
-        p_media_urls: []
+        p_message: comment.trim()
       });
 
       if (error) {
-        throw error;
+        throw new Error(error.message);
       }
 
-      toast.success("We received your request. Thanks for the review!");
-      
-      // Reset state variables completely on completion
-      const submittedComment = comment.trim();
-      setComment("");
-      setRating(5);
-      setHoverRating(null);
-      
-      // Dismiss error/pending toasts and close
-      toast.dismiss();
+      toast.success("Thank you! Your review has been submitted for approval.");
       onClose();
 
-      // Trigger owner push notification (only goes to owner/admin)
       try {
+        const submittedRating = rating;
+        const submittedComment = comment.trim();
+
         await fetch("/api/notifications/review", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            userId: user.id,
+            userEmail: user.email,
+            gameId,
             gameTitle,
-            rating,
+            rating: submittedRating,
             comment: submittedComment
           })
         });
@@ -80,14 +75,40 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
     }
   };
 
-  const getRatingLabel = (val: number) => {
+  const getRatingBadge = (val: number) => {
     switch (val) {
-      case 1: return "Poor";
-      case 2: return "Fair";
-      case 3: return "Good";
-      case 4: return "Very Good";
-      case 5: return "Excellent";
-      default: return "";
+      case 1:
+        return (
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#ff4757] bg-[#ff4757]/15 border border-[#ff4757]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            <Frown size={11} /> Poor
+          </span>
+        );
+      case 2:
+        return (
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#ffa502] bg-[#ffa502]/15 border border-[#ffa502]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            <Meh size={11} /> Fair
+          </span>
+        );
+      case 3:
+        return (
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#00d68f] bg-[#00d68f]/15 border border-[#00d68f]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            <Smile size={11} /> Good
+          </span>
+        );
+      case 4:
+        return (
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#38bdf8] bg-[#38bdf8]/15 border border-[#38bdf8]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            <ThumbsUp size={11} /> Very Good
+          </span>
+        );
+      case 5:
+        return (
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#facc15] bg-[#facc15]/15 border border-[#facc15]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-[0_0_10px_rgba(250,204,21,0.2)]">
+            <Sparkles size={11} /> Excellent
+          </span>
+        );
+      default:
+        return null;
     }
   };
 
@@ -96,7 +117,7 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 p-4 backdrop-blur-md"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
@@ -134,9 +155,7 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
               <label className="block text-xs font-black uppercase tracking-widest text-[#8b5cf6]">
                 Your Rating
               </label>
-              <span className="text-[11px] font-black text-[#facc15] bg-[#facc15]/10 border border-[#facc15]/20 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                {getRatingLabel(hoverRating ?? rating)}
-              </span>
+              {getRatingBadge(hoverRating ?? rating)}
             </div>
             
             <div className="flex items-center gap-2.5 rounded-xl border border-white/[0.04] bg-black/35 p-3.5 shadow-inner">
