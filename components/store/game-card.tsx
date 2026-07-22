@@ -249,7 +249,7 @@ export function GameCard({
     transition: { duration: 0.42, ease: [0.2, 0.7, 0.2, 1] as [number, number, number, number] }
   } : {};
 
-  const baseCardClasses = "spotlight-card group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-300 ease-out";
+  const baseCardClasses = "spotlight-card group relative flex flex-col overflow-hidden rounded-md border transition-all duration-300 ease-out";
   const hoverTranslate = showDesktopEffects ? "hover:-translate-y-1.5" : "";
   
   const themeClasses = game.is_premium
