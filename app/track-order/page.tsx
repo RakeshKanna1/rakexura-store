@@ -76,15 +76,48 @@ function TrackOrderContent() {
   }
 
   const track = useCallback(async () => {
-    if (!order.trim() || phone.replace(/\D/g, "").length < 10) return toast.error("Enter your order reference and full WhatsApp number");
+    if (!order.trim()) return toast.error("Enter your order reference");
     setLoading(true);
     const supabase = createClient();
-    const { data, error } = await supabase.rpc("track_store_order", { p_order_reference: order.trim(), p_phone_suffix: phone.replace(/\D/g, "") });
+    let row: Record<string, unknown> | null = null;
+
+    if (phone.replace(/\D/g, "").length >= 10) {
+      const { data } = await supabase.rpc("track_store_order", { p_order_reference: order.trim(), p_phone_suffix: phone.replace(/\D/g, "") });
+      row = (Array.isArray(data) ? data[0] : data) as Record<string, unknown> | null;
+    }
+
+    if (!row && currentUser) {
+      const { data: userOrder } = await supabase
+        .from("orders")
+        .select("id, order_reference, order_status, total_price, created_at, cart_items, account_access, customer_name, customer_whatsapp, user_id")
+        .eq("order_reference", order.trim())
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
+
+      if (userOrder) {
+        row = {
+          order_id: userOrder.id,
+          order_ref: userOrder.order_reference,
+          status: userOrder.order_status,
+          total_price: userOrder.total_price,
+          created_at: userOrder.created_at,
+          items: Array.isArray(userOrder.cart_items) ? userOrder.cart_items : [],
+          customer_name: userOrder.customer_name || "Customer",
+          customer_rank: "Bronze",
+          account_access: userOrder.account_access,
+          user_id: userOrder.user_id,
+          auth_required: false
+        };
+        if (userOrder.customer_whatsapp && !phone) {
+          setPhone(userOrder.customer_whatsapp);
+        }
+      }
+    }
+
     setLoading(false);
-    const row = Array.isArray(data) ? data[0] : data;
-    if (error || !row) { setResult(null); return toast.error("Order not found. Check both details."); }
-    
-    const casted = row as TrackedOrder;
+    if (!row) { setResult(null); return toast.error("Order not found. Check order reference or log in."); }
+
+    const casted = row as unknown as TrackedOrder;
     setResult(casted);
     setWhatsappActivated(typeof window !== "undefined" && localStorage.getItem("activated_" + casted.order_ref) === "true");
 
@@ -115,9 +148,9 @@ function TrackOrderContent() {
         }
       }, 800);
     }
-  }, [order, phone]);
+  }, [order, phone, currentUser]);
 
-  // Auto-run if query params are complete
+  // Auto-run if query params or currentUser is available
   useEffect(() => {
     const orderParam = params.get("order");
     const phoneParam = params.get("phone");
@@ -130,10 +163,10 @@ function TrackOrderContent() {
   }, [params]);
 
   useEffect(() => {
-    if (order && phone.replace(/\D/g, "").length >= 10) {
+    if (order && (phone.replace(/\D/g, "").length >= 10 || currentUser)) {
       void track();
     }
-  }, [order, phone, track]);
+  }, [order, phone, currentUser, track]);
 
   async function copyOrder() { if (!result) return; await navigator.clipboard.writeText(result.order_ref); toast.success("Order reference copied"); }
   

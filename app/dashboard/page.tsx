@@ -248,7 +248,7 @@ export default async function DashboardPage() {
               
               return (
                 <Link
-                  href={`/track?order=${encodeURIComponent(order.order_reference || String(order.id))}`}
+                  href={`/track-order?order=${encodeURIComponent(order.order_reference || String(order.id))}`}
                   key={order.id}
                   className="group relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-[#8b5cf6]/20 bg-[#0c0a1a]/80 p-5 transition-all duration-300 hover:border-[#b9a4ff]/25 hover:shadow-[0_8px_24px_rgba(139,92,246,0.04)] active:scale-[0.985]"
                 >

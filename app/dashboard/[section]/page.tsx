@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Bell, Gamepad2, Gift, LifeBuoy, PackageSearch, Send, TicketPercent } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bell, Gamepad2, Gift, LifeBuoy, PackageSearch, Send, TicketPercent } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { EmptyState } from "@/components/common/empty-state";
 import { SupportTicketForm } from "@/components/support/support-ticket-form";
@@ -35,7 +35,7 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
   const gamesMap: Record<number, { title: string; cover_image: string | null; is_subscription?: boolean }> = {};
 
   if (section === "orders") {
-    const ordersResult = await supabase.from("orders").select("id,order_reference,order_status,total_price,created_at,cart_items,payment_reference,account_access,coupon_usage(coupons(code))").eq("user_id", user.id).order("created_at", { ascending: false });
+    const ordersResult = await supabase.from("orders").select("id,order_reference,order_status,total_price,created_at,cart_items,payment_reference,account_access,customer_whatsapp,coupon_usage(coupons(code))").eq("user_id", user.id).order("created_at", { ascending: false });
     rows = (ordersResult.data as Record<string, unknown>[]) ?? [];
     
     const gameIds = Array.from(new Set(
@@ -189,6 +189,10 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
           String(row.message || "").toLowerCase().includes("gift") ||
           String(row.message || "").toLowerCase().includes("giveaway")
         );
+        const orderRefStr = String(row.order_reference || row.id || "");
+        const phoneStr = String(row.customer_whatsapp || "");
+        const orderTrackUrl = `/track-order?order=${encodeURIComponent(orderRefStr)}${phoneStr ? `&phone=${encodeURIComponent(phoneStr)}` : ""}`;
+        
         return (
           <article
             key={String(row.id)}
@@ -220,6 +224,11 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                     <Link href={`/dashboard/notifications/${row.id}`} className={`${isGiftNotification ? 'text-[#fde047] hover:text-white' : 'hover:text-[#b9a4ff]'} hover:underline transition-colors`}>
                       {rowTitle(row)}
                     </Link>
+                  ) : section === "orders" ? (
+                    <Link href={orderTrackUrl} className="hover:text-[#b9a4ff] hover:underline transition-colors flex items-center gap-2">
+                      <span>{rowTitle(row)}</span>
+                      <ArrowRight size={14} className="text-[#b9a4ff] opacity-60" />
+                    </Link>
                   ) : (
                     rowTitle(row)
                   )}
@@ -246,6 +255,17 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                   </div>
                 );
               })()}
+              {section === "orders" && (
+                <div className="mt-3.5">
+                  <Link
+                    href={orderTrackUrl}
+                    className="inline-flex items-center gap-2 rounded-xl border border-[#8b5cf6]/40 bg-[#8b5cf6]/15 px-3.5 py-2 text-xs font-black text-[#c4b5fd] transition-all hover:border-[#b9a4ff] hover:bg-[#8b5cf6]/30 hover:text-white shadow-[0_0_12px_rgba(139,92,246,0.2)] active:scale-[0.98]"
+                  >
+                    <span>🔑 View Account Login Credentials & Delivery Status</span>
+                    <ArrowRight size={13} />
+                  </Link>
+                </div>
+              )}
               {(() => {
                 if (section !== "orders") return null;
                 const isDelivered = row.order_status === "Delivered" || row.order_status === "Completed";
@@ -254,7 +274,7 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                 return (
                   <details className="mt-4 group border border-[#8b5cf6]/35 bg-[#8b5cf6]/5 rounded-md overflow-hidden max-w-md">
                     <summary className="flex items-center justify-between px-4 py-2.5 text-xs font-black text-[#c4b5fd] cursor-pointer hover:bg-[#8b5cf6]/10 select-none list-none [&::-webkit-details-marker]:hidden">
-                      <span className="flex items-center gap-1.5">🔑 Game Activation / Account Details</span>
+                      <span className="flex items-center gap-1.5">🔑 Quick View: Game Activation / Account Credentials</span>
                       <span className="text-[#8b5cf6] text-[10px] group-open:rotate-180 transition-transform">▼</span>
                     </summary>
                     <div className="px-4 py-3 border-t border-[#8b5cf6]/20 bg-black/40 text-xs text-slate-300 leading-relaxed shadow-inner">
@@ -262,9 +282,14 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                       <div className="font-mono bg-black/40 p-2.5 rounded border border-white/5 select-all whitespace-pre-wrap">
                         {String(row.account_access)}
                       </div>
-                      <p className="mt-2 text-[10px] text-[#8991a6]">
-                        Please use these details to activate or access your game. If this is a subscription, do not change the password or account settings.
-                      </p>
+                      <div className="mt-3 flex items-center justify-between">
+                        <p className="text-[10px] text-[#8991a6]">
+                          Please use these details to access your game.
+                        </p>
+                        <Link href={orderTrackUrl} className="text-[11px] font-black text-[#b9a4ff] hover:underline flex items-center gap-1">
+                          Full Account Details <ArrowRight size={11} />
+                        </Link>
+                      </div>
                     </div>
                   </details>
                 );
@@ -272,9 +297,24 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
             </div>
             <div className="text-right flex flex-col items-end justify-center">
               {row.status || row.order_status ? (
-                <span className="rounded bg-white/[.06] px-3 py-1 text-xs font-bold block w-fit">
-                  {String(row.status || row.order_status)}
-                </span>
+                section === "orders" ? (
+                  <Link
+                    href={orderTrackUrl}
+                    className={`rounded px-3 py-1.5 text-xs font-black inline-flex items-center gap-1.5 transition-all duration-200 hover:scale-105 ${
+                      row.order_status === "Delivered" || row.order_status === "Completed"
+                        ? "bg-[#00d68f]/15 text-[#00d68f] border border-[#00d68f]/30 hover:bg-[#00d68f]/25 shadow-[0_0_12px_rgba(0,214,143,0.2)]"
+                        : "bg-white/[.06] text-white hover:bg-white/10"
+                    }`}
+                    title="Click to open full account login details page"
+                  >
+                    <span>{String(row.status || row.order_status)}</span>
+                    <ArrowRight size={12} className="opacity-70" />
+                  </Link>
+                ) : (
+                  <span className="rounded bg-white/[.06] px-3 py-1 text-xs font-bold block w-fit">
+                    {String(row.status || row.order_status)}
+                  </span>
+                )
               ) : null}
               {typeof row.total_price === "number" && (
                 row.total_price === 0 ? (
@@ -297,31 +337,35 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
           </div>
           {section === "orders" && Array.isArray(row.cart_items) && (
             <div className="mt-5 border-t border-white/10 pt-4">
-              <p className="text-xs font-black uppercase tracking-wider text-[#a0a8c0] mb-3">Purchased Items</p>
+              <p className="text-xs font-black uppercase tracking-wider text-[#a0a8c0] mb-3">Purchased Items (Click game for account details)</p>
               <div className="grid gap-3 sm:grid-cols-2">
                 {(row.cart_items as Array<{ game_id?: number; gameId?: number; platform?: string; quantity?: number; unit_price?: number; price?: number }>).map((item) => {
                   const gameId = Number(item.game_id || item.gameId);
                   const game = gamesMap[gameId];
                   if (!game) return null;
                   return (
-                    <div key={`${row.id}-${gameId}-${item.platform}`} className="flex gap-3 rounded border border-white/[.05] bg-black/20 p-3">
+                    <Link
+                      key={`${row.id}-${gameId}-${item.platform}`}
+                      href={orderTrackUrl}
+                      className="group/game flex gap-3 rounded border border-white/[.05] bg-black/20 p-3 transition-all duration-300 hover:border-[#b9a4ff]/35 hover:bg-[#8b5cf6]/10 hover:shadow-[0_4px_16px_rgba(139,92,246,0.12)] cursor-pointer"
+                    >
                       <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-[#08090c]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={assetUrl(game.cover_image)} alt="" className="h-full w-full object-cover" loading="lazy" />
+                        <img src={assetUrl(game.cover_image)} alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover/game:scale-105" loading="lazy" />
                       </div>
                       <div className="min-w-0 flex-1 flex flex-col justify-between">
                         <div>
-                          <strong className="block truncate text-xs text-white">{game.title}</strong>
+                          <strong className="block truncate text-xs text-white group-hover/game:text-[#b9a4ff] transition-colors">{game.title}</strong>
                           <span className="mt-1 block text-[10px] text-[#8991a6]">{item.platform || "Steam"} · Qty: {item.quantity}</span>
                         </div>
-                        <div className="flex flex-wrap items-center justify-between gap-2 mt-1">
+                        <div className="flex flex-wrap items-center justify-between gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
                           <span className="text-xs font-bold text-[#facc15]">{formatPrice(item.unit_price || item.price)}</span>
                           {row.order_status === "Delivered" && (
                             <WriteReviewTrigger gameId={gameId} gameTitle={game.title} />
                           )}
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
