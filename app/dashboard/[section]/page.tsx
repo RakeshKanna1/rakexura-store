@@ -6,6 +6,7 @@ import { SupportTicketForm } from "@/components/support/support-ticket-form";
 import { createClient } from "@/lib/supabase/server";
 import { assetUrl, formatPrice } from "@/lib/utils";
 import { WriteReviewTrigger } from "@/components/dashboard/write-review-trigger";
+import { TelegramLaunchButton } from "@/components/dashboard/telegram-launch-button";
 
 
 const config = {
@@ -356,20 +357,7 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                             </div>
                           </div>
 
-                          <a
-                            href={botUrl}
-                            onClick={() => {
-                              try {
-                                window.location.href = tgProtocolUrl;
-                              } catch {}
-                            }}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0088cc] to-[#0284c7] px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-[0_4px_16px_rgba(0,136,204,0.4)] hover:shadow-[0_6px_22px_rgba(0,136,204,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shrink-0"
-                          >
-                            <span>Launch Bot</span>
-                            <ArrowRight size={13} />
-                          </a>
+                          <TelegramLaunchButton botUrl={botUrl} tgProtocolUrl={tgProtocolUrl} />
                         </div>
                       </div>
                     )}
