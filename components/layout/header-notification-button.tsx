@@ -179,9 +179,9 @@ export function HeaderNotificationButton() {
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="inline-flex items-center gap-1.5 rounded-md border border-[#facc15]/30 bg-[#facc15]/10 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[#facc15] hover:bg-[#facc15]/20 hover:border-[#facc15]/50 transition-all shadow-[0_0_12px_rgba(250,204,21,0.1)] hover:shadow-[0_0_18px_rgba(250,204,21,0.25)] cursor-pointer select-none"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-3 py-1 text-[10px] font-bold text-[#c4b5fd] hover:bg-[#8b5cf6]/25 hover:border-[#b9a4ff]/60 hover:text-white transition-all shadow-[0_0_10px_rgba(139,92,246,0.15)] cursor-pointer select-none"
               >
-                <CheckCheck size={13} />
+                <CheckCheck size={13} className="text-[#b9a4ff]" />
                 Mark all read
               </button>
             )}
@@ -196,18 +196,30 @@ export function HeaderNotificationButton() {
                   return (
                     <div
                       key={n.id}
-                      className={`group relative flex gap-3 p-3.5 transition rounded-md border border-white/[0.04] border-l-2 ${theme.borderClass} ${
-                        !n.read ? "bg-white/[0.015]" : ""
+                      className={`group relative flex gap-3 p-3.5 transition rounded-lg border border-white/[0.04] border-l-2 ${theme.borderClass} ${
+                        !n.read ? "bg-white/[0.02]" : ""
                       }`}
                     >
                       <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${theme.iconColor}`}>
                         <IconComponent size={15} />
                       </div>
-                      <div className="min-w-0 flex-1 pr-8">
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <strong className={`text-xs font-black leading-tight tracking-wide ${!n.read ? "text-[#facc15]" : "text-[#d8dce6]"}`}>
                             {n.title}
                           </strong>
+                          {!n.read && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                markAsRead(n.id);
+                              }}
+                              className="inline-flex items-center gap-1 shrink-0 rounded-full border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-2 py-0.5 text-[9px] font-bold text-[#c4b5fd] hover:bg-[#00d68f]/20 hover:border-[#00d68f]/50 hover:text-[#00d68f] transition-all cursor-pointer shadow-[0_0_8px_rgba(139,92,246,0.12)]"
+                              title="Mark as read"
+                            >
+                              <Check size={10} /> Mark read
+                            </button>
+                          )}
                         </div>
                         <p className="mt-1 text-[11px] leading-relaxed text-[#8991a6] font-medium">{n.message}</p>
                         {n.link && (
@@ -232,18 +244,6 @@ export function HeaderNotificationButton() {
                           )}
                         </div>
                       </div>
-                      {!n.read && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            markAsRead(n.id);
-                          }}
-                          className="absolute top-3.5 right-3.5 grid h-6 w-6 place-items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/25 hover:border-emerald-400 hover:text-emerald-300 transition-all cursor-pointer shadow-[0_0_8px_rgba(0,214,143,0.15)]"
-                          title="Mark as read"
-                        >
-                          <Check size={12} />
-                        </button>
-                      )}
                     </div>
                   );
                 })
