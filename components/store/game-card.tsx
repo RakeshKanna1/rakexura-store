@@ -88,7 +88,10 @@ function GameCardInner({
           />
         </div>
       )}
-      <Link href={`/games/${game.id}`} prefetch={false} onMouseEnter={handleMouseEnter} className="block aspect-[4/5] overflow-hidden bg-[#08090c]">
+      <Link href={`/games/${game.id}`} prefetch={false} onMouseEnter={handleMouseEnter} className="relative block aspect-[4/5] overflow-hidden bg-[#08090c]">
+        {/* Subtle top vignette gradient overlay to enhance top logo & badge clarity */}
+        <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-black/60 via-black/20 to-transparent z-5 pointer-events-none" />
+        
         <Image
           src={assetUrl(game.cover_image)}
           alt={game.title}
@@ -96,7 +99,7 @@ function GameCardInner({
           height={550}
           priority={priority}
           sizes="(max-width: 768px) 170px, 240px"
-          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+          className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.06]"
         />
       </Link>
 
