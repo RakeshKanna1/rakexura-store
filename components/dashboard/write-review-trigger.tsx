@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { WriteReviewModal } from "@/components/dashboard/write-review-modal";
 import { AnimatePresence } from "framer-motion";
+import { Star } from "lucide-react";
 
 interface WriteReviewTriggerProps {
   gameId: number;
@@ -17,9 +18,10 @@ export function WriteReviewTrigger({ gameId, gameTitle }: WriteReviewTriggerProp
       <button
         type="button"
         onClick={() => setShowModal(true)}
-        className="border border-[#8b5cf6]/30 bg-[#8b5cf6]/5 hover:bg-[#8b5cf6]/15 hover:border-[#b9a4ff]/40 text-[10px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-md text-[#b9a4ff] shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)] hover:shadow-[0_0_12px_rgba(139,92,246,0.15)] active:scale-[0.97] transition-all duration-300 mt-1 cursor-pointer"
+        className="group/rev inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-extrabold rounded-lg border border-[#8b5cf6]/35 bg-[#8b5cf6]/10 text-[#d8b4fe] hover:bg-[#8b5cf6]/25 hover:border-[#b9a4ff]/60 hover:text-white hover:shadow-[0_0_16px_rgba(139,92,246,0.3)] active:scale-95 transition-all duration-300 cursor-pointer"
       >
-        Write a Review
+        <Star size={13} className="text-[#facc15] fill-[#facc15]/20 group-hover/rev:rotate-12 transition-transform duration-300" />
+        <span>Write Review</span>
       </button>
 
       <AnimatePresence>

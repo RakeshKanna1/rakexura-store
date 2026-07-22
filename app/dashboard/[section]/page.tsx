@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Bell, Gamepad2, Gift, LifeBuoy, PackageSearch, Send, TicketPercent } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bell, Gamepad2, Gift, Key, LifeBuoy, PackageSearch, Send, TicketPercent } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { EmptyState } from "@/components/common/empty-state";
 import { SupportTicketForm } from "@/components/support/support-ticket-form";
@@ -256,15 +256,25 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                 );
               })()}
               {section === "orders" && (
-                <div className="mt-3.5">
-                  <Link
-                    href={orderTrackUrl}
-                    className="inline-flex items-center gap-2 rounded-xl border border-[#8b5cf6]/40 bg-[#8b5cf6]/15 px-3.5 py-2 text-xs font-black text-[#c4b5fd] transition-all hover:border-[#b9a4ff] hover:bg-[#8b5cf6]/30 hover:text-white shadow-[0_0_12px_rgba(139,92,246,0.2)] active:scale-[0.98]"
-                  >
-                    <span>🔑 View Account Login Credentials & Delivery Status</span>
-                    <ArrowRight size={13} />
-                  </Link>
-                </div>
+                <Link
+                  href={orderTrackUrl}
+                  className="group/acc mt-3 flex items-center justify-between gap-3 rounded-xl border border-[#8b5cf6]/30 bg-gradient-to-r from-[#8b5cf6]/10 via-[#181132] to-[#0d091e] p-3 transition-all duration-300 hover:border-[#b9a4ff]/60 hover:shadow-[0_4px_20px_rgba(139,92,246,0.18)] active:scale-[0.99]"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#8b5cf6]/40 bg-[#8b5cf6]/20 text-[#facc15] shadow-[0_0_12px_rgba(139,92,246,0.3)] group-hover/acc:scale-110 transition-transform">
+                      <Key size={16} />
+                    </div>
+                    <div>
+                      <strong className="block text-xs font-extrabold text-white group-hover/acc:text-[#b9a4ff] transition-colors">
+                        Account Login Credentials & Delivery Status
+                      </strong>
+                      <span className="text-[10px] text-[#8991a6]">Click to access your game login details & activation guidance</span>
+                    </div>
+                  </div>
+                  <span className="shrink-0 text-xs font-black text-[#b9a4ff] group-hover/acc:text-white group-hover/acc:translate-x-1 transition-all flex items-center gap-1">
+                    View <ArrowRight size={13} />
+                  </span>
+                </Link>
               )}
               {(() => {
                 if (section !== "orders") return null;
@@ -337,7 +347,12 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
           </div>
           {section === "orders" && Array.isArray(row.cart_items) && (
             <div className="mt-5 border-t border-white/10 pt-4">
-              <p className="text-xs font-black uppercase tracking-wider text-[#a0a8c0] mb-3">Purchased Items (Click game for account details)</p>
+              <div className="mb-3.5 flex items-center justify-between">
+                <h4 className="text-xs font-black uppercase tracking-widest text-[#aeb5c6]">Purchased Items</h4>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#8b5cf6]/20 bg-[#8b5cf6]/10 px-2.5 py-0.5 text-[10px] font-bold text-[#c4b5fd]">
+                  <Key size={10} className="text-[#facc15]" /> Click game for credentials
+                </span>
+              </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 {(row.cart_items as Array<{ game_id?: number; gameId?: number; platform?: string; quantity?: number; unit_price?: number; price?: number }>).map((item) => {
                   const gameId = Number(item.game_id || item.gameId);
@@ -346,24 +361,30 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                   return (
                     <div
                       key={`${row.id}-${gameId}-${item.platform}`}
-                      className="flex gap-3 rounded border border-white/[.05] bg-black/20 p-3 transition-all duration-300 hover:border-[#b9a4ff]/35 hover:bg-[#8b5cf6]/10 hover:shadow-[0_4px_16px_rgba(139,92,246,0.12)]"
+                      className="flex items-center justify-between gap-3 rounded-xl border border-white/[.06] bg-[#0a0816]/90 p-3.5 transition-all duration-300 hover:border-[#8b5cf6]/40 hover:bg-[#120d28] hover:shadow-[0_8px_24px_rgba(139,92,246,0.12)] group/game"
                     >
-                      <Link href={orderTrackUrl} className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-[#08090c] group/game" title="Click for account & activation details">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={assetUrl(game.cover_image)} alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover/game:scale-105" loading="lazy" />
-                      </Link>
-                      <div className="min-w-0 flex-1 flex flex-col justify-between">
-                        <Link href={orderTrackUrl} className="group/game" title="Click for account & activation details">
-                          <strong className="block truncate text-xs text-white group-hover/game:text-[#b9a4ff] transition-colors">{game.title}</strong>
-                          <span className="mt-1 block text-[10px] text-[#8991a6]">{item.platform || "Steam"} · Qty: {item.quantity}</span>
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <Link href={orderTrackUrl} className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg bg-[#08090c] shadow-md group-hover/game:shadow-[0_0_16px_rgba(139,92,246,0.3)] transition-all" title="Click for account & activation details">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={assetUrl(game.cover_image)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover/game:scale-105" loading="lazy" />
                         </Link>
-                        <div className="flex flex-wrap items-center justify-between gap-2 mt-1">
-                          <span className="text-xs font-bold text-[#facc15]">{formatPrice(item.unit_price || item.price)}</span>
-                          {row.order_status === "Delivered" && (
-                            <WriteReviewTrigger gameId={gameId} gameTitle={game.title} />
-                          )}
+                        <div className="min-w-0">
+                          <Link href={orderTrackUrl} title="Click for account & activation details">
+                            <strong className="block truncate text-xs font-black text-white group-hover/game:text-[#b9a4ff] transition-colors">{game.title}</strong>
+                            <span className="mt-1.5 inline-block rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#a4abbc]">
+                              {item.platform || "Steam"} · Qty: {item.quantity}
+                            </span>
+                          </Link>
+                          <strong className="mt-2 block text-xs font-black text-[#facc15] filter drop-shadow-[0_0_6px_rgba(250,204,21,0.3)]">
+                            {formatPrice(item.unit_price || item.price)}
+                          </strong>
                         </div>
                       </div>
+                      {row.order_status === "Delivered" && (
+                        <div className="shrink-0">
+                          <WriteReviewTrigger gameId={gameId} gameTitle={game.title} />
+                        </div>
+                      )}
                     </div>
                   );
                 })}
