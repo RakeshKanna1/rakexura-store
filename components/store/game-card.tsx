@@ -39,10 +39,14 @@ function defaultPlatform(game: Game): Platform {
 }
 
 export function availablePlatforms(game: Game): Platform[] {
-  const listed = game.available_platforms?.filter((platform) => platformPrice(game, platform) > 0);
-  if (listed?.length) return listed;
-
-  return (["Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce"] as Platform[]).filter((platform) => platformPrice(game, platform) > 0);
+  if (game.available_platforms && game.available_platforms.length > 0) {
+    return game.available_platforms as Platform[];
+  }
+  const listed = (["Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce"] as Platform[]).filter(
+    (platform) => platformPrice(game, platform) > 0 || (platform === "Online" && Boolean(game.online_activation))
+  );
+  if (listed.length) return listed;
+  return ["Steam"];
 }
 
 interface GameCardInnerProps {

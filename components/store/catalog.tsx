@@ -93,7 +93,13 @@ export function Catalog({ games }: { games: Game[] }) {
         } else if (platform === "Subscriptions") {
           matchesPlatform = Boolean(game.is_subscription);
         } else if (platform === "Online Activation") {
-          matchesPlatform = Boolean(game.online_activation);
+          matchesPlatform = Boolean(game.online_activation) || 
+            Number(game.online_price ?? 0) > 0 ||
+            Boolean(game.available_platforms?.some((p) => p.toLowerCase().includes("online")));
+        } else if (platform === "Online") {
+          matchesPlatform = availablePlatforms(game).includes("Online" as Platform) || 
+            Number(game.online_price ?? 0) > 0 ||
+            Boolean(game.online_activation);
         } else {
           matchesPlatform = availablePlatforms(game).includes(platform as Platform) && !game.preorder;
         }
