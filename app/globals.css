@@ -670,4 +670,24 @@ select option:hover {
   background: rgba(139, 92, 246, 0.8);
 }
 
+/* Custom Native Date & Datetime Picker Calendar Icon Styling */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(2) drop-shadow(0 0 4px rgba(139, 92, 246, 0.6));
+  cursor: pointer !important;
+  opacity: 0.95 !important;
+  padding: 4px !important;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1 !important;
+  transform: scale(1.15);
+  background-color: rgba(139, 92, 246, 0.25);
+}
+
 
