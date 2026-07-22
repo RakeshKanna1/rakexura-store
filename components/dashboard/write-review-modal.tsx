@@ -103,11 +103,11 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 15 }}
         transition={{ type: "spring", stiffness: 350, damping: 25 }}
-        className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-[#120e2e]/98 via-[#0b0822]/98 to-[#050314]/99 p-6 shadow-[0_20px_50px_rgba(139,92,246,0.2)] md:p-8 backdrop-blur-2xl"
+        className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-[#090a12]/98 p-6 shadow-[0_24px_60px_rgba(0,0,0,0.9)] md:p-8 backdrop-blur-2xl"
       >
         {/* Glow Effects */}
-        <div className="absolute -left-20 -top-20 -z-10 h-44 w-44 rounded-full bg-[#8b5cf6]/10 blur-[60px]" />
-        <div className="absolute -right-20 -bottom-20 -z-10 h-44 w-44 rounded-full bg-[#00d68f]/8 blur-[65px]" />
+        <div className="absolute -left-20 -top-20 -z-10 h-44 w-44 rounded-full bg-[#8b5cf6]/8 blur-[60px]" />
+        <div className="absolute -right-20 -bottom-20 -z-10 h-44 w-44 rounded-full bg-[#facc15]/5 blur-[65px]" />
 
         <button
           onClick={onClose}
