@@ -135,9 +135,9 @@ function GameCardInner({
 
       <div className="p-3.5 flex flex-col justify-between flex-1">
         <div>
-          <p className="mb-1 truncate text-[9px] font-extrabold uppercase tracking-wider text-[#b9a4ff]">{game.is_subscription ? "Service Membership" : (game.genres?.slice(0, 2).join(" / ") || "PC Game")}</p>
+          <p className="mb-1 truncate text-[9px] font-extrabold uppercase tracking-wider text-[#81889a]">{game.is_subscription ? "Service Membership" : (game.genres?.slice(0, 2).join(" / ") || "PC Game")}</p>
 
-          <Link href={`/games/${game.id}`} prefetch={false} onMouseEnter={handleMouseEnter} className="line-clamp-2 min-h-[2.5rem] text-sm font-extrabold leading-snug text-white group-hover:text-[#b9a4ff] transition-colors">
+          <Link href={`/games/${game.id}`} prefetch={false} onMouseEnter={handleMouseEnter} className="line-clamp-2 min-h-[2.5rem] text-sm font-extrabold leading-snug text-white group-hover:text-[#facc15] transition-colors">
             {game.title}
           </Link>
 
@@ -254,7 +254,7 @@ export function GameCard({
   
   const themeClasses = game.is_premium
     ? `border-[#d4af37]/35 bg-[#14110a]/90 ${showDesktopEffects ? "hover:border-[#d4af37]/80 hover:shadow-[0_12px_40px_rgba(212,175,55,0.28)]" : ""}`
-    : `border-white/[0.08] bg-[#0c0d16]/90 ${showDesktopEffects ? "hover:border-[#8b5cf6]/50 hover:bg-[#111220] hover:shadow-[0_12px_40px_rgba(139,92,246,0.18)]" : "hover:border-[#8b5cf6]/50 hover:bg-[#111220]"}`;
+    : `border-white/[0.08] bg-[#0c0d16]/90 ${showDesktopEffects ? "hover:border-[#facc15]/40 hover:bg-[#15171e] hover:shadow-[0_12px_40px_rgba(250,204,21,0.14)]" : "hover:border-[#facc15]/40 hover:bg-[#15171e]"}`;
 
   return (
     <motion.article
