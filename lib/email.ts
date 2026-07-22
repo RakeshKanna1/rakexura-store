@@ -28,22 +28,140 @@ function escapeHtml(value: string) {
 }
 
 export function textToHtml(text: string) {
-  return `
-    <div style="margin:0;background:#070708;padding:48px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#e4e4e7">
-      <div style="max-width:580px;margin:auto;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:#0f0f11;padding:40px;box-shadow:0 10px 30px rgba(0,0,0,0.4);">
-        <header style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:20px;text-align:center;">
-          <h1 style="margin:0;font-size:26px;font-weight:900;letter-spacing:.03em;color:#ffffff;">RAKEXURA</h1>
-          <span style="font-size:11px;color:#8b5cf6;font-weight:800;letter-spacing:.1em;text-transform:uppercase;">PC Game Store</span>
-        </header>
-        <div style="padding:24px 0;font-size:14px;line-height:1.8;color:#e4e4e7;">
-          ${escapeHtml(text).replace(/\n/g, "<br />")}
+  const lines = text.split("\n");
+  let formattedContent = "";
+  let inItemsBlock = false;
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      if (inItemsBlock) {
+        formattedContent += `</div>`;
+        inItemsBlock = false;
+      }
+      formattedContent += `<div style="height:12px;"></div>`;
+      return;
+    }
+
+    // Order Reference highlight (e.g. RKX-2607-000058)
+    if (/RKX-\d{4}-\d+/i.test(trimmed)) {
+      const match = trimmed.match(/RKX-\d{4}-\d+/i)?.[0];
+      const headingText = trimmed.replace(match || "", "").trim();
+      formattedContent += `
+        <div style="background:linear-gradient(135deg, rgba(139,92,246,0.15), rgba(124,58,237,0.08));border:1px solid rgba(139,92,246,0.35);border-radius:10px;padding:16px;margin-bottom:20px;text-align:center;">
+          ${headingText ? `<div style="color:#aeb5c6;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">${escapeHtml(headingText)}</div>` : ''}
+          <div style="display:inline-block;background:#8b5cf6;color:#ffffff;padding:6px 16px;border-radius:20px;font-family:monospace,Consolas,Courier,monospace;font-size:16px;font-weight:900;letter-spacing:1px;box-shadow:0 0 12px rgba(139,92,246,0.4);">${escapeHtml(match || "")}</div>
         </div>
-        <footer style="border-top:1px solid rgba(255,255,255,0.08);padding-top:20px;text-align:center;color:#646b7b;font-size:11px;line-height:1.6;">
-          <p style="margin:0;">Secure assisted game delivery by Rakexura Store.</p>
-          <p style="margin:4px 0 0;">Need activation help or support? Chat on WhatsApp.</p>
-        </footer>
-      </div>
-    </div>
+      `;
+      return;
+    }
+
+    // Items block start
+    if (trimmed.toLowerCase().startsWith("items:") || trimmed.toLowerCase().startsWith("items purchased:")) {
+      inItemsBlock = true;
+      formattedContent += `
+        <div style="margin-top:16px;margin-bottom:16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:16px;">
+          <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#b9a4ff;margin-bottom:10px;">🛒 Purchased Items</div>
+      `;
+      return;
+    }
+
+    // Bullet items
+    if (trimmed.startsWith("- ") || trimmed.startsWith("• ")) {
+      const itemText = trimmed.substring(2);
+      formattedContent += `
+        <div style="padding:6px 0;font-size:13px;font-weight:600;color:#ffffff;border-bottom:1px solid rgba(255,255,255,0.04);">
+          ⚡ ${escapeHtml(itemText)}
+        </div>
+      `;
+      return;
+    }
+
+    // Key-Value pairs (e.g. Customer: John, Email: test@gmail.com, Amount: Rs. 200)
+    if (trimmed.includes(":") && !trimmed.startsWith("http")) {
+      const parts = trimmed.split(":");
+      const key = parts[0].trim();
+      const val = parts.slice(1).join(":").trim();
+
+      let valHtml = escapeHtml(val);
+      if (key.toLowerCase().includes("email") && val.includes("@")) {
+        valHtml = `<a href="mailto:${escapeHtml(val)}" style="color:#c4b5fd;text-decoration:underline;font-weight:bold;">${escapeHtml(val)}</a>`;
+      } else if (key.toLowerCase().includes("whatsapp") || key.toLowerCase().includes("phone")) {
+        const cleanPhone = val.replace(/\D/g, "");
+        valHtml = `<a href="https://wa.me/${cleanPhone}" style="color:#00d68f;text-decoration:none;font-weight:bold;background:rgba(0,214,143,0.1);padding:2px 8px;border-radius:4px;border:1px solid rgba(0,214,143,0.2);">📱 ${escapeHtml(val)}</a>`;
+      } else if (key.toLowerCase().includes("amount") || key.toLowerCase().includes("price") || key.toLowerCase().includes("total")) {
+        valHtml = `<span style="color:#facc15;font-weight:900;font-size:15px;">${escapeHtml(val)}</span>`;
+      }
+
+      formattedContent += `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;">
+          <span style="color:#8991a6;font-weight:700;">${escapeHtml(key)}</span>
+          <span style="color:#ffffff;font-weight:600;">${valHtml}</span>
+        </div>
+      `;
+      return;
+    }
+
+    formattedContent += `<p style="margin:8px 0;font-size:13px;line-height:1.6;color:#d4d4d8;">${escapeHtml(trimmed)}</p>`;
+  });
+
+  if (inItemsBlock) {
+    formattedContent += `</div>`;
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
+
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
+      <body style="margin:0;padding:0;background-color:#05040a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+        <div style="max-width:600px;margin:0 auto;padding:40px 16px;">
+          <!-- Card Outer Container -->
+          <div style="background:#0e0a1f;border:1px solid rgba(139,92,246,0.3);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+            
+            <!-- Gradient Top Header -->
+            <div style="background:linear-gradient(135deg, #1b1236, #0e0a1f);padding:32px 24px;text-align:center;border-bottom:1px solid rgba(139,92,246,0.2);">
+              <div style="display:inline-block;padding:6px 14px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:20px;font-size:10px;font-weight:900;color:#c4b5fd;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">
+                ⚡ RAKEXURA STORE
+              </div>
+              <h1 style="margin:0;font-size:28px;font-weight:900;color:#ffffff;letter-spacing:1px;text-transform:uppercase;">
+                RAKEXURA
+              </h1>
+              <div style="font-size:11px;color:#8991a6;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;">
+                PREMIUM PC GAME STORE
+              </div>
+            </div>
+
+            <!-- Email Body Content -->
+            <div style="padding:32px 24px;">
+              ${formattedContent}
+
+              <!-- Call to Action Button -->
+              <div style="margin-top:32px;text-align:center;">
+                <a href="${siteUrl}/admin/orders" style="display:inline-block;background:linear-gradient(135deg, #8b5cf6, #7c3aed);color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:900;font-size:13px;letter-spacing:0.5px;box-shadow:0 0 20px rgba(139,92,246,0.4);">
+                  🚀 Open Admin Dashboard
+                </a>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="background:#080612;padding:24px;text-align:center;border-top:1px solid rgba(255,255,255,0.06);color:#646b7b;font-size:11px;line-height:1.6;">
+              <p style="margin:0;font-weight:700;color:#a4abbc;">Secure assisted game delivery by Rakexura Store</p>
+              <p style="margin:6px 0 0;">Need activation help or instant support? Contact us on WhatsApp.</p>
+              <div style="margin-top:12px;">
+                <a href="${siteUrl}" style="color:#8b5cf6;text-decoration:none;font-weight:bold;margin:0 8px;">Website</a> •
+                <a href="https://wa.me/918317416695" style="color:#00d68f;text-decoration:none;font-weight:bold;margin:0 8px;">WhatsApp Support</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </body>
+    </html>
   `;
 }
 
