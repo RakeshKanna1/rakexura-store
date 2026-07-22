@@ -344,28 +344,27 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                   const game = gamesMap[gameId];
                   if (!game) return null;
                   return (
-                    <Link
+                    <div
                       key={`${row.id}-${gameId}-${item.platform}`}
-                      href={orderTrackUrl}
-                      className="group/game flex gap-3 rounded border border-white/[.05] bg-black/20 p-3 transition-all duration-300 hover:border-[#b9a4ff]/35 hover:bg-[#8b5cf6]/10 hover:shadow-[0_4px_16px_rgba(139,92,246,0.12)] cursor-pointer"
+                      className="flex gap-3 rounded border border-white/[.05] bg-black/20 p-3 transition-all duration-300 hover:border-[#b9a4ff]/35 hover:bg-[#8b5cf6]/10 hover:shadow-[0_4px_16px_rgba(139,92,246,0.12)]"
                     >
-                      <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-[#08090c]">
+                      <Link href={orderTrackUrl} className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-[#08090c] group/game" title="Click for account & activation details">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={assetUrl(game.cover_image)} alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover/game:scale-105" loading="lazy" />
-                      </div>
+                      </Link>
                       <div className="min-w-0 flex-1 flex flex-col justify-between">
-                        <div>
+                        <Link href={orderTrackUrl} className="group/game" title="Click for account & activation details">
                           <strong className="block truncate text-xs text-white group-hover/game:text-[#b9a4ff] transition-colors">{game.title}</strong>
                           <span className="mt-1 block text-[10px] text-[#8991a6]">{item.platform || "Steam"} · Qty: {item.quantity}</span>
-                        </div>
-                        <div className="flex flex-wrap items-center justify-between gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
+                        </Link>
+                        <div className="flex flex-wrap items-center justify-between gap-2 mt-1">
                           <span className="text-xs font-bold text-[#facc15]">{formatPrice(item.unit_price || item.price)}</span>
                           {row.order_status === "Delivered" && (
                             <WriteReviewTrigger gameId={gameId} gameTitle={game.title} />
                           )}
                         </div>
                       </div>
-                    </Link>
+                    </div>
                   );
                 })}
               </div>
