@@ -94,6 +94,7 @@ export function AdminNav() {
             <Link
               key={href}
               href={href}
+              prefetch={true}
               onClick={() => setIsOpen(false)}
               className={`flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-semibold transition active:scale-[0.98] border ${
                 isActive
