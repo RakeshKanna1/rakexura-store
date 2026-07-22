@@ -259,23 +259,23 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
               {section === "orders" && (
                 <Link
                   href={orderTrackUrl}
-                  className="group/acc mt-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[#8b5cf6]/35 bg-gradient-to-r from-[#8b5cf6]/15 via-[#181132] to-[#0d091e] p-3.5 transition-all duration-300 hover:border-[#b9a4ff]/60 hover:shadow-[0_4px_20px_rgba(139,92,246,0.2)] active:scale-[0.985]"
+                  className="group/acc mt-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 rounded-xl border border-white/[0.08] bg-[#0d0b1a]/80 p-3.5 transition-all duration-300 hover:border-[#8b5cf6]/50 hover:bg-[#120f24] hover:shadow-[0_4px_20px_rgba(139,92,246,0.15)] active:scale-[0.985]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#8b5cf6]/40 bg-[#8b5cf6]/20 text-[#facc15] shadow-[0_0_12px_rgba(139,92,246,0.3)] group-hover/acc:scale-110 transition-transform">
-                      <Key size={16} />
+                    <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.04] text-[#facc15] group-hover/acc:border-[#8b5cf6]/40 group-hover/acc:bg-[#8b5cf6]/20 transition-all">
+                      <Key size={15} />
                     </div>
                     <div className="min-w-0">
-                      <strong className="block text-xs font-extrabold text-white group-hover/acc:text-[#b9a4ff] transition-colors leading-snug">
+                      <strong className="block text-xs font-bold text-white group-hover/acc:text-[#b9a4ff] transition-colors leading-snug">
                         Account Login Credentials & Delivery Status
                       </strong>
-                      <span className="mt-0.5 block text-[10px] text-[#8991a6] leading-tight">
+                      <span className="mt-0.5 block text-[10px] text-[#8991a6] leading-tight font-medium">
                         Access your game login details & activation guidance
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center justify-end sm:justify-center border-t border-white/5 pt-2 sm:pt-0 sm:border-0">
-                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#8b5cf6]/40 bg-[#8b5cf6]/20 px-3 py-1 text-xs font-black text-[#b9a4ff] group-hover/acc:bg-[#8b5cf6] group-hover/acc:text-white transition-all shadow-[0_0_10px_rgba(139,92,246,0.2)]">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-bold text-[#c4b5fd] group-hover/acc:bg-[#8b5cf6] group-hover/acc:border-[#8b5cf6] group-hover/acc:text-white transition-all">
                       View Details <ArrowRight size={13} />
                     </span>
                   </div>
@@ -331,29 +331,26 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                 const botUrl = `https://t.me/${botUsername}?start=${encodeURIComponent(orderRef)}`;
 
                 return (
-                  <div className="mt-3.5 space-y-3">
+                  <div className="mt-2.5 space-y-2.5">
                     {hasRockstarGame && (
-                      <div className="rounded-xl border border-[#0088cc]/35 bg-gradient-to-r from-[#0d1b2a] via-[#091420] to-[#050b12] p-4 shadow-[0_4px_24px_rgba(0,136,204,0.15)] relative overflow-hidden group/tgcard">
-                        {/* Ambient Glow */}
-                        <div className="absolute -right-10 -bottom-10 h-32 w-32 rounded-full bg-[#0088cc]/15 blur-2xl group-hover/tgcard:bg-[#0088cc]/25 transition-all" />
-
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 relative z-10">
-                          <div className="flex items-start gap-3">
-                            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#0088cc]/40 bg-[#0088cc]/20 text-[#38bdf8] shadow-[0_0_15px_rgba(0,136,204,0.3)]">
-                              <Send size={18} />
+                      <div className="rounded-xl border border-white/[0.08] bg-[#0d0b1a]/80 p-3.5 transition-all duration-300 hover:border-[#38bdf8]/40 hover:bg-[#0f1124]">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10">
+                          <div className="flex items-center gap-3">
+                            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.04] text-[#38bdf8]">
+                              <Send size={15} />
                             </div>
-                            <div>
+                            <div className="min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-black uppercase tracking-wider text-[#38bdf8] bg-[#0088cc]/20 border border-[#0088cc]/30 px-2 py-0.5 rounded-full">
-                                  ⚡ Rockstar Automated Gateway
+                                <strong className="block text-xs font-bold text-white leading-snug">
+                                  Rockstar 2FA & Activation Bot
+                                </strong>
+                                <span className="text-[9px] font-bold text-[#38bdf8] bg-[#0088cc]/15 border border-[#0088cc]/30 px-2 py-0.5 rounded-full">
+                                  Automated
                                 </span>
                               </div>
-                              <strong className="mt-1 block text-sm font-black text-white leading-tight">
-                                Rockstar 2FA & Account Activation Bot
-                              </strong>
-                              <p className="mt-0.5 text-[11px] text-[#8991a6] leading-relaxed">
-                                Get instant Social Club verification codes & account setup assistance automatically via Telegram.
-                              </p>
+                              <span className="mt-0.5 block text-[10px] text-[#8991a6] leading-tight font-medium">
+                                Get instant Social Club 2FA codes & account support via Telegram
+                              </span>
                             </div>
                           </div>
 

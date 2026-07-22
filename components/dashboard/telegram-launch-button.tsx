@@ -18,7 +18,7 @@ export function TelegramLaunchButton({ botUrl, tgProtocolUrl }: TelegramLaunchBu
       }}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0088cc] to-[#0284c7] px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-[0_4px_16px_rgba(0,136,204,0.4)] hover:shadow-[0_6px_22px_rgba(0,136,204,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shrink-0"
+      className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#0088cc]/40 bg-[#0088cc]/15 px-3.5 py-1.5 text-xs font-bold text-[#38bdf8] hover:bg-[#0088cc] hover:text-white hover:border-[#0088cc] transition-all cursor-pointer shrink-0"
     >
       <span>Launch Bot</span>
       <ArrowRight size={13} />
