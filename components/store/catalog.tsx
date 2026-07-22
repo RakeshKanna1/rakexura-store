@@ -8,7 +8,7 @@ import { GameCard, availablePlatforms } from "./game-card";
 import { QuickViewModal } from "./quick-view-modal";
 import type { Game, Platform } from "@/types/store";
 
-const platforms: Array<"All" | Platform | "Online Activation" | "Pre-orders" | "Subscriptions"> = ["All", "Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce", "Online Activation", "Pre-orders", "Subscriptions"];
+const platforms: Array<"All" | Platform | "Pre-orders" | "Subscriptions"> = ["All", "Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce", "Pre-orders", "Subscriptions"];
 const sorts = ["Featured", "Price: Low to high", "Price: High to low", "Best sellers", "Latest"] as const;
 
 interface CustomSelectProps {
@@ -92,10 +92,6 @@ export function Catalog({ games }: { games: Game[] }) {
           matchesPlatform = Boolean(game.preorder);
         } else if (platform === "Subscriptions") {
           matchesPlatform = Boolean(game.is_subscription);
-        } else if (platform === "Online Activation") {
-          matchesPlatform = Boolean(game.online_activation) || 
-            Number(game.online_price ?? 0) > 0 ||
-            Boolean(game.available_platforms?.some((p) => p.toLowerCase().includes("online")));
         } else if (platform === "Online") {
           matchesPlatform = availablePlatforms(game).includes("Online" as Platform) || 
             Number(game.online_price ?? 0) > 0 ||
