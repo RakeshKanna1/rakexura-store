@@ -100,60 +100,62 @@ function GameCardInner({
         />
       </Link>
 
-      <div className="absolute left-2 top-2 flex flex-col gap-1 items-start z-10">
-        {game.is_premium && <span className="rounded bg-gradient-to-r from-[#b8860b] to-[#d4af37] px-2 py-0.5 text-[8px] font-black text-black uppercase tracking-wider shadow shadow-black/80">Premium</span>}
-        {game.preorder && <span className="rounded bg-purple-600 px-2 py-1 text-[9px] font-black text-white uppercase tracking-wider shadow shadow-black/50">Pre-order</span>}
-        {discount > 0 && <span className="rounded bg-[#facc15] px-2 py-1 text-[10px] font-black text-black">-{discount}%</span>}
-        {game.online_activation && <span className="rounded bg-[#00d68f] px-2 py-1 text-[9px] font-black text-white uppercase tracking-wider shadow shadow-black/50">Online Activation</span>}
-        {game.out_of_stock && <span className="rounded bg-red-600 px-2 py-1 text-[9px] font-black text-white uppercase tracking-wider shadow shadow-black/50">Out of Stock</span>}
+      <div className="absolute left-2.5 top-2.5 flex flex-col gap-1 items-start z-10">
+        {game.is_premium && <span className="rounded-md bg-gradient-to-r from-[#b8860b] to-[#d4af37] px-2 py-0.5 text-[8px] font-black text-black uppercase tracking-wider shadow-md shadow-black/80">Premium</span>}
+        {game.preorder && <span className="rounded-md bg-purple-600 px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Pre-order</span>}
+        {discount > 0 && <span className="rounded-md bg-gradient-to-r from-[#facc15] to-[#eab308] px-2 py-0.5 text-[10px] font-black text-black shadow-md shadow-black/50">-{discount}%</span>}
+        {game.online_activation && <span className="rounded-md bg-[#00d68f] px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Online Activation</span>}
+        {game.out_of_stock && <span className="rounded-md bg-red-600 px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Out of Stock</span>}
       </div>
 
-      <div className="absolute right-2 top-2 flex gap-1.5">
+      <div className="absolute right-2.5 top-2.5 flex gap-1.5 z-10">
         <button
           suppressHydrationWarning={true}
           onClick={() => {
             toggleWishlist(game.id);
             toast(saved ? "Removed from wishlist" : "Saved to wishlist");
           }}
-          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-black/70 backdrop-blur-md hover:scale-110 hover:border-white/30 hover:bg-black/90 active:scale-90 transition-all duration-200"
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/75 backdrop-blur-md hover:scale-110 hover:border-white/40 hover:bg-black/90 active:scale-90 transition-all duration-200"
           aria-label={saved ? "Remove from wishlist" : "Add to wishlist"}
         >
-          <Heart size={15} fill={saved ? "#facc15" : "none"} className={saved ? "text-[#facc15]" : ""} />
+          <Heart size={14} fill={saved ? "#facc15" : "none"} className={saved ? "text-[#facc15]" : "text-white"} />
         </button>
 
         {onQuickView && (
           <button
             suppressHydrationWarning={true}
             onClick={() => onQuickView(game)}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-black/70 backdrop-blur-md hover:scale-110 hover:border-white/30 hover:bg-black/90 active:scale-90 transition-all duration-200"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/75 backdrop-blur-md hover:scale-110 hover:border-white/40 hover:bg-black/90 active:scale-90 transition-all duration-200 text-white"
             aria-label={`Quick view ${game.title}`}
           >
-            <Eye size={15} />
+            <Eye size={14} />
           </button>
         )}
       </div>
 
-      <div className="p-3">
-        <p className="mb-1.5 truncate text-[9px] font-bold uppercase tracking-wide text-[#81889a]">{game.is_subscription ? "Service Membership" : (game.genres?.slice(0, 2).join(" / ") || "PC Game")}</p>
+      <div className="p-3.5 flex flex-col justify-between flex-1">
+        <div>
+          <p className="mb-1 truncate text-[9px] font-extrabold uppercase tracking-wider text-[#b9a4ff]">{game.is_subscription ? "Service Membership" : (game.genres?.slice(0, 2).join(" / ") || "PC Game")}</p>
 
-        <Link href={`/games/${game.id}`} prefetch={false} onMouseEnter={handleMouseEnter} className="line-clamp-2 min-h-10 text-sm font-bold leading-5">
-          {game.title}
-        </Link>
+          <Link href={`/games/${game.id}`} prefetch={false} onMouseEnter={handleMouseEnter} className="line-clamp-2 min-h-[2.5rem] text-sm font-extrabold leading-snug text-white group-hover:text-[#b9a4ff] transition-colors">
+            {game.title}
+          </Link>
 
-        <div className="mt-2 flex flex-wrap gap-1">
-          {platforms.slice(0, 3).map((platform) => (
-            <span key={platform} className="rounded border border-white/[.08] px-1.5 py-1 text-[8px] font-black uppercase text-[#9ca3b4]">
-              {game.is_subscription ? (game.duration ? game.duration : (platform === "Steam" ? "1 Month" : platform === "Epic" ? "3 Months" : "12 Months")) : platform}
-            </span>
-          ))}
+          <div className="mt-2 flex flex-wrap gap-1">
+            {platforms.slice(0, 3).map((platform) => (
+              <span key={platform} className="rounded-md border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[8px] font-black uppercase text-[#a7adbb]">
+                {game.is_subscription ? (game.duration ? game.duration : (platform === "Steam" ? "1 Month" : platform === "Epic" ? "3 Months" : "12 Months")) : platform}
+              </span>
+            ))}
+          </div>
+
+          <p className="mt-2 inline-block text-[9px] text-[#8991a6] font-medium leading-none bg-white/[0.03] border border-white/[0.06] px-2 py-1 rounded-full">Add three more games to attain a code</p>
         </div>
 
-        <p className="mt-1.5 text-[9px] text-[#8991a6]/80 font-medium leading-none">Add three more games to attain a code</p>
-
-        <div className="mt-3 flex items-end justify-between gap-2">
+        <div className="mt-3.5 flex items-end justify-between gap-2 border-t border-white/5 pt-2.5">
           <span className="min-w-0">
-            <strong className="block text-sm text-[#facc15]">{price ? formatPrice(price) : "Ask"}</strong>
-            {original > price && <del className="block text-[9px] text-[#646b7b]">{formatPrice(original)}</del>}
+            <strong className="block text-base font-black text-[#facc15]">{price ? formatPrice(price) : "Ask"}</strong>
+            {original > price && <del className="block text-[10px] text-[#646b7b] font-semibold">{formatPrice(original)}</del>}
           </span>
 
           <button
@@ -168,10 +170,10 @@ function GameCardInner({
               add(game, defaultPlatform(game));
               toast.success(`${game.title} added to cart`);
             }}
-            className={`grid h-9 w-9 shrink-0 place-items-center rounded border transition-all duration-200 hover:scale-110 active:scale-90 ${
+            className={`grid h-8.5 w-8.5 shrink-0 place-items-center rounded-lg border transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer ${
               game.out_of_stock
                 ? "border-red-500/30 text-red-500 hover:bg-red-500/10"
-                : "border-[#facc15]/30 text-[#facc15] hover:bg-[#facc15] hover:text-black hover:border-transparent"
+                : "border-[#facc15]/40 bg-[#facc15]/10 text-[#facc15] hover:bg-[#facc15] hover:text-black hover:border-transparent shadow-sm"
             }`}
             aria-label={game.out_of_stock ? "Out of Stock" : `Add ${game.title} to cart`}
           >
@@ -247,12 +249,12 @@ export function GameCard({
     transition: { duration: 0.42, ease: [0.2, 0.7, 0.2, 1] as [number, number, number, number] }
   } : {};
 
-  const baseCardClasses = "spotlight-card group relative overflow-hidden rounded-md border transition-all duration-500 ease-out";
+  const baseCardClasses = "spotlight-card group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-300 ease-out";
   const hoverTranslate = showDesktopEffects ? "hover:-translate-y-1.5" : "";
   
   const themeClasses = game.is_premium
-    ? `border-[#d4af37]/30 bg-[#16130b] ${showDesktopEffects ? "border-[#d4af37]/35 hover:border-[#d4af37]/80 hover:shadow-[0_0_30px_rgba(212,175,55,0.28),0_14px_38px_rgba(0,0,0,0.5)]" : ""}`
-    : `border-white/[.08] bg-[#11131a] ${showDesktopEffects ? "hover:border-[#facc15]/35 hover:bg-[#151922] hover:shadow-[0_0_30px_rgba(139,92,246,0.14),0_14px_38px_rgba(0,0,0,0.45)]" : "hover:border-[#facc15]/35 hover:bg-[#151922]"}`;
+    ? `border-[#d4af37]/35 bg-[#14110a]/90 ${showDesktopEffects ? "hover:border-[#d4af37]/80 hover:shadow-[0_12px_40px_rgba(212,175,55,0.28)]" : ""}`
+    : `border-white/[0.08] bg-[#0c0d16]/90 ${showDesktopEffects ? "hover:border-[#8b5cf6]/50 hover:bg-[#111220] hover:shadow-[0_12px_40px_rgba(139,92,246,0.18)]" : "hover:border-[#8b5cf6]/50 hover:bg-[#111220]"}`;
 
   return (
     <motion.article
