@@ -88,16 +88,18 @@ export function textToHtml(text: string) {
         valHtml = `<a href="mailto:${escapeHtml(val)}" style="color:#c4b5fd;text-decoration:underline;font-weight:bold;">${escapeHtml(val)}</a>`;
       } else if (key.toLowerCase().includes("whatsapp") || key.toLowerCase().includes("phone")) {
         const cleanPhone = val.replace(/\D/g, "");
-        valHtml = `<a href="https://wa.me/${cleanPhone}" style="color:#00d68f;text-decoration:none;font-weight:bold;background:rgba(0,214,143,0.1);padding:2px 8px;border-radius:4px;border:1px solid rgba(0,214,143,0.2);">📱 ${escapeHtml(val)}</a>`;
+        valHtml = `<a href="https://wa.me/${cleanPhone}" style="color:#00d68f;text-decoration:none;font-weight:bold;background:rgba(0,214,143,0.1);padding:2px 8px;border-radius:4px;border:1px solid rgba(0,214,143,0.2);">📱 +${escapeHtml(val)}</a>`;
       } else if (key.toLowerCase().includes("amount") || key.toLowerCase().includes("price") || key.toLowerCase().includes("total")) {
         valHtml = `<span style="color:#facc15;font-weight:900;font-size:15px;">${escapeHtml(val)}</span>`;
       }
 
       formattedContent += `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;">
-          <span style="color:#8991a6;font-weight:700;">${escapeHtml(key)}</span>
-          <span style="color:#ffffff;font-weight:600;">${valHtml}</span>
-        </div>
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:4px 0;">
+          <tr>
+            <td style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:#8991a6;font-weight:700;" align="left" width="40%">${escapeHtml(key)}</td>
+            <td style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:#ffffff;font-weight:600;" align="right" width="60%">${valHtml}</td>
+          </tr>
+        </table>
       `;
       return;
     }
@@ -119,47 +121,56 @@ export function textToHtml(text: string) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
       <body style="margin:0;padding:0;background-color:#05040a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
-        <div style="max-width:600px;margin:0 auto;padding:40px 16px;">
-          <!-- Card Outer Container -->
-          <div style="background:#0e0a1f;border:1px solid rgba(139,92,246,0.3);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.6);">
-            
-            <!-- Gradient Top Header -->
-            <div style="background:linear-gradient(135deg, #1b1236, #0e0a1f);padding:32px 24px;text-align:center;border-bottom:1px solid rgba(139,92,246,0.2);">
-              <div style="display:inline-block;padding:6px 14px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:20px;font-size:10px;font-weight:900;color:#c4b5fd;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">
-                ⚡ RAKEXURA STORE
-              </div>
-              <h1 style="margin:0;font-size:28px;font-weight:900;color:#ffffff;letter-spacing:1px;text-transform:uppercase;">
-                RAKEXURA
-              </h1>
-              <div style="font-size:11px;color:#8991a6;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;">
-                PREMIUM PC GAME STORE
-              </div>
-            </div>
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#05040a;padding:40px 10px;">
+          <tr>
+            <td align="center">
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:600px;background:#0e0a1f;border:1px solid rgba(139,92,246,0.3);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+                
+                <!-- Gradient Top Header -->
+                <tr>
+                  <td style="background:linear-gradient(135deg, #1b1236, #0e0a1f);padding:32px 24px;text-align:center;border-bottom:1px solid rgba(139,92,246,0.2);">
+                    <div style="display:inline-block;padding:6px 14px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:20px;font-size:10px;font-weight:900;color:#c4b5fd;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">
+                      ⚡ RAKEXURA STORE
+                    </div>
+                    <h1 style="margin:0;font-size:28px;font-weight:900;color:#ffffff;letter-spacing:1px;text-transform:uppercase;">
+                      RAKEXURA
+                    </h1>
+                    <div style="font-size:11px;color:#8991a6;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;">
+                      PREMIUM PC GAME STORE
+                    </div>
+                  </td>
+                </tr>
 
-            <!-- Email Body Content -->
-            <div style="padding:32px 24px;">
-              ${formattedContent}
+                <!-- Email Body Content -->
+                <tr>
+                  <td style="padding:32px 24px;">
+                    ${formattedContent}
 
-              <!-- Call to Action Button -->
-              <div style="margin-top:32px;text-align:center;">
-                <a href="${siteUrl}/admin/orders" style="display:inline-block;background:linear-gradient(135deg, #8b5cf6, #7c3aed);color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:900;font-size:13px;letter-spacing:0.5px;box-shadow:0 0 20px rgba(139,92,246,0.4);">
-                  🚀 Open Admin Dashboard
-                </a>
-              </div>
-            </div>
+                    <!-- Call to Action Button -->
+                    <div style="margin-top:32px;text-align:center;">
+                      <a href="${siteUrl}/admin/orders" style="display:inline-block;background:linear-gradient(135deg, #8b5cf6, #7c3aed);color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:900;font-size:13px;letter-spacing:0.5px;box-shadow:0 0 20px rgba(139,92,246,0.4);">
+                        🚀 Open Admin Dashboard
+                      </a>
+                    </div>
+                  </td>
+                </tr>
 
-            <!-- Footer -->
-            <div style="background:#080612;padding:24px;text-align:center;border-top:1px solid rgba(255,255,255,0.06);color:#646b7b;font-size:11px;line-height:1.6;">
-              <p style="margin:0;font-weight:700;color:#a4abbc;">Secure assisted game delivery by Rakexura Store</p>
-              <p style="margin:6px 0 0;">Need activation help or instant support? Contact us on WhatsApp.</p>
-              <div style="margin-top:12px;">
-                <a href="${siteUrl}" style="color:#8b5cf6;text-decoration:none;font-weight:bold;margin:0 8px;">Website</a> •
-                <a href="https://wa.me/918317416695" style="color:#00d68f;text-decoration:none;font-weight:bold;margin:0 8px;">WhatsApp Support</a>
-              </div>
-            </div>
+                <!-- Footer -->
+                <tr>
+                  <td style="background:#080612;padding:24px;text-align:center;border-top:1px solid rgba(255,255,255,0.06);color:#646b7b;font-size:11px;line-height:1.6;">
+                    <p style="margin:0;font-weight:700;color:#a4abbc;">Secure assisted game delivery by Rakexura Store</p>
+                    <p style="margin:6px 0 0;">Need activation help or instant support? Contact us on WhatsApp.</p>
+                    <div style="margin-top:12px;">
+                      <a href="${siteUrl}" style="color:#8b5cf6;text-decoration:none;font-weight:bold;margin:0 8px;">Website</a> •
+                      <a href="https://wa.me/918317416695" style="color:#00d68f;text-decoration:none;font-weight:bold;margin:0 8px;">WhatsApp Support</a>
+                    </div>
+                  </td>
+                </tr>
 
-          </div>
-        </div>
+              </table>
+            </td>
+          </tr>
+        </table>
       </body>
     </html>
   `;
