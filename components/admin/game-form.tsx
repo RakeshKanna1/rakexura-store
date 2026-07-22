@@ -2,12 +2,70 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Save } from "lucide-react";
+import { Save, ChevronDown, Check } from "lucide-react";
 import { saveGame } from "@/app/admin/actions";
 import { ImageUploader } from "@/components/admin/image-uploader";
 import type { Game } from "@/types/store";
 
 const input = "mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm outline-none focus:border-[#8b5cf6]";
+
+function CustomThemeSelect({ defaultValue }: { defaultValue: string }) {
+  const [selected, setSelected] = useState(defaultValue || "royal");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const options = [
+    { value: "royal", label: "👑 Royal Gold (Classic Golden Premium)", color: "text-[#d4af37]" },
+    { value: "jungle", label: "🌿 Jungle / Adventure (Emerald & Gold)", color: "text-[#00d68f]" },
+    { value: "cyberpunk", label: "⚡ Cyberpunk / Sci-Fi (Neon Cyan & Gold)", color: "text-[#38bdf8]" },
+    { value: "crimson", label: "🔥 Crimson / Dark Fantasy (Red & Amber)", color: "text-[#ff4757]" },
+  ];
+
+  const currentOption = options.find((opt) => opt.value === selected) || options[0];
+
+  return (
+    <div className="relative w-full mt-2">
+      <input type="hidden" name="premium_theme" value={selected} />
+      
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex min-h-[46px] w-full items-center justify-between gap-3 rounded-lg border border-[#d4af37]/40 bg-[#0f0c1b] px-4 py-2.5 text-sm font-bold text-white transition-all hover:border-[#d4af37] focus:outline-none shadow-md cursor-pointer"
+      >
+        <span className={currentOption.color}>{currentOption.label}</span>
+        <ChevronDown size={16} className={`text-zinc-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-30" onClick={() => setIsOpen(false)} />
+          <div className="absolute left-0 right-0 top-full z-40 mt-1.5 overflow-hidden rounded-xl border border-white/15 bg-[#0b0818] p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.8)] backdrop-blur-2xl">
+            {options.map((opt) => {
+              const isSelected = opt.value === selected;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    setSelected(opt.value);
+                    setIsOpen(false);
+                  }}
+                  className={`flex w-full items-center justify-between rounded-lg px-3.5 py-2.5 text-xs font-bold transition-all text-left cursor-pointer ${
+                    isSelected
+                      ? "bg-[#8b5cf6]/25 text-white border border-[#8b5cf6]/40"
+                      : "text-zinc-300 hover:bg-white/[0.06] hover:text-white border border-transparent"
+                  }`}
+                >
+                  <span className={opt.color}>{opt.label}</span>
+                  {isSelected && <Check size={14} className="text-[#8b5cf6]" />}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export function GameForm({ game, genres }: { game?: Game | null; genres: string[] }) {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
@@ -160,20 +218,11 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
             />
             Out of Stock
           </label>
-          <label className="flex flex-col gap-1 text-sm font-bold md:col-span-2">
-            Premium Theme Style
-            <select 
-              name="premium_theme" 
-              defaultValue={game?.premium_theme ?? "royal"} 
-              className={`${input} border-[#d4af37]/30 bg-[#16130b] text-[#d4af37] focus:border-[#d4af37]`}
-            >
-              <option value="royal">👑 Royal Gold (Classic Golden Premium)</option>
-              <option value="jungle">🌿 Jungle / Adventure (Emerald & Gold)</option>
-              <option value="cyberpunk">⚡ Cyberpunk / Sci-Fi (Neon Cyan & Gold)</option>
-              <option value="crimson">🔥 Crimson / Dark Fantasy (Red & Amber)</option>
-            </select>
-            <span className="text-[11px] font-normal text-[#8991a6]">Choose the page aesthetic theme when this game is set as Premium.</span>
-          </label>
+          <div className="flex flex-col gap-1 text-sm font-bold md:col-span-2">
+            <span>Premium Theme Style</span>
+            <CustomThemeSelect defaultValue={game?.premium_theme ?? "royal"} />
+            <span className="text-[11px] font-normal text-[#8991a6] mt-1">Choose the page aesthetic theme when this game is set as Premium.</span>
+          </div>
         </div>
       </fieldset>
 
