@@ -445,6 +445,12 @@ export function CheckoutForm() {
                 placeholder="PROMO OR RANK CODE"
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void applyCheckoutCoupon();
+                  }
+                }}
                 className="h-11 flex-1 min-w-0 rounded-md border border-white/10 bg-black/25 px-3.5 text-xs font-bold uppercase tracking-wider outline-none focus:border-[#facc15] text-white"
               />
               <button
