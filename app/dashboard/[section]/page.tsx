@@ -258,22 +258,26 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
               {section === "orders" && (
                 <Link
                   href={orderTrackUrl}
-                  className="group/acc mt-3 flex items-center justify-between gap-3 rounded-xl border border-[#8b5cf6]/30 bg-gradient-to-r from-[#8b5cf6]/10 via-[#181132] to-[#0d091e] p-3 transition-all duration-300 hover:border-[#b9a4ff]/60 hover:shadow-[0_4px_20px_rgba(139,92,246,0.18)] active:scale-[0.99]"
+                  className="group/acc mt-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[#8b5cf6]/35 bg-gradient-to-r from-[#8b5cf6]/15 via-[#181132] to-[#0d091e] p-3.5 transition-all duration-300 hover:border-[#b9a4ff]/60 hover:shadow-[0_4px_20px_rgba(139,92,246,0.2)] active:scale-[0.985]"
                 >
                   <div className="flex items-center gap-3">
                     <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#8b5cf6]/40 bg-[#8b5cf6]/20 text-[#facc15] shadow-[0_0_12px_rgba(139,92,246,0.3)] group-hover/acc:scale-110 transition-transform">
                       <Key size={16} />
                     </div>
-                    <div>
-                      <strong className="block text-xs font-extrabold text-white group-hover/acc:text-[#b9a4ff] transition-colors">
+                    <div className="min-w-0">
+                      <strong className="block text-xs font-extrabold text-white group-hover/acc:text-[#b9a4ff] transition-colors leading-snug">
                         Account Login Credentials & Delivery Status
                       </strong>
-                      <span className="text-[10px] text-[#8991a6]">Click to access your game login details & activation guidance</span>
+                      <span className="mt-0.5 block text-[10px] text-[#8991a6] leading-tight">
+                        Access your game login details & activation guidance
+                      </span>
                     </div>
                   </div>
-                  <span className="shrink-0 text-xs font-black text-[#b9a4ff] group-hover/acc:text-white group-hover/acc:translate-x-1 transition-all flex items-center gap-1">
-                    View <ArrowRight size={13} />
-                  </span>
+                  <div className="flex items-center justify-end sm:justify-center border-t border-white/5 pt-2 sm:pt-0 sm:border-0">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#8b5cf6]/40 bg-[#8b5cf6]/20 px-3 py-1 text-xs font-black text-[#b9a4ff] group-hover/acc:bg-[#8b5cf6] group-hover/acc:text-white transition-all shadow-[0_0_10px_rgba(139,92,246,0.2)]">
+                      View Details <ArrowRight size={13} />
+                    </span>
+                  </div>
                 </Link>
               )}
               {(() => {
@@ -347,9 +351,9 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
           </div>
           {section === "orders" && Array.isArray(row.cart_items) && (
             <div className="mt-5 border-t border-white/10 pt-4">
-              <div className="mb-3.5 flex items-center justify-between">
+              <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2">
                 <h4 className="text-xs font-black uppercase tracking-widest text-[#aeb5c6]">Purchased Items</h4>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#8b5cf6]/20 bg-[#8b5cf6]/10 px-2.5 py-0.5 text-[10px] font-bold text-[#c4b5fd]">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#8b5cf6]/25 bg-[#8b5cf6]/10 px-2.5 py-1 text-[10px] font-bold text-[#c4b5fd]">
                   <Key size={10} className="text-[#facc15]" /> Click game for credentials
                 </span>
               </div>
@@ -361,27 +365,29 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                   return (
                     <div
                       key={`${row.id}-${gameId}-${item.platform}`}
-                      className="flex items-center justify-between gap-3 rounded-xl border border-white/[.06] bg-[#0a0816]/90 p-3.5 transition-all duration-300 hover:border-[#8b5cf6]/40 hover:bg-[#120d28] hover:shadow-[0_8px_24px_rgba(139,92,246,0.12)] group/game"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-white/[.06] bg-[#0a0816]/90 p-3.5 transition-all duration-300 hover:border-[#8b5cf6]/40 hover:bg-[#120d28] hover:shadow-[0_8px_24px_rgba(139,92,246,0.12)] group/game"
                     >
-                      <div className="flex items-center gap-3.5 min-w-0">
+                      <div className="flex items-center gap-3.5 min-w-0 flex-1">
                         <Link href={orderTrackUrl} className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg bg-[#08090c] shadow-md group-hover/game:shadow-[0_0_16px_rgba(139,92,246,0.3)] transition-all" title="Click for account & activation details">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={assetUrl(game.cover_image)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover/game:scale-105" loading="lazy" />
                         </Link>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <Link href={orderTrackUrl} title="Click for account & activation details">
-                            <strong className="block truncate text-xs font-black text-white group-hover/game:text-[#b9a4ff] transition-colors">{game.title}</strong>
-                            <span className="mt-1.5 inline-block rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#a4abbc]">
-                              {item.platform || "Steam"} · Qty: {item.quantity}
-                            </span>
+                            <strong className="block text-xs font-black text-white group-hover/game:text-[#b9a4ff] transition-colors leading-snug break-words">{game.title}</strong>
+                            <div className="mt-1 flex flex-wrap items-center gap-2">
+                              <span className="inline-block rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#a4abbc]">
+                                {item.platform || "Steam"} · Qty: {item.quantity}
+                              </span>
+                            </div>
                           </Link>
-                          <strong className="mt-2 block text-xs font-black text-[#facc15] filter drop-shadow-[0_0_6px_rgba(250,204,21,0.3)]">
+                          <strong className="mt-1.5 block text-xs font-black text-[#facc15] filter drop-shadow-[0_0_6px_rgba(250,204,21,0.3)]">
                             {formatPrice(item.unit_price || item.price)}
                           </strong>
                         </div>
                       </div>
                       {row.order_status === "Delivered" && (
-                        <div className="shrink-0">
+                        <div className="shrink-0 pt-2 sm:pt-0 border-t border-white/[0.04] sm:border-0 flex justify-end">
                           <WriteReviewTrigger gameId={gameId} gameTitle={game.title} />
                         </div>
                       )}
