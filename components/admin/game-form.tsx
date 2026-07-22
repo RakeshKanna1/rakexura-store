@@ -14,10 +14,10 @@ function CustomThemeSelect({ defaultValue }: { defaultValue: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const options = [
-    { value: "royal", label: "👑 Royal Gold (Classic Golden Premium)", color: "text-[#d4af37]" },
-    { value: "jungle", label: "🌿 Jungle / Adventure (Emerald & Gold)", color: "text-[#00d68f]" },
-    { value: "cyberpunk", label: "⚡ Cyberpunk / Sci-Fi (Neon Cyan & Gold)", color: "text-[#38bdf8]" },
-    { value: "crimson", label: "🔥 Crimson / Dark Fantasy (Red & Amber)", color: "text-[#ff4757]" },
+    { value: "royal", label: "Royal Gold (Classic Golden Premium)", color: "text-[#d4af37]" },
+    { value: "jungle", label: "Jungle / Adventure (Emerald & Gold)", color: "text-[#00d68f]" },
+    { value: "cyberpunk", label: "Cyberpunk / Sci-Fi (Neon Cyan & Gold)", color: "text-[#38bdf8]" },
+    { value: "crimson", label: "Crimson / Dark Fantasy (Red & Amber)", color: "text-[#ff4757]" },
   ];
 
   const currentOption = options.find((opt) => opt.value === selected) || options[0];

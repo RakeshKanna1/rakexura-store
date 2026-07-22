@@ -82,11 +82,11 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
 
   const getRatingLabel = (val: number) => {
     switch (val) {
-      case 1: return "Terrible 😠";
-      case 2: return "Bad 😞";
-      case 3: return "Decent 😊";
-      case 4: return "Great 😁";
-      case 5: return "Excellent! 🤩";
+      case 1: return "Poor";
+      case 2: return "Fair";
+      case 3: return "Good";
+      case 4: return "Very Good";
+      case 5: return "Excellent";
       default: return "";
     }
   };
