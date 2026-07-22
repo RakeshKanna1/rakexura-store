@@ -301,6 +301,7 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
 
                 const botUsername = (process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || "Rockstar_bot").replace("@", "");
                 const orderRef = String(row.order_reference || row.id);
+                const tgProtocolUrl = `tg://resolve?domain=${botUsername}&start=${encodeURIComponent(orderRef)}`;
                 const botUrl = `https://t.me/${botUsername}?start=${encodeURIComponent(orderRef)}`;
 
                 return (
@@ -308,10 +309,15 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                     {hasRockstarGame && (
                       <a
                         href={botUrl}
+                        onClick={() => {
+                          try {
+                            window.location.href = tgProtocolUrl;
+                          } catch {}
+                        }}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group/tg inline-flex items-center gap-2 rounded-xl border border-[#0088cc]/40 bg-gradient-to-r from-[#0088cc]/20 via-[#132232] to-[#09121d] px-3.5 py-2 text-xs font-black text-[#38bdf8] hover:border-[#38bdf8]/80 hover:text-white hover:shadow-[0_4px_18px_rgba(0,136,204,0.3)] transition-all active:scale-[0.985]"
-                        title="Click to open Rockstar Telegram bot with your order token for activation codes"
+                        title="Click to open Telegram app directly with your order token for activation codes"
                       >
                         <div className="grid h-5 w-5 place-items-center rounded-full bg-[#0088cc]/30 text-[#38bdf8] group-hover/tg:bg-[#0088cc] group-hover/tg:text-white transition-all">
                           <Send size={10} />
