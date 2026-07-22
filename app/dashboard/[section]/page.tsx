@@ -325,7 +325,7 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                   }
                 })();
 
-                const botUsername = (process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || "Rockstar_bot").replace("@", "");
+                const botUsername = (process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || "Rakexura_bot").replace("@", "");
                 const orderRef = String(row.order_reference || row.id);
                 const tgProtocolUrl = `tg://resolve?domain=${botUsername}&start=${encodeURIComponent(orderRef)}`;
                 const botUrl = `https://t.me/${botUsername}?start=${encodeURIComponent(orderRef)}`;
