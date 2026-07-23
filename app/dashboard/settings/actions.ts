@@ -142,3 +142,29 @@ export async function saveWhatsAppNumber(phone: string) {
 
   return { success: true, whatsapp: cleanDigits };
 }
+
+export async function updateAvatarUrl(avatarUrl: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Authentication required." };
+
+  const admin = createAdminClient();
+  const { error } = await admin.from("profiles").upsert({
+    id: user.id,
+    email: user.email,
+    avatar_url: avatarUrl,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  await supabase.auth.updateUser({ data: { avatar_url: avatarUrl } }).catch(() => null);
+
+  revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard");
+  revalidatePath("/profile");
+
+  return { success: true };
+}

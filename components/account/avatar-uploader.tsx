@@ -7,6 +7,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { cropAndCompressImage } from "@/lib/image-compression";
 import { createClient } from "@/lib/supabase/client";
+import { updateAvatarUrl } from "@/app/dashboard/settings/actions";
 
 export function AvatarUploader({ userId, name, avatarUrl }: { userId: string; name: string; avatarUrl?: string | null }) {
   const input = useRef<HTMLInputElement>(null);
@@ -26,8 +27,8 @@ export function AvatarUploader({ userId, name, avatarUrl }: { userId: string; na
       if (uploadError) throw uploadError;
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
       const url = `${data.publicUrl}?v=${Date.now()}`;
-      const { error: profileError } = await supabase.from("profiles").update({ avatar_url: url, updated_at: new Date().toISOString() }).eq("id", userId);
-      if (profileError) throw profileError;
+      const res = await updateAvatarUrl(url);
+      if (!res.success) throw new Error(res.error || "Could not update your profile picture");
       setPreview(url);
       window.dispatchEvent(new CustomEvent("rakexura-profile-updated", { detail: { avatarUrl: url } }));
       toast.success("Profile picture updated");
