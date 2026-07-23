@@ -49,6 +49,7 @@ export function SettingsForm({
         );
       }
 
+      router.push("/");
       router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "An error occurred");

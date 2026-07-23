@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { Bell, MessageCircle, Shield, ArrowRight, Loader2, X, CheckCircle2 } from "lucide-react";
@@ -19,6 +19,7 @@ function urlBase64ToUint8Array(base64String: string) {
 }
 
 export function WhatsAppOnboardingModal() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [phone, setPhone] = useState("");
@@ -29,31 +30,46 @@ export function WhatsAppOnboardingModal() {
   const supabase = createClient();
 
   useEffect(() => {
+    // Skip checking or opening on authentication routes
+    if (
+      pathname.startsWith("/login") ||
+      pathname.startsWith("/signup") ||
+      pathname.startsWith("/forgot-password") ||
+      pathname.startsWith("/auth")
+    ) {
+      setIsOpen(false);
+      return;
+    }
+
     if (typeof window !== "undefined" && "Notification" in window) {
       setNotifPermission(Notification.permission);
     }
 
+    let timer: NodeJS.Timeout;
+
     async function checkUserOnboarding() {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setIsOpen(false);
-        return;
+      let existingPhone = "";
+      let currentUserId: string | null = null;
+
+      if (user) {
+        currentUserId = user.id;
+        setUserId(user.id);
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("whatsapp")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (profile?.whatsapp) {
+          existingPhone = profile.whatsapp;
+        }
       }
 
-      setUserId(user.id);
-
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("whatsapp")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error fetching user profile for onboarding:", error.message);
-        return;
+      if (!existingPhone && typeof window !== "undefined") {
+        existingPhone = localStorage.getItem("guest_whatsapp_phone") || "";
       }
 
-      const existingPhone = profile?.whatsapp || "";
       if (existingPhone) {
         setPhone(existingPhone);
       }
@@ -62,23 +78,33 @@ export function WhatsAppOnboardingModal() {
       const isNotificationSupported = typeof window !== "undefined" && "Notification" in window;
       const needsNotifications = isNotificationSupported && Notification.permission === "default";
 
-      // Daily Prompt Logic: Don't show if prompted within the last 24 hours
+      // Session dismissal check: if user closed modal during this specific tab session, skip
+      const sessionDismissed = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("wp_modal_session_dismissed") : null;
+      if (sessionDismissed === "true") {
+        setIsOpen(false);
+        return;
+      }
+
+      // CRITICAL: If customer has NOT linked WhatsApp, ALWAYS intimate them after 2 seconds!
+      if (!hasWhatsapp) {
+        timer = setTimeout(() => {
+          setStep(1);
+          setIsOpen(true);
+        }, 2000);
+        return;
+      }
+
+      // If customer HAS WhatsApp but needs device notifications
       const lastPrompt = typeof window !== "undefined" ? localStorage.getItem("last_wp_onboard_prompt_time") : null;
       const now = Date.now();
       const oneDay = 24 * 60 * 60 * 1000;
       const hasPromptedRecently = lastPrompt && (now - Number(lastPrompt) < oneDay);
 
-      if (hasPromptedRecently) {
-        setIsOpen(false);
-        return;
-      }
-
-      if (!hasWhatsapp) {
-        setStep(1);
-        setIsOpen(true);
-      } else if (needsNotifications) {
-        setStep(2);
-        setIsOpen(true);
+      if (!hasPromptedRecently && needsNotifications && currentUserId) {
+        timer = setTimeout(() => {
+          setStep(2);
+          setIsOpen(true);
+        }, 2000);
       } else {
         setIsOpen(false);
       }
@@ -88,35 +114,46 @@ export function WhatsAppOnboardingModal() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        if (typeof sessionStorage !== "undefined") {
+          sessionStorage.removeItem("wp_modal_session_dismissed");
+        }
         checkUserOnboarding();
       }
     });
 
     return () => {
+      if (timer) clearTimeout(timer);
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, pathname]);
 
   const handleWhatsappSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const res = await saveWhatsAppNumber(phone);
-      if (!res.success) {
-        throw new Error(res.error || "Failed to update WhatsApp number");
+      if (userId) {
+        const res = await saveWhatsAppNumber(phone);
+        if (!res.success) {
+          throw new Error(res.error || "Failed to update WhatsApp number");
+        }
+      } else if (typeof window !== "undefined") {
+        localStorage.setItem("guest_whatsapp_phone", phone);
       }
 
-      toast.success("WhatsApp number linked successfully!");
+      toast.success("Mobile/WhatsApp number linked successfully!");
 
-      // Dispatch custom event & refresh router so profile tabs receive the new number immediately
       if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("profile-updated", { detail: { whatsapp: res.whatsapp } }));
+        window.dispatchEvent(new CustomEvent("profile-updated", { detail: { whatsapp: phone } }));
+        sessionStorage.removeItem("wp_modal_session_dismissed");
       }
       router.refresh();
 
-      // ALWAYS transition to Step 2 (Enable Notifications) when user clicks Continue
-      setStep(2);
+      if (userId && typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+        setStep(2);
+      } else {
+        setIsOpen(false);
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to update WhatsApp number");
     } finally {
@@ -193,11 +230,21 @@ export function WhatsAppOnboardingModal() {
   };
 
   const handleSkipOrAcknowledge = () => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("last_wp_onboard_prompt_time", Date.now().toString());
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.setItem("wp_modal_session_dismissed", "true");
     }
     setIsOpen(false);
   };
+
+  // Exclude auth routes completely
+  if (
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/auth")
+  ) {
+    return null;
+  }
 
   if (!isOpen) return null;
 
@@ -211,7 +258,7 @@ export function WhatsAppOnboardingModal() {
         {/* Close/Skip Button top-right */}
         <button
           onClick={handleSkipOrAcknowledge}
-          className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-full bg-white/[0.05] text-[#8991a6] hover:bg-white/10 hover:text-white transition-colors"
+          className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-full bg-white/[0.05] text-[#8991a6] hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
           aria-label="Skip onboarding"
         >
           <X size={16} />
@@ -244,17 +291,18 @@ export function WhatsAppOnboardingModal() {
                   id="whatsapp-phone"
                   type="tel"
                   required
+                  autoFocus
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="e.g., +91 98765 43210"
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-black/45 px-4 py-3 text-sm text-white placeholder-white/30 focus:border-[#facc15] focus:outline-none transition-colors"
+                  className="mt-2 w-full rounded-xl border border-[#facc15]/50 bg-black/45 px-4 py-3 text-sm text-white placeholder-white/30 focus:border-[#facc15] focus:ring-2 focus:ring-[#facc15]/30 focus:outline-none transition-all shadow-[0_0_15px_rgba(250,204,21,0.1)]"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 py-3 font-black text-black transition shadow-lg shadow-amber-500/20 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-1.5 text-sm"
+                className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 py-3 font-black text-black transition shadow-lg shadow-amber-500/20 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-1.5 text-sm cursor-pointer"
               >
                 {isLoading ? (
                   <Loader2 size={18} className="animate-spin" />
@@ -268,7 +316,7 @@ export function WhatsAppOnboardingModal() {
               <button
                 type="button"
                 onClick={handleSkipOrAcknowledge}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.02] py-2.5 text-xs font-semibold text-[#8991a6] hover:bg-white/5 hover:text-white transition"
+                className="w-full rounded-xl border border-white/10 bg-white/[0.02] py-2.5 text-xs font-semibold text-[#8991a6] hover:bg-white/5 hover:text-white transition cursor-pointer"
               >
                 Configure Later / Skip
               </button>
@@ -296,7 +344,7 @@ export function WhatsAppOnboardingModal() {
                   <button
                     type="button"
                     onClick={handleSkipOrAcknowledge}
-                    className="mt-4 w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-black text-black hover:bg-emerald-400 transition"
+                    className="mt-4 w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-black text-black hover:bg-emerald-400 transition cursor-pointer"
                   >
                     Done / Finish
                   </button>
@@ -307,7 +355,7 @@ export function WhatsAppOnboardingModal() {
                     type="button"
                     onClick={handleEnableNotifications}
                     disabled={isLoading}
-                    className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 py-3 font-black text-black shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 text-sm"
+                    className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 py-3 font-black text-black shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 text-sm cursor-pointer"
                   >
                     {isLoading ? (
                       <Loader2 size={18} className="animate-spin" />
@@ -321,7 +369,7 @@ export function WhatsAppOnboardingModal() {
                   <button
                     type="button"
                     onClick={handleSkipOrAcknowledge}
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.02] py-3 text-xs font-semibold text-[#8991a6] hover:bg-white/5 hover:text-white transition"
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.02] py-3 text-xs font-semibold text-[#8991a6] hover:bg-white/5 hover:text-white transition cursor-pointer"
                   >
                     Configure Later / Skip
                   </button>
