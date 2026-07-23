@@ -270,11 +270,12 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
       });
 
       if (response.ok) {
+        console.log(`[Brevo API] Email successfully sent to ${to}`);
         return { ok: true };
       }
 
       const errorText = await response.text();
-      console.warn("Brevo API returned non-OK status, trying Brevo SMTP fallback:", errorText);
+      console.warn(`[Brevo API] Returned non-OK status (${response.status}) when sending to ${to}:`, errorText);
     } catch (error) {
       console.warn("Brevo HTTP API failed, trying Brevo SMTP fallback:", error);
     }

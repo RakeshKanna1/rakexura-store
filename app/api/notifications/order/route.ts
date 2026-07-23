@@ -317,9 +317,11 @@ export async function POST(request: Request) {
 
     runBackgroundJob(async () => {
       // 1. Send notification email to the owner with Epic Games style HTML receipt
+      // 1. Send notification email to the owner with Epic Games style HTML receipt
+      const ownerEmail = process.env.OWNER_EMAIL || process.env.NEXT_PUBLIC_OWNER_EMAIL || "12k21rakeshkannam@gmail.com";
       try {
         await sendEmail({
-          to: process.env.OWNER_EMAIL ?? process.env.NEXT_PUBLIC_OWNER_EMAIL,
+          to: ownerEmail,
           subject: `New Rakexura order ${order.reference ?? ""}`.trim(),
           text: message,
           html: makeEpicReceiptHtml({ order, isAdmin: true }),
