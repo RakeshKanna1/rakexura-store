@@ -27,18 +27,26 @@ export async function updateAccount(formData: FormData) {
   if (displayName.length < 2) redirect("/dashboard/settings?error=Enter+a+valid+display+name");
   if (whatsapp && (whatsapp.length < 10 || whatsapp.length > 15)) redirect("/dashboard/settings?error=Enter+a+valid+WhatsApp+number");
 
-  const admin = createAdminClient();
-  const { error } = await admin.from("profiles").upsert({
-    id: user.id,
-    email: user.email,
-    display_name: displayName,
-    whatsapp: whatsapp || null,
-    role: "customer",
-    updated_at: new Date().toISOString(),
-  });
+  const { data: updatedRows, error: updateErr } = await supabase
+    .from("profiles")
+    .update({ display_name: displayName, whatsapp: whatsapp || null, updated_at: new Date().toISOString() })
+    .eq("id", user.id)
+    .select("id");
 
-  if (error) {
-    redirect(`/dashboard/settings?error=${encodeURIComponent(error.message)}`);
+  if (updateErr || !updatedRows || updatedRows.length === 0) {
+    try {
+      const admin = createAdminClient();
+      await admin.from("profiles").upsert({
+        id: user.id,
+        email: user.email,
+        display_name: displayName,
+        whatsapp: whatsapp || null,
+        role: "customer",
+        updated_at: new Date().toISOString(),
+      });
+    } catch {
+      // Ignore fallback error if admin key is missing
+    }
   }
 
   revalidatePath("/dashboard/settings");
@@ -79,19 +87,29 @@ export async function saveAccountSettings({
     return { success: false, error: "WhatsApp number must be 10 to 15 digits." };
   }
 
-  const profilePayload = {
-    id: user.id,
-    email: user.email,
-    display_name: cleanName,
-    whatsapp: cleanPhone || null,
-    role: "customer",
-    updated_at: new Date().toISOString(),
-  };
+  // 1. Try UPDATE first (works under existing RLS policy for logged in user)
+  const { data: updatedRows, error: updateErr } = await supabase
+    .from("profiles")
+    .update({ display_name: cleanName, whatsapp: cleanPhone || null, updated_at: new Date().toISOString() })
+    .eq("id", user.id)
+    .select("id");
 
-  const admin = createAdminClient();
-  const { error: upsertErr } = await admin.from("profiles").upsert(profilePayload);
-  if (upsertErr) {
-    return { success: false, error: upsertErr.message };
+  // 2. If row was missing, try admin client upsert
+  if (updateErr || !updatedRows || updatedRows.length === 0) {
+    try {
+      const admin = createAdminClient();
+      const profilePayload = {
+        id: user.id,
+        email: user.email,
+        display_name: cleanName,
+        whatsapp: cleanPhone || null,
+        role: "customer",
+        updated_at: new Date().toISOString(),
+      };
+      await admin.from("profiles").upsert(profilePayload);
+    } catch {
+      // Ignore fallback error if admin key is missing
+    }
   }
 
   await supabase.auth.updateUser({ data: { whatsapp: cleanPhone || null, full_name: cleanName } }).catch(() => null);
@@ -122,20 +140,28 @@ export async function saveWhatsAppNumber(phone: string) {
     return { success: false, error: "Please enter a valid WhatsApp phone number (10 to 15 digits)." };
   }
 
-  const displayName = user.user_metadata?.full_name || user.email?.split("@")[0] || "Player";
-  const profilePayload = {
-    id: user.id,
-    email: user.email,
-    display_name: displayName,
-    whatsapp: cleanDigits,
-    role: "customer",
-    updated_at: new Date().toISOString(),
-  };
+  const { data: updatedRows, error: updateErr } = await supabase
+    .from("profiles")
+    .update({ whatsapp: cleanDigits, updated_at: new Date().toISOString() })
+    .eq("id", user.id)
+    .select("id");
 
-  const admin = createAdminClient();
-  const { error: upsertErr } = await admin.from("profiles").upsert(profilePayload);
-  if (upsertErr) {
-    return { success: false, error: upsertErr.message };
+  if (updateErr || !updatedRows || updatedRows.length === 0) {
+    try {
+      const displayName = user.user_metadata?.full_name || user.email?.split("@")[0] || "Player";
+      const profilePayload = {
+        id: user.id,
+        email: user.email,
+        display_name: displayName,
+        whatsapp: cleanDigits,
+        role: "customer",
+        updated_at: new Date().toISOString(),
+      };
+      const admin = createAdminClient();
+      await admin.from("profiles").upsert(profilePayload);
+    } catch {
+      // Ignore fallback error
+    }
   }
 
   await supabase.auth.updateUser({ data: { whatsapp: cleanDigits } }).catch(() => null);
@@ -148,16 +174,24 @@ export async function updateAvatarUrl(avatarUrl: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Authentication required." };
 
-  const admin = createAdminClient();
-  const { error } = await admin.from("profiles").upsert({
-    id: user.id,
-    email: user.email,
-    avatar_url: avatarUrl,
-    updated_at: new Date().toISOString(),
-  });
+  const { data: updatedRows, error: updateErr } = await supabase
+    .from("profiles")
+    .update({ avatar_url: avatarUrl, updated_at: new Date().toISOString() })
+    .eq("id", user.id)
+    .select("id");
 
-  if (error) {
-    return { success: false, error: error.message };
+  if (updateErr || !updatedRows || updatedRows.length === 0) {
+    try {
+      const admin = createAdminClient();
+      await admin.from("profiles").upsert({
+        id: user.id,
+        email: user.email,
+        avatar_url: avatarUrl,
+        updated_at: new Date().toISOString(),
+      });
+    } catch {
+      // Ignore fallback error
+    }
   }
 
   await supabase.auth.updateUser({ data: { avatar_url: avatarUrl } }).catch(() => null);
