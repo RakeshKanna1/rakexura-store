@@ -25,3 +25,42 @@ export async function updateAccount(formData: FormData) {
   if (error) redirect(`/dashboard/settings?error=${encodeURIComponent(error.message)}`);
   redirect("/dashboard/settings?message=Account+settings+saved");
 }
+
+export async function saveWhatsAppNumber(phone: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Authentication required to link WhatsApp." };
+
+  let cleanDigits = phone.replace(/\D/g, "");
+  if (cleanDigits.length === 10) {
+    cleanDigits = `91${cleanDigits}`;
+  }
+
+  if (cleanDigits.length < 10 || cleanDigits.length > 15) {
+    return { success: false, error: "Please enter a valid WhatsApp phone number (10 to 15 digits)." };
+  }
+
+  const { error: updateErr } = await supabase
+    .from("profiles")
+    .update({ whatsapp: cleanDigits, updated_at: new Date().toISOString() })
+    .eq("id", user.id);
+
+  if (updateErr) {
+    const { error: insertErr } = await supabase.from("profiles").upsert({
+      id: user.id,
+      email: user.email,
+      display_name: user.user_metadata?.full_name || user.email?.split("@")[0] || "Player",
+      whatsapp: cleanDigits,
+      role: "customer",
+      updated_at: new Date().toISOString(),
+    });
+
+    if (insertErr) {
+      return { success: false, error: insertErr.message };
+    }
+  }
+
+  await supabase.auth.updateUser({ data: { whatsapp: cleanDigits } }).catch(() => null);
+
+  return { success: true, whatsapp: cleanDigits };
+}

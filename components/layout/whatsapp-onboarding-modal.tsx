@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { Bell, MessageCircle, Shield, ArrowRight, Loader2, X, CheckCircle2 } from "lucide-react";
+import { saveWhatsAppNumber } from "@/app/dashboard/settings/actions";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -98,32 +99,19 @@ export function WhatsAppOnboardingModal() {
 
   const handleWhatsappSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userId) return;
-
-    let cleanDigits = phone.replace(/\D/g, "");
-    if (cleanDigits.length === 10) {
-      cleanDigits = `91${cleanDigits}`;
-    }
-
-    if (cleanDigits.length < 10 || cleanDigits.length > 15) {
-      toast.error("Please enter a valid WhatsApp phone number (10 to 15 digits).");
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .upsert({ id: userId, whatsapp: cleanDigits, updated_at: new Date().toISOString() });
-
-      if (error) throw error;
+      const res = await saveWhatsAppNumber(phone);
+      if (!res.success) {
+        throw new Error(res.error || "Failed to update WhatsApp number");
+      }
 
       toast.success("WhatsApp number linked successfully!");
 
       // Dispatch custom event & refresh router so profile tabs receive the new number immediately
       if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("profile-updated", { detail: { whatsapp: cleanDigits } }));
+        window.dispatchEvent(new CustomEvent("profile-updated", { detail: { whatsapp: res.whatsapp } }));
       }
       router.refresh();
 
