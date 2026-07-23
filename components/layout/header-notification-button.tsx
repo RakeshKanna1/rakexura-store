@@ -216,10 +216,10 @@ export function HeaderNotificationButton() {
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="inline-flex items-center gap-1 rounded-full border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-2 py-0.5 text-[9px] font-extrabold text-[#c4b5fd] hover:bg-[#8b5cf6]/25 hover:border-[#b9a4ff]/60 hover:text-white transition-all cursor-pointer select-none"
+                className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] font-bold text-[#8991a6] hover:bg-white/[0.08] hover:border-white/20 hover:text-white transition-all cursor-pointer select-none"
               >
-                <CheckCheck size={11} className="text-[#b9a4ff]" />
-                Mark all read
+                <CheckCheck size={12} className="text-[#00d68f]" />
+                <span>Mark all read</span>
               </button>
             )}
           </div>

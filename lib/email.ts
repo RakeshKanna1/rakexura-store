@@ -1,6 +1,8 @@
 import "server-only";
 // @ts-expect-error - nodemailer types are not locally installed in devDependencies
 import nodemailer from "nodemailer";
+import fs from "fs";
+import path from "path";
 
 import { fetchWithTimeout } from "@/lib/security/request";
 
@@ -17,6 +19,23 @@ export type EmailResult = {
   reason?: string;
   error?: string;
 };
+
+function getInlineAttachments() {
+  const attachments = [];
+  try {
+    const badgePath = path.join(process.cwd(), "public", "images", "rakexura-silver-badge.png");
+    if (fs.existsSync(badgePath)) {
+      attachments.push({
+        filename: "rakexura-silver-badge.png",
+        path: badgePath,
+        cid: "rakexuraSilverBadge",
+      });
+    }
+  } catch (err) {
+    console.warn("Could not load logo attachments:", err);
+  }
+  return attachments;
+}
 
 function escapeHtml(value: string) {
   return value
@@ -44,42 +63,38 @@ export function textToHtml(text: string) {
       return;
     }
 
-    // Order Reference highlight (e.g. RKX-2607-000058)
     if (/RKX-\d{4}-\d+/i.test(trimmed)) {
       const match = trimmed.match(/RKX-\d{4}-\d+/i)?.[0];
       if (match) detectedRef = match;
       const headingText = trimmed.replace(match || "", "").trim();
       formattedContent += `
-        <div style="background:linear-gradient(135deg, rgba(112,224,0,0.12), rgba(139,92,246,0.08));border:1px solid rgba(112,224,0,0.3);border-radius:10px;padding:14px;margin-bottom:16px;text-align:center;">
-          ${headingText ? `<div style="color:#aeb5c6;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">${escapeHtml(headingText)}</div>` : ''}
-          <div style="display:inline-block;background:#70e000;color:#000000;padding:5px 16px;border-radius:6px;font-family:monospace,Consolas,Courier,monospace;font-size:15px;font-weight:900;letter-spacing:1px;box-shadow:0 0 12px rgba(112,224,0,0.3);">${escapeHtml(match || "")}</div>
+        <div style="background-color:#f8f9fa;border:1px solid #e5e5e5;border-radius:8px;padding:14px;margin-bottom:16px;text-align:center;">
+          ${headingText ? `<div style="color:#727272;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">${escapeHtml(headingText)}</div>` : ''}
+          <div style="display:inline-block;background-color:#000000;color:#ffffff;padding:5px 16px;border-radius:6px;font-family:monospace,Consolas,Courier,monospace;font-size:15px;font-weight:900;letter-spacing:1px;">${escapeHtml(match || "")}</div>
         </div>
       `;
       return;
     }
 
-    // Items block start
     if (trimmed.toLowerCase().startsWith("items:") || trimmed.toLowerCase().startsWith("items purchased:")) {
       inItemsBlock = true;
       formattedContent += `
-        <div style="margin-top:14px;margin-bottom:14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;">
-          <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#70e000;margin-bottom:8px;">PURCHASED ITEMS</div>
+        <div style="margin-top:14px;margin-bottom:14px;background-color:#f9f9f9;border:1px solid #e5e5e5;border-radius:8px;padding:14px;">
+          <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#727272;margin-bottom:8px;">PURCHASED ITEMS</div>
       `;
       return;
     }
 
-    // Bullet items
     if (trimmed.startsWith("- ") || trimmed.startsWith("• ")) {
       const itemText = trimmed.substring(2);
       formattedContent += `
-        <div style="padding:6px 0;font-size:13px;font-weight:600;color:#ffffff;border-bottom:1px solid rgba(255,255,255,0.04);">
+        <div style="padding:6px 0;font-size:13px;font-weight:600;color:#121212;border-bottom:1px solid #eee;">
           &bull; ${escapeHtml(itemText)}
         </div>
       `;
       return;
     }
 
-    // Key-Value pairs (e.g. Customer: John, Email: test@gmail.com, Amount: Rs. 200)
     if (trimmed.includes(":") && !trimmed.startsWith("http")) {
       const parts = trimmed.split(":");
       const key = parts[0].trim();
@@ -87,33 +102,31 @@ export function textToHtml(text: string) {
 
       let valHtml = escapeHtml(val);
       if (key.toLowerCase().includes("email") && val.includes("@")) {
-        valHtml = `<a href="mailto:${escapeHtml(val)}" style="color:#70e000;text-decoration:underline;font-weight:bold;">${escapeHtml(val)}</a>`;
+        valHtml = `<a href="mailto:${escapeHtml(val)}" style="color:#0066cc;text-decoration:underline;font-weight:bold;">${escapeHtml(val)}</a>`;
       } else if (key.toLowerCase().includes("whatsapp") || key.toLowerCase().includes("phone")) {
         const cleanPhone = val.replace(/\D/g, "");
-        valHtml = `<a href="https://wa.me/${cleanPhone}" style="color:#00d68f;text-decoration:none;font-weight:bold;background:rgba(0,214,143,0.1);padding:2px 8px;border-radius:4px;border:1px solid rgba(0,214,143,0.2);">+${escapeHtml(val)}</a>`;
+        valHtml = `<a href="https://wa.me/${cleanPhone}" style="color:#0066cc;text-decoration:none;font-weight:bold;">+${escapeHtml(val)}</a>`;
       } else if (key.toLowerCase().includes("amount") || key.toLowerCase().includes("price") || key.toLowerCase().includes("total")) {
-        valHtml = `<span style="color:#facc15;font-weight:900;font-size:15px;">${escapeHtml(val)}</span>`;
+        valHtml = `<span style="color:#000000;font-weight:900;font-size:15px;">${escapeHtml(val)}</span>`;
       }
 
       formattedContent += `
         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:3px 0;">
           <tr>
-            <td style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:#8991a6;font-weight:700;" align="left" width="40%">${escapeHtml(key)}</td>
-            <td style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:#ffffff;font-weight:600;" align="right" width="60%">${valHtml}</td>
+            <td style="padding:6px 0;border-bottom:1px solid #eee;font-size:13px;color:#727272;font-weight:700;" align="left" width="40%">${escapeHtml(key)}</td>
+            <td style="padding:6px 0;border-bottom:1px solid #eee;font-size:13px;color:#121212;font-weight:600;" align="right" width="60%">${valHtml}</td>
           </tr>
         </table>
       `;
       return;
     }
 
-    formattedContent += `<p style="margin:6px 0;font-size:13px;line-height:1.6;color:#d4d4d8;">${escapeHtml(trimmed)}</p>`;
+    formattedContent += `<p style="margin:6px 0;font-size:13px;line-height:1.6;color:#333333;">${escapeHtml(trimmed)}</p>`;
   });
 
   if (inItemsBlock) {
     formattedContent += `</div>`;
   }
-
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
 
   return `
     <!DOCTYPE html>
@@ -122,112 +135,31 @@ export function textToHtml(text: string) {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
-      <body style="margin:0;padding:0;background-color:#0b0914;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#e4e4e7;">
-        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#0b0914;padding:32px 10px;">
+      <body style="margin:0;padding:0;background-color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#121212;-webkit-font-smoothing:antialiased;">
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#ffffff;padding:32px 10px;">
           <tr>
             <td align="center">
-              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:580px;">
-                
-                <!-- BRAND LOGO HEADER -->
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:580px;background-color:#ffffff;border:1px solid #e5e5e5;border-radius:12px;padding:28px 24px;text-align:center;">
                 <tr>
-                  <td align="center" style="padding-bottom:20px;">
-                    <div style="background:#141029;border:1px solid rgba(139,92,246,0.3);border-radius:12px;padding:14px 28px;display:inline-block;box-shadow:0 8px 24px rgba(0,0,0,0.5);text-align:center;">
-                      <span style="display:inline-block;padding:3px 10px;background:rgba(139,92,246,0.2);border-radius:4px;font-size:9px;font-weight:900;color:#c4b5fd;letter-spacing:2px;text-transform:uppercase;">RAKEXURA STORE</span>
-                      <div style="font-size:22px;font-weight:900;color:#ffffff;letter-spacing:2px;text-transform:uppercase;margin-top:4px;">RAKEXURA</div>
+                  <td align="center">
+                    <img src="cid:rakexuraSilverBadge" alt="Rakexura Shield Badge" width="46" height="55" style="display:block;margin:0 auto 16px auto;border:0;" />
+                    <div style="font-size:18px;font-weight:900;color:#000000;letter-spacing:1px;text-transform:uppercase;">
+                      RAKEXURA STORE
                     </div>
-                  </td>
-                </tr>
+                    ${detectedRef ? `<div style="font-size:12px;color:#727272;font-weight:700;margin-top:4px;">Order Ref: ${detectedRef}</div>` : ''}
+                    
+                    <hr style="border:none;border-top:1px solid #e5e5e5;margin:16px 0 20px 0;" />
 
-                <!-- CARD 1: PRIMARY STATUS & CONTENT CARD (NVIDIA STYLE) -->
-                <tr>
-                  <td style="background:#141029;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px 24px;box-shadow:0 12px 36px rgba(0,0,0,0.6);">
-                    <div style="text-align:center;margin-bottom:16px;">
-                      <div style="font-size:18px;font-weight:900;color:#70e000;letter-spacing:1px;text-transform:uppercase;">
-                        RAKEXURA OFFICIAL UPDATE
-                      </div>
-                      ${detectedRef ? `<div style="font-size:12px;color:#8991a6;font-weight:700;margin-top:4px;">Order Ref: ${detectedRef}</div>` : ''}
-                    </div>
-
-                    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:16px 0 20px 0;" />
-
-                    <div style="font-size:14px;line-height:1.7;color:#d4d4d8;">
+                    <div style="font-size:14px;line-height:1.7;color:#333333;text-align:left;">
                       ${formattedContent}
                     </div>
 
-                    <div style="margin-top:24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);font-size:12px;color:#8991a6;">
+                    <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e5e5;font-size:12px;color:#727272;text-align:left;">
                       Thanks,<br />
-                      <strong style="color:#ffffff;">Rakexura Customer Support</strong>
+                      <strong style="color:#000000;">Rakexura Customer Support</strong>
                     </div>
                   </td>
                 </tr>
-
-                <!-- CARD 2: GET PLAYING / HERO ACTION CARD (NVIDIA STYLE) -->
-                <tr>
-                  <td style="padding-top:16px;">
-                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background:linear-gradient(135deg, #1e173b, #120e24);border:1px solid rgba(139,92,246,0.3);border-radius:14px;padding:24px 20px;text-align:center;box-shadow:0 12px 36px rgba(0,0,0,0.5);">
-                      <tr>
-                        <td align="center">
-                          <div style="font-size:15px;font-weight:900;color:#70e000;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">GET PLAYING</div>
-                          <div style="font-size:12px;color:#a4abbc;font-weight:600;margin-bottom:16px;">Start Gaming with Your Library of PC Games</div>
-                          <a href="${siteUrl}" style="display:inline-block;background:#70e000;color:#000000;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:900;font-size:12px;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 20px rgba(112,224,0,0.4);">
-                            PLAY NOW
-                          </a>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                <!-- CARD 3: QUICK NAVIGATION LINKS CARD (NVIDIA STYLE) -->
-                <tr>
-                  <td style="padding-top:16px;">
-                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background:#141029;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 20px;box-shadow:0 8px 24px rgba(0,0,0,0.4);">
-                      <tr>
-                        <td>
-                          <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
-                            <tr>
-                              <td align="center" width="25%" style="padding:4px;">
-                                <a href="${siteUrl}/dashboard" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
-                                  Account
-                                </a>
-                              </td>
-                              <td align="center" width="25%" style="padding:4px;">
-                                <a href="${siteUrl}/games" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
-                                  Catalog
-                                </a>
-                              </td>
-                              <td align="center" width="25%" style="padding:4px;">
-                                <a href="https://wa.me/918317416695" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
-                                  Support
-                                </a>
-                              </td>
-                              <td align="center" width="25%" style="padding:4px;">
-                                <a href="${siteUrl}/track" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
-                                  Tracking
-                                </a>
-                              </td>
-                            </tr>
-                          </table>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                <!-- CARD 4: FOOTER & LEGAL NOTICE (NVIDIA STYLE) -->
-                <tr>
-                  <td style="padding-top:24px;text-align:center;color:#71717a;font-size:11px;line-height:1.6;">
-                    <p style="margin:0 0 6px 0;">You are receiving this email as an alert or update to your Rakexura Store service.</p>
-                    <p style="margin:0 0 10px 0;">E-commerce services are provided by Rakexura Store, authorized PC game reseller.</p>
-                    <div>
-                      <a href="${siteUrl}/terms" style="color:#a1a1aa;text-decoration:none;margin:0 6px;">Terms of Use</a> |
-                      <a href="${siteUrl}/privacy" style="color:#a1a1aa;text-decoration:none;margin:0 6px;">Privacy Policy</a> |
-                      <a href="${siteUrl}/support" style="color:#a1a1aa;text-decoration:none;margin:0 6px;">Contact Us</a>
-                    </div>
-                    <p style="margin:10px 0 0 0;">&copy; 2026 Rakexura Store. All rights reserved.</p>
-                  </td>
-                </tr>
-
               </table>
             </td>
           </tr>
@@ -238,13 +170,121 @@ export function textToHtml(text: string) {
 }
 
 export async function sendEmail({ to, subject, text, html }: SendEmailInput): Promise<EmailResult> {
-  const from = process.env.EMAIL_FROM ?? "Rakexura Store <cheappcgamesrake@gmail.com>";
+  const ownerEmail = (process.env.OWNER_EMAIL || "12k21rakeshkannam@gmail.com").toLowerCase().trim();
 
   if (!to) {
     return { ok: false, skipped: true, reason: "Email recipient is not configured" };
   }
 
-  // 1. Try Direct SMTP (e.g. Gmail SMTP smtp.gmail.com) if SMTP_HOST is configured
+  const recipient = to.toLowerCase().trim();
+  const isOwner = recipient === ownerEmail;
+
+  // =========================================================================
+  // STRICT RULE 1: OWNER EMAILS -> USE RESEND API (OR GMAIL DIRECT SMTP) ONLY!
+  // OWNER EMAILS MUST NEVER USE BREVO API!
+  // =========================================================================
+  if (isOwner) {
+    // 1a. Try Resend API first for Owner emails
+    if (process.env.RESEND_API_KEY) {
+      try {
+        const apiKey = process.env.RESEND_API_KEY;
+        const response = await fetchWithTimeout("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: "Rakexura Store <onboarding@resend.dev>",
+            to: recipient,
+            subject,
+            text,
+            html: html ?? textToHtml(text),
+          }),
+        });
+
+        if (response.ok) {
+          console.log(`[Resend API] Owner email successfully delivered to ${recipient}`);
+          return { ok: true };
+        }
+        const errText = await response.text();
+        console.warn(`[Resend API] Owner email failed (${response.status}): ${errText}`);
+      } catch (err) {
+        console.warn("[Resend API] Error sending owner email:", err);
+      }
+    }
+
+    // 1b. Fallback for Owner: Gmail Direct SMTP (if configured)
+    const smtpHost = process.env.SMTP_HOST;
+    const smtpPort = Number(process.env.SMTP_PORT || "465");
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS;
+
+    if (nodemailer && smtpHost && smtpUser && smtpPass) {
+      try {
+        const transporter = nodemailer.createTransport({
+          host: smtpHost,
+          port: smtpPort,
+          secure: smtpPort === 465,
+          auth: { user: smtpUser, pass: smtpPass },
+        });
+
+        await transporter.sendMail({
+          from: `Rakexura Admin Alert <${smtpUser}>`,
+          to: recipient,
+          subject,
+          text,
+          html: html ?? textToHtml(text),
+          attachments: getInlineAttachments(),
+        });
+
+        console.log(`[Gmail Direct SMTP] Owner email successfully delivered to ${recipient}`);
+        return { ok: true };
+      } catch (smtpErr) {
+        console.warn("[Gmail Direct SMTP] Owner email failed:", smtpErr);
+      }
+    }
+
+    return { ok: false, skipped: true, reason: "Owner email dispatch failed (Resend API & Gmail Direct SMTP failed)" };
+  }
+
+  // =========================================================================
+  // STRICT RULE 2: CUSTOMER EMAILS -> BREVO SMTP / BREVO API FIRST, THEN FALLBACKS
+  // =========================================================================
+  const brevoApiKey = process.env.BREVO_API_KEY;
+  if (brevoApiKey) {
+    const senderEmail = process.env.SMTP_USER || "cheappcgamesrake@gmail.com";
+
+    if (nodemailer) {
+      try {
+        const transporter = nodemailer.createTransport({
+          host: "smtp-relay.brevo.com",
+          port: 587,
+          secure: false,
+          auth: {
+            user: senderEmail,
+            pass: brevoApiKey,
+          },
+        });
+
+        await transporter.sendMail({
+          from: `Rakexura Store <${senderEmail}>`,
+          to: recipient,
+          subject,
+          text,
+          html: html ?? textToHtml(text),
+          attachments: getInlineAttachments(),
+        });
+
+        console.log(`[Brevo SMTP] Customer email successfully delivered to ${recipient}`);
+        return { ok: true };
+      } catch (smtpErr) {
+        console.warn("[Brevo SMTP] Dispatch failed, trying Gmail Direct SMTP fallback:", smtpErr);
+      }
+    }
+  }
+
+  // Fallback for Customer: Gmail Direct SMTP
   const smtpHost = process.env.SMTP_HOST;
   const smtpPort = Number(process.env.SMTP_PORT || "465");
   const smtpUser = process.env.SMTP_USER;
@@ -256,126 +296,29 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
         host: smtpHost,
         port: smtpPort,
         secure: smtpPort === 465,
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
+        auth: { user: smtpUser, pass: smtpPass },
       });
 
       await transporter.sendMail({
-        from,
-        to,
+        from: `Rakexura Store <${smtpUser}>`,
+        to: recipient,
         subject,
         text,
         html: html ?? textToHtml(text),
+        attachments: getInlineAttachments(),
       });
 
-      console.log(`[Direct SMTP] Email successfully sent to ${to}`);
+      console.log(`[Gmail Direct SMTP] Customer email successfully delivered to ${recipient}`);
       return { ok: true };
     } catch (smtpErr) {
-      console.warn("[Direct SMTP] Dispatch failed, trying Brevo/Resend fallbacks:", smtpErr);
+      console.warn("[Gmail Direct SMTP] Customer email failed:", smtpErr);
     }
   }
 
-  // 2. Try Brevo API / SMTP if BREVO_API_KEY is present
-  const brevoApiKey = process.env.BREVO_API_KEY;
-  if (brevoApiKey) {
-    const match = from.match(/^(.*?)\s*<([^>]+)>$/);
-    const senderName = match ? match[1].trim() || "Rakexura Store" : "Rakexura Store";
-    const senderEmail = match ? match[2].trim() : from.trim();
-
-    // First try Brevo HTTP REST API v3
+  // Final Fallback for Customer: Resend API
+  if (process.env.RESEND_API_KEY) {
     try {
-      const response = await fetchWithTimeout("https://api.brevo.com/v3/smtp/email", {
-        method: "POST",
-        headers: {
-          "api-key": brevoApiKey,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          sender: { name: senderName, email: senderEmail },
-          to: [{ email: to }],
-          subject,
-          htmlContent: html ?? textToHtml(text),
-          textContent: text,
-        }),
-      });
-
-      if (response.ok) {
-        console.log(`[Brevo API] Email successfully sent to ${to}`);
-        return { ok: true };
-      }
-
-      const errorText = await response.text();
-      console.warn(`[Brevo API] Returned non-OK status (${response.status}) when sending to ${to}:`, errorText);
-    } catch (error) {
-      console.warn("Brevo HTTP API failed, trying Brevo SMTP fallback:", error);
-    }
-
-    // Fallback to Brevo Nodemailer SMTP (especially for xsmtpsib- keys)
-    if (nodemailer) {
-      try {
-        const smtpLoginUser = process.env.SMTP_USER || process.env.OWNER_EMAIL || senderEmail;
-        const smtpTransporter = nodemailer.createTransport({
-          host: "smtp-relay.brevo.com",
-          port: 587,
-          secure: false,
-          auth: {
-            user: smtpLoginUser,
-            pass: brevoApiKey,
-          },
-        });
-
-        await smtpTransporter.sendMail({
-          from,
-          to,
-          subject,
-          text,
-          html: html ?? textToHtml(text),
-        });
-
-        console.log(`[Brevo SMTP] Email successfully sent to ${to}`);
-        return { ok: true };
-      } catch (smtpErr) {
-        console.error("Brevo SMTP Nodemailer dispatch failed:", smtpErr);
-      }
-    }
-  }
-
-  // 3. Check Resend API key fallback
-  const apiKey = process.env.RESEND_API_KEY;
-  if (nodemailer && apiKey) {
-    try {
-      const transporter = nodemailer.createTransport({
-        host: "smtp.resend.com",
-        port: 465,
-        secure: true,
-        auth: {
-          user: "resend",
-          pass: apiKey,
-        },
-      });
-
-      await transporter.sendMail({
-        from,
-        to,
-        subject,
-        text,
-        html: html ?? textToHtml(text),
-      });
-      console.log(`[Resend SMTP] Email successfully sent to ${to}`);
-      return { ok: true };
-    } catch (err) {
-      console.error("Nodemailer Resend dispatch failed, trying HTTP API:", err);
-    }
-  }
-
-
-
-  // Failsafe: Fallback to Resend HTTP API if Nodemailer SMTP fails or is unavailable
-  if (apiKey) {
-    try {
+      const apiKey = process.env.RESEND_API_KEY;
       const response = await fetchWithTimeout("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -383,26 +326,22 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from,
-          to,
+          from: "Rakexura Store <onboarding@resend.dev>",
+          to: recipient,
           subject,
           text,
           html: html ?? textToHtml(text),
         }),
       });
 
-      if (!response.ok) {
-        return { ok: false, error: await response.text() };
+      if (response.ok) {
+        console.log(`[Resend Fallback] Customer email delivered to ${recipient}`);
+        return { ok: true };
       }
-
-      return { ok: true };
-    } catch (error) {
-      return {
-        ok: false,
-        error: error instanceof Error ? error.message : "Email send failed",
-      };
+    } catch (err) {
+      console.error("[Resend Fallback] Dispatch failed:", err);
     }
   }
 
-  return { ok: false, skipped: true, reason: "No email SMTP or API configuration found" };
+  return { ok: false, skipped: true, reason: "No active email transport completed successfully" };
 }

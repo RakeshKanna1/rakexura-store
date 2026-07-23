@@ -414,6 +414,7 @@ export function CheckoutForm() {
     
     const reference = String(data);
     setOrderReference(reference);
+    setCelebrate(true);
     void notifyOwner(reference, finalTotal, values, [
       ...items.map((item) => ({ title: String(item.title), platform: String(item.platform), quantity: Number(item.quantity), price: Number(item.unit_price) })),
       ...bundles.map((item) => ({ title: String(item.title), platform: "Bundle", quantity: Number(item.quantity), price: Number(item.unit_price) })),
@@ -671,9 +672,47 @@ export function CheckoutForm() {
     <AnimatePresence>{orderReference && (
       <motion.div className="fixed inset-0 z-[90] grid place-items-center overflow-y-auto bg-[#05070f]/94 p-5 backdrop-blur-xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <motion.div initial={{ y: 20, scale: .96 }} animate={{ y: 0, scale: 1 }} className="premium-panel w-full max-w-lg rounded-lg p-7 text-center">
-          <span className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-[#00d68f] text-black">
-            <Check size={38} />
-          </span>
+          <div className="relative mx-auto h-20 w-20 flex items-center justify-center mb-2">
+            {/* Green energy ring shockwaves */}
+            <motion.span
+              initial={{ opacity: 1, scale: 0.5 }}
+              animate={{ opacity: 0, scale: 1.9 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              className="absolute inset-0 rounded-full border-2 border-[#00d68f]/80 pointer-events-none"
+            />
+            <motion.span
+              initial={{ opacity: 1, scale: 0.3 }}
+              animate={{ opacity: 0, scale: 2.4 }}
+              transition={{ duration: 0.85, delay: 0.12, ease: "easeOut" }}
+              className="absolute inset-0 rounded-full border-2 border-[#70efbb]/50 pointer-events-none"
+            />
+
+            {/* Main Success Circle */}
+            <motion.div
+              initial={{ scale: 0, rotate: -45 }}
+              animate={{ scale: [0, 1.2, 0.95, 1.05, 1], rotate: 0 }}
+              transition={{ duration: 0.65, ease: [0.175, 0.885, 0.32, 1.275] }}
+              className="grid h-20 w-20 place-items-center rounded-full bg-[#00d68f] text-black shadow-[0_0_35px_rgba(0,214,143,0.5)] relative z-10"
+            >
+              <svg
+                width="42"
+                height="42"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <motion.path
+                  d="M20 6L9 17l-5-5"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 0.45, delay: 0.25, ease: "easeOut" }}
+                />
+              </svg>
+            </motion.div>
+          </div>
           <p className="eyebrow mt-6">Order created</p>
           <h2 className="mt-2 text-3xl font-black">Payment review started</h2>
           <p className="muted mt-3 text-sm leading-6">Save this reference. Use it with your WhatsApp number to track delivery.</p>
@@ -723,7 +762,10 @@ export function CheckoutForm() {
           </div>
 
           <div className="mt-5 grid gap-2 sm:grid-cols-2">
-            <Link href="/dashboard/orders" className="btn btn-primary flex items-center justify-center">
+            <Link
+              href={`/track-order?order=${orderReference}&phone=${postPurchasePhone}`}
+              className="btn btn-primary flex items-center justify-center"
+            >
               Track order
             </Link>
             <Link href="/support" className="btn btn-secondary">
