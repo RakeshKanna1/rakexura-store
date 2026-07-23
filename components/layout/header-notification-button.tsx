@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import { Bell, Check, CheckCheck, ExternalLink, Package, ShieldCheck, AlertTriangle, Info, Megaphone } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -60,6 +61,7 @@ export function HeaderNotificationButton() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [ringing, setRinging] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchUserNotifications = useCallback(async (uid: string) => {
@@ -153,11 +155,46 @@ export function HeaderNotificationButton() {
     <div ref={dropdownRef} className="relative">
       <button
         suppressHydrationWarning
-        onClick={() => setOpen(!open)}
-        className="btn btn-secondary relative h-11 min-h-11 px-3 hover:border-[#facc15]/30 hover:bg-white/[.08]"
+        onClick={() => {
+          setRinging(true);
+          setTimeout(() => setRinging(false), 800);
+          setOpen(!open);
+        }}
+        className="btn btn-secondary relative h-11 min-h-11 px-3 hover:border-[#facc15]/30 hover:bg-white/[.08] cursor-pointer"
         aria-label="Open notifications"
       >
-        <Bell size={19} className="text-[#aeb5c6] transition-colors hover:text-white" />
+        <motion.div
+          animate={
+            ringing
+              ? {
+                  rotate: [0, 24, -20, 16, -12, 8, -4, 0],
+                  scale: [1, 1.15, 1, 1.08, 1],
+                }
+              : { rotate: 0, scale: 1 }
+          }
+          transition={{ duration: 0.75, ease: "easeInOut" }}
+          className="origin-top flex items-center justify-center relative"
+        >
+          {/* Energy soundwave rings */}
+          {ringing && (
+            <>
+              <motion.span
+                initial={{ opacity: 1, scale: 0.5 }}
+                animate={{ opacity: 0, scale: 1.8 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="absolute -inset-1 rounded-full border border-[#facc15]/60 pointer-events-none"
+              />
+              <motion.span
+                initial={{ opacity: 1, scale: 0.3 }}
+                animate={{ opacity: 0, scale: 2.3 }}
+                transition={{ duration: 0.65, delay: 0.1, ease: "easeOut" }}
+                className="absolute -inset-2 rounded-full border border-[#facc15]/40 pointer-events-none"
+              />
+            </>
+          )}
+          <Bell size={19} className={ringing ? "text-[#facc15]" : "text-[#aeb5c6] transition-colors hover:text-white"} />
+        </motion.div>
+
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#ef4444] text-[10px] font-black text-white ring-2 ring-[#050505] animate-pulse">
             {unreadCount}
