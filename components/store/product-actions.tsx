@@ -140,6 +140,9 @@ export function ProductActions({ game }: { game: Game }) {
     }
   }
 
+  const isInCart = lines.some((l) => l.game.id === game.id);
+  const isAdded = btnStatus === "added";
+
   return (
     <div className="space-y-4">
       <div className="glass min-w-0 space-y-5 overflow-hidden rounded-lg p-4 sm:p-5">
@@ -377,11 +380,14 @@ export function ProductActions({ game }: { game: Game }) {
                 type="button"
                 suppressHydrationWarning
                 disabled={btnStatus !== "idle"}
-                className="relative overflow-hidden w-full border border-white/10 bg-white/[.06] text-white hover:bg-white/[.1] transition-all duration-300 select-none min-h-11 cursor-pointer"
+                className={`relative overflow-hidden w-full transition-all duration-300 select-none min-h-11 cursor-pointer font-extrabold text-sm ${
+                  isAdded
+                    ? "border-2 border-white/40 bg-white/15 text-white shadow-[0_0_15px_rgba(255,255,255,0.15)] hover:bg-white/20"
+                    : "border border-white/15 bg-white/[.08] text-white hover:bg-white/[.15]"
+                }`}
                 onClick={() => {
                   if (btnStatus !== "idle") return;
-                  const alreadyInCart = lines.some((l) => l.game.id === game.id);
-                  if (alreadyInCart) {
+                  if (isInCart) {
                     toast.info(`${game.title} is already in your cart!`);
                     setDrawerOpen(true);
                     return;
@@ -469,13 +475,13 @@ export function ProductActions({ game }: { game: Game }) {
                         </motion.div>
                       </motion.div>
                     </motion.div>
-                  ) : btnStatus === "added" ? (
+                  ) : isAdded ? (
                     <motion.span
                       key="added"
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
-                      className="flex items-center justify-center gap-2 text-white font-extrabold"
+                      className="flex items-center justify-center gap-2 text-white font-black text-sm tracking-wide"
                     >
                       <motion.span
                         initial={{ scale: 0, rotate: -45 }}
@@ -492,7 +498,7 @@ export function ProductActions({ game }: { game: Game }) {
                       initial={{ opacity: 0, y: -6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 6 }}
-                      className="flex items-center justify-center gap-2"
+                      className="flex items-center justify-center gap-2 text-white font-bold"
                     >
                       <ShoppingBag size={18} />
                       <span>Add to cart</span>
