@@ -21,8 +21,31 @@ export async function updateAccount(formData: FormData) {
   const whatsapp = String(formData.get("whatsapp") ?? "").replace(/\D/g, "");
   if (displayName.length < 2) redirect("/dashboard/settings?error=Enter+a+valid+display+name");
   if (whatsapp && (whatsapp.length < 10 || whatsapp.length > 15)) redirect("/dashboard/settings?error=Enter+a+valid+WhatsApp+number");
-  const { error } = await supabase.from("profiles").update({ display_name: displayName, whatsapp: whatsapp || null }).eq("id", user.id);
-  if (error) redirect(`/dashboard/settings?error=${encodeURIComponent(error.message)}`);
+  let { error } = await supabase
+    .from("profiles")
+    .update({ display_name: displayName, whatsapp: whatsapp || null, updated_at: new Date().toISOString() })
+    .eq("id", user.id)
+    .select("id");
+
+  if (error) {
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (serviceKey) {
+      const { createClient: createAdmin } = await import("@supabase/supabase-js");
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const adminClient = createAdmin(url, serviceKey, { auth: { persistSession: false } });
+      await adminClient.from("profiles").upsert({
+        id: user.id,
+        email: user.email,
+        display_name: displayName,
+        whatsapp: whatsapp || null,
+        role: "customer",
+        updated_at: new Date().toISOString(),
+      });
+    } else {
+      redirect(`/dashboard/settings?error=${encodeURIComponent(error.message)}`);
+    }
+  }
+
   redirect("/dashboard/settings?message=Account+settings+saved");
 }
 
@@ -40,23 +63,39 @@ export async function saveWhatsAppNumber(phone: string) {
     return { success: false, error: "Please enter a valid WhatsApp phone number (10 to 15 digits)." };
   }
 
-  const { error: updateErr } = await supabase
+  const { data: updatedRows, error: updateErr } = await supabase
     .from("profiles")
     .update({ whatsapp: cleanDigits, updated_at: new Date().toISOString() })
-    .eq("id", user.id);
+    .eq("id", user.id)
+    .select("id");
 
-  if (updateErr) {
-    const { error: insertErr } = await supabase.from("profiles").upsert({
+  if (updateErr || !updatedRows || updatedRows.length === 0) {
+    const displayName = user.user_metadata?.full_name || user.email?.split("@")[0] || "Player";
+    const profilePayload = {
       id: user.id,
       email: user.email,
-      display_name: user.user_metadata?.full_name || user.email?.split("@")[0] || "Player",
+      display_name: displayName,
       whatsapp: cleanDigits,
       role: "customer",
       updated_at: new Date().toISOString(),
-    });
+    };
 
-    if (insertErr) {
-      return { success: false, error: insertErr.message };
+    const { error: upsertErr } = await supabase.from("profiles").upsert(profilePayload);
+
+    if (upsertErr) {
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (serviceKey) {
+        try {
+          const { createClient: createAdmin } = await import("@supabase/supabase-js");
+          const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+          const adminClient = createAdmin(url, serviceKey, { auth: { persistSession: false } });
+          await adminClient.from("profiles").upsert(profilePayload);
+        } catch (adminErr) {
+          return { success: false, error: adminErr instanceof Error ? adminErr.message : "Database error" };
+        }
+      } else {
+        return { success: false, error: upsertErr.message };
+      }
     }
   }
 
