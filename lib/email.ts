@@ -244,7 +244,40 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
     return { ok: false, skipped: true, reason: "Email recipient is not configured" };
   }
 
-  // 1. Try Brevo API / SMTP if BREVO_API_KEY is present
+  // 1. Try Direct SMTP (e.g. Gmail SMTP smtp.gmail.com) if SMTP_HOST is configured
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpPort = Number(process.env.SMTP_PORT || "465");
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+
+  if (nodemailer && smtpHost && smtpUser && smtpPass) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+      });
+
+      await transporter.sendMail({
+        from,
+        to,
+        subject,
+        text,
+        html: html ?? textToHtml(text),
+      });
+
+      console.log(`[Direct SMTP] Email successfully sent to ${to}`);
+      return { ok: true };
+    } catch (smtpErr) {
+      console.warn("[Direct SMTP] Dispatch failed, trying Brevo/Resend fallbacks:", smtpErr);
+    }
+  }
+
+  // 2. Try Brevo API / SMTP if BREVO_API_KEY is present
   const brevoApiKey = process.env.BREVO_API_KEY;
   if (brevoApiKey) {
     const match = from.match(/^(.*?)\s*<([^>]+)>$/);
@@ -283,13 +316,13 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
     // Fallback to Brevo Nodemailer SMTP (especially for xsmtpsib- keys)
     if (nodemailer) {
       try {
-        const smtpUser = process.env.SMTP_USER || process.env.OWNER_EMAIL || senderEmail;
+        const smtpLoginUser = process.env.SMTP_USER || process.env.OWNER_EMAIL || senderEmail;
         const smtpTransporter = nodemailer.createTransport({
           host: "smtp-relay.brevo.com",
           port: 587,
           secure: false,
           auth: {
-            user: smtpUser,
+            user: smtpLoginUser,
             pass: brevoApiKey,
           },
         });
@@ -302,6 +335,7 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
           html: html ?? textToHtml(text),
         });
 
+        console.log(`[Brevo SMTP] Email successfully sent to ${to}`);
         return { ok: true };
       } catch (smtpErr) {
         console.error("Brevo SMTP Nodemailer dispatch failed:", smtpErr);
@@ -309,51 +343,20 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
     }
   }
 
-  // 2. Try generic SMTP credentials if present and nodemailer is available
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpPort = Number(process.env.SMTP_PORT || "465");
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-
-  // 3. Check Resend API key
+  // 3. Check Resend API key fallback
   const apiKey = process.env.RESEND_API_KEY;
-
-  let transporter = null;
-
-  if (nodemailer) {
-    if (smtpHost && smtpUser && smtpPass) {
-      try {
-        transporter = nodemailer.createTransport({
-          host: smtpHost,
-          port: smtpPort,
-          secure: smtpPort === 465,
-          auth: {
-            user: smtpUser,
-            pass: smtpPass,
-          },
-        });
-      } catch (err) {
-        console.warn("Failed to create nodemailer SMTP transporter:", err);
-      }
-    } else if (apiKey) {
-      try {
-        transporter = nodemailer.createTransport({
-          host: "smtp.resend.com",
-          port: 465,
-          secure: true,
-          auth: {
-            user: "resend",
-            pass: apiKey,
-          },
-        });
-      } catch (err) {
-        console.warn("Failed to create nodemailer Resend SMTP transporter:", err);
-      }
-    }
-  }
-
-  if (transporter) {
+  if (nodemailer && apiKey) {
     try {
+      const transporter = nodemailer.createTransport({
+        host: "smtp.resend.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: "resend",
+          pass: apiKey,
+        },
+      });
+
       await transporter.sendMail({
         from,
         to,
@@ -361,11 +364,14 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
         text,
         html: html ?? textToHtml(text),
       });
+      console.log(`[Resend SMTP] Email successfully sent to ${to}`);
       return { ok: true };
     } catch (err) {
-      console.error("Nodemailer dispatch failed, falling back to API:", err);
+      console.error("Nodemailer Resend dispatch failed, trying HTTP API:", err);
     }
   }
+
+
 
   // Failsafe: Fallback to Resend HTTP API if Nodemailer SMTP fails or is unavailable
   if (apiKey) {
