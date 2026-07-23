@@ -58,6 +58,87 @@ export async function updateAccount(formData: FormData) {
   redirect("/dashboard/settings?message=Account+settings+saved");
 }
 
+export async function saveAccountSettings({
+  displayName,
+  whatsapp,
+}: {
+  displayName: string;
+  whatsapp: string;
+}) {
+  const headersList = await headers();
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
+  const rateLimitKey = `rate-limit:update-account:${ip}`;
+  const limitRes = await rateLimiter.limit(rateLimitKey, 5, 60);
+  if (!limitRes.success) {
+    return { success: false, error: "Too many update attempts. Please wait a minute." };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Authentication required." };
+
+  const cleanName = displayName.trim();
+  let cleanPhone = whatsapp.replace(/\D/g, "");
+  if (cleanPhone.length === 10) cleanPhone = `91${cleanPhone}`;
+
+  if (cleanName.length < 2) {
+    return { success: false, error: "Display name must be at least 2 characters long." };
+  }
+  if (cleanPhone && (cleanPhone.length < 10 || cleanPhone.length > 15)) {
+    return { success: false, error: "WhatsApp number must be 10 to 15 digits." };
+  }
+
+  const profilePayload = {
+    id: user.id,
+    email: user.email,
+    display_name: cleanName,
+    whatsapp: cleanPhone || null,
+    role: "customer",
+    updated_at: new Date().toISOString(),
+  };
+
+  const { data: updatedRows, error: updateErr } = await supabase
+    .from("profiles")
+    .update({ display_name: cleanName, whatsapp: cleanPhone || null, updated_at: new Date().toISOString() })
+    .eq("id", user.id)
+    .select("id");
+
+  if (updateErr || !updatedRows || updatedRows.length === 0) {
+    const { error: upsertErr } = await supabase.from("profiles").upsert(profilePayload);
+
+    if (upsertErr) {
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (serviceKey) {
+        try {
+          const { createClient: createAdmin } = await import("@supabase/supabase-js");
+          const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+          const adminClient = createAdmin(url, serviceKey, { auth: { persistSession: false } });
+          await adminClient.from("profiles").upsert(profilePayload);
+        } catch (err) {
+          return { success: false, error: err instanceof Error ? err.message : "Database error" };
+        }
+      } else {
+        return { success: false, error: upsertErr.message };
+      }
+    }
+  }
+
+  await supabase.auth.updateUser({ data: { whatsapp: cleanPhone || null, full_name: cleanName } }).catch(() => null);
+
+  revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard");
+  revalidatePath("/profile");
+
+  return {
+    success: true,
+    message: "Account settings saved successfully!",
+    whatsapp: cleanPhone,
+    displayName: cleanName,
+  };
+}
+
 export async function saveWhatsAppNumber(phone: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
