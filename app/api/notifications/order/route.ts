@@ -118,7 +118,12 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
         const qty = item.quantity || 1;
         const itemPrice = Number(item.price || 0);
         const itemTotal = itemPrice * qty;
-        const priceDisplay = itemTotal === 0 ? '<span style="color:#00d68f;font-weight:900;">FREE</span>' : `₹${itemTotal.toLocaleString('en-IN')}`;
+        const isZeroOrder = total === 0;
+        const priceDisplay = (itemTotal === 0 && isZeroOrder) 
+          ? '<span style="color:#00d68f;font-weight:900;">FREE</span>' 
+          : itemTotal > 0 
+            ? `₹${itemTotal.toLocaleString('en-IN')}`
+            : `₹${total.toLocaleString('en-IN')}`;
         
         return `
           <tr style="border-bottom:1px solid rgba(255,255,255,0.06);background:${idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)'};">

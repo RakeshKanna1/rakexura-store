@@ -132,10 +132,21 @@ function parseOrderItems(raw: unknown, fallbackGameId?: number | null, fallbackP
 async function getCustomerEmail(supabase: SupabaseAdmin, userId?: string | null) {
   if (!userId) return null;
 
-  const { data, error } = await supabase.from("profiles").select("email").eq("id", userId).maybeSingle();
-  if (error) return null;
+  const { data: profile } = await supabase.from("profiles").select("email").eq("id", userId).maybeSingle();
+  if (typeof profile?.email === "string" && profile.email.includes("@")) {
+    return profile.email;
+  }
 
-  return typeof data?.email === "string" && data.email.includes("@") ? data.email : null;
+  try {
+    const { data: authUser } = await supabase.auth.admin.getUserById(userId);
+    if (typeof authUser?.user?.email === "string" && authUser.user.email.includes("@")) {
+      return authUser.user.email;
+    }
+  } catch (err) {
+    console.warn("Failed to fetch auth user email for delivery email:", err);
+  }
+
+  return null;
 }
 
 function buildEmailHtml(order: OrderForStatus, status: string, items: ParsedOrderItem[]) {

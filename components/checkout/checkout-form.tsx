@@ -414,8 +414,8 @@ export function CheckoutForm() {
     const reference = String(data);
     setOrderReference(reference);
     void notifyOwner(reference, finalTotal, values, [
-      ...items.map((item) => ({ title: String(item.title), platform: String(item.platform), quantity: Number(item.quantity) })),
-      ...bundles.map((item) => ({ title: String(item.title), platform: "Bundle", quantity: Number(item.quantity) })),
+      ...items.map((item) => ({ title: String(item.title), platform: String(item.platform), quantity: Number(item.quantity), price: Number(item.unit_price) })),
+      ...bundles.map((item) => ({ title: String(item.title), platform: "Bundle", quantity: Number(item.quantity), price: Number(item.unit_price) })),
     ], customerEmail, user?.id);
     
     // Save metadata for WhatsApp redirection link before clearing
