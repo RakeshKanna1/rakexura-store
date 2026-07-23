@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, ChevronLeft, ChevronRight, Clipboard, ImageUp, LockKeyhole, MessageCircle, ShieldCheck, TicketPercent } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Clipboard, ImageUp, LockKeyhole, MessageCircle, ShieldCheck, TicketPercent, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -39,6 +39,8 @@ export function CheckoutForm() {
   const [celebrate, setCelebrate] = useState(false);
   const lines = useCartStore((state) => state.lines);
   const bundleLines = useCartStore((state) => state.bundleLines);
+  const remove = useCartStore((state) => state.remove);
+  const removeBundle = useCartStore((state) => state.removeBundle);
   const clear = useCartStore((state) => state.clear);
   const coupon = useCartStore((state) => state.coupon);
   const setCoupon = useCartStore((state) => state.setCoupon);
@@ -451,8 +453,71 @@ export function CheckoutForm() {
           {/* Bundle Selection Matrix */}
           <BundleAddonMatrix games={games} />
 
+          {/* Cart Items Manager Card */}
+          <div className="mt-5 rounded-lg border border-white/10 bg-black/25 p-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-2.5 mb-3">
+              <span className="text-xs font-black uppercase tracking-wider text-white">
+                Selected Games ({lines.length + bundleLines.length})
+              </span>
+              <span className="text-[11px] text-[#8991a6]">
+                Click <Trash2 size={11} className="inline text-red-400" /> to remove any game
+              </span>
+            </div>
+
+            <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+              {bundleLines.map((line) => {
+                if (!line || !line.bundle) return null;
+                return (
+                  <div key={`bundle-${line.bundle.id}`} className="flex items-center justify-between gap-3 rounded-md border border-[#facc15]/20 bg-[#b89412]/[.08] p-2.5 text-xs">
+                    <div className="min-w-0 flex-1">
+                      <span className="font-extrabold text-white block truncate">{line.bundle.title}</span>
+                      <span className="text-[10px] text-[#facc15] font-mono">Combo Bundle x{line.quantity}</span>
+                    </div>
+                    <span className="font-extrabold text-white shrink-0">{formatPrice(Number(line.bundle.bundle_price || 0) * line.quantity)}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        removeBundle(line.bundle.id);
+                        toast.success("Bundle removed from cart");
+                      }}
+                      className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition shrink-0 cursor-pointer"
+                      title="Remove bundle"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                );
+              })}
+
+              {lines.map((line) => {
+                if (!line || !line.game) return null;
+                const priceVal = getCheckoutLinePrice(line.game, line.platform);
+                return (
+                  <div key={`${line.game.id}-${line.platform}`} className="flex items-center justify-between gap-3 rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5 text-xs">
+                    <div className="min-w-0 flex-1">
+                      <span className="font-extrabold text-white block truncate">{line.game.title}</span>
+                      <span className="text-[10px] text-[#b9a4ff] font-mono">{line.platform} · Qty: {line.quantity}</span>
+                    </div>
+                    <span className="font-extrabold text-[#facc15] shrink-0">{formatPrice(Number(priceVal || 0) * line.quantity)}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        remove(line.game.id, line.platform);
+                        toast.success(`${line.game.title} removed`);
+                      }}
+                      className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition shrink-0 cursor-pointer"
+                      title="Remove game"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Coupon Entry Section */}
-          <div className="mt-6 rounded-lg border border-white/5 bg-black/20 p-4">
+          <div className="mt-5 rounded-lg border border-white/5 bg-black/20 p-4">
             <h4 className="text-xs font-black uppercase tracking-wider text-white mb-2 flex items-center gap-1.5">
               <TicketPercent className="text-[#facc15] h-4 w-4" /> Have a coupon code?
             </h4>
