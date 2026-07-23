@@ -218,7 +218,7 @@ function buildEmailHtml(order: OrderForStatus, status: string, items: ParsedOrde
                 <tr>
                   <td align="center" style="padding-bottom:20px;">
                     <div style="background:#141029;border:1px solid rgba(139,92,246,0.3);border-radius:12px;padding:14px 28px;display:inline-block;box-shadow:0 8px 24px rgba(0,0,0,0.5);text-align:center;">
-                      <span style="display:inline-block;padding:3px 10px;background:rgba(139,92,246,0.2);border-radius:4px;font-size:9px;font-weight:900;color:#c4b5fd;letter-spacing:2px;text-transform:uppercase;">⚡ RAKEXURA STORE</span>
+                      <span style="display:inline-block;padding:3px 10px;background:rgba(139,92,246,0.2);border-radius:4px;font-size:9px;font-weight:900;color:#c4b5fd;letter-spacing:2px;text-transform:uppercase;">RAKEXURA STORE</span>
                       <div style="font-size:22px;font-weight:900;color:#ffffff;letter-spacing:2px;text-transform:uppercase;margin-top:4px;">RAKEXURA</div>
                     </div>
                   </td>
@@ -241,7 +241,7 @@ function buildEmailHtml(order: OrderForStatus, status: string, items: ParsedOrde
 
                     ${actionText}
 
-                    <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#8991a6;margin:24px 0 10px 0;">🛒 ORDER DETAILS</div>
+                    <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#8991a6;margin:24px 0 10px 0;">ORDER DETAILS</div>
                     <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;">
                       <thead>
                         <tr style="background:rgba(139,92,246,0.15);border-bottom:1px solid rgba(139,92,246,0.25);">
@@ -274,7 +274,7 @@ function buildEmailHtml(order: OrderForStatus, status: string, items: ParsedOrde
                     <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background:linear-gradient(135deg, #1e173b, #120e24);border:1px solid rgba(139,92,246,0.3);border-radius:14px;padding:24px 20px;text-align:center;box-shadow:0 12px 36px rgba(0,0,0,0.5);">
                       <tr>
                         <td align="center">
-                          <div style="font-size:15px;font-weight:900;color:#70e000;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">🎮 GET PLAYING</div>
+                          <div style="font-size:15px;font-weight:900;color:#70e000;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">GET PLAYING</div>
                           <div style="font-size:12px;color:#a4abbc;font-weight:600;margin-bottom:16px;">Start Gaming with Your Library of PC Games</div>
                           <a href="${siteUrl}/dashboard/orders" style="display:inline-block;background:#70e000;color:#000000;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:900;font-size:12px;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 20px rgba(112,224,0,0.4);">
                             PLAY NOW
@@ -295,22 +295,22 @@ function buildEmailHtml(order: OrderForStatus, status: string, items: ParsedOrde
                             <tr>
                               <td align="center" width="25%" style="padding:4px;">
                                 <a href="${siteUrl}/dashboard" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
-                                  👤 Account
+                                  Account
                                 </a>
                               </td>
                               <td align="center" width="25%" style="padding:4px;">
                                 <a href="${siteUrl}/games" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
-                                  🎮 Catalog
+                                  Catalog
                                 </a>
                               </td>
                               <td align="center" width="25%" style="padding:4px;">
                                 <a href="https://wa.me/918317416695" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
-                                  💬 Support
+                                  Support
                                 </a>
                               </td>
                               <td align="center" width="25%" style="padding:4px;">
                                 <a href="${siteUrl}/track" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
-                                  ⚙️ Tracking
+                                  Tracking
                                 </a>
                               </td>
                             </tr>

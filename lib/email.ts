@@ -63,7 +63,7 @@ export function textToHtml(text: string) {
       inItemsBlock = true;
       formattedContent += `
         <div style="margin-top:14px;margin-bottom:14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;">
-          <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#70e000;margin-bottom:8px;">🛒 Purchased Items</div>
+          <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#70e000;margin-bottom:8px;">PURCHASED ITEMS</div>
       `;
       return;
     }
@@ -73,7 +73,7 @@ export function textToHtml(text: string) {
       const itemText = trimmed.substring(2);
       formattedContent += `
         <div style="padding:6px 0;font-size:13px;font-weight:600;color:#ffffff;border-bottom:1px solid rgba(255,255,255,0.04);">
-          ⚡ ${escapeHtml(itemText)}
+          &bull; ${escapeHtml(itemText)}
         </div>
       `;
       return;
@@ -90,7 +90,7 @@ export function textToHtml(text: string) {
         valHtml = `<a href="mailto:${escapeHtml(val)}" style="color:#70e000;text-decoration:underline;font-weight:bold;">${escapeHtml(val)}</a>`;
       } else if (key.toLowerCase().includes("whatsapp") || key.toLowerCase().includes("phone")) {
         const cleanPhone = val.replace(/\D/g, "");
-        valHtml = `<a href="https://wa.me/${cleanPhone}" style="color:#00d68f;text-decoration:none;font-weight:bold;background:rgba(0,214,143,0.1);padding:2px 8px;border-radius:4px;border:1px solid rgba(0,214,143,0.2);">📱 +${escapeHtml(val)}</a>`;
+        valHtml = `<a href="https://wa.me/${cleanPhone}" style="color:#00d68f;text-decoration:none;font-weight:bold;background:rgba(0,214,143,0.1);padding:2px 8px;border-radius:4px;border:1px solid rgba(0,214,143,0.2);">+${escapeHtml(val)}</a>`;
       } else if (key.toLowerCase().includes("amount") || key.toLowerCase().includes("price") || key.toLowerCase().includes("total")) {
         valHtml = `<span style="color:#facc15;font-weight:900;font-size:15px;">${escapeHtml(val)}</span>`;
       }
@@ -132,7 +132,7 @@ export function textToHtml(text: string) {
                 <tr>
                   <td align="center" style="padding-bottom:20px;">
                     <div style="background:#141029;border:1px solid rgba(139,92,246,0.3);border-radius:12px;padding:14px 28px;display:inline-block;box-shadow:0 8px 24px rgba(0,0,0,0.5);text-align:center;">
-                      <span style="display:inline-block;padding:3px 10px;background:rgba(139,92,246,0.2);border-radius:4px;font-size:9px;font-weight:900;color:#c4b5fd;letter-spacing:2px;text-transform:uppercase;">⚡ RAKEXURA STORE</span>
+                      <span style="display:inline-block;padding:3px 10px;background:rgba(139,92,246,0.2);border-radius:4px;font-size:9px;font-weight:900;color:#c4b5fd;letter-spacing:2px;text-transform:uppercase;">RAKEXURA STORE</span>
                       <div style="font-size:22px;font-weight:900;color:#ffffff;letter-spacing:2px;text-transform:uppercase;margin-top:4px;">RAKEXURA</div>
                     </div>
                   </td>
@@ -167,7 +167,7 @@ export function textToHtml(text: string) {
                     <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background:linear-gradient(135deg, #1e173b, #120e24);border:1px solid rgba(139,92,246,0.3);border-radius:14px;padding:24px 20px;text-align:center;box-shadow:0 12px 36px rgba(0,0,0,0.5);">
                       <tr>
                         <td align="center">
-                          <div style="font-size:15px;font-weight:900;color:#70e000;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">🎮 GET PLAYING</div>
+                          <div style="font-size:15px;font-weight:900;color:#70e000;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">GET PLAYING</div>
                           <div style="font-size:12px;color:#a4abbc;font-weight:600;margin-bottom:16px;">Start Gaming with Your Library of PC Games</div>
                           <a href="${siteUrl}" style="display:inline-block;background:#70e000;color:#000000;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:900;font-size:12px;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 20px rgba(112,224,0,0.4);">
                             PLAY NOW
@@ -188,22 +188,22 @@ export function textToHtml(text: string) {
                             <tr>
                               <td align="center" width="25%" style="padding:4px;">
                                 <a href="${siteUrl}/dashboard" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
-                                  👤 Account
+                                  Account
                                 </a>
                               </td>
                               <td align="center" width="25%" style="padding:4px;">
                                 <a href="${siteUrl}/games" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
-                                  🎮 Catalog
+                                  Catalog
                                 </a>
                               </td>
                               <td align="center" width="25%" style="padding:4px;">
                                 <a href="https://wa.me/918317416695" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
-                                  💬 Support
+                                  Support
                                 </a>
                               </td>
                               <td align="center" width="25%" style="padding:4px;">
                                 <a href="${siteUrl}/track" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
-                                  ⚙️ Tracking
+                                  Tracking
                                 </a>
                               </td>
                             </tr>

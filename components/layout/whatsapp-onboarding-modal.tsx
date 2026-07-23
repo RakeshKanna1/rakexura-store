@@ -240,8 +240,8 @@ export function WhatsAppOnboardingModal() {
             <div className="flex justify-center mb-4 text-[#facc15]">
               <MessageCircle size={40} className="animate-pulse" />
             </div>
-            <h2 className="text-2xl font-black text-white text-center bg-gradient-to-r from-white via-amber-200 to-[#facc15] bg-clip-text text-transparent">
-              📱 Link Your WhatsApp
+            <h2 className="text-2xl font-black text-white text-center bg-gradient-to-r from-white via-amber-200 to-[#facc15] bg-clip-text text-transparent flex items-center justify-center gap-2">
+              <MessageCircle className="w-6 h-6 text-[#facc15]" /> Link Your WhatsApp
             </h2>
             <p className="mt-4 text-xs text-[#9ea6b9] text-center leading-relaxed">
               To ensure instant delivery of your game activation details, please link your active WhatsApp number before continuing.
@@ -291,8 +291,8 @@ export function WhatsAppOnboardingModal() {
             <div className="flex justify-center mb-4 text-[#facc15]">
               <Bell size={40} className="animate-bounce" />
             </div>
-            <h2 className="text-2xl font-black text-white text-center bg-gradient-to-r from-white via-amber-200 to-[#facc15] bg-clip-text text-transparent">
-              🔔 Enable Notifications
+            <h2 className="text-2xl font-black text-white text-center bg-gradient-to-r from-white via-amber-200 to-[#facc15] bg-clip-text text-transparent flex items-center justify-center gap-2">
+              <Bell className="w-6 h-6 text-[#facc15]" /> Enable Notifications
             </h2>
             <p className="mt-4 text-xs text-[#9ea6b9] text-center leading-relaxed">
               Get real-time updates directly on your device lock screen when your orders are processed and ready for activation.
