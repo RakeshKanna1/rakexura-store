@@ -9,8 +9,6 @@ CREATE INDEX IF NOT EXISTS idx_orders_order_reference ON orders(order_reference)
 
 -- 2. Games Catalog Indexes
 CREATE INDEX IF NOT EXISTS idx_games_archived ON games(archived);
-CREATE INDEX IF NOT EXISTS idx_games_category ON games(category);
-CREATE INDEX IF NOT EXISTS idx_games_slug ON games(slug);
 CREATE INDEX IF NOT EXISTS idx_games_created_at ON games(created_at DESC);
 
 -- 3. Reviews & Wishlist Indexes
