@@ -34,7 +34,7 @@ function getCheckoutLinePrice(g: Game, platform: string) {
 }
 
 export function CheckoutForm() {
-  const { register, handleSubmit, trigger, getValues, reset, formState: { errors, isSubmitting } } = useForm<Data>({ resolver: zodResolver(schema) });
+  const { register, handleSubmit, trigger, getValues, setValue, reset, formState: { errors, isSubmitting } } = useForm<Data>({ resolver: zodResolver(schema) });
   const router = useRouter();
   const [celebrate, setCelebrate] = useState(false);
   const lines = useCartStore((state) => state.lines);
@@ -75,7 +75,7 @@ export function CheckoutForm() {
           .maybeSingle();
 
         const defaultName = profile?.display_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "";
-        const defaultWhatsApp = profile?.whatsapp || "";
+        const defaultWhatsApp = profile?.whatsapp || user.user_metadata?.whatsapp || "";
 
         reset({
           name: defaultName,
@@ -85,7 +85,29 @@ export function CheckoutForm() {
       }
     }
     void loadData();
-  }, [reset]);
+
+    const handleProfileUpdate = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail) {
+        if (detail.whatsapp !== undefined) {
+          setValue("whatsapp", detail.whatsapp);
+        }
+        if (detail.display_name !== undefined) {
+          setValue("name", detail.display_name);
+        }
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("profile-updated", handleProfileUpdate);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("profile-updated", handleProfileUpdate);
+      }
+    };
+  }, [reset, setValue]);
 
   const gamesTotal = lines.reduce((sum, line) => {
     if (!line || !line.game) return sum;
