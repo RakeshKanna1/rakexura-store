@@ -113,19 +113,29 @@ export default async function AdminSection({ params, searchParams }: { params: P
   }
 
   if (section === "orders") {
-    await Promise.all(rows.map(async (row) => {
-      if (!row.screenshot_url) return;
-      const { data: signed } = await supabase.storage.from("payment-proofs").createSignedUrl(row.screenshot_url, 120);
-      row.proof_url = signed?.signedUrl;
-    }));
+    const proofPaths = rows.map((r) => String(r.screenshot_url || "")).filter(Boolean);
+    if (proofPaths.length > 0) {
+      const { data: signedList } = await supabase.storage.from("payment-proofs").createSignedUrls(proofPaths, 120);
+      const urlMap = new Map((signedList || []).map((item) => [item.path, item.signedUrl]));
+      rows.forEach((row) => {
+        if (row.screenshot_url) {
+          row.proof_url = urlMap.get(String(row.screenshot_url)) || undefined;
+        }
+      });
+    }
   }
 
   if (section === "reviews") {
-    await Promise.all(rows.map(async (row) => {
-      if (!Array.isArray(row.media_urls) || !row.media_urls.length) return;
-      const { data: signed } = await supabase.storage.from("review-media").createSignedUrls(row.media_urls, 120);
-      row.media_links = signed?.flatMap((item) => item.signedUrl ? [item.signedUrl] : []) ?? [];
-    }));
+    const mediaPaths = rows.flatMap((r) => Array.isArray(r.media_urls) ? r.media_urls.map(String) : []);
+    if (mediaPaths.length > 0) {
+      const { data: signedList } = await supabase.storage.from("review-media").createSignedUrls(mediaPaths, 120);
+      const urlMap = new Map((signedList || []).map((item) => [item.path, item.signedUrl]));
+      rows.forEach((row) => {
+        if (Array.isArray(row.media_urls) && row.media_urls.length) {
+          row.media_links = row.media_urls.map((path: string) => urlMap.get(String(path))).filter((url): url is string => Boolean(url));
+        }
+      });
+    }
   }
 
   if (section === "orders") {
