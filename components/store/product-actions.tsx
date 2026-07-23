@@ -16,6 +16,7 @@ import type { Game, Platform } from "@/types/store";
 import { availablePlatforms } from "./game-card";
 import { OfferCountdown } from "./offer-countdown";
 import { Confetti } from "@/components/common/confetti";
+import { ButtonPopRocks } from "@/components/common/button-pop-rocks";
 
 function price(game: Game, platform: Platform) {
   if (platform === "Epic") return Number(game.epic_price ?? 0);
@@ -28,11 +29,13 @@ function price(game: Game, platform: Platform) {
 
 export function ProductActions({ game }: { game: Game }) {
   const [celebrate, setCelebrate] = useState(false);
+  const [buyPop, setBuyPop] = useState(false);
   const [btnStatus, setBtnStatus] = useState<"idle" | "arriving" | "dropping" | "exiting" | "added">("idle");
   const platforms = availablePlatforms(game);
   const [selected, setSelected] = useState<Platform>(platforms[0] ?? "Steam");
   const add = useCartStore((state) => state.add);
   const setStoreQuantity = useCartStore((state) => state.setQuantity);
+  const setDrawerOpen = useCartStore((state) => state.setDrawerOpen);
   const toggle = useCartStore((state) => state.toggleWishlist);
   const saved = useCartStore((state) => state.wishlistIds.includes(game.id));
   const lines = useCartStore((state) => state.lines);
@@ -377,6 +380,13 @@ export function ProductActions({ game }: { game: Game }) {
                 className="relative overflow-hidden w-full border border-white/10 bg-white/[.06] text-white hover:bg-white/[.1] transition-all duration-300 select-none min-h-11 cursor-pointer"
                 onClick={() => {
                   if (btnStatus !== "idle") return;
+                  const alreadyInCart = lines.some((l) => l.game.id === game.id);
+                  if (alreadyInCart) {
+                    toast.info(`${game.title} is already in your cart!`);
+                    setDrawerOpen(true);
+                    return;
+                  }
+
                   const action = () => {
                     // 1. Cart drives in from left to center
                     setBtnStatus("arriving");
@@ -493,12 +503,16 @@ export function ProductActions({ game }: { game: Game }) {
               <Button 
                 type="button"
                 suppressHydrationWarning
-                className="w-full bg-[#facc15] text-[#080808] hover:bg-[#ffe047] font-black whitespace-nowrap" 
+                className="relative overflow-hidden w-full bg-[#facc15] text-[#080808] hover:bg-[#ffe047] font-black whitespace-nowrap active:scale-95 transition-all cursor-pointer" 
                 onClick={() => { 
                   const action = () => {
+                    setBuyPop(true);
+                    setTimeout(() => setBuyPop(false), 600);
                     add(game, selected); 
                     setStoreQuantity(game.id, selected, quantity);
-                    router.push("/checkout"); 
+                    setTimeout(() => {
+                      router.push("/checkout"); 
+                    }, 350);
                   };
                   if (checkedAuth && !user) {
                     setPendingAction(() => action);
@@ -508,7 +522,8 @@ export function ProductActions({ game }: { game: Game }) {
                   }
                 }}
               >
-                {game.preorder ? "Pre-order now" : "Buy now"}
+                <ButtonPopRocks active={buyPop} />
+                <span>{game.preorder ? "Pre-order now" : "Buy now"}</span>
               </Button>
             </>
           )}

@@ -80,6 +80,9 @@ function GameCardInner({
     router.prefetch(`/games/${game.id}`);
   };
 
+  const lines = useCartStore((state) => state.lines);
+  const setDrawerOpen = useCartStore((state) => state.setDrawerOpen);
+
   return (
     <>
       {game.is_premium && (
@@ -172,6 +175,12 @@ function GameCardInner({
                 toast.info("This game is currently out of stock. Please check back later, we will notify you once it becomes available!", {
                   duration: 5000,
                 });
+                return;
+              }
+              const alreadyInCart = lines.some((l) => l.game.id === game.id);
+              if (alreadyInCart) {
+                toast.info(`${game.title} is already in your cart!`);
+                setDrawerOpen(true);
                 return;
               }
               triggerFlyToCart(assetUrl(game.cover_image), e.currentTarget);

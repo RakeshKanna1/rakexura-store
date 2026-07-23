@@ -18,6 +18,7 @@ import { useCartStore } from "@/stores/cart-store";
 import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
 import type { Game } from "@/types/store";
 import { Confetti } from "@/components/common/confetti";
+import { DustDisintegration } from "@/components/common/dust-disintegration";
 import { EmptyState } from "@/components/common/empty-state";
 
 const schema = z.object({ name: z.string().min(2), whatsapp: z.string().regex(/^\+?[0-9 ]{10,16}$/, "Enter a valid WhatsApp number"), paymentReference: z.string().optional() });
@@ -468,24 +469,28 @@ export function CheckoutForm() {
               {bundleLines.map((line) => {
                 if (!line || !line.bundle) return null;
                 return (
-                  <div key={`bundle-${line.bundle.id}`} className="flex items-center justify-between gap-3 rounded-md border border-[#facc15]/20 bg-[#b89412]/[.08] p-2.5 text-xs">
-                    <div className="min-w-0 flex-1">
-                      <span className="font-extrabold text-white block truncate">{line.bundle.title}</span>
-                      <span className="text-[10px] text-[#facc15] font-mono">Combo Bundle x{line.quantity}</span>
-                    </div>
-                    <span className="font-extrabold text-white shrink-0">{formatPrice(Number(line.bundle.bundle_price || 0) * line.quantity)}</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        removeBundle(line.bundle.id);
-                        toast.success("Bundle removed from cart");
-                      }}
-                      className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition shrink-0 cursor-pointer"
-                      title="Remove bundle"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
+                  <DustDisintegration key={`bundle-${line.bundle.id}`} onRemove={() => removeBundle(line.bundle.id)}>
+                    {(triggerRemove: () => void) => (
+                      <div className="flex items-center justify-between gap-3 rounded-md border border-[#facc15]/20 bg-[#b89412]/[.08] p-2.5 text-xs">
+                        <div className="min-w-0 flex-1">
+                          <span className="font-extrabold text-white block truncate">{line.bundle.title}</span>
+                          <span className="text-[10px] text-[#facc15] font-mono">Combo Bundle x{line.quantity}</span>
+                        </div>
+                        <span className="font-extrabold text-white shrink-0">{formatPrice(Number(line.bundle.bundle_price || 0) * line.quantity)}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            triggerRemove();
+                            toast.success("Bundle removed from cart");
+                          }}
+                          className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition shrink-0 cursor-pointer"
+                          title="Remove bundle"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </DustDisintegration>
                 );
               })}
 
@@ -493,24 +498,28 @@ export function CheckoutForm() {
                 if (!line || !line.game) return null;
                 const priceVal = getCheckoutLinePrice(line.game, line.platform);
                 return (
-                  <div key={`${line.game.id}-${line.platform}`} className="flex items-center justify-between gap-3 rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5 text-xs">
-                    <div className="min-w-0 flex-1">
-                      <span className="font-extrabold text-white block truncate">{line.game.title}</span>
-                      <span className="text-[10px] text-[#b9a4ff] font-mono">{line.platform} · Qty: {line.quantity}</span>
-                    </div>
-                    <span className="font-extrabold text-[#facc15] shrink-0">{formatPrice(Number(priceVal || 0) * line.quantity)}</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        remove(line.game.id, line.platform);
-                        toast.success(`${line.game.title} removed`);
-                      }}
-                      className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition shrink-0 cursor-pointer"
-                      title="Remove game"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
+                  <DustDisintegration key={`${line.game.id}-${line.platform}`} onRemove={() => remove(line.game.id, line.platform)}>
+                    {(triggerRemove: () => void) => (
+                      <div className="flex items-center justify-between gap-3 rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5 text-xs">
+                        <div className="min-w-0 flex-1">
+                          <span className="font-extrabold text-white block truncate">{line.game.title}</span>
+                          <span className="text-[10px] text-[#b9a4ff] font-mono">{line.platform} · Qty: {line.quantity}</span>
+                        </div>
+                        <span className="font-extrabold text-[#facc15] shrink-0">{formatPrice(Number(priceVal || 0) * line.quantity)}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            triggerRemove();
+                            toast.success(`${line.game.title} removed`);
+                          }}
+                          className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition shrink-0 cursor-pointer"
+                          title="Remove game"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </DustDisintegration>
                 );
               })}
             </div>
