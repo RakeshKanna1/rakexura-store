@@ -31,6 +31,7 @@ export function textToHtml(text: string) {
   const lines = text.split("\n");
   let formattedContent = "";
   let inItemsBlock = false;
+  let detectedRef = "";
 
   lines.forEach((line) => {
     const trimmed = line.trim();
@@ -39,18 +40,19 @@ export function textToHtml(text: string) {
         formattedContent += `</div>`;
         inItemsBlock = false;
       }
-      formattedContent += `<div style="height:12px;"></div>`;
+      formattedContent += `<div style="height:10px;"></div>`;
       return;
     }
 
     // Order Reference highlight (e.g. RKX-2607-000058)
     if (/RKX-\d{4}-\d+/i.test(trimmed)) {
       const match = trimmed.match(/RKX-\d{4}-\d+/i)?.[0];
+      if (match) detectedRef = match;
       const headingText = trimmed.replace(match || "", "").trim();
       formattedContent += `
-        <div style="background:linear-gradient(135deg, rgba(139,92,246,0.15), rgba(124,58,237,0.08));border:1px solid rgba(139,92,246,0.35);border-radius:10px;padding:16px;margin-bottom:20px;text-align:center;">
-          ${headingText ? `<div style="color:#aeb5c6;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">${escapeHtml(headingText)}</div>` : ''}
-          <div style="display:inline-block;background:#8b5cf6;color:#ffffff;padding:6px 16px;border-radius:20px;font-family:monospace,Consolas,Courier,monospace;font-size:16px;font-weight:900;letter-spacing:1px;box-shadow:0 0 12px rgba(139,92,246,0.4);">${escapeHtml(match || "")}</div>
+        <div style="background:linear-gradient(135deg, rgba(112,224,0,0.12), rgba(139,92,246,0.08));border:1px solid rgba(112,224,0,0.3);border-radius:10px;padding:14px;margin-bottom:16px;text-align:center;">
+          ${headingText ? `<div style="color:#aeb5c6;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">${escapeHtml(headingText)}</div>` : ''}
+          <div style="display:inline-block;background:#70e000;color:#000000;padding:5px 16px;border-radius:6px;font-family:monospace,Consolas,Courier,monospace;font-size:15px;font-weight:900;letter-spacing:1px;box-shadow:0 0 12px rgba(112,224,0,0.3);">${escapeHtml(match || "")}</div>
         </div>
       `;
       return;
@@ -60,8 +62,8 @@ export function textToHtml(text: string) {
     if (trimmed.toLowerCase().startsWith("items:") || trimmed.toLowerCase().startsWith("items purchased:")) {
       inItemsBlock = true;
       formattedContent += `
-        <div style="margin-top:16px;margin-bottom:16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:16px;">
-          <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#b9a4ff;margin-bottom:10px;">🛒 Purchased Items</div>
+        <div style="margin-top:14px;margin-bottom:14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;">
+          <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#70e000;margin-bottom:8px;">🛒 Purchased Items</div>
       `;
       return;
     }
@@ -85,7 +87,7 @@ export function textToHtml(text: string) {
 
       let valHtml = escapeHtml(val);
       if (key.toLowerCase().includes("email") && val.includes("@")) {
-        valHtml = `<a href="mailto:${escapeHtml(val)}" style="color:#c4b5fd;text-decoration:underline;font-weight:bold;">${escapeHtml(val)}</a>`;
+        valHtml = `<a href="mailto:${escapeHtml(val)}" style="color:#70e000;text-decoration:underline;font-weight:bold;">${escapeHtml(val)}</a>`;
       } else if (key.toLowerCase().includes("whatsapp") || key.toLowerCase().includes("phone")) {
         const cleanPhone = val.replace(/\D/g, "");
         valHtml = `<a href="https://wa.me/${cleanPhone}" style="color:#00d68f;text-decoration:none;font-weight:bold;background:rgba(0,214,143,0.1);padding:2px 8px;border-radius:4px;border:1px solid rgba(0,214,143,0.2);">📱 +${escapeHtml(val)}</a>`;
@@ -94,17 +96,17 @@ export function textToHtml(text: string) {
       }
 
       formattedContent += `
-        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:4px 0;">
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:3px 0;">
           <tr>
-            <td style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:#8991a6;font-weight:700;" align="left" width="40%">${escapeHtml(key)}</td>
-            <td style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:#ffffff;font-weight:600;" align="right" width="60%">${valHtml}</td>
+            <td style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:#8991a6;font-weight:700;" align="left" width="40%">${escapeHtml(key)}</td>
+            <td style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:#ffffff;font-weight:600;" align="right" width="60%">${valHtml}</td>
           </tr>
         </table>
       `;
       return;
     }
 
-    formattedContent += `<p style="margin:8px 0;font-size:13px;line-height:1.6;color:#d4d4d8;">${escapeHtml(trimmed)}</p>`;
+    formattedContent += `<p style="margin:6px 0;font-size:13px;line-height:1.6;color:#d4d4d8;">${escapeHtml(trimmed)}</p>`;
   });
 
   if (inItemsBlock) {
@@ -120,50 +122,109 @@ export function textToHtml(text: string) {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
-      <body style="margin:0;padding:0;background-color:#05040a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
-        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#05040a;padding:40px 10px;">
+      <body style="margin:0;padding:0;background-color:#0b0914;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#e4e4e7;">
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#0b0914;padding:32px 10px;">
           <tr>
             <td align="center">
-              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:600px;background:#0e0a1f;border:1px solid rgba(139,92,246,0.3);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:580px;">
                 
-                <!-- Gradient Top Header -->
+                <!-- BRAND LOGO HEADER -->
                 <tr>
-                  <td style="background:linear-gradient(135deg, #1b1236, #0e0a1f);padding:32px 24px;text-align:center;border-bottom:1px solid rgba(139,92,246,0.2);">
-                    <div style="display:inline-block;padding:6px 14px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:20px;font-size:10px;font-weight:900;color:#c4b5fd;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">
-                      ⚡ RAKEXURA STORE
-                    </div>
-                    <h1 style="margin:0;font-size:28px;font-weight:900;color:#ffffff;letter-spacing:1px;text-transform:uppercase;">
-                      RAKEXURA
-                    </h1>
-                    <div style="font-size:11px;color:#8991a6;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;">
-                      PREMIUM PC GAME STORE
+                  <td align="center" style="padding-bottom:20px;">
+                    <div style="background:#141029;border:1px solid rgba(139,92,246,0.3);border-radius:12px;padding:14px 28px;display:inline-block;box-shadow:0 8px 24px rgba(0,0,0,0.5);text-align:center;">
+                      <span style="display:inline-block;padding:3px 10px;background:rgba(139,92,246,0.2);border-radius:4px;font-size:9px;font-weight:900;color:#c4b5fd;letter-spacing:2px;text-transform:uppercase;">⚡ RAKEXURA STORE</span>
+                      <div style="font-size:22px;font-weight:900;color:#ffffff;letter-spacing:2px;text-transform:uppercase;margin-top:4px;">RAKEXURA</div>
                     </div>
                   </td>
                 </tr>
 
-                <!-- Email Body Content -->
+                <!-- CARD 1: PRIMARY STATUS & CONTENT CARD (NVIDIA STYLE) -->
                 <tr>
-                  <td style="padding:32px 24px;">
-                    ${formattedContent}
+                  <td style="background:#141029;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px 24px;box-shadow:0 12px 36px rgba(0,0,0,0.6);">
+                    <div style="text-align:center;margin-bottom:16px;">
+                      <div style="font-size:18px;font-weight:900;color:#70e000;letter-spacing:1px;text-transform:uppercase;">
+                        RAKEXURA OFFICIAL UPDATE
+                      </div>
+                      ${detectedRef ? `<div style="font-size:12px;color:#8991a6;font-weight:700;margin-top:4px;">Order Ref: ${detectedRef}</div>` : ''}
+                    </div>
 
-                    <!-- Call to Action Button -->
-                    <div style="margin-top:32px;text-align:center;">
-                      <a href="${siteUrl}/admin/orders" style="display:inline-block;background:linear-gradient(135deg, #8b5cf6, #7c3aed);color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:900;font-size:13px;letter-spacing:0.5px;box-shadow:0 0 20px rgba(139,92,246,0.4);">
-                        🚀 Open Admin Dashboard
-                      </a>
+                    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:16px 0 20px 0;" />
+
+                    <div style="font-size:14px;line-height:1.7;color:#d4d4d8;">
+                      ${formattedContent}
+                    </div>
+
+                    <div style="margin-top:24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);font-size:12px;color:#8991a6;">
+                      Thanks,<br />
+                      <strong style="color:#ffffff;">Rakexura Customer Support</strong>
                     </div>
                   </td>
                 </tr>
 
-                <!-- Footer -->
+                <!-- CARD 2: GET PLAYING / HERO ACTION CARD (NVIDIA STYLE) -->
                 <tr>
-                  <td style="background:#080612;padding:24px;text-align:center;border-top:1px solid rgba(255,255,255,0.06);color:#646b7b;font-size:11px;line-height:1.6;">
-                    <p style="margin:0;font-weight:700;color:#a4abbc;">Secure assisted game delivery by Rakexura Store</p>
-                    <p style="margin:6px 0 0;">Need activation help or instant support? Contact us on WhatsApp.</p>
-                    <div style="margin-top:12px;">
-                      <a href="${siteUrl}" style="color:#8b5cf6;text-decoration:none;font-weight:bold;margin:0 8px;">Website</a> •
-                      <a href="https://wa.me/918317416695" style="color:#00d68f;text-decoration:none;font-weight:bold;margin:0 8px;">WhatsApp Support</a>
+                  <td style="padding-top:16px;">
+                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background:linear-gradient(135deg, #1e173b, #120e24);border:1px solid rgba(139,92,246,0.3);border-radius:14px;padding:24px 20px;text-align:center;box-shadow:0 12px 36px rgba(0,0,0,0.5);">
+                      <tr>
+                        <td align="center">
+                          <div style="font-size:15px;font-weight:900;color:#70e000;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">🎮 GET PLAYING</div>
+                          <div style="font-size:12px;color:#a4abbc;font-weight:600;margin-bottom:16px;">Start Gaming with Your Library of PC Games</div>
+                          <a href="${siteUrl}" style="display:inline-block;background:#70e000;color:#000000;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:900;font-size:12px;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 20px rgba(112,224,0,0.4);">
+                            PLAY NOW
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- CARD 3: QUICK NAVIGATION LINKS CARD (NVIDIA STYLE) -->
+                <tr>
+                  <td style="padding-top:16px;">
+                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background:#141029;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 20px;box-shadow:0 8px 24px rgba(0,0,0,0.4);">
+                      <tr>
+                        <td>
+                          <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                              <td align="center" width="25%" style="padding:4px;">
+                                <a href="${siteUrl}/dashboard" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
+                                  👤 Account
+                                </a>
+                              </td>
+                              <td align="center" width="25%" style="padding:4px;">
+                                <a href="${siteUrl}/games" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
+                                  🎮 Catalog
+                                </a>
+                              </td>
+                              <td align="center" width="25%" style="padding:4px;">
+                                <a href="https://wa.me/918317416695" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
+                                  💬 Support
+                                </a>
+                              </td>
+                              <td align="center" width="25%" style="padding:4px;">
+                                <a href="${siteUrl}/track" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
+                                  ⚙️ Tracking
+                                </a>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- CARD 4: FOOTER & LEGAL NOTICE (NVIDIA STYLE) -->
+                <tr>
+                  <td style="padding-top:24px;text-align:center;color:#71717a;font-size:11px;line-height:1.6;">
+                    <p style="margin:0 0 6px 0;">You are receiving this email as an alert or update to your Rakexura Store service.</p>
+                    <p style="margin:0 0 10px 0;">E-commerce services are provided by Rakexura Store, authorized PC game reseller.</p>
+                    <div>
+                      <a href="${siteUrl}/terms" style="color:#a1a1aa;text-decoration:none;margin:0 6px;">Terms of Use</a> |
+                      <a href="${siteUrl}/privacy" style="color:#a1a1aa;text-decoration:none;margin:0 6px;">Privacy Policy</a> |
+                      <a href="${siteUrl}/support" style="color:#a1a1aa;text-decoration:none;margin:0 6px;">Contact Us</a>
                     </div>
+                    <p style="margin:10px 0 0 0;">&copy; 2026 Rakexura Store. All rights reserved.</p>
                   </td>
                 </tr>
 
@@ -177,19 +238,83 @@ export function textToHtml(text: string) {
 }
 
 export async function sendEmail({ to, subject, text, html }: SendEmailInput): Promise<EmailResult> {
-  const from = process.env.EMAIL_FROM ?? "Rakexura Store <onboarding@resend.dev>";
+  const from = process.env.EMAIL_FROM ?? "Rakexura Store <cheappcgamesrake@gmail.com>";
 
   if (!to) {
     return { ok: false, skipped: true, reason: "Email recipient is not configured" };
   }
 
-  // 1. Try generic SMTP credentials if present and nodemailer is available
+  // 1. Try Brevo API / SMTP if BREVO_API_KEY is present
+  const brevoApiKey = process.env.BREVO_API_KEY;
+  if (brevoApiKey) {
+    const match = from.match(/^(.*?)\s*<([^>]+)>$/);
+    const senderName = match ? match[1].trim() || "Rakexura Store" : "Rakexura Store";
+    const senderEmail = match ? match[2].trim() : from.trim();
+
+    // First try Brevo HTTP REST API v3
+    try {
+      const response = await fetchWithTimeout("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": brevoApiKey,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          sender: { name: senderName, email: senderEmail },
+          to: [{ email: to }],
+          subject,
+          htmlContent: html ?? textToHtml(text),
+          textContent: text,
+        }),
+      });
+
+      if (response.ok) {
+        return { ok: true };
+      }
+
+      const errorText = await response.text();
+      console.warn("Brevo API returned non-OK status, trying Brevo SMTP fallback:", errorText);
+    } catch (error) {
+      console.warn("Brevo HTTP API failed, trying Brevo SMTP fallback:", error);
+    }
+
+    // Fallback to Brevo Nodemailer SMTP (especially for xsmtpsib- keys)
+    if (nodemailer) {
+      try {
+        const smtpUser = process.env.SMTP_USER || process.env.OWNER_EMAIL || senderEmail;
+        const smtpTransporter = nodemailer.createTransport({
+          host: "smtp-relay.brevo.com",
+          port: 587,
+          secure: false,
+          auth: {
+            user: smtpUser,
+            pass: brevoApiKey,
+          },
+        });
+
+        await smtpTransporter.sendMail({
+          from,
+          to,
+          subject,
+          text,
+          html: html ?? textToHtml(text),
+        });
+
+        return { ok: true };
+      } catch (smtpErr) {
+        console.error("Brevo SMTP Nodemailer dispatch failed:", smtpErr);
+      }
+    }
+  }
+
+  // 2. Try generic SMTP credentials if present and nodemailer is available
   const smtpHost = process.env.SMTP_HOST;
   const smtpPort = Number(process.env.SMTP_PORT || "465");
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
 
-  // 2. Otherwise, check Resend API key to use Resend's SMTP
+  // 3. Check Resend API key
   const apiKey = process.env.RESEND_API_KEY;
 
   let transporter = null;

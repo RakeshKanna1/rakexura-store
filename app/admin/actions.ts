@@ -140,49 +140,52 @@ async function getCustomerEmail(supabase: SupabaseAdmin, userId?: string | null)
 
 function buildEmailHtml(order: OrderForStatus, status: string, items: ParsedOrderItem[]) {
   const reference = order.order_reference || `#${order.id}`;
-  const customerName = order.customer_name || "Customer";
+  const customerName = order.customer_name || "Valued Customer";
   const fallbackTotal = items.reduce((sum, item) => sum + Number(item.price ?? 0) * item.quantity, 0);
   const total = Number(order.total_price ?? fallbackTotal).toLocaleString("en-IN");
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
 
   const statusUpper = status.toUpperCase();
-  let statusBadgeColor = "#f59e0b"; // amber for verified/processing/pending
+  let statusBadgeColor = "#70e000"; // NVIDIA neon green accent default
   if (statusUpper === "DELIVERED" || statusUpper === "COMPLETED") {
-    statusBadgeColor = "#10b981"; // emerald
+    statusBadgeColor = "#70e000";
   } else if (statusUpper === "REJECTED") {
-    statusBadgeColor = "#ef4444"; // red
+    statusBadgeColor = "#ff4d4d";
+  } else if (statusUpper === "VERIFIED" || statusUpper === "PROCESSING") {
+    statusBadgeColor = "#facc15";
   }
 
   const itemRows = items.map((item) => `
     <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
-      <td style="padding: 14px 8px; text-align: left; color: #e4e4e7; font-size: 14px; line-height: 1.8;">
-        <strong style="display: block; color: #ffffff;">${item.title}</strong>
-        <span style="font-size: 11px; color: #8991a6; font-weight: 500;">${item.platform || "PC Game"}</span>
+      <td style="padding: 12px 8px; text-align: left; color: #ffffff; font-size: 13px; font-weight:700;">
+        ⚡ ${item.title}
+        <span style="display:block; font-size: 11px; color: #8991a6; font-weight: 500; margin-top:2px;">${item.platform || "PC Game"}</span>
       </td>
-      <td style="padding: 14px 8px; text-align: center; color: #e4e4e7; font-size: 14px; line-height: 1.8;">${item.quantity}</td>
-      <td style="padding: 14px 8px; text-align: right; color: #ffffff; font-size: 14px; font-weight: bold; line-height: 1.8;">Rs. ${(Number(item.price ?? 0) * item.quantity).toLocaleString("en-IN")}</td>
+      <td style="padding: 12px 8px; text-align: center; color: #e4e4e7; font-size: 13px; font-weight:600;">${item.quantity}</td>
+      <td style="padding: 12px 8px; text-align: right; color: #facc15; font-size: 13px; font-weight: 900;">Rs. ${(Number(item.price ?? 0) * item.quantity).toLocaleString("en-IN")}</td>
     </tr>
   `).join("");
 
   let actionText = "";
   if (statusUpper === "DELIVERED" || statusUpper === "COMPLETED") {
     actionText = `
-      <div style="margin: 40px 0; padding: 24px; background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.12); border-radius: 8px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-        <p style="margin: 0; color: #10b981; font-weight: 800; font-size: 16px; line-height: 1.6; text-transform: uppercase; letter-spacing: 0.05em;">Your game is ready in your library!</p>
-        <p style="margin: 10px 0 0; color: #e4e4e7; font-size: 14px; line-height: 1.8;">Go to My Library in your customer dashboard to find activation instructions.</p>
+      <div style="margin: 24px 0; padding: 20px; background: rgba(112, 224, 0, 0.08); border: 1px solid rgba(112, 224, 0, 0.3); border-radius: 10px; text-align: center;">
+        <p style="margin: 0; color: #70e000; font-weight: 900; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em;">YOUR GAME IS READY IN YOUR LIBRARY!</p>
+        <p style="margin: 8px 0 0; color: #e4e4e7; font-size: 13px; line-height: 1.6;">Open My Library in your customer dashboard to access your game activation details.</p>
       </div>
     `;
   } else if (statusUpper === "VERIFIED" || statusUpper === "PROCESSING") {
     actionText = `
-      <div style="margin: 40px 0; padding: 24px; background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.12); border-radius: 8px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-        <p style="margin: 0; color: #f59e0b; font-weight: 800; font-size: 16px; line-height: 1.6; text-transform: uppercase; letter-spacing: 0.05em;">Payment Verified & Delivery Initiated</p>
-        <p style="margin: 10px 0 0; color: #e4e4e7; font-size: 14px; line-height: 1.8;">We are preparing your game files now. You will receive another notification upon completion.</p>
+      <div style="margin: 24px 0; padding: 20px; background: rgba(250, 204, 21, 0.08); border: 1px solid rgba(250, 204, 21, 0.3); border-radius: 10px; text-align: center;">
+        <p style="margin: 0; color: #facc15; font-weight: 900; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em;">PAYMENT VERIFIED · PREPARING DELIVERY</p>
+        <p style="margin: 8px 0 0; color: #e4e4e7; font-size: 13px; line-height: 1.6;">Our team is configuring your game access now. You will receive another notification when delivery is complete.</p>
       </div>
     `;
   } else if (statusUpper === "REJECTED") {
     actionText = `
-      <div style="margin: 40px 0; padding: 24px; background: rgba(239, 68, 68, 0.04); border: 1px solid rgba(239, 68, 68, 0.12); border-radius: 8px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-        <p style="margin: 0; color: #ef4444; font-weight: 800; font-size: 16px; line-height: 1.6; text-transform: uppercase; letter-spacing: 0.05em;">Payment verification needs attention</p>
-        <p style="margin: 10px 0 0; color: #e4e4e7; font-size: 14px; line-height: 1.8;">Please upload a clear payment screenshot or contact support to resolve this issue.</p>
+      <div style="margin: 24px 0; padding: 20px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; text-align: center;">
+        <p style="margin: 0; color: #ff4d4d; font-weight: 900; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em;">PAYMENT VERIFICATION NEEDED</p>
+        <p style="margin: 8px 0 0; color: #e4e4e7; font-size: 13px; line-height: 1.6;">We could not verify your payment screenshot. Please contact support or upload a clearer receipt screenshot.</p>
       </div>
     `;
   }
@@ -199,61 +202,145 @@ function buildEmailHtml(order: OrderForStatus, status: string, items: ParsedOrde
   const statusDesc = copy[status] ?? `Your order status is now ${status}.`;
 
   return `
-    <div style="margin:0;background:#070708;padding:48px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#e4e4e7">
-      <div style="max-width:580px;margin:auto;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:#0f0f11;padding:48px;box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
-        <header style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:24px;text-align:center;">
-          <h1 style="margin:0;font-size:26px;font-weight:900;letter-spacing:.03em;color:#ffffff;">RAKEXURA</h1>
-          <span style="font-size:11px;color:#8b5cf6;font-weight:800;letter-spacing:.1em;text-transform:uppercase;">PC Game Store</span>
-        </header>
-        
-        <div style="padding: 24px 0;">
-          <p style="margin:0 0 12px;font-size:16px;color:#ffffff;font-weight:bold;line-height:1.6;">Hi ${customerName},</p>
-          <p style="margin:0;font-size:14px;line-height:1.8;color:#e4e4e7;">${statusDesc}</p>
-          
-          <div style="margin:32px 0; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 18px 22px; background: rgba(255,255,255,0.015);">
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="text-align: left; vertical-align: middle; padding: 0;">
-                  <span style="font-size: 11px; color: #8991a6; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px;">Order Reference</span>
-                  <code style="font-family: monospace; font-size: 15px; color: #ffffff; font-weight: 700;">${reference}</code>
-                </td>
-                <td style="text-align: right; vertical-align: middle; padding: 0;">
-                  <span style="font-size: 11px; color: #8991a6; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px;">Status</span>
-                  <span style="font-size: 12px; font-weight: 800; color: ${statusBadgeColor}; text-transform: uppercase; letter-spacing: 0.05em;">${statusUpper}</span>
-                </td>
-              </tr>
-            </table>
-          </div>
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
+      <body style="margin:0;padding:0;background-color:#0b0914;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#e4e4e7;">
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#0b0914;padding:32px 10px;">
+          <tr>
+            <td align="center">
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:580px;">
+                
+                <!-- BRAND LOGO HEADER -->
+                <tr>
+                  <td align="center" style="padding-bottom:20px;">
+                    <div style="background:#141029;border:1px solid rgba(139,92,246,0.3);border-radius:12px;padding:14px 28px;display:inline-block;box-shadow:0 8px 24px rgba(0,0,0,0.5);text-align:center;">
+                      <span style="display:inline-block;padding:3px 10px;background:rgba(139,92,246,0.2);border-radius:4px;font-size:9px;font-weight:900;color:#c4b5fd;letter-spacing:2px;text-transform:uppercase;">⚡ RAKEXURA STORE</span>
+                      <div style="font-size:22px;font-weight:900;color:#ffffff;letter-spacing:2px;text-transform:uppercase;margin-top:4px;">RAKEXURA</div>
+                    </div>
+                  </td>
+                </tr>
 
-          ${actionText}
+                <!-- CARD 1: MAIN ORDER STATUS CARD (NVIDIA STYLE) -->
+                <tr>
+                  <td style="background:#141029;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px 24px;box-shadow:0 12px 36px rgba(0,0,0,0.6);">
+                    <div style="text-align:center;margin-bottom:14px;">
+                      <div style="font-size:18px;font-weight:900;color:${statusBadgeColor};letter-spacing:1px;text-transform:uppercase;">
+                        ORDER ${statusUpper}
+                      </div>
+                      <div style="font-size:12px;color:#8991a6;font-weight:700;margin-top:4px;">Order Ref: ${reference}</div>
+                    </div>
 
-          <h3 style="margin:40px 0 16px;font-size:12px;font-weight:800;text-transform:uppercase;color:#8991a6;letter-spacing:.08em;">Order Details</h3>
-          <table style="width:100%;border-collapse:collapse;">
-            <thead>
-              <tr style="border-bottom: 2px solid rgba(255,255,255,0.08);">
-                <th style="padding: 10px 8px; text-align: left; color: #8991a6; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;">Game</th>
-                <th style="padding: 10px 8px; text-align: center; color: #8991a6; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;">Qty</th>
-                <th style="padding: 10px 8px; text-align: right; color: #8991a6; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;">Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemRows}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colspan="2" style="padding: 24px 8px 8px; text-align: left; color: #8991a6; font-size: 14px;">Total Paid</td>
-                <td style="padding: 24px 8px 8px; text-align: right; color: #ffffff; font-size: 18px; font-weight: 900;">Rs. ${total}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+                    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:16px 0 20px 0;" />
 
-        <footer style="border-top:1px solid rgba(255,255,255,.08);padding-top:24px;text-align:center;color:#646b7b;font-size:11px;line-height:1.6;">
-          <p style="margin:0;">Secure assisted game delivery by Rakexura Store.</p>
-          <p style="margin:4px 0 0;">Need activation help or support? Reply to this email or chat on WhatsApp.</p>
-        </footer>
-      </div>
-    </div>
+                    <p style="margin:0 0 12px;font-size:15px;color:#ffffff;font-weight:bold;line-height:1.6;">Hi ${customerName},</p>
+                    <p style="margin:0;font-size:13.5px;line-height:1.7;color:#d4d4d8;">${statusDesc}</p>
+
+                    ${actionText}
+
+                    <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#8991a6;margin:24px 0 10px 0;">🛒 ORDER DETAILS</div>
+                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;">
+                      <thead>
+                        <tr style="background:rgba(139,92,246,0.15);border-bottom:1px solid rgba(139,92,246,0.25);">
+                          <th align="left" style="padding:10px 12px;font-size:10px;font-weight:900;color:#c4b5fd;text-transform:uppercase;letter-spacing:1px;" width="50%">Item</th>
+                          <th align="center" style="padding:10px 12px;font-size:10px;font-weight:900;color:#c4b5fd;text-transform:uppercase;letter-spacing:1px;" width="25%">Qty</th>
+                          <th align="right" style="padding:10px 12px;font-size:10px;font-weight:900;color:#c4b5fd;text-transform:uppercase;letter-spacing:1px;" width="25%">Price</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${itemRows}
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td colspan="2" style="padding:14px 12px 10px 12px;font-size:12px;color:#8991a6;font-weight:800;text-transform:uppercase;">TOTAL PAID</td>
+                          <td style="padding:14px 12px 10px 12px;font-size:16px;color:#facc15;font-weight:900;text-align:right;">Rs. ${total}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+
+                    <div style="margin-top:24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);font-size:12px;color:#8991a6;">
+                      Thanks,<br />
+                      <strong style="color:#ffffff;">Rakexura Customer Service</strong>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- CARD 2: GET PLAYING / HERO ACTION CARD (NVIDIA STYLE) -->
+                <tr>
+                  <td style="padding-top:16px;">
+                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background:linear-gradient(135deg, #1e173b, #120e24);border:1px solid rgba(139,92,246,0.3);border-radius:14px;padding:24px 20px;text-align:center;box-shadow:0 12px 36px rgba(0,0,0,0.5);">
+                      <tr>
+                        <td align="center">
+                          <div style="font-size:15px;font-weight:900;color:#70e000;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">🎮 GET PLAYING</div>
+                          <div style="font-size:12px;color:#a4abbc;font-weight:600;margin-bottom:16px;">Start Gaming with Your Library of PC Games</div>
+                          <a href="${siteUrl}/dashboard/orders" style="display:inline-block;background:#70e000;color:#000000;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:900;font-size:12px;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 20px rgba(112,224,0,0.4);">
+                            PLAY NOW
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- CARD 3: QUICK NAVIGATION LINKS CARD (NVIDIA STYLE) -->
+                <tr>
+                  <td style="padding-top:16px;">
+                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background:#141029;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 20px;box-shadow:0 8px 24px rgba(0,0,0,0.4);">
+                      <tr>
+                        <td>
+                          <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                              <td align="center" width="25%" style="padding:4px;">
+                                <a href="${siteUrl}/dashboard" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
+                                  👤 Account
+                                </a>
+                              </td>
+                              <td align="center" width="25%" style="padding:4px;">
+                                <a href="${siteUrl}/games" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
+                                  🎮 Catalog
+                                </a>
+                              </td>
+                              <td align="center" width="25%" style="padding:4px;">
+                                <a href="https://wa.me/918317416695" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
+                                  💬 Support
+                                </a>
+                              </td>
+                              <td align="center" width="25%" style="padding:4px;">
+                                <a href="${siteUrl}/track" style="color:#70e000;text-decoration:none;font-size:12px;font-weight:800;display:block;">
+                                  ⚙️ Tracking
+                                </a>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- CARD 4: FOOTER & LEGAL NOTICE (NVIDIA STYLE) -->
+                <tr>
+                  <td style="padding-top:24px;text-align:center;color:#71717a;font-size:11px;line-height:1.6;">
+                    <p style="margin:0 0 6px 0;">You are receiving this email as an alert or update to your Rakexura Store service.</p>
+                    <p style="margin:0 0 10px 0;">E-commerce services are provided by Rakexura Store, authorized PC game reseller.</p>
+                    <div>
+                      <a href="${siteUrl}/terms" style="color:#a1a1aa;text-decoration:none;margin:0 6px;">Terms of Use</a> |
+                      <a href="${siteUrl}/privacy" style="color:#a1a1aa;text-decoration:none;margin:0 6px;">Privacy Policy</a> |
+                      <a href="${siteUrl}/support" style="color:#a1a1aa;text-decoration:none;margin:0 6px;">Contact Us</a>
+                    </div>
+                    <p style="margin:10px 0 0 0;">&copy; 2026 Rakexura Store. All rights reserved.</p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
   `;
 }
 
