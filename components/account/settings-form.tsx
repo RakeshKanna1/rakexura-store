@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { UserRound, Mail, ShieldCheck, Loader2 } from "lucide-react";
+import { UserRound, Mail, ShieldCheck, Loader2, Check } from "lucide-react";
 import { saveAccountSettings } from "@/app/dashboard/settings/actions";
 
 interface SettingsFormProps {
@@ -88,9 +88,11 @@ export function SettingsForm({
         <span className="flex items-center justify-between mb-2">
           <span>WhatsApp number</span>
           {whatsapp ? (
-            <span className="text-xs text-[#00d68f] font-bold font-mono">✓ Linked (+{whatsapp})</span>
+            <span className="inline-flex items-center gap-1 text-xs text-[#00d68f] font-extrabold font-mono">
+              <Check size={14} className="text-[#00d68f]" /> Linked (+{whatsapp})
+            </span>
           ) : (
-            <span className="text-xs text-amber-400 font-bold">⚠️ Not linked yet</span>
+            <span className="text-xs text-[#8991a6] font-normal">Not linked yet</span>
           )}
         </span>
         <input
