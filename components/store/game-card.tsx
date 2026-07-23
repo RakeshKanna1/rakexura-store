@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { assetUrl, formatPrice, isHighEndDevice } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
+import { triggerFlyToCart } from "@/components/common/fly-to-cart-animator";
 import type { Game, Platform } from "@/types/store";
 
 function gamePrice(game: Game) {
@@ -166,13 +167,14 @@ function GameCardInner({
 
           <button
             suppressHydrationWarning={true}
-            onClick={() => {
+            onClick={(e) => {
               if (game.out_of_stock) {
                 toast.info("This game is currently out of stock. Please check back later, we will notify you once it becomes available!", {
                   duration: 5000,
                 });
                 return;
               }
+              triggerFlyToCart(assetUrl(game.cover_image), e.currentTarget);
               add(game, defaultPlatform(game));
               toast.success(`${game.title} added to cart`);
             }}

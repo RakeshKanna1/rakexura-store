@@ -10,7 +10,8 @@ import { ReviewForm } from "@/components/reviews/review-form";
 import { createClient } from "@/lib/supabase/client";
 import { AuthModal } from "@/components/auth/auth-modal";
 import type { User } from "@supabase/supabase-js";
-import { formatPrice, isDiamondOrPlatinumCoupon } from "@/lib/utils";
+import { assetUrl, formatPrice, isDiamondOrPlatinumCoupon } from "@/lib/utils";
+import { triggerFlyToCart } from "@/components/common/fly-to-cart-animator";
 import { useCartStore } from "@/stores/cart-store";
 import type { Game, Platform } from "@/types/store";
 import { availablePlatforms } from "./game-card";
@@ -373,7 +374,8 @@ export function ProductActions({ game }: { game: Game }) {
                 type="button"
                 suppressHydrationWarning
                 className="w-full border border-white/10 bg-white/[.06] text-white hover:bg-white/[.1]" 
-                onClick={() => { 
+                onClick={(e) => { 
+                  triggerFlyToCart(assetUrl(game.cover_image), e.currentTarget);
                   const action = () => {
                     add(game, selected); 
                     setStoreQuantity(game.id, selected, quantity);

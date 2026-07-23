@@ -7,6 +7,7 @@ import { Heart, ShoppingBag, X, TicketPercent } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import { assetUrl, formatPrice, lowestPrice } from "@/lib/utils";
+import { triggerFlyToCart } from "@/components/common/fly-to-cart-animator";
 import { useCartStore } from "@/stores/cart-store";
 import type { Game } from "@/types/store";
 import { availablePlatforms } from "./game-card";
@@ -209,7 +210,8 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
 
               <div className="mt-6 grid grid-cols-[1fr_auto] gap-2">
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    triggerFlyToCart(assetUrl(game.cover_image), e.currentTarget);
                     add(game, availablePlatforms(game)[0] ?? "Steam");
                     toast.success(`${game.title} added to cart`);
                   }}
