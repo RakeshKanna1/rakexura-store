@@ -13,8 +13,10 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
   const { data: profile } = await supabase.from("profiles").select("display_name,whatsapp,role,avatar_url").eq("id", user.id).maybeSingle();
-  const name = profile?.display_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "Player";
-  const savedWhatsapp = profile?.whatsapp || user.user_metadata?.whatsapp || "";
+  const name = String(profile?.display_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "Player");
+  const savedWhatsapp = String(profile?.whatsapp || user.user_metadata?.whatsapp || "");
+  const userEmail = String(user.email || "");
+  const displayName = String(profile?.display_name || "");
 
   return <div className="page-shell py-10">
     <Link href="/dashboard" className="inline-flex min-h-11 items-center gap-2 text-sm text-[#8991a6] hover:text-white"><ArrowLeft size={16} /> Dashboard</Link>
@@ -24,15 +26,15 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       {params.message && <p className="mt-5 rounded-md bg-emerald-500/10 p-4 text-sm text-emerald-300">{params.message}</p>}
       <section className="premium-panel mt-7 rounded-lg p-6 sm:p-8"><AvatarUploader userId={user.id} name={name} avatarUrl={profile?.avatar_url} /></section>
       <form action={updateAccount} className="premium-panel mt-5 space-y-5 rounded-lg p-6 sm:p-8">
-        <label className="block text-sm font-bold"><span className="flex items-center gap-2"><UserRound size={16} /> Display name</span><input name="display_name" defaultValue={profile?.display_name ?? ""} required minLength={2} className="mt-2 min-h-12 w-full rounded-md border border-white/10 bg-black/20 px-4 outline-none focus:border-[#8b5cf6]" /></label>
-        <label className="block text-sm font-bold"><span className="flex items-center gap-2"><Mail size={16} /> Email</span><input value={user.email ?? ""} readOnly className="mt-2 min-h-12 w-full cursor-not-allowed rounded-md border border-white/[.06] bg-black/10 px-4 text-[#8991a6]" /></label>
+        <label className="block text-sm font-bold"><span className="flex items-center gap-2"><UserRound size={16} /> Display name</span><input name="display_name" defaultValue={displayName} required minLength={2} className="mt-2 min-h-12 w-full rounded-md border border-white/10 bg-black/20 px-4 outline-none focus:border-[#8b5cf6]" /></label>
+        <label className="block text-sm font-bold"><span className="flex items-center gap-2"><Mail size={16} /> Email</span><input defaultValue={userEmail} readOnly className="mt-2 min-h-12 w-full cursor-not-allowed rounded-md border border-white/[.06] bg-black/10 px-4 text-[#8991a6]" /></label>
         <label className="block text-sm font-bold">
           <span className="flex items-center justify-between">
             <span>WhatsApp number</span>
             {savedWhatsapp ? (
               <span className="text-xs text-[#00d68f] font-bold font-mono">✓ Linked (+{savedWhatsapp})</span>
             ) : (
-              <span className="text-xs text-amber-400 font-bold">⚠️ Not linked yet</span>
+              <span className="text-xs text-amber-400 font-bold font-normal">Not linked yet</span>
             )}
           </span>
           <input
