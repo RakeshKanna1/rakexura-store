@@ -16,7 +16,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const name = String(profile?.display_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "Player");
   const savedWhatsapp = String(profile?.whatsapp || user.user_metadata?.whatsapp || "");
   const userEmail = String(user.email || "");
-  const displayName = String(profile?.display_name || "");
+  const displayName = String(profile?.display_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "");
 
   return <div className="page-shell py-10">
     <Link href="/dashboard" className="inline-flex min-h-11 items-center gap-2 text-sm text-[#8991a6] hover:text-white"><ArrowLeft size={16} /> Dashboard</Link>
