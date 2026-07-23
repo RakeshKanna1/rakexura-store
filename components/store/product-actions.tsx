@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, Heart, ShieldCheck, ShoppingBag, TicketPercent, Zap } from "lucide-react";
+import { BadgeCheck, Check, Heart, ShieldCheck, ShoppingBag, TicketPercent, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -10,8 +10,7 @@ import { ReviewForm } from "@/components/reviews/review-form";
 import { createClient } from "@/lib/supabase/client";
 import { AuthModal } from "@/components/auth/auth-modal";
 import type { User } from "@supabase/supabase-js";
-import { assetUrl, formatPrice, isDiamondOrPlatinumCoupon } from "@/lib/utils";
-import { triggerFlyToCart } from "@/components/common/fly-to-cart-animator";
+import { formatPrice, isDiamondOrPlatinumCoupon } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import type { Game, Platform } from "@/types/store";
 import { availablePlatforms } from "./game-card";
@@ -29,6 +28,7 @@ function price(game: Game, platform: Platform) {
 
 export function ProductActions({ game }: { game: Game }) {
   const [celebrate, setCelebrate] = useState(false);
+  const [btnStatus, setBtnStatus] = useState<"idle" | "arriving" | "dropping" | "exiting" | "added">("idle");
   const platforms = availablePlatforms(game);
   const [selected, setSelected] = useState<Platform>(platforms[0] ?? "Steam");
   const add = useCartStore((state) => state.add);
@@ -373,14 +373,38 @@ export function ProductActions({ game }: { game: Game }) {
               <Button 
                 type="button"
                 suppressHydrationWarning
-                className="w-full border border-white/10 bg-white/[.06] text-white hover:bg-white/[.1]" 
-                onClick={(e) => { 
-                  triggerFlyToCart(assetUrl(game.cover_image), e.currentTarget);
+                disabled={btnStatus !== "idle"}
+                className="relative overflow-hidden w-full border border-white/10 bg-white/[.06] text-white hover:bg-white/[.1] transition-all duration-300 select-none min-h-11 cursor-pointer"
+                onClick={() => {
+                  if (btnStatus !== "idle") return;
                   const action = () => {
-                    add(game, selected); 
-                    setStoreQuantity(game.id, selected, quantity);
-                    toast.success(`${game.title} added to cart`); 
+                    // 1. Cart drives in from left to center
+                    setBtnStatus("arriving");
+
+                    // 2. Game Box drops from top into cart
+                    setTimeout(() => {
+                      setBtnStatus("dropping");
+                    }, 350);
+
+                    // 3. Cart with game box drives off to the right
+                    setTimeout(() => {
+                      setBtnStatus("exiting");
+                    }, 750);
+
+                    // 4. Added text springs in
+                    setTimeout(() => {
+                      add(game, selected);
+                      setStoreQuantity(game.id, selected, quantity);
+                      setBtnStatus("added");
+                      toast.success(`${game.title} added to cart!`);
+
+                      // 5. Reset back to idle
+                      setTimeout(() => {
+                        setBtnStatus("idle");
+                      }, 2200);
+                    }, 1150);
                   };
+
                   if (checkedAuth && !user) {
                     setPendingAction(() => action);
                     setShowAuthModal(true);
@@ -389,7 +413,82 @@ export function ProductActions({ game }: { game: Game }) {
                   }
                 }}
               >
-                <ShoppingBag size={18} /> Add to cart
+                <AnimatePresence mode="wait">
+                  {btnStatus === "arriving" || btnStatus === "dropping" || btnStatus === "exiting" ? (
+                    <motion.div
+                      key="custom-cart-anim"
+                      className="relative flex items-center justify-center w-full h-full py-1"
+                    >
+                      {/* Animated Cart Container */}
+                      <motion.div
+                        initial={{ x: "-70px", opacity: 0 }}
+                        animate={
+                          btnStatus === "exiting"
+                            ? { x: "180px", opacity: 0 }
+                            : { x: "0px", opacity: 1 }
+                        }
+                        transition={
+                          btnStatus === "exiting"
+                            ? { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
+                            : { type: "spring", stiffness: 380, damping: 22 }
+                        }
+                        className="relative flex items-center justify-center text-[#facc15]"
+                      >
+                        {/* Animated Game Box dropping into cart */}
+                        {(btnStatus === "dropping" || btnStatus === "exiting") && (
+                          <motion.div
+                            initial={{ y: -22, opacity: 0, scale: 0.5, rotate: -15 }}
+                            animate={{ y: -2, opacity: 1, scale: 1, rotate: 0 }}
+                            transition={{ type: "spring", stiffness: 500, damping: 16 }}
+                            className="absolute -top-1 z-10 h-3 w-3 rounded-[2px] bg-gradient-to-br from-[#facc15] to-[#eab308] shadow-md border border-black/40 flex items-center justify-center pointer-events-none"
+                          >
+                            <span className="text-[6px] font-black text-black leading-none">🎮</span>
+                          </motion.div>
+                        )}
+
+                        {/* Cart Icon with bounce on drop */}
+                        <motion.div
+                          animate={
+                            btnStatus === "dropping"
+                              ? { scale: [1, 1.15, 1], rotate: [0, -6, 0] }
+                              : { scale: 1 }
+                          }
+                          transition={{ duration: 0.25 }}
+                        >
+                          <ShoppingBag size={20} className="text-[#facc15]" />
+                        </motion.div>
+                      </motion.div>
+                    </motion.div>
+                  ) : btnStatus === "added" ? (
+                    <motion.span
+                      key="added"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      className="flex items-center justify-center gap-2 text-white font-extrabold"
+                    >
+                      <motion.span
+                        initial={{ scale: 0, rotate: -45 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 14 }}
+                      >
+                        <Check size={18} className="text-[#facc15] stroke-[3]" />
+                      </motion.span>
+                      <span>Added</span>
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="idle"
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 6 }}
+                      className="flex items-center justify-center gap-2"
+                    >
+                      <ShoppingBag size={18} />
+                      <span>Add to cart</span>
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </Button>
               <Button 
                 type="button"
