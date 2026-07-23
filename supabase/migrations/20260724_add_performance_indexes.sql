@@ -18,5 +18,5 @@ CREATE INDEX IF NOT EXISTS idx_wishlist_user_id ON wishlist(user_id);
 CREATE INDEX IF NOT EXISTS idx_wishlist_game_id ON wishlist(game_id);
 
 -- 4. Notifications & Cart Indexes
-CREATE INDEX IF NOT EXISTS idx_notifications_user_id_read ON notifications(user_id, is_read);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_cart_items_user_id ON cart_items(user_id);
