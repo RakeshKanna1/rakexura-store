@@ -214,10 +214,11 @@ export function HeaderNotificationButton() {
                                 e.stopPropagation();
                                 markAsRead(n.id);
                               }}
-                              className="inline-flex items-center gap-1 shrink-0 rounded-full border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-2 py-0.5 text-[9px] font-bold text-[#c4b5fd] hover:bg-[#00d68f]/20 hover:border-[#00d68f]/50 hover:text-[#00d68f] transition-all cursor-pointer shadow-[0_0_8px_rgba(139,92,246,0.12)]"
+                              className="inline-flex items-center justify-center h-6 w-6 shrink-0 rounded-full border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#c4b5fd] hover:bg-[#00d68f]/20 hover:border-[#00d68f]/50 hover:text-[#00d68f] transition-all cursor-pointer shadow-[0_0_8px_rgba(139,92,246,0.12)]"
                               title="Mark as read"
+                              aria-label="Mark as read"
                             >
-                              <Check size={10} /> Mark read
+                              <Check size={12} />
                             </button>
                           )}
                         </div>
