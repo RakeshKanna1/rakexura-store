@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { TextType } from "@/components/animations/text-type";
 
 export default function Loading() {
   return (
@@ -16,7 +17,7 @@ export default function Loading() {
       aria-label="Loading Rakexura"
     >
       {/* Ultra-subtle background radial ambient */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.04),transparent_60%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.06),transparent_60%)] pointer-events-none" />
 
       {/* Sleek 2px top progress bar */}
       <div className="fixed top-0 left-0 right-0 h-[2px] bg-white/[0.03] overflow-hidden z-[99999]">
@@ -50,15 +51,30 @@ export default function Loading() {
         </div>
 
         {/* Minimalist brand title */}
-        <span className="text-[11px] font-black uppercase tracking-[0.35em] text-white/90">
+        <span className="text-[12px] font-black uppercase tracking-[0.35em] text-white">
           RAKEXURA
         </span>
 
-        {/* Minimal status indicator */}
-        <span className="mt-1.5 flex items-center gap-1.5 text-[9px] font-bold text-[#7d859a] tracking-[0.2em] uppercase">
-          <span className="h-1.2 w-1.2 rounded-full bg-[#facc15] animate-pulse" />
-          Loading
-        </span>
+        {/* Dynamic cycling typewriter text for PC Games & Store Features */}
+        <div className="mt-2.5 flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.25em] text-[#facc15]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#facc15] animate-pulse" />
+          <TextType
+            text={[
+              "PC GAMES STORE",
+              "INSTANT DIGITAL KEYS",
+              "VERIFIED GAME DEALS",
+              "BEST PRICES IN INDIA",
+              "24/7 WHATSAPP SUPPORT"
+            ]}
+            typingSpeed={40}
+            pauseDuration={1500}
+            deletingSpeed={25}
+            loop={true}
+            showCursor={true}
+            cursorCharacter="|"
+            cursorClassName="text-[#facc15] ml-0.5 animate-pulse"
+          />
+        </div>
       </div>
     </motion.div>
   );
