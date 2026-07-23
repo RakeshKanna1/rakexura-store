@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimiter } from "@/lib/security/rate-limit";
@@ -18,9 +19,14 @@ export async function updateAccount(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
   const displayName = String(formData.get("display_name") ?? "").trim();
-  const whatsapp = String(formData.get("whatsapp") ?? "").replace(/\D/g, "");
+  let whatsapp = String(formData.get("whatsapp") ?? "").replace(/\D/g, "");
+  if (whatsapp.length === 10) {
+    whatsapp = `91${whatsapp}`;
+  }
+
   if (displayName.length < 2) redirect("/dashboard/settings?error=Enter+a+valid+display+name");
   if (whatsapp && (whatsapp.length < 10 || whatsapp.length > 15)) redirect("/dashboard/settings?error=Enter+a+valid+WhatsApp+number");
+
   const { error } = await supabase
     .from("profiles")
     .update({ display_name: displayName, whatsapp: whatsapp || null, updated_at: new Date().toISOString() })
@@ -46,6 +52,9 @@ export async function updateAccount(formData: FormData) {
     }
   }
 
+  revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard");
+  revalidatePath("/profile");
   redirect("/dashboard/settings?message=Account+settings+saved");
 }
 
