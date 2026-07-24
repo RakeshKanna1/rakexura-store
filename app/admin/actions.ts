@@ -3,7 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { sendEmail, buildProfessionalEmailHtml, buildCleanInvoiceEmailHtml } from "@/lib/email";
+import { sendEmail, buildProfessionalEmailHtml, buildCleanInvoiceEmailHtml, buildReviewRequestEmailHtml } from "@/lib/email";
 import { createClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 
@@ -1224,6 +1224,14 @@ export async function sendSingleEmailNotification(formData: FormData) {
       billToEmail: targetEmail,
       items: cleanItems,
       totalPrice,
+    });
+  } else if (title.toLowerCase().includes("review") || message.toLowerCase().includes("review") || title.toLowerCase().includes("experience")) {
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
+    const customerName = targetEmail.split("@")[0] || "Valued Customer";
+    emailHtml = buildReviewRequestEmailHtml({
+      customerName,
+      message,
+      reviewUrl: `${siteUrl}${link.startsWith("/") ? link : `/${link}`}`,
     });
   } else {
     emailHtml = buildProfessionalEmailHtml({
