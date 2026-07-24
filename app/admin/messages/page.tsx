@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { BroadcastComposer } from "@/components/admin/broadcast-composer";
+import { BroadcastComposer, type OrderOption } from "@/components/admin/broadcast-composer";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 export default async function AdminMessagesPage({ searchParams }: { searchParams: Promise<{ prefill?: string }> }) {
@@ -72,7 +72,7 @@ export default async function AdminMessagesPage({ searchParams }: { searchParams
       <p className="eyebrow">Customer communication</p>
       <h1 className="mt-3 text-4xl font-black md:text-5xl">Messages & announcements</h1>
       <p className="section-copy mb-8">Tell customers about new games, offers, and giveaways without editing code.</p>
-      <BroadcastComposer customers={customers} games={games ?? []} orders={(rawOrders ?? []) as any} prefill={prefill} />
+      <BroadcastComposer customers={customers} games={games ?? []} orders={(rawOrders ?? []) as unknown as OrderOption[]} prefill={prefill} />
     </main>
   );
 }
