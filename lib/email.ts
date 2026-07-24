@@ -442,13 +442,26 @@ export function buildCleanInvoiceEmailHtml(options: CleanInvoiceOptions) {
                       </tfoot>
                     </table>
 
-                    <!-- Links Section -->
-                    <div style="text-align:center;font-size:12px;color:#666666;margin:24px 0;">
-                      <p style="margin:0 0 8px 0;">Please keep a copy of this receipt for your records.</p>
-                      <div style="margin-top:6px;">
-                        <a href="${siteUrl}/dashboard/orders" style="color:#0066cc;font-weight:700;text-decoration:underline;margin:0 8px;display:inline-block;">View your purchase history</a><br style="display:block;margin-bottom:4px;" />
-                        <a href="${siteUrl}/dashboard" style="color:#0066cc;font-weight:700;text-decoration:underline;margin:0 8px;display:inline-block;">View your Rakexura Rewards balance</a>
+                    <!-- Sleek Small Action Buttons Container Box -->
+                    <div style="background-color:#fafafa;border:1px solid #eeeeee;border-radius:12px;padding:18px 16px;margin:24px 0;text-align:center;">
+                      <div style="font-size:12px;font-weight:600;color:#555555;margin-bottom:12px;">
+                        Please keep a copy of this receipt for your records.
                       </div>
+
+                      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                          <td width="50%" style="padding-right:6px;" align="center">
+                            <a href="${siteUrl}/dashboard/orders" style="display:block;background-color:#18181b;color:#ffffff;font-size:11px;font-weight:800;text-decoration:none;padding:10px 8px;border-radius:8px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+                              📦 View Purchase History &rarr;
+                            </a>
+                          </td>
+                          <td width="50%" style="padding-left:6px;" align="center">
+                            <a href="${siteUrl}/dashboard/rewards" style="display:block;background-color:#7c3aed;color:#ffffff;font-size:11px;font-weight:800;text-decoration:none;padding:10px 8px;border-radius:8px;text-align:center;box-shadow:0 2px 6px rgba(124,58,237,0.15);">
+                              🎁 Rewards Balance &rarr;
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
                     </div>
 
                     <hr style="border:none;border-top:1px solid #eeeeee;margin:28px 0 20px 0;" />
