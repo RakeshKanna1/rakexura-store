@@ -55,6 +55,7 @@ const templates = {
 };
 
 export function BroadcastComposer({ customers, games, prefill }: { customers: Customer[]; games: GameOption[]; prefill?: string }) {
+  const [selectedTemplateKey, setSelectedTemplateKey] = useState<string>("game");
   const [title, setTitle] = useState(prefill ? `${prefill} is now available` : templates.game.title);
   const [message, setMessage] = useState(prefill ? `${prefill} has arrived at Rakexura. Check platforms, live pricing, trailers, and current offers.` : templates.game.message);
   const [link, setLink] = useState(prefill ? `/games` : templates.game.link);
@@ -100,6 +101,7 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
   }
 
   function applyTemplate(key: keyof typeof templates) {
+    setSelectedTemplateKey(key);
     const template = templates[key];
     setTitle(template.title);
     setMessage(template.message);
@@ -152,7 +154,7 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
   }
 
   async function sendEmailToCustomer() {
-    if (!targetEmail.trim()) return toast.error("Enter a target customer email address");
+    if (!targetEmail.trim()) return toast.error("Select a customer email address");
     setEmailPending(true);
     try {
       const data = new FormData();
@@ -162,7 +164,7 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
       data.set("message", message);
       data.set("link", link);
       const result = await sendSingleEmailNotification(data);
-      toast.success(`Email invoice/announcement successfully sent to ${result.recipient}!`);
+      toast.success(`Email successfully sent to ${result.recipient}!`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to send email notification");
     } finally {
@@ -171,7 +173,7 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
   }
 
   async function sendComboToCustomer() {
-    if (!customerId && !targetEmail) return toast.error("Select a customer or enter an email address");
+    if (!customerId && !targetEmail) return toast.error("Select a customer email");
     setComboPending(true);
     let emailStatus = false;
     let pushStatus = false;
@@ -226,11 +228,11 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
   ];
 
   const customerOptions = [
-    { value: "", label: "Choose customer" },
+    { value: "", label: "Select registered customer account" },
     ...customers.map((c) => ({
       value: c.id,
-      label: c.display_name || "Customer",
-      sublabel: `${c.email ? `Email: ${c.email}` : "No email"} · ${c.whatsapp ? `WA: ${c.whatsapp}` : "No phone"}`,
+      label: c.display_name ? `${c.display_name}${c.email ? ` (${c.email})` : ''}` : (c.email || "Customer"),
+      sublabel: `${c.email ? `Email: ${c.email}` : "No email saved"} · ${c.whatsapp ? `WA: ${c.whatsapp}` : "No phone"}`,
     })),
   ];
 
@@ -260,11 +262,12 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
           </div>
         </div>
 
-        {/* Preset Templates Options */}
-        <div className="mt-5 space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a8]">
-            ⚡ Select Notification Template
-          </label>
+        {/* Quick Template Buttons */}
+        <div className="mt-6 space-y-2.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#8991a8]">
+            <Sparkles size={14} className="text-[#b9a4ff]" />
+            <span>Select Notification Template</span>
+          </div>
           <div className="flex flex-wrap gap-2">
             {(Object.keys(templates) as Array<keyof typeof templates>).map((key) => {
               const item = templates[key];
@@ -274,7 +277,11 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
                   key={key}
                   type="button"
                   onClick={() => applyTemplate(key)}
-                  className="btn btn-secondary text-xs font-bold transition hover:border-[#b9a4ff]/50 hover:bg-[#8b5cf6]/10 cursor-pointer"
+                  className={`btn btn-secondary text-xs font-bold transition cursor-pointer ${
+                    selectedTemplateKey === key
+                      ? "border-[#b9a4ff] bg-[#8b5cf6]/20 text-[#b9a4ff]"
+                      : "hover:border-[#b9a4ff]/40 hover:bg-[#8b5cf6]/10"
+                  }`}
                 >
                   <Icon size={14} className="text-[#b9a4ff]" /> {item.label}
                 </button>
@@ -328,8 +335,8 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
           />
         </label>
 
-        <button onClick={notifyAll} disabled={pending} className="btn btn-primary mt-6 w-full cursor-pointer">
-          <Send size={16} />{pending ? "Sending Broadcast..." : "Notify all customer accounts (In-App + Push + Email)"}
+        <button onClick={notifyAll} disabled={pending} className="btn btn-primary mt-6 w-full font-black cursor-pointer">
+          <Send size={16} />{pending ? "Sending Broadcast..." : "Notify all customer accounts"}
         </button>
       </section>
 
@@ -341,37 +348,27 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
             <h2 className="text-lg font-black">Targeted Customer Messaging</h2>
           </div>
           <p className="text-xs leading-5 text-[#8991a6]">
-            Select a customer to send a targeted lockscreen push, WhatsApp message, or direct email invoice/update.
+            Select a registered website account to send a targeted lockscreen push, WhatsApp message, or direct email update.
           </p>
 
           <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Customer Profile</label>
+            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Website Customer (Name & Email)</label>
             <CustomSelect
               options={customerOptions}
               value={customerId}
-              onChange={(val) => setCustomerId(val)}
-              placeholder="Choose customer"
+              onChange={(val) => {
+                setCustomerId(val);
+                const found = customers.find((c) => c.id === val);
+                if (found?.email) setTargetEmail(found.email);
+              }}
+              placeholder="Select registered customer..."
             />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Customer Email Address</label>
-            <div className="relative">
-              <input
-                type="email"
-                value={targetEmail}
-                onChange={(e) => setTargetEmail(e.target.value)}
-                placeholder="customer@gmail.com"
-                className="h-10 w-full rounded-md border border-white/10 bg-black/30 px-3 pl-9 text-xs text-white outline-none focus:border-[#8b5cf6]"
-              />
-              <Mail size={14} className="absolute left-3 top-3 text-[#8991a8]" />
-            </div>
           </div>
 
           <div className="rounded-md border border-white/[.07] bg-black/20 p-3.5 text-xs leading-5 text-[#aab1c1]">
             <strong className="block text-white font-bold">{title}</strong>
             <span className="mt-1 block text-zinc-300">{message}</span>
-            {targetEmail && <span className="mt-2 block text-[11px] text-[#b9a4ff] font-mono">Recipient: {targetEmail}</span>}
+            {targetEmail && <span className="mt-2 block text-[11px] text-[#b9a4ff] font-mono">Recipient Email: {targetEmail}</span>}
           </div>
 
           <div className="space-y-2 pt-1">
@@ -379,35 +376,35 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
               type="button"
               onClick={sendEmailToCustomer}
               disabled={emailPending}
-              className="btn w-full bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold text-xs cursor-pointer flex items-center justify-center gap-2"
+              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-extrabold text-sm cursor-pointer flex items-center justify-center gap-2"
             >
-              <Mail size={15} /> {emailPending ? "Sending Email..." : "Send Direct Email"}
+              <Mail size={16} /> {emailPending ? "Sending Email..." : "Send Direct Email"}
             </button>
 
             <button
               type="button"
               onClick={sendPushToCustomer}
               disabled={pushPending}
-              className="btn w-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs cursor-pointer flex items-center justify-center gap-2"
+              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-extrabold text-sm cursor-pointer flex items-center justify-center gap-2"
             >
-              <Send size={15} /> {pushPending ? "Sending Push..." : "Send Device Push"}
+              <Send size={16} /> {pushPending ? "Sending Push..." : "Send Device Push"}
             </button>
 
             <button
               type="button"
               onClick={sendComboToCustomer}
               disabled={comboPending}
-              className="btn w-full bg-gradient-to-r from-[#8b5cf6] to-[#00d68f] hover:opacity-90 text-white font-black text-xs cursor-pointer flex items-center justify-center gap-2"
+              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-extrabold text-sm cursor-pointer flex items-center justify-center gap-2"
             >
-              <Sparkles size={15} /> {comboPending ? "Sending..." : "Send Email + Device Push (Combo)"}
+              <Sparkles size={16} /> {comboPending ? "Sending Combo..." : "Send Email + Device Push"}
             </button>
 
             <button
               type="button"
               onClick={openWhatsApp}
-              className="btn w-full bg-[#20c763] hover:bg-[#1bb057] text-black font-bold text-xs cursor-pointer flex items-center justify-center gap-2"
+              className="btn w-full bg-[#20c763] hover:bg-[#1bb057] text-black font-extrabold text-sm cursor-pointer flex items-center justify-center gap-2"
             >
-              <MessageCircle size={15} /> Open WhatsApp
+              <MessageCircle size={16} /> Open WhatsApp
             </button>
           </div>
         </div>
@@ -439,7 +436,7 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
             />
           </div>
 
-          <button onClick={sendGiftGame} disabled={giftPending} className="btn mt-5 w-full btn-primary bg-[#8b5cf6] hover:bg-[#7c3aed] text-white cursor-pointer">
+          <button onClick={sendGiftGame} disabled={giftPending} className="btn mt-5 w-full btn-primary bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold cursor-pointer">
             <Gift size={16} /> {giftPending ? "Gifting..." : "Gift Game"}
           </button>
         </div>
