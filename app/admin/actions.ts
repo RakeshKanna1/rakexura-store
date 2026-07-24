@@ -149,7 +149,7 @@ async function getCustomerEmail(supabase: SupabaseAdmin, userId?: string | null)
   return null;
 }
 
-export function buildEmailHtml(order: OrderForStatus, status: string, items: ParsedOrderItem[]) {
+export async function buildEmailHtml(order: OrderForStatus, status: string, items: ParsedOrderItem[]) {
   const reference = order.order_reference || `#${order.id}`;
   const customerName = order.customer_name || "Valued Customer";
   const fallbackTotal = items.reduce((sum, item) => sum + Number(item.price ?? 0) * item.quantity, 0);
