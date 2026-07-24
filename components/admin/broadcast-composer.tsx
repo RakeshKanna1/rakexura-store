@@ -357,6 +357,7 @@ export function BroadcastComposer({
     setComboPending(true);
     let emailStatus = false;
     let pushStatus = false;
+    let emailErr = "";
 
     try {
       if (targetEmail.trim()) {
@@ -370,6 +371,7 @@ export function BroadcastComposer({
         emailStatus = true;
       }
     } catch (e) {
+      emailErr = e instanceof Error ? e.message : "Email dispatch failed";
       console.warn("Combo email dispatch failed:", e);
     }
 
@@ -380,18 +382,20 @@ export function BroadcastComposer({
         data.set("title", title);
         data.set("message", message);
         data.set("link", link);
-        await sendSinglePushNotification(data);
-        pushStatus = true;
+        const pRes = await sendSinglePushNotification(data);
+        if (pRes?.count && pRes.count > 0) pushStatus = true;
       }
     } catch (e) {
       console.warn("Combo push dispatch failed:", e);
     }
 
     setComboPending(false);
-    if (emailStatus || pushStatus) {
-      toast.success(`Combined update sent! (Email: ${emailStatus ? '✓' : 'x'}, Push: ${pushStatus ? '✓' : 'x'})`);
+    if (emailStatus) {
+      toast.success(`Email sent to ${targetEmail.trim()}! ${pushStatus ? "(Push sent)" : "(Device push skipped - no active push token)"}`);
+    } else if (pushStatus) {
+      toast.success("Device push notification delivered successfully!");
     } else {
-      toast.error("Failed to send multi-channel notification.");
+      toast.error(emailErr || "Failed to send notification. Check customer email address.");
     }
   }
 
