@@ -48,7 +48,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   preconnect(supabaseUrl);
 
   return (
-    <html lang="en" suppressHydrationWarning className={geist.variable} data-scroll-behavior="smooth">
+    <html lang="en" suppressHydrationWarning className={geist.variable}>
       <body className={geist.className}>
         <ClickSpark sparkColor="#facc15" sparkSize={10} sparkRadius={24} sparkCount={10} duration={450}>
           <AppProviders>

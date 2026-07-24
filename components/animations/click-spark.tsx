@@ -26,7 +26,7 @@ export function ClickSpark({
 }: ClickSparkProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sparksRef = useRef<any[]>([]);
-  const startTimeRef = useRef<number | null>(null);
+  const animationIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -77,21 +77,24 @@ export function ClickSpark({
     [easing]
   );
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let animationId: number;
+  const startAnimation = useCallback(() => {
+    if (animationIdRef.current !== null) return;
 
     const draw = (timestamp: number) => {
-      if (!startTimeRef.current) {
-        startTimeRef.current = timestamp;
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        animationIdRef.current = null;
+        return;
       }
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        animationIdRef.current = null;
+        return;
+      }
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      sparksRef.current = sparksRef.current.filter(spark => {
+      sparksRef.current = sparksRef.current.filter((spark) => {
         const elapsed = timestamp - spark.startTime;
         if (elapsed >= duration) {
           return false;
@@ -119,15 +122,25 @@ export function ClickSpark({
         return true;
       });
 
-      animationId = requestAnimationFrame(draw);
+      if (sparksRef.current.length > 0) {
+        animationIdRef.current = requestAnimationFrame(draw);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        animationIdRef.current = null;
+      }
     };
 
-    animationId = requestAnimationFrame(draw);
+    animationIdRef.current = requestAnimationFrame(draw);
+  }, [duration, easeFunc, extraScale, sparkColor, sparkRadius, sparkSize]);
 
+  useEffect(() => {
     return () => {
-      cancelAnimationFrame(animationId);
+      if (animationIdRef.current !== null) {
+        cancelAnimationFrame(animationIdRef.current);
+        animationIdRef.current = null;
+      }
     };
-  }, [sparkColor, sparkSize, sparkRadius, sparkCount, duration, easeFunc, extraScale]);
+  }, []);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const canvas = canvasRef.current;
@@ -145,6 +158,7 @@ export function ClickSpark({
     }));
 
     sparksRef.current.push(...newSparks);
+    startAnimation();
   };
 
   return (
@@ -174,3 +188,4 @@ export function ClickSpark({
     </div>
   );
 }
+

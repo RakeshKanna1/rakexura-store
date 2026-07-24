@@ -26,7 +26,6 @@ const cspHeader = `
 const nextConfig: NextConfig = {
   crossOrigin: "anonymous",
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -39,6 +38,14 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "supabase.co",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.unsplash.com",
       }
     ],
     formats: ["image/avif", "image/webp"],
