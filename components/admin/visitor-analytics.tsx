@@ -287,7 +287,7 @@ export function VisitorAnalytics() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="grid h-9 w-9 place-items-center rounded-lg bg-[#8b5cf6]/10 text-[#b9a4ff] font-bold text-sm">
-                        {sess.user_name ? "👤" : "🌐"}
+                        {sess.user_name ? <Users size={18} /> : <Globe size={18} />}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
@@ -305,8 +305,9 @@ export function VisitorAnalytics() {
                     </div>
 
                     <div className="flex items-center gap-4 text-xs text-[#8991a6]">
-                      <span className="font-semibold text-white">
-                        {sess.device_type === "Mobile" ? "📱 Mobile" : sess.device_type === "Tablet" ? "平板 Tablet" : "💻 Desktop"}
+                      <span className="font-semibold text-white inline-flex items-center gap-1.5">
+                        {sess.device_type === "Mobile" ? <Smartphone size={14} /> : <Monitor size={14} />}
+                        {sess.device_type || "Desktop"}
                       </span>
                       <span className="rounded bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-white">
                         {sess.referrer || "Direct"}
@@ -369,7 +370,7 @@ export function VisitorAnalytics() {
                     </td>
                     <td className="p-3">
                       {log.user_name ? (
-                        <span className="font-bold text-[#70efbb]">👤 {log.user_name}</span>
+                        <span className="font-bold text-[#70efbb] inline-flex items-center gap-1"><Users size={12} /> {log.user_name}</span>
                       ) : (
                         <span className="font-mono text-[#8991a6]">Guest ({log.visitor_id.substring(0, 10)})</span>
                       )}

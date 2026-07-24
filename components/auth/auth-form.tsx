@@ -225,7 +225,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
         {/* Notice to use Google & Discord exclusively */}
         <div className="mb-6 rounded-md border border-amber-500/20 bg-amber-500/[.03] p-4 text-center">
           <h4 className="text-amber-400 font-bold text-sm flex items-center justify-center gap-1.5 mb-1">
-            ⚠️ Sign In Option Notice
+            Sign In Option Notice
           </h4>
           <p className="text-xs text-[#a0a8c0] leading-relaxed">
             Email Password and OTP Verification logins are currently under construction. Please use <strong>Google</strong> or <strong>Discord</strong> below to access your account.
@@ -250,7 +250,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                 authMethod === "otp" ? "border-[#6974ff] text-white" : "border-transparent text-[#8991a6]"
               }`}
             >
-              ✉️ Email Verification Code (OTP)
+              Email Verification Code (OTP)
             </button>
             <button
               type="button"
@@ -259,7 +259,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                 authMethod === "password" ? "border-[#6974ff] text-white" : "border-transparent text-[#8991a6]"
               }`}
             >
-              🔒 Password
+              Password
             </button>
           </div>
 
@@ -298,7 +298,9 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
               ) : (
                 <form onSubmit={handleVerifyOtp} className="space-y-5">
                   <div className="rounded-md border border-[#6974ff]/20 bg-[#6974ff]/5 p-4 text-xs text-[#a3aeff] leading-relaxed">
-                    💡 We sent a verification code to <strong>{email}</strong>. Copy the code and paste it below.
+                    <p className="text-xs text-[#8991a6] text-center leading-relaxed">
+                      We sent a verification code to <strong>{email}</strong>. Copy the code and paste it below.
+                    </p>
                   </div>
                   <label className="block text-sm font-semibold">
                     Verification Code (OTP)

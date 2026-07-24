@@ -169,6 +169,151 @@ export function textToHtml(text: string) {
   `;
 }
 
+export type StoreEmailOptions = {
+  title: string;
+  message: string;
+  link?: string;
+  imageUrl?: string | null;
+  price?: number | string | null;
+  originalPrice?: number | string | null;
+  discountPercentage?: number | string | null;
+  discountTag?: string | null;
+  platforms?: string | null;
+};
+
+export function buildProfessionalEmailHtml(options: StoreEmailOptions) {
+  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
+  const siteUrl = rawSiteUrl.replace(/\/$/, "");
+  const { title, message, link, imageUrl, price, originalPrice, discountPercentage, discountTag, platforms } = options;
+  
+  const targetUrl = link?.startsWith("http") ? link : `${siteUrl}${link?.startsWith("/") ? link : `/${link || ""}`}`;
+
+  // Direct absolute logo URL for reliable delivery across mobile & web clients
+  const logoUrl = `${siteUrl}/images/rakexura-silver-badge.png`;
+
+  // Process game image absolute URL
+  let fullImageUrl: string | null = null;
+  if (imageUrl) {
+    fullImageUrl = imageUrl.startsWith("http://") || imageUrl.startsWith("https://") 
+      ? imageUrl 
+      : `${siteUrl}${imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`}`;
+  }
+
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>${escapeHtml(title)}</title>
+      </head>
+      <body style="margin:0;padding:0;background-color:#f4f5f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1f2937;-webkit-font-smoothing:antialiased;">
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f4f5f8;padding:36px 12px;">
+          <tr>
+            <td align="center">
+              
+              <!-- Main White Card Container -->
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:580px;background-color:#ffffff;border-radius:14px;border:1px solid #e5e7eb;padding:36px 32px;text-align:left;box-shadow:0 10px 25px rgba(0,0,0,0.04);">
+                <tr>
+                  <td>
+                    
+                    <!-- Header Logo & Store Badge -->
+                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:24px;border-bottom:1px solid #f3f4f6;padding-bottom:18px;">
+                      <tr>
+                        <td align="left">
+                          <table role="presentation" border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                              <td style="padding-right:14px;vertical-align:middle;">
+                                <img src="${logoUrl}" alt="Rakexura" width="38" height="46" style="display:block;border:0;outline:none;max-width:38px;" />
+                              </td>
+                              <td style="vertical-align:middle;">
+                                <div style="font-size:20px;font-weight:900;color:#0f172a;letter-spacing:1.5px;text-transform:uppercase;line-height:1;">RAKEXURA</div>
+                                <div style="font-size:10px;font-weight:800;color:#7c3aed;letter-spacing:1px;text-transform:uppercase;margin-top:4px;">OFFICIAL STORE ANNOUNCEMENT</div>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Headline Title -->
+                    <h1 style="font-size:23px;font-weight:900;color:#0f172a;letter-spacing:-0.3px;line-height:1.35;margin:0 0 20px 0;padding:0;">
+                      ${escapeHtml(title)}
+                    </h1>
+
+                    <!-- Real Game Banner Image (if available) -->
+                    ${fullImageUrl ? `
+                      <div style="margin-bottom:22px;overflow:hidden;border-radius:10px;border:1px solid #e2e8f0;background-color:#f8fafc;">
+                        <img src="${escapeHtml(fullImageUrl)}" alt="${escapeHtml(title)}" width="516" style="width:100%;max-width:516px;height:auto;display:block;border:0;" />
+                      </div>
+                    ` : ''}
+
+                    <!-- Real Game Price & Platform Bar (if available) -->
+                    ${(price || originalPrice || platforms || discountTag) ? `
+                      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f8fafc;border-radius:10px;padding:14px 18px;margin-bottom:24px;border:1px solid #e2e8f0;">
+                        <tr>
+                          <td align="left" style="vertical-align:middle;">
+                            ${platforms ? `
+                              <span style="display:inline-block;background-color:#ede9fe;color:#6d28d9;font-weight:800;padding:3px 10px;border-radius:5px;font-size:11px;margin-right:8px;text-transform:uppercase;letter-spacing:0.5px;">${escapeHtml(platforms)}</span>
+                            ` : ''}
+                            <span style="color:#64748b;font-size:12px;font-weight:700;">
+                              ${discountTag ? escapeHtml(discountTag) : 'Available live on Rakexura'}
+                            </span>
+                          </td>
+                          <td align="right" style="vertical-align:middle;white-space:nowrap;">
+                            ${discountPercentage ? `
+                              <span style="background-color:#dcfce7;color:#15803d;font-size:12px;font-weight:900;padding:3px 8px;border-radius:4px;margin-right:8px;">-${discountPercentage}%</span>
+                            ` : ''}
+                            ${originalPrice ? `<span style="font-size:13px;color:#94a3b8;text-decoration:line-through;margin-right:8px;">₹${Number(originalPrice).toLocaleString("en-IN")}</span>` : ''}
+                            ${price ? `<span style="font-size:18px;font-weight:900;color:#0f172a;">₹${Number(price).toLocaleString("en-IN")}</span>` : ''}
+                          </td>
+                        </tr>
+                      </table>
+                    ` : ''}
+
+                    <!-- Message Body -->
+                    <div style="font-size:15px;line-height:1.75;color:#334155;margin-bottom:32px;">
+                      ${escapeHtml(message).replace(/\n/g, '<br />')}
+                    </div>
+
+                    <!-- Call To Action Button -->
+                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td align="center">
+                          <a href="${escapeHtml(targetUrl)}" target="_blank" style="display:inline-block;background-color:#7c3aed;color:#ffffff;font-size:15px;font-weight:900;text-decoration:none;padding:15px 44px;border-radius:8px;box-shadow:0 4px 14px rgba(124,58,237,0.35);letter-spacing:0.3px;">
+                            View Game on Rakexura
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Footer Disclaimer -->
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:580px;margin-top:24px;text-align:left;">
+                <tr>
+                  <td style="font-size:12px;line-height:1.6;color:#94a3b8;">
+                    <p style="margin:0 0 8px 0;">Specific pricing, stock, and platform options are subject to change. Please check the Rakexura Store page for live details.</p>
+                    <p style="margin:0 0 16px 0;">You are receiving this notification email because you registered an account at Rakexura Store.</p>
+                    <div style="border-top:1px solid #e2e8f0;padding-top:16px;font-size:11px;color:#94a3b8;">
+                      <strong style="color:#64748b;text-transform:uppercase;letter-spacing:1px;">RAKEXURA STORE</strong> &bull; 
+                      <a href="${siteUrl}/games" style="color:#64748b;text-decoration:underline;margin-left:4px;">Browse Store</a> &bull; 
+                      <a href="${siteUrl}/support" style="color:#64748b;text-decoration:underline;margin-left:4px;">Support Desk</a>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `;
+}
+
 export async function sendEmail({ to, subject, text, html }: SendEmailInput): Promise<EmailResult> {
   const ownerEmail = (process.env.OWNER_EMAIL || "12k21rakeshkannam@gmail.com").toLowerCase().trim();
 

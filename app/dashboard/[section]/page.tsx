@@ -362,7 +362,7 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                     {isDelivered && Boolean(row.account_access) && (
                       <details className="group border border-[#8b5cf6]/35 bg-[#8b5cf6]/5 rounded-md overflow-hidden max-w-md">
                         <summary className="flex items-center justify-between px-4 py-2.5 text-xs font-black text-[#c4b5fd] cursor-pointer hover:bg-[#8b5cf6]/10 select-none list-none [&::-webkit-details-marker]:hidden">
-                          <span className="flex items-center gap-1.5">🔑 Quick View: Game Activation / Account Credentials</span>
+                          <span className="flex items-center gap-1.5"><Key size={14} className="text-[#facc15] shrink-0" /> Quick View: Game Activation / Account Credentials</span>
                           <span className="text-[#8b5cf6] text-[10px] group-open:rotate-180 transition-transform">▼</span>
                         </summary>
                         <div className="px-4 py-3 border-t border-[#8b5cf6]/20 bg-black/40 text-xs text-slate-300 leading-relaxed shadow-inner">

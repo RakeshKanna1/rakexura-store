@@ -149,7 +149,7 @@ export function AuthModal({ isOpen, onClose, onContinueAsGuest }: AuthModalProps
             {/* Email Magic Link */}
             {magicLinkSent ? (
               <div className="rounded-xl border border-[#70efbb]/20 bg-[#70efbb]/[0.02] p-4 text-center text-xs leading-relaxed text-[#70efbb]">
-                ✉️ A login link has been sent to <strong>{email}</strong>.<br />Check your inbox and spam folders to sign in.
+                A login link has been sent to <strong>{email}</strong>.<br />Check your inbox and spam folders to sign in.
               </div>
             ) : (
               <form onSubmit={handleMagicLink} className="space-y-3">

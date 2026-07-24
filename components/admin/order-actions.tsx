@@ -91,17 +91,17 @@ export function OrderActions({
       };
       const trackingLink = `https://rakexura-store.vercel.app/track-order?order=${order.id}&phone=${customerPhone}`;
 
-      let textContent = `🎮 *RAKEXURA INVOICE & DELIVERY*\n\n` +
-        `📦 *Items:* ${order.gameName}\n` +
-        `🆔 *Order ID:* ${order.id}\n` +
-        `💰 *Total Paid:* Rs. ${totalPrice.toLocaleString("en-IN")}\n\n`;
+      let textContent = `*RAKEXURA INVOICE & DELIVERY*\n\n` +
+        `*Items:* ${order.gameName}\n` +
+        `*Order ID:* ${order.id}\n` +
+        `*Total Paid:* Rs. ${totalPrice.toLocaleString("en-IN")}\n\n`;
 
       if (accountAccess.trim()) {
-        textContent += `🔑 *Account/Activation Access Details:*\n${accountAccess.trim()}\n\n`;
+        textContent += `*Account/Activation Access Details:*\n${accountAccess.trim()}\n\n`;
       }
 
-      textContent += `🔗 *Track/View Order:* ${trackingLink}\n\n` +
-        `✨ *Your order is officially ready! Thank you for shopping with Rakexura Store!*`;
+      textContent += `*Track/View Order:* ${trackingLink}\n\n` +
+        `*Your order is officially ready! Thank you for shopping with Rakexura Store!*`;
 
       const encodedText = encodeURIComponent(textContent);
       window.open(`https://wa.me/${order.phone}?text=${encodedText}`, '_blank');
@@ -166,7 +166,7 @@ export function OrderActions({
 
       <div className="mt-4 p-4 rounded-lg border border-[#8b5cf6]/20 bg-[#8b5cf6]/5 space-y-3">
         <label className="block text-xs font-extrabold uppercase tracking-wider text-[#cbbfff]">
-          🔑 Game Activation / Account Details (User ID, Pass, or Keys)
+          Game Activation / Account Details (User ID, Pass, or Keys)
           <textarea
             value={accountAccess}
             onChange={(e) => setAccountAccess(e.target.value)}

@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, Check, Heart, ShieldCheck, ShoppingBag, TicketPercent, Zap } from "lucide-react";
+import { BadgeCheck, Check, Heart, Info, ShieldCheck, ShoppingBag, TicketPercent, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -179,37 +179,40 @@ export function ProductActions({ game }: { game: Game }) {
         </div>
 
         {/* Dynamic Platform Helper Tip */}
-        <div className="rounded-lg bg-white/[0.02] border border-white/[0.04] p-3.5 text-xs leading-relaxed text-[#a0a8c0]">
+        <div className="rounded-lg bg-white/[0.02] border border-white/[0.04] p-3.5 text-xs leading-relaxed text-[#a0a8c0] flex items-start gap-2.5">
+          <Info size={14} className="text-[#8b5cf6] shrink-0 mt-0.5" />
+          <div>
           {selected === "Offline" && (
             <p>
-              💡 <strong>Offline Activation:</strong> Play the full single-player campaign offline via a verified account. Game progress and saves are kept locally on your PC. Heavily discounted!
+              <strong>Offline Activation:</strong> Play the full single-player campaign offline via a verified account. Game progress and saves are kept locally on your PC. Heavily discounted!
             </p>
           )}
           {selected === "Online" && (
             <p>
-              💡 <strong>Online Activation:</strong> Assisted game setup with support for online/multiplayer features where available.
+              <strong>Online Activation:</strong> Assisted game setup with support for online/multiplayer features where available.
             </p>
           )}
           {selected === "Steam" && (
             <p>
-              💡 <strong>Steam:</strong> Digital assisted delivery. The game is set up on your personal Steam client.
+              <strong>Steam:</strong> Digital assisted delivery. The game is set up on your personal Steam client.
             </p>
           )}
           {selected === "Epic" && (
             <p>
-              💡 <strong>Epic:</strong> Digital assisted delivery. The game is set up on your personal Epic Games client.
+              <strong>Epic:</strong> Digital assisted delivery. The game is set up on your personal Epic Games client.
             </p>
           )}
           {selected === "Xbox" && (
             <p>
-              💡 <strong>Xbox:</strong> Assisted setup for Xbox Play Anywhere or Microsoft Store game files.
+              <strong>Xbox:</strong> Assisted setup for Xbox Play Anywhere or Microsoft Store game files.
             </p>
           )}
           {selected === "Nvidia GeForce" && (
             <p>
-              💡 <strong>Nvidia GeForce Now:</strong> Setup assistance for cloud gaming compatibility.
+              <strong>Nvidia GeForce Now:</strong> Setup assistance for cloud gaming compatibility.
             </p>
           )}
+          </div>
         </div>
 
         {/* Polished Minimalist Coupon Input Field inside Game Details */}
@@ -458,7 +461,6 @@ export function ProductActions({ game }: { game: Game }) {
                             transition={{ type: "spring", stiffness: 500, damping: 16 }}
                             className="absolute -top-1 z-10 h-3 w-3 rounded-[2px] bg-gradient-to-br from-[#facc15] to-[#eab308] shadow-md border border-black/40 flex items-center justify-center pointer-events-none"
                           >
-                            <span className="text-[6px] font-black text-black leading-none">🎮</span>
                           </motion.div>
                         )}
 

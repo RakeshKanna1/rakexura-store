@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Check, Circle, Clipboard, Clock3, HelpCircle, LifeBuoy, MessageCircle, Search, X, ShieldCheck } from "lucide-react";
+import { Check, Circle, Clipboard, Clock3, HelpCircle, LifeBuoy, MessageCircle, Search, X, ShieldCheck, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { formatPrice } from "@/lib/utils";
@@ -184,11 +184,11 @@ function TrackOrderContent() {
   const trackingLink = `${typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL ?? "https://rakexura-store.vercel.app")}/track-order?order=${orderReference}&phone=${phone}`;
 
   const whatsappUrl = `https://wa.me/${whatsapp}?text=` + 
-    encodeURIComponent(`🛒 *NEW ORDER RECEIVED*`) + `%0A%0A` +
-    encodeURIComponent(`📦 *Game:* ${gamesText} `) + `%0A` +
-    encodeURIComponent(`🆔 *Order ID:* ${orderReference} `) + `%0A` +
-    encodeURIComponent(`🏷️ *Type:* ${isFreebie ? '[FREE ORDER via Loyalty Rank Coupon]' : `[PAID ORDER (Amount Paid: Rs. ${finalAmount})]`} `) + `%0A%0A` +
-    encodeURIComponent(`🔗 *Track Order:* ${trackingLink}`) + `%0A%0A` +
+    encodeURIComponent(`*NEW ORDER RECEIVED*`) + `%0A%0A` +
+    encodeURIComponent(`*Game:* ${gamesText} `) + `%0A` +
+    encodeURIComponent(`*Order ID:* ${orderReference} `) + `%0A` +
+    encodeURIComponent(`*Type:* ${isFreebie ? '[FREE ORDER via Loyalty Rank Coupon]' : `[PAID ORDER (Amount Paid: Rs. ${finalAmount})]`} `) + `%0A%0A` +
+    encodeURIComponent(`*Track Order:* ${trackingLink}`) + `%0A%0A` +
     encodeURIComponent(`Please send over my activation details!`);
 
   return (
@@ -230,7 +230,7 @@ function TrackOrderContent() {
               </button>
               {result.auth_required ? (
                 <div className="mt-3 flex items-center gap-2 text-sm text-[#facc15] font-bold">
-                  <span>🔒 Protected Customer Order</span>
+                  <span>Protected Customer Order</span>
                 </div>
               ) : (
                 <>
@@ -251,41 +251,38 @@ function TrackOrderContent() {
             <div className="mt-6 text-center p-8 rounded-lg border border-yellow-500/20 bg-yellow-500/[.03] space-y-4">
               <div className="flex flex-col items-center justify-center space-y-2">
                 <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-yellow-500/10 text-yellow-400 text-lg">
-                  🔒
+                  <ShieldCheck size={24} />
                 </span>
                 <h3 className="text-yellow-400 font-extrabold text-xl">
                   Authentication Required
                 </h3>
               </div>
               {currentUser ? (
-                <>
-                  <p className="text-sm text-[#a4abbc] max-w-md mx-auto leading-relaxed">
-                    You are currently signed in as <strong className="text-white">{currentUser.email}</strong>. This order is associated with a different Rakexura account. Please sign out and log in with the correct buyer&apos;s account.
-                  </p>
-                  <div className="pt-2 max-w-xs mx-auto">
-                    <button
-                      onClick={handleSignOut}
-                      className="relative inline-flex items-center justify-center gap-2 w-full py-3 px-6 rounded-lg bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm shadow-[0_0_15px_rgba(220,38,38,0.3)] transition-all hover:scale-[1.01] active:scale-[0.99] border border-red-500/20 select-none cursor-pointer"
-                    >
-                      Sign Out / Switch Account
-                    </button>
-                  </div>
-                </>
+                <p className="text-sm text-[#a4abbc] max-w-md mx-auto leading-relaxed">
+                  Logged in as <strong>{currentUser.email}</strong>, but this order belongs to another registered account.
+                </p>
               ) : (
-                <>
-                  <p className="text-sm text-[#a4abbc] max-w-md mx-auto leading-relaxed">
-                    This order is associated with a registered Rakexura account. Please log in with the buyer&apos;s account to view the tracking details, status updates, and game activation info.
-                  </p>
-                  <div className="pt-2 max-w-xs mx-auto">
-                    <Link
-                      href={`/login?next=${encodeURIComponent(typeof window !== "undefined" ? window.location.pathname + window.location.search : "/track-order")}`}
-                      className="relative inline-flex items-center justify-center gap-2 w-full py-3 px-6 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#6d4aff] text-white font-extrabold text-sm shadow-[0_0_15px_rgba(139,92,246,0.3)] transition-all hover:scale-[1.01] active:scale-[0.99] border border-[#8b5cf6]/20 select-none cursor-pointer"
-                    >
-                      Sign In to View Order
-                    </Link>
-                  </div>
-                </>
+                <p className="text-sm text-[#a4abbc] max-w-md mx-auto leading-relaxed">
+                  This order is associated with a registered account. Please log in to view delivery details.
+                </p>
               )}
+              <div className="pt-2 max-w-xs mx-auto">
+                {currentUser ? (
+                  <button
+                    onClick={handleSignOut}
+                    className="relative inline-flex items-center justify-center gap-2 w-full py-3 px-6 rounded-lg bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm shadow-[0_0_15px_rgba(220,38,38,0.3)] transition-all hover:scale-[1.01] active:scale-[0.99] border border-red-500/20 select-none cursor-pointer"
+                  >
+                    Sign Out / Switch Account
+                  </button>
+                ) : (
+                  <Link
+                    href={`/login?next=${encodeURIComponent(typeof window !== "undefined" ? window.location.pathname + window.location.search : "/track-order")}`}
+                    className="relative inline-flex items-center justify-center gap-2 w-full py-3 px-6 rounded-lg bg-gradient-to-r from-[#8b5cf6] to-[#6d4aff] text-white font-extrabold text-sm shadow-[0_0_15px_rgba(139,92,246,0.3)] transition-all hover:scale-[1.01] active:scale-[0.99] border border-[#8b5cf6]/20 select-none cursor-pointer"
+                  >
+                    Sign In to View Order
+                  </Link>
+                )}
+              </div>
             </div>
           ) : !whatsappActivated ? (
             <div className="mt-6 space-y-4">
@@ -300,7 +297,7 @@ function TrackOrderContent() {
                   </h3>
                 </div>
                 <p className="text-sm text-[#a4abbc] max-w-md mx-auto leading-relaxed">
-                  Hi <strong>{result.customer_name || "Customer"}</strong>! Standard order tracking fields are locked until a mandatory WhatsApp support handshake is initiated. Click the button below to activate your order and request delivery details.
+                  Hi <strong>{result.customer_name || "Customer"}</strong>! To activate your order and receive your game delivery details via WhatsApp, click the button below to complete the mandatory handshake with our administrator.
                 </p>
                 <div className="pt-2 max-w-md mx-auto">
                   <a
@@ -312,12 +309,12 @@ function TrackOrderContent() {
                         localStorage.setItem("activated_" + result.order_ref, "true");
                       }
                       setWhatsappActivated(true);
-                      toast.success("Fulfillment handshake completed, awaiting manual fulfillment!");
+                      toast.success("Activation initiated! Loading tracking timeline.");
                     }}
                     className="relative inline-flex items-center justify-center gap-3 w-full py-4 px-6 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold text-base shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:scale-[1.01] active:scale-[0.99] border border-emerald-400/20 hover:border-emerald-400/40 select-none cursor-pointer"
                   >
                     <MessageCircle size={20} className="animate-bounce shrink-0" />
-                    <span>Click to Activate & Handshake via WhatsApp</span>
+                    <span>Click to Activate & Receive Your Game via WhatsApp</span>
                   </a>
                 </div>
               </div>
@@ -339,7 +336,6 @@ function TrackOrderContent() {
 
               {!isRejected && active < 3 && (
                 <div className="mt-3 flex items-center gap-2.5 rounded-lg border border-[#facc15]/15 bg-gradient-to-r from-amber-500/[0.03] to-yellow-500/[0.03] p-3 text-xs text-[#facc15] font-bold">
-                  <span className="text-sm">🏆</span>
                   <span>Rank Points: You will earn <span className="underline font-black">+{hasSubscription ? "200" : "100"} Rank Points</span> upon successful delivery of this order!</span>
                 </div>
               )}
@@ -347,7 +343,7 @@ function TrackOrderContent() {
               {(result.status === "Delivered" || result.status === "Completed") && (
                 <div id="credentials-section" className="space-y-4 mt-6">
                   <div className="text-center p-6 rounded-lg border border-emerald-500/20 bg-emerald-500/[.03] space-y-2">
-                    <h3 className="text-emerald-400 font-extrabold text-xl">🎉 Thank you for your purchase!</h3>
+                    <h3 className="text-emerald-400 font-extrabold text-xl">Thank you for your purchase!</h3>
                     <p className="text-sm text-[#a4abbc]">
                       Your order is ready! Thank you for shopping with Rakexura Store. Your game credentials/activation details are listed below.
                     </p>
@@ -356,7 +352,7 @@ function TrackOrderContent() {
                   {result.account_access && (
                     <div className="p-4 rounded-lg border border-[#8b5cf6]/35 bg-[#8b5cf6]/5 space-y-2">
                       <div className="flex items-center gap-1.5 text-xs font-black text-[#c4b5fd]">
-                        <span>🔑 Game Activation / Account Details</span>
+                        <span>Game Activation / Account Details</span>
                       </div>
                       <div className="mt-2 font-mono bg-black/45 p-3 rounded border border-white/5 text-xs text-slate-200 select-all whitespace-pre-wrap leading-relaxed shadow-inner">
                         {result.account_access}
@@ -443,8 +439,8 @@ function TrackOrderContent() {
               {/* Floating Glow */}
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.15),transparent_70%)] pointer-events-none" />
 
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 text-amber-400 text-3xl font-black shadow-[0_0_20px_rgba(245,158,11,0.2)] animate-bounce mb-4">
-                🏆
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 text-amber-400 font-black shadow-[0_0_20px_rgba(245,158,11,0.2)] animate-bounce mb-4">
+                <Sparkles size={32} />
               </div>
 
               <h3 className="text-2xl font-black text-white bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">

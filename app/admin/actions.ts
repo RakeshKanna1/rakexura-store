@@ -3,7 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, buildProfessionalEmailHtml } from "@/lib/email";
 import { createClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 
@@ -169,7 +169,7 @@ function buildEmailHtml(order: OrderForStatus, status: string, items: ParsedOrde
   const itemRows = items.map((item) => `
     <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
       <td style="padding: 12px 8px; text-align: left; color: #ffffff; font-size: 13px; font-weight:700;">
-        ⚡ ${item.title}
+        ${item.title}
         <span style="display:block; font-size: 11px; color: #8991a6; font-weight: 500; margin-top:2px;">${item.platform || "PC Game"}</span>
       </td>
       <td style="padding: 12px 8px; text-align: center; color: #e4e4e7; font-size: 13px; font-weight:600;">${item.quantity}</td>
@@ -882,7 +882,7 @@ export async function sendStoreAnnouncement(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
   const link = String(formData.get("link") ?? "").trim() || "/games";
-  if (title.length < 3 || title.length > 80 || message.length < 5 || message.length > 300) throw new Error("Enter a clear title and message");
+  if (title.length < 3 || title.length > 80 || message.length < 5 || message.length > 500) throw new Error("Enter a clear title and message");
   if (!link.startsWith("/")) throw new Error("Announcement link must be a Rakexura path");
   const { data: profiles, error: profileError } = await supabase.from("profiles").select("id, email");
   if (profileError) throw new Error(profileError.message);
@@ -893,15 +893,59 @@ export async function sendStoreAnnouncement(formData: FormData) {
     profiles.map((p) => sendPushNotification(p.id, title, message, link))
   );
 
+  let imageUrl: string | null = null;
+  let price: number | null = null;
+  let originalPrice: number | null = null;
+  let discountPercentage: number | null = null;
+  let discountTag: string | null = null;
+  let platforms: string | null = null;
+
+  const gameIdMatch = link.match(/\/games\/(\d+)/);
+  const gameId = gameIdMatch ? Number(gameIdMatch[1]) : optionalNumber(formData.get("gameId"));
+  
+  if (gameId) {
+    const { data: g } = await supabase
+      .from("games")
+      .select("cover_image, banner_image, sale_price, original_price, offline_price, steam_price, available_platforms")
+      .eq("id", gameId)
+      .maybeSingle();
+
+    if (g) {
+      imageUrl = g.banner_image || g.cover_image || null;
+      price = g.sale_price || g.offline_price || g.steam_price || null;
+      originalPrice = g.original_price || null;
+      if (originalPrice && price && Number(originalPrice) > Number(price)) {
+        discountPercentage = Math.round(((Number(originalPrice) - Number(price)) / Number(originalPrice)) * 100);
+      }
+      if (Array.isArray(g.available_platforms) && g.available_platforms.length > 0) {
+        platforms = (g.available_platforms as string[]).join(" · ");
+      }
+      discountTag = "SPECIAL GAME DEAL! Available live on Rakexura";
+    }
+  }
+
+  const profHtml = buildProfessionalEmailHtml({
+    title,
+    message,
+    link,
+    imageUrl,
+    price,
+    originalPrice,
+    discountPercentage,
+    discountTag,
+    platforms,
+  });
+
   // Call the transmission pipeline to fire off automated email updates
   for (const p of profiles) {
     if (p.email && p.email.includes("@")) {
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura.com";
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
       const textContent = `${message}\n\nRead more details here: ${siteUrl}${link}`;
       await sendEmail({
         to: p.email,
         subject: title,
         text: textContent,
+        html: profHtml,
       });
     }
   }
@@ -1041,8 +1085,51 @@ export async function sendSingleEmailNotification(formData: FormData) {
   }
 
   if (!targetEmail || !targetEmail.includes("@")) {
-    throw new Error("No valid customer email address found. Please type a target email address.");
+    throw new Error("No valid customer email address found. Select a customer with a valid email.");
   }
+
+  let imageUrl: string | null = null;
+  let price: number | null = null;
+  let originalPrice: number | null = null;
+  let discountPercentage: number | null = null;
+  let discountTag: string | null = null;
+  let platforms: string | null = null;
+
+  const gameIdMatch = link.match(/\/games\/(\d+)/);
+  const gameId = gameIdMatch ? Number(gameIdMatch[1]) : optionalNumber(formData.get("gameId"));
+
+  if (gameId) {
+    const { data: g } = await supabase
+      .from("games")
+      .select("cover_image, banner_image, sale_price, original_price, offline_price, steam_price, available_platforms")
+      .eq("id", gameId)
+      .maybeSingle();
+
+    if (g) {
+      imageUrl = g.banner_image || g.cover_image || null;
+      price = g.sale_price || g.offline_price || g.steam_price || null;
+      originalPrice = g.original_price || null;
+      if (originalPrice && price && Number(originalPrice) > Number(price)) {
+        discountPercentage = Math.round(((Number(originalPrice) - Number(price)) / Number(originalPrice)) * 100);
+      }
+      if (Array.isArray(g.available_platforms) && g.available_platforms.length > 0) {
+        platforms = (g.available_platforms as string[]).join(" · ");
+      }
+      discountTag = "SPECIAL GAME DEAL! Available live on Rakexura";
+    }
+  }
+
+  const profHtml = buildProfessionalEmailHtml({
+    title,
+    message,
+    link,
+    imageUrl,
+    price,
+    originalPrice,
+    discountPercentage,
+    discountTag,
+    platforms,
+  });
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
   const textContent = `${message}\n\nView details: ${siteUrl}${link}`;
@@ -1051,6 +1138,7 @@ export async function sendSingleEmailNotification(formData: FormData) {
     to: targetEmail,
     subject: title,
     text: textContent,
+    html: profHtml,
   });
 
   if (!result.ok) {
@@ -1147,7 +1235,7 @@ export async function giftGameToCustomer(formData: FormData) {
     try {
       await sendPushNotification(
         userId,
-        "Gift Received! 🎁",
+        "Gift Received!",
         `You have received a giveaway gift from the owner: ${game.title}! Click to view.`,
         "/dashboard/orders"
       );
@@ -1242,7 +1330,7 @@ export async function saveFlashSale(formData: FormData) {
     try {
       const { data: game } = await supabase.from("games").select("title").eq("id", game_id).maybeSingle();
       const gameTitle = game?.title || "A hot title";
-      const title = "🔥 Flash Sale Alert!";
+      const title = "Flash Sale Alert!";
       const message = `${gameTitle} is now on Flash Sale for only Rs. ${sale_price}! Get it before the timer ends.`;
       const link = `/games/${game_id}`;
       
@@ -1297,7 +1385,7 @@ export async function toggleFlashSale(formData: FormData) {
         
       if (sale) {
         const gameTitle = (sale.games as unknown as { title?: string })?.title || "A hot title";
-        const title = "🔥 Flash Sale Alert!";
+        const title = "Flash Sale Alert!";
         const message = `${gameTitle} is now on Flash Sale for only Rs. ${sale.sale_price}! Get it before the timer ends.`;
         const link = `/games/${sale.game_id}`;
         

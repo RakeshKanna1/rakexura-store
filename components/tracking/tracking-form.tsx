@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Check, Circle, Clipboard, Clock3, HelpCircle, LifeBuoy, MessageCircle, Search, X } from "lucide-react";
+import { Check, Circle, Clipboard, Clock3, HelpCircle, LifeBuoy, MessageCircle, Search, X, ShieldCheck } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -102,7 +102,7 @@ export function TrackingForm() {
               </button>
               {result.auth_required ? (
                 <div className="mt-3 flex items-center gap-2 text-sm text-[#facc15] font-bold">
-                  <span>🔒 Protected Customer Order</span>
+                  <span>Protected Customer Order</span>
                 </div>
               ) : (
                 <h2 className="mt-3 text-lg font-bold">{result.items?.map((item) => item.title).join(", ") || "Game order"}</h2>
@@ -118,7 +118,7 @@ export function TrackingForm() {
             <div className="mt-6 text-center p-8 rounded-lg border border-yellow-500/20 bg-yellow-500/[.03] space-y-4">
               <div className="flex flex-col items-center justify-center space-y-2">
                 <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-yellow-500/10 text-yellow-400 text-lg">
-                  🔒
+                  <ShieldCheck size={24} />
                 </span>
                 <h3 className="text-yellow-400 font-extrabold text-xl">
                   Authentication Required
@@ -184,7 +184,7 @@ export function TrackingForm() {
               {(result.status === "Delivered" || result.status === "Completed") && (
                 <div id="credentials-section" className="space-y-4 mt-6">
                   <div className="text-center p-6 rounded-lg border border-emerald-500/20 bg-emerald-500/[.03] space-y-2">
-                    <h3 className="text-emerald-400 font-extrabold text-xl">🎉 Thank you for your purchase!</h3>
+                    <h3 className="text-emerald-400 font-extrabold text-xl">Thank you for your purchase!</h3>
                     <p className="text-sm text-[#a4abbc]">
                       Your order is ready! Thank you for shopping with Rakexura Store. Your game credentials/activation details are listed below.
                     </p>
@@ -193,7 +193,7 @@ export function TrackingForm() {
                   {result.account_access && (
                     <div className="p-4 rounded-lg border border-[#8b5cf6]/35 bg-[#8b5cf6]/5 space-y-2">
                       <div className="flex items-center gap-1.5 text-xs font-black text-[#c4b5fd]">
-                        <span>🔑 Game Activation / Account Details</span>
+                        <span>Game Activation / Account Details</span>
                       </div>
                       <div className="mt-2 font-mono bg-black/45 p-3 rounded border border-white/5 text-xs text-slate-200 select-all whitespace-pre-wrap leading-relaxed shadow-inner">
                         {result.account_access}

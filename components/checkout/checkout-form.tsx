@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, ChevronLeft, ChevronRight, Clipboard, ImageUp, LockKeyhole, MessageCircle, ShieldCheck, TicketPercent, Trash2 } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Clipboard, ImageUp, LockKeyhole, MessageCircle, QrCode, ShieldCheck, TicketPercent, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -582,7 +582,8 @@ export function CheckoutForm() {
           <hr className="border-zinc-800/80 my-6" />
 
           <h3 className="text-sm font-black text-white mb-4 flex items-center gap-2">
-            👉 Step 2: Scan and Pay your final calculated total below
+            <QrCode size={16} className="text-[#8b5cf6] shrink-0" />
+            <span>Step 2: Scan and Pay your final calculated total below</span>
           </h3>
 
           {/* Transaction Section */}
@@ -721,45 +722,44 @@ export function CheckoutForm() {
             <Clipboard size={18} /> {orderReference}
           </button>
 
-          <div className="mt-5 p-4 rounded-lg border border-emerald-500/20 bg-emerald-500/[.03] text-center space-y-2">
-            <h4 className="text-emerald-400 font-bold text-sm">Action Required to Receive Game</h4>
-            {(() => {
-              const isRankCouponActive = appliedCouponCode && (
-                appliedCouponCode === "DIAMONDFREE" || 
-                appliedCouponCode === "DIAMOND-FREEBIE" || 
-                appliedCouponCode === "PLATINUMFREE" || 
-                appliedCouponCode === "PLATINUM-FREEBIE"
-              );
-              const isFreebie = finalAmount === 0 && isRankCouponActive;
-              const gameTitle = purchasedTitles || "Game";
-              const trackingLink = `${typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL ?? "https://rakexura-store.vercel.app")}/track-order?order=${orderReference}&phone=${postPurchasePhone}`;
-              const whatsappUrl = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695"}?text=` + 
-                encodeURIComponent(`🛒 *NEW ORDER RECEIVED*`) + `%0A%0A` +
-                encodeURIComponent(`📦 *Game:* ${gameTitle} `) + `%0A` +
-                encodeURIComponent(`🆔 *Order ID:* ${orderReference} `) + `%0A` +
-                encodeURIComponent(`🏷️ *Type:* ${isFreebie ? '[FREE ORDER via Loyalty Rank Coupon]' : `[PAID ORDER (Amount Paid: Rs. ${finalAmount})]`} `) + `%0A%0A` +
-                encodeURIComponent(`🔗 *Track Order:* ${trackingLink}`) + `%0A%0A` +
-                encodeURIComponent(`Please send over my activation details!`);
+          {(() => {
+            const isRankCouponActive = Boolean(
+              appliedCouponCode === "GOLD-FREEBIE" || 
+              appliedCouponCode === "GOLD50" || 
+              appliedCouponCode === "DIAMONDFREE" || 
+              appliedCouponCode === "DIAMOND-FREEBIE" || 
+              appliedCouponCode === "PLATINUMFREE" || 
+              appliedCouponCode === "PLATINUM-FREEBIE"
+            );
+            const isFreebie = finalAmount === 0 && isRankCouponActive;
+            const gameTitle = purchasedTitles || "Game";
+            const trackingLink = `${typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL ?? "https://rakexura-store.vercel.app")}/track-order?order=${orderReference}&phone=${postPurchasePhone}`;
+            const whatsappUrl = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695"}?text=` + 
+              encodeURIComponent(`NEW ORDER RECEIVED`) + `%0A%0A` +
+              encodeURIComponent(`Game: ${gameTitle} `) + `%0A` +
+              encodeURIComponent(`Order ID: ${orderReference} `) + `%0A` +
+              encodeURIComponent(`Type: ${isFreebie ? '[FREE ORDER via Loyalty Rank Coupon]' : `[PAID ORDER (Amount Paid: Rs. ${finalAmount})]`} `) + `%0A%0A` +
+              encodeURIComponent(`Track Order: ${trackingLink}`) + `%0A%0A` +
+              encodeURIComponent(`Please send over my activation details!`);
 
-              return (
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={() => {
-                    if (typeof window !== "undefined") {
-                      localStorage.setItem("activated_" + orderReference, "true");
-                    }
-                    toast.success("Activation handshake initiated!");
-                  }}
-                  className="relative inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-md bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold text-sm shadow-[0_0_15px_rgba(16,185,129,0.25)] hover:shadow-[0_0_25px_rgba(16,185,129,0.45)] transition-all hover:scale-[1.01] active:scale-[0.99] select-none cursor-pointer animate-pulse"
-                >
-                  <MessageCircle size={18} className="animate-bounce shrink-0" />
-                  <span>Click to Activate & Receive Your Game via WhatsApp</span>
-                </a>
-              );
-            })()}
-          </div>
+            return (
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    localStorage.setItem("activated_" + orderReference, "true");
+                  }
+                  toast.success("Activation handshake initiated!");
+                }}
+                className="mt-5 relative inline-flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-md bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold text-sm shadow-[0_0_15px_rgba(16,185,129,0.25)] hover:shadow-[0_0_25px_rgba(16,185,129,0.45)] transition-all hover:scale-[1.01] active:scale-[0.99] select-none cursor-pointer"
+              >
+                <MessageCircle size={18} className="animate-bounce shrink-0" />
+                <span>Click to Activate & Receive Your Game via WhatsApp</span>
+              </a>
+            );
+          })()}
 
           <div className="mt-5 grid gap-2 sm:grid-cols-2">
             <Link

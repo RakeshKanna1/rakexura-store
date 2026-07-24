@@ -11,19 +11,35 @@ export default async function AdminMessagesPage({ searchParams }: { searchParams
   const { data: owner } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
   if (owner?.role !== "admin") redirect("/dashboard");
 
-  const adminSupabase = createAdminClient();
   const emailMap = new Map<string, string>();
+
+  // 1. Try secure Postgres RPC function get_customer_emails
   try {
-    const { data: authData } = await adminSupabase.auth.admin.listUsers();
-    if (authData?.users) {
-      authData.users.forEach((u) => {
-        if (u.id && u.email) {
-          emailMap.set(u.id, u.email);
-        }
+    const { data: rpcEmails } = await supabase.rpc("get_customer_emails");
+    if (Array.isArray(rpcEmails)) {
+      rpcEmails.forEach((item: { id: string; email: string }) => {
+        if (item.id && item.email) emailMap.set(item.id, item.email);
       });
     }
-  } catch (err) {
-    console.warn("Could not list auth users for email map:", err);
+  } catch (e) {
+    console.warn("RPC get_customer_emails fallback:", e);
+  }
+
+  // 2. Try Admin auth.admin.listUsers() API if service key present
+  if (emailMap.size === 0) {
+    try {
+      const adminSupabase = createAdminClient();
+      const { data: authData } = await adminSupabase.auth.admin.listUsers();
+      if (authData?.users) {
+        authData.users.forEach((u) => {
+          if (u.id && u.email) {
+            emailMap.set(u.id, u.email);
+          }
+        });
+      }
+    } catch (err) {
+      console.warn("Could not list auth users for email map:", err);
+    }
   }
 
   const [{ data: rawCustomers }, { data: games }] = await Promise.all([
@@ -39,12 +55,15 @@ export default async function AdminMessagesPage({ searchParams }: { searchParams
     };
   });
 
-  // Sync missing emails to profiles table in background
-  const missingSync = (rawCustomers ?? []).filter((c) => !c.email && emailMap.has(c.id));
-  if (missingSync.length > 0) {
-    void Promise.allSettled(
-      missingSync.map((c) => adminSupabase.from("profiles").update({ email: emailMap.get(c.id) }).eq("id", c.id))
-    );
+  // Sync missing emails to profiles table in background if service key is active
+  if (emailMap.size > 0) {
+    const adminSupabase = createAdminClient();
+    const missingSync = (rawCustomers ?? []).filter((c) => !c.email && emailMap.has(c.id));
+    if (missingSync.length > 0) {
+      void Promise.allSettled(
+        missingSync.map((c) => adminSupabase.from("profiles").update({ email: emailMap.get(c.id) }).eq("id", c.id))
+      );
+    }
   }
 
   return (

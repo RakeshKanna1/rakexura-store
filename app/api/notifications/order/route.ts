@@ -550,7 +550,7 @@ export async function POST(request: Request) {
         const ownerWhatsApp = process.env.OWNER_WHATSAPP_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
         if (ownerWhatsApp) {
           const itemsList = order.items?.map(i => `${i.title} (${i.platform || 'Steam'}) x${i.quantity ?? 1}`).join(', ') || 'Game';
-          const text = `🛒 *New Rakexura Order Received!*\n\n` +
+          const text = `*New Rakexura Order Received!*\n\n` +
             `• *Reference:* ${order.reference ?? "N/A"}\n` +
             `• *Customer:* ${order.customerName ?? "Customer"}\n` +
             `• *WhatsApp:* ${order.customerWhatsApp ?? "N/A"}\n` +
@@ -567,7 +567,7 @@ export async function POST(request: Request) {
       try {
         if (order.customerWhatsApp) {
           const text = `Hello ${order.customerName ?? 'Customer'},\n\n` +
-            `Thank you for ordering with *Rakexura Store*! 🎮\n\n` +
+            `Thank you for ordering with *Rakexura Store*!\n\n` +
             `• *Order Reference:* ${order.reference ?? "N/A"}\n` +
             `• *Total Amount:* Rs. ${price(orderTotal(order))}\n\n` +
             `We have received your payment proof. Our team is verifying it right now. Once verified, your activation details will be delivered directly here!\n\n` +

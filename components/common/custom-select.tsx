@@ -53,7 +53,7 @@ export function CustomSelect({
   }, []);
 
   return (
-    <div ref={containerRef} className={`relative w-full ${className}`}>
+    <div ref={containerRef} className={`relative w-full ${isOpen ? "z-50" : "z-10"} ${className}`}>
       {/* Trigger Button */}
       <button
         type="button"
@@ -93,6 +93,9 @@ export function CustomSelect({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search..."
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
                   autoFocus
                   className="h-9 w-full rounded-md border border-white/10 bg-black/50 pl-9 pr-3 text-xs text-white placeholder-[#656d82] outline-none focus:border-[#8b5cf6]/60"
                 />

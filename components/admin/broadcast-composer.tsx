@@ -100,9 +100,9 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
     }
   }
 
-  function applyTemplate(key: keyof typeof templates) {
+  function applyTemplate(key: string) {
     setSelectedTemplateKey(key);
-    const template = templates[key];
+    const template = templates[key as keyof typeof templates];
     setTitle(template.title);
     setMessage(template.message);
     setLink(template.link);
@@ -111,6 +111,7 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
   function chooseGame(id: string) {
     const game = games.find((item) => item.id === Number(id));
     if (!game) return;
+    setSelectedGameId(id);
     setTitle(`${game.title} is now available`);
     setMessage(`${game.title} has arrived at Rakexura. Check platforms, live pricing, trailers, and current offers.`);
     setLink(`/games/${game.id}`);
@@ -121,6 +122,7 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
     data.set("title", title);
     data.set("message", message);
     data.set("link", link);
+    if (selectedGameId) data.set("gameId", selectedGameId);
     startTransition(async () => {
       try {
         const result = await sendStoreAnnouncement(data);
@@ -140,6 +142,7 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
       data.set("title", title);
       data.set("message", message);
       data.set("link", link);
+      if (selectedGameId) data.set("gameId", selectedGameId);
       const result = await sendSinglePushNotification(data);
       if (result.sentCount > 0) {
         toast.success(`Push notification sent to ${result.sentCount} device(s)!`);
@@ -163,6 +166,7 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
       data.set("title", title);
       data.set("message", message);
       data.set("link", link);
+      if (selectedGameId) data.set("gameId", selectedGameId);
       const result = await sendSingleEmailNotification(data);
       toast.success(`Email successfully sent to ${result.recipient}!`);
     } catch (err) {
@@ -232,7 +236,7 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
     ...customers.map((c) => ({
       value: c.id,
       label: c.display_name ? `${c.display_name}${c.email ? ` (${c.email})` : ''}` : (c.email || "Customer"),
-      sublabel: `${c.email ? `Email: ${c.email}` : "No email saved"} · ${c.whatsapp ? `WA: ${c.whatsapp}` : "No phone"}`,
+      sublabel: c.email ? `Email: ${c.email}${c.whatsapp ? ` · WA: ${c.whatsapp}` : ''}` : `${c.whatsapp ? `WA: ${c.whatsapp}` : 'Registered Account'}`,
     })),
   ];
 
@@ -254,10 +258,12 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
   return (
     <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
       <section className="premium-panel rounded-lg p-5 md:p-7">
-        <div className="flex items-center gap-3">
-          <BellRing className="text-[#b9a4ff]" />
+        <div className="flex items-center gap-3.5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#b9a4ff] shadow-[0_0_15px_rgba(139,92,246,0.15)]">
+            <BellRing size={22} />
+          </div>
           <div>
-            <h2 className="text-xl font-black">Create an update</h2>
+            <h2 className="text-xl font-black text-white">Create an update</h2>
             <p className="text-sm text-[#8991a6]">Send a safe in-app, push, or email notification to registered customers.</p>
           </div>
         </div>
@@ -343,9 +349,11 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
       <aside className="space-y-5">
         {/* Targeted Customer Communications panel */}
         <div className="premium-panel h-fit rounded-lg p-5 space-y-4">
-          <div className="flex items-center gap-2">
-            <MessageCircle className="text-[#20c763]" />
-            <h2 className="text-lg font-black">Targeted Customer Messaging</h2>
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#20c763]/30 bg-[#20c763]/10 text-[#20c763]">
+              <MessageCircle size={18} />
+            </div>
+            <h2 className="text-lg font-black text-white">Targeted Customer Messaging</h2>
           </div>
           <p className="text-xs leading-5 text-[#8991a6]">
             Select a registered website account to send a targeted lockscreen push, WhatsApp message, or direct email update.
@@ -411,8 +419,12 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
 
         {/* Giveaway / Gift Game Panel */}
         <div className="premium-panel h-fit rounded-lg p-5">
-          <Gift className="text-[#facc15]" />
-          <h2 className="mt-4 text-lg font-black">Giveaway / Gift Game</h2>
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#facc15]/30 bg-[#facc15]/10 text-[#facc15]">
+              <Gift size={18} />
+            </div>
+            <h2 className="text-lg font-black text-white">Giveaway / Gift Game</h2>
+          </div>
           <p className="mt-2 text-xs leading-5 text-[#8991a6]">Send a game directly to this customer&apos;s library and orders page at Rs. 0 as a giveaway.</p>
 
           <label className="mt-4 block text-xs font-bold text-[#8991a8]">Select Game</label>

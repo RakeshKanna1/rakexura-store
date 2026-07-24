@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { Bell, BellOff, Loader2 } from "lucide-react";
+import { Bell, BellOff, Loader2, Sparkles } from "lucide-react";
 
 // Helper to convert VAPID key
 function urlBase64ToUint8Array(base64String: string) {
@@ -209,9 +209,12 @@ export function PushNotificationToggle({ isAdmin = false }: { isAdmin?: boolean 
       </div>
     </div>
     {!isSubscribed && (
-      <p className="rounded-lg border border-[#facc15]/10 bg-[#facc15]/[0.02] p-4 text-[11px] leading-relaxed text-[#facc15]/90">
-        💡 <strong>Instruction:</strong> Enable device notifications to get live order updates, game deliveries, and rank rewards directly on your phone lockscreen!
-      </p>
+      <div className="rounded-lg border border-[#facc15]/10 bg-[#facc15]/[0.02] p-4 text-[11px] leading-relaxed text-[#facc15]/90 flex items-start gap-2">
+        <Sparkles size={14} className="text-[#facc15] shrink-0 mt-0.5" />
+        <p>
+          <strong>Instruction:</strong> Enable device notifications to get live order updates, game deliveries, and rank rewards directly on your phone lockscreen!
+        </p>
+      </div>
     )}
   </div>
   );

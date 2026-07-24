@@ -1,7 +1,7 @@
 import { Suspense, type CSSProperties } from "react";
 import { preload } from "react-dom";
 import type { Metadata } from "next";
-import { BadgeCheck, Check, Clock, KeyRound, MonitorCog, ShieldCheck, Star, Zap } from "lucide-react";
+import { BadgeCheck, Check, Clock, Info, KeyRound, MessageSquare, MonitorCog, ShieldCheck, Sparkles, Star, Zap } from "lucide-react";
 import { notFound } from "next/navigation";
 import { GameShelf } from "@/components/store/game-shelf";
 import { MediaGallery } from "@/components/store/media-gallery";
@@ -419,16 +419,16 @@ export default async function GamePage({ params }: Props) {
         )}
         {game.is_premium && !game.preorder && (
           <div className={`mb-4 self-start inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] backdrop-blur-sm animate-pulse ${badgeClass}`}>
-            ★ Premium Listing
+            <Sparkles size={13} className="shrink-0" /> Premium Listing
           </div>
         )}
         {game.out_of_stock && (
           <div className="mb-4 self-start inline-flex items-center gap-1.5 rounded-full border border-red-500/35 bg-red-500/10 px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] text-red-400 backdrop-blur-sm shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-pulse">
-            ✦ Out of Stock
+            Out of Stock
           </div>
         )}
-        <p className="eyebrow" style={{ color: accent }}>
-          {game.preorder ? "Pre-order title" : game.is_premium ? "✦ RAKEXURA EXCLUSIVE ✦" : "Rakexura game page"}
+        <p className="eyebrow flex items-center gap-1" style={{ color: accent }}>
+          {game.preorder ? "Pre-order title" : game.is_premium ? <><Sparkles size={13} /> RAKEXURA EXCLUSIVE</> : "Rakexura game page"}
         </p>
         <h1 className={`mt-5 max-w-4xl font-black leading-[.95] ${titleSize(game.title)} ${titleGradientClass}`}>{game.title}</h1>
         <p className="mt-5 text-lg text-[#d7dae4]">{game.tagline}</p>
@@ -500,7 +500,7 @@ export default async function GamePage({ params }: Props) {
                 </article>
               </div>
               <div className="mt-3.5 rounded-md bg-white/[0.02] border border-white/[0.05] px-4 py-2.5 text-xs text-[#8991a8] flex items-center gap-2">
-                <span className="text-amber-400 font-bold shrink-0">💡</span>
+                <Info size={15} className="text-[#8b5cf6] shrink-0" />
                 <span><strong>Note:</strong> Specifications are official developer guidelines. An SSD is recommended for optimal loading performance.</span>
               </div>
             </section>
@@ -647,7 +647,7 @@ async function ReviewsSection({ gameId }: { gameId: number }) {
   return (
     <section className="premium-panel rounded-md p-6">
       <h2 className="text-xl font-black text-white flex items-center gap-2 mb-6">
-        ⭐ Customer Reviews & Ratings
+        <MessageSquare size={18} className="text-[#8b5cf6] shrink-0" /> Customer Reviews & Ratings
       </h2>
       {finalReviews.length > 0 ? (
         <div className="space-y-4">
