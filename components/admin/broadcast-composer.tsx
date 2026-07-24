@@ -1,15 +1,53 @@
 "use client";
 
-import { BellRing, Gamepad2, Gift, MessageCircle, Send, Mail, Flame, Key, Megaphone, LifeBuoy, Sparkles } from "lucide-react";
-import { useState, useTransition, useEffect } from "react";
+import { BellRing, Gamepad2, Gift, MessageCircle, Send, Mail, Flame, Key, Megaphone, LifeBuoy, Sparkles, Receipt, Search, Star } from "lucide-react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { sendStoreAnnouncement, sendSinglePushNotification, sendSingleEmailNotification, giftGameToCustomer } from "@/app/admin/actions";
+import { sendStoreAnnouncement, sendSinglePushNotification, sendSingleEmailNotification, giftGameToCustomer, fetchOrderInvoiceData } from "@/app/admin/actions";
 import { CustomSelect } from "@/components/common/custom-select";
 
 type Customer = { id: string; display_name: string | null; whatsapp: string | null; email?: string | null };
 type GameOption = { id: number; title: string };
+export type OrderOption = {
+  id: number;
+  order_reference: string | null;
+  user_id: string | null;
+  game_id: number | null;
+  variant_type: string | null;
+  total_price: number | null;
+  cart_items: unknown;
+  customer_name: string | null;
+  customer_whatsapp: string | null;
+  account_access: string | null;
+  order_status: string | null;
+  created_at: string;
+};
 
 const templates = {
+  invoice: {
+    label: "Order Invoice",
+    icon: Receipt,
+    title: "Invoice ID: RKX-ORDER-REF",
+    message:
+      "Thank You.\n\n" +
+      "Thank you for your purchase!\n\n" +
+      "INVOICE ID:\nRKX-ORDER-REF\n\n" +
+      "YOUR ORDER INFORMATION:\n" +
+      "• Order ID: RKX-ORDER-REF\n" +
+      "• Source: Rakexura Store\n\n" +
+      "HERE'S WHAT YOU ORDERED:\n" +
+      "• Purchased Items\n\n" +
+      "Please keep a copy of this receipt for your records.\n" +
+      "View your purchase history: https://rakexura-store.vercel.app/dashboard/orders",
+    link: "/dashboard/orders",
+  },
+  review: {
+    label: "Review Request",
+    icon: Star,
+    title: "How was your gaming experience? Leave a review!",
+    message: "Thank you for shopping at Rakexura Store! We hope you are enjoying your new game. Please take 30 seconds to rate your experience and leave a review. Your feedback helps fellow gamers!",
+    link: "/dashboard/orders",
+  },
   game: {
     label: "New Game",
     icon: Gamepad2,
@@ -54,7 +92,17 @@ const templates = {
   },
 };
 
-export function BroadcastComposer({ customers, games, prefill }: { customers: Customer[]; games: GameOption[]; prefill?: string }) {
+export function BroadcastComposer({
+  customers,
+  games,
+  orders = [],
+  prefill,
+}: {
+  customers: Customer[];
+  games: GameOption[];
+  orders?: OrderOption[];
+  prefill?: string;
+}) {
   const [selectedTemplateKey, setSelectedTemplateKey] = useState<string>("game");
   const [title, setTitle] = useState(prefill ? `${prefill} is now available` : templates.game.title);
   const [message, setMessage] = useState(prefill ? `${prefill} has arrived at Rakexura. Check platforms, live pricing, trailers, and current offers.` : templates.game.message);
@@ -69,13 +117,135 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
   const [comboPending, setComboPending] = useState(false);
   const [pending, startTransition] = useTransition();
 
+  const [orderQueryInput, setOrderQueryInput] = useState("");
+  const [fetchingOrder, setFetchingOrder] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState("");
+
   const customer = customers.find((item) => item.id === customerId);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (customer?.email) {
       setTargetEmail(customer.email);
     }
   }, [customerId, customer]);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(600, Math.max(180, textareaRef.current.scrollHeight + 8))}px`;
+    }
+  }, [message]);
+
+  function parseOrderItemsInClient(raw: unknown, fallbackGameId?: number | null, fallbackPlatform?: string | null, fallbackPrice?: number | null) {
+    let source = raw;
+    if (typeof source === "string") {
+      try { source = JSON.parse(source); } catch { source = []; }
+    }
+    const entries = Array.isArray(source) ? source : [];
+    const items = entries.map((entry) => {
+      if (!entry || typeof entry !== "object") return null;
+      const item = entry as Record<string, unknown>;
+      return {
+        title: String(item.title ?? item.name ?? "Game order"),
+        platform: typeof item.platform === "string" ? item.platform : typeof item.variant_type === "string" ? item.variant_type : undefined,
+        quantity: Math.max(1, Number(item.quantity ?? 1) || 1),
+        price: Number(item.unit_price ?? item.price ?? item.sale_price ?? item.total ?? 0) || 0,
+      };
+    }).filter(Boolean) as Array<{ title: string; platform?: string; quantity: number; price: number }>;
+
+    if (items.length) return items;
+    return [{ title: "Game order", platform: fallbackPlatform || undefined, quantity: 1, price: fallbackPrice || 0 }];
+  }
+
+  function applyInvoiceFromData(data: {
+    orderRef: string;
+    items: string;
+    totalPrice: number;
+    status: string | null;
+    accountAccess?: string | null;
+    userId?: string | null;
+    customerEmail?: string | null;
+    customerWhatsapp?: string | null;
+  }) {
+    setSelectedTemplateKey("invoice");
+    const ref = data.orderRef;
+    const itemsText = data.items || "Purchased Items";
+    const amountStr = `₹${Number(data.totalPrice ?? 0).toLocaleString("en-IN")}`;
+    const todayDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
+    setTitle(`Invoice ID: ${ref}`);
+    setMessage(
+      `Thank You.\n\n` +
+      `Hi ${data.customerEmail ? data.customerEmail.split("@")[0] : 'Customer'}!\n` +
+      `Thank you for your purchase!\n\n` +
+      `INVOICE ID:\n${ref}\n\n` +
+      `YOUR ORDER INFORMATION:\n` +
+      `• Order ID: ${ref}\n` +
+      `• Order Date: ${todayDate}\n` +
+      `• Source: Rakexura Store\n\n` +
+      `HERE'S WHAT YOU ORDERED:\n` +
+      `• ${itemsText} - ${amountStr} INR\n\n` +
+      `TOTAL: ${amountStr} INR\n\n` +
+      `Please keep a copy of this receipt for your records.\n` +
+      `View your purchase history: https://rakexura-store.vercel.app/dashboard/orders`
+    );
+    setLink(`/track-order?order=${encodeURIComponent(ref)}`);
+
+    let foundCustomer = customers.find((c) => data.userId && c.id === data.userId);
+    if (!foundCustomer && data.customerEmail) {
+      foundCustomer = customers.find((c) => c.email?.toLowerCase() === data.customerEmail?.toLowerCase());
+    }
+    if (!foundCustomer && data.customerWhatsapp) {
+      const cleanWA = data.customerWhatsapp.replace(/\D/g, "");
+      foundCustomer = customers.find((c) => c.whatsapp?.replace(/\D/g, "") === cleanWA);
+    }
+
+    if (foundCustomer) {
+      setCustomerId(foundCustomer.id);
+      if (foundCustomer.email) setTargetEmail(foundCustomer.email);
+      toast.success(`Loaded invoice for ${ref} (${foundCustomer.display_name || foundCustomer.email})!`);
+    } else if (data.customerEmail) {
+      setTargetEmail(data.customerEmail);
+      toast.success(`Loaded invoice for ${ref}!`);
+    } else {
+      toast.success(`Loaded invoice for ${ref}!`);
+    }
+  }
+
+  function selectOrderById(idStr: string) {
+    setSelectedOrderId(idStr);
+    if (!idStr) return;
+    const foundOrder = orders.find((o) => String(o.id) === idStr);
+    if (!foundOrder) return;
+
+    const items = parseOrderItemsInClient(foundOrder.cart_items, foundOrder.game_id, foundOrder.variant_type, foundOrder.total_price);
+    const itemSummary = items.map((i) => `${i.title}${i.platform ? ` (${i.platform})` : ""} x${i.quantity}`).join(", ");
+    const orderRef = foundOrder.order_reference || `#${foundOrder.id}`;
+
+    applyInvoiceFromData({
+      orderRef,
+      items: itemSummary,
+      totalPrice: foundOrder.total_price ?? 0,
+      status: foundOrder.order_status,
+      accountAccess: foundOrder.account_access,
+      userId: foundOrder.user_id,
+      customerWhatsapp: foundOrder.customer_whatsapp,
+    });
+  }
+
+  async function handleFetchOrderNo() {
+    if (!orderQueryInput.trim()) return toast.error("Enter an Order Ref or ID");
+    setFetchingOrder(true);
+    try {
+      const res = await fetchOrderInvoiceData(orderQueryInput);
+      applyInvoiceFromData(res);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Order not found");
+    } finally {
+      setFetchingOrder(false);
+    }
+  }
 
   async function sendGiftGame() {
     if (!customerId) return toast.error("Select a customer first");
@@ -112,9 +282,15 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
     const game = games.find((item) => item.id === Number(id));
     if (!game) return;
     setSelectedGameId(id);
-    setTitle(`${game.title} is now available`);
-    setMessage(`${game.title} has arrived at Rakexura. Check platforms, live pricing, trailers, and current offers.`);
-    setLink(`/games/${game.id}`);
+    if (selectedTemplateKey === "review") {
+      setTitle(`How is ${game.title}? Leave a review!`);
+      setMessage(`Hope you are enjoying ${game.title}! Please take 30 seconds to rate your experience and leave a review on Rakexura Store.`);
+      setLink(`/games/${game.id}`);
+    } else {
+      setTitle(`${game.title} is now available`);
+      setMessage(`${game.title} has arrived at Rakexura. Check platforms, live pricing, trailers, and current offers.`);
+      setLink(`/games/${game.id}`);
+    }
   }
 
   function notifyAll() {
@@ -298,6 +474,57 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
           </div>
         </div>
 
+        {/* Order Invoice Fetch & Auto-Fill Section */}
+        <div className="mt-5 rounded-lg border border-[#facc15]/30 bg-[#facc15]/5 p-4 space-y-3">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#facc15]">
+            <Receipt size={16} />
+            <span>FETCH ORDER & AUTO-FILL INVOICE</span>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            {/* Pick Recent Order */}
+            <div>
+              <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Pick Recent Order</label>
+              <CustomSelect
+                options={[
+                  { value: "", label: "Pick recent order..." },
+                  ...orders.map((o) => ({
+                    value: String(o.id),
+                    label: `${o.order_reference || `#${o.id}`} - Rs. ${(o.total_price ?? 0).toLocaleString("en-IN")}`,
+                    sublabel: `${o.customer_name || 'Customer'} · Status: ${o.order_status || 'Pending'}`,
+                  })),
+                ]}
+                value={selectedOrderId}
+                onChange={(val) => selectOrderById(val)}
+                placeholder="Pick recent order..."
+              />
+            </div>
+
+            {/* Search Order No / Reference */}
+            <div>
+              <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Search Order No / Ref</label>
+              <div className="flex gap-2">
+                <input
+                  value={orderQueryInput}
+                  onChange={(e) => setOrderQueryInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleFetchOrderNo(); }}
+                  placeholder="e.g. RKX-2607-000064 or 64"
+                  className="h-10 flex-1 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-mono text-white outline-none focus:border-[#facc15]"
+                />
+                <button
+                  type="button"
+                  onClick={handleFetchOrderNo}
+                  disabled={fetchingOrder}
+                  className="btn bg-[#facc15] hover:bg-[#eab308] text-black h-10 px-4 text-xs font-extrabold cursor-pointer shrink-0 flex items-center gap-1.5"
+                >
+                  <Search size={14} />
+                  {fetchingOrder ? "Fetching..." : "Fetch"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="mt-5 block text-sm font-bold">
           Choose a game <span className="font-normal text-[#8991a6]">(optional)</span>
           <div className="mt-2">
@@ -326,11 +553,14 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
         <label className="mt-4 block text-sm font-bold">
           Message Body
           <textarea
+            ref={textareaRef}
             value={message}
             onChange={(event) => setMessage(event.target.value)}
-            maxLength={500}
-            rows={5}
-            className="mt-2 w-full rounded-md border border-white/10 bg-black/25 p-4 text-sm leading-relaxed text-white outline-none focus:border-[#8b5cf6]"
+            onWheel={(e) => e.stopPropagation()}
+            maxLength={3000}
+            rows={8}
+            style={{ overflowY: "auto", scrollbarWidth: "thin" }}
+            className="mt-2 w-full min-h-[180px] max-h-[600px] overflow-y-auto resize-y rounded-md border border-white/10 bg-black/25 p-4 text-sm leading-relaxed text-white outline-none focus:border-[#8b5cf6]"
           />
         </label>
 
@@ -343,8 +573,14 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
           />
         </label>
 
-        <button onClick={notifyAll} disabled={pending} className="btn btn-primary mt-6 w-full font-black cursor-pointer">
-          <Send size={16} />{pending ? "Sending Broadcast..." : "Notify all customer accounts"}
+        <button
+          type="button"
+          onClick={notifyAll}
+          disabled={pending}
+          className="btn btn-primary mt-6 w-full text-sm font-black cursor-pointer disabled:opacity-50"
+        >
+          <Send size={16} />
+          <span className="font-black">{pending ? "Sending Broadcast..." : "Notify all customer accounts"}</span>
         </button>
       </section>
 
@@ -375,9 +611,12 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
             />
           </div>
 
-          <div className="rounded-md border border-white/[.07] bg-black/20 p-3.5 text-xs leading-5 text-[#aab1c1]">
+          <div
+            style={{ overflowY: "auto", scrollbarWidth: "thin" }}
+            className="max-h-[220px] overflow-y-auto whitespace-pre-wrap rounded-md border border-white/[.07] bg-black/20 p-3.5 text-xs leading-5 text-[#aab1c1]"
+          >
             <strong className="block text-white font-bold">{title}</strong>
-            <span className="mt-1 block text-zinc-300">{message}</span>
+            <span className="mt-1 block text-zinc-300 whitespace-pre-wrap">{message}</span>
             {targetEmail && <span className="mt-2 block text-[11px] text-[#b9a4ff] font-mono">Recipient Email: {targetEmail}</span>}
           </div>
 

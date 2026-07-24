@@ -3,7 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { sendEmail, buildProfessionalEmailHtml } from "@/lib/email";
+import { sendEmail, buildProfessionalEmailHtml, buildCleanInvoiceEmailHtml } from "@/lib/email";
 import { createClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 
@@ -358,45 +358,47 @@ function buildEmailHtml(order: OrderForStatus, status: string, items: ParsedOrde
 function buildStatusEmail(order: OrderForStatus, status: string, items: ParsedOrderItem[]) {
   const reference = order.order_reference || `#${order.id}`;
   const customerName = order.customer_name || "Customer";
+  const fallbackTotal = items.reduce((sum, item) => sum + Number(item.price ?? 0) * item.quantity, 0);
+  const totalPrice = Number(order.total_price ?? fallbackTotal);
+  const todayDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
+  const cleanItems = items.map((i) => ({
+    description: `${i.title}${i.platform ? ` (${i.platform})` : ""}`,
+    publisher: i.platform || "Rakexura Store",
+    price: i.price || totalPrice,
+  }));
+
   const itemLines = items
     .map((item) => `- ${item.title}${item.platform ? ` (${item.platform})` : ""} x${item.quantity}`)
     .join("\n");
-  const fallbackTotal = items.reduce((sum, item) => sum + Number(item.price ?? 0) * item.quantity, 0);
-  const total = Number(order.total_price ?? fallbackTotal).toLocaleString("en-IN");
 
-  const textContent = status === "Delivered" || status === "Completed"
-    ? [
-        `Hi ${customerName},`,
-        "",
-        `Your Rakexura order ${reference} has been delivered.`,
-        "",
-        "Invoice summary:",
-        itemLines || "- Game order",
-        `Total paid: Rs. ${total}`,
-        "",
-        "Your game is now available in My Library. Contact Rakexura support if you need activation help.",
-        "",
-        "Thank you for choosing Rakexura.",
-      ].join("\n")
-    : [
-        `Hi ${customerName},`,
-        "",
-        status === "Verified"
-          ? `Payment for your Rakexura order ${reference} has been verified. We are preparing your game delivery now.`
-          : status === "Processing"
-            ? `Your Rakexura order ${reference} is now being prepared for delivery.`
-            : status === "Rejected"
-              ? `We could not verify payment for Rakexura order ${reference}. Please share a clear payment screenshot or contact Rakexura support.`
-              : `Your Rakexura order ${reference} is now ${status}.`,
-        "",
-        itemLines || "- Game order",
-        `Total: Rs. ${total}`,
-      ].join("\n");
+  const textContent = [
+    `Thank You.`,
+    `Hi ${customerName}!`,
+    `Thank you for your purchase!`,
+    "",
+    `INVOICE ID: ${reference}`,
+    `Order Date: ${todayDate}`,
+    "",
+    `YOUR ORDER INFORMATION:`,
+    itemLines || "- Game Order",
+    `TOTAL: Rs. ${totalPrice.toLocaleString("en-IN")} INR`,
+    "",
+    `Please keep a copy of this receipt for your records.`,
+    `View your purchase history: https://rakexura-store.vercel.app/dashboard/orders`,
+  ].join("\n");
 
   return {
-    subject: status === "Delivered" || status === "Completed" ? `Rakexura invoice ${reference}` : `Rakexura order ${reference}: ${status}`,
+    subject: `Invoice ID: ${reference}`,
     text: textContent,
-    html: buildEmailHtml(order, status, items),
+    html: buildCleanInvoiceEmailHtml({
+      customerName,
+      orderRef: reference,
+      orderDate: todayDate,
+      billToEmail: order.customer_whatsapp ? `Contact: ${order.customer_whatsapp}` : "Rakexura Customer",
+      items: cleanItems.length ? cleanItems : [{ description: "PC Game Purchase", publisher: "Rakexura Store", price: totalPrice }],
+      totalPrice,
+    }),
   };
 }
 
@@ -544,6 +546,53 @@ export async function saveAccountAccess(formData: FormData) {
   revalidatePath("/track");
   revalidateTag("deliveries");
   return { success: true };
+}
+
+export async function fetchOrderInvoiceData(query: string) {
+  const supabase = await getAdminClient();
+  const cleanQuery = query.trim();
+  if (!cleanQuery) throw new Error("Please enter an order reference or ID");
+
+  let orderQuery = supabase
+    .from("orders")
+    .select("id, user_id, game_id, variant_type, order_reference, customer_name, customer_whatsapp, total_price, cart_items, account_access, order_status, created_at");
+
+  if (/^\d+$/.test(cleanQuery)) {
+    const numId = Number(cleanQuery);
+    orderQuery = orderQuery.or(`id.eq.${numId},order_reference.ilike.%${cleanQuery}%`);
+  } else {
+    orderQuery = orderQuery.ilike("order_reference", `%${cleanQuery}%`);
+  }
+
+  const { data: orders, error } = await orderQuery.limit(5);
+  if (error || !orders || orders.length === 0) {
+    throw new Error(`No order found matching "${cleanQuery}"`);
+  }
+
+  const order = orders[0];
+  const items = parseOrderItems(order.cart_items, order.game_id, order.variant_type, order.total_price);
+  
+  let customerEmail: string | null = null;
+  if (order.user_id) {
+    const { data: profile } = await supabase.from("profiles").select("email").eq("id", order.user_id).single();
+    if (profile?.email) customerEmail = profile.email;
+  }
+
+  const itemSummary = items.map((i) => `${i.title}${i.platform ? ` (${i.platform})` : ""} x${i.quantity}`).join(", ");
+  const orderRef = order.order_reference || `#${order.id}`;
+
+  return {
+    orderId: order.id,
+    orderRef,
+    userId: order.user_id,
+    customerName: order.customer_name,
+    customerWhatsapp: order.customer_whatsapp,
+    customerEmail,
+    items: itemSummary,
+    totalPrice: order.total_price ?? 0,
+    status: order.order_status,
+    accountAccess: order.account_access,
+  };
 }
 
 export async function moderateReview(formData: FormData) {
@@ -1119,17 +1168,76 @@ export async function sendSingleEmailNotification(formData: FormData) {
     }
   }
 
-  const profHtml = buildProfessionalEmailHtml({
-    title,
-    message,
-    link,
-    imageUrl,
-    price,
-    originalPrice,
-    discountPercentage,
-    discountTag,
-    platforms,
-  });
+  let emailHtml = "";
+  const isInvoiceEmail = title.toLowerCase().includes("invoice") || message.includes("INVOICE ID") || message.includes("YOUR ORDER INFORMATION");
+
+  if (isInvoiceEmail) {
+    const orderRefMatch = (title + " " + message).match(/RKX-[A-Za-z0-9-]+|#\d+/i);
+    const orderRef = orderRefMatch ? orderRefMatch[0] : "RKX-ORDER-REF";
+
+    let cleanItems: Array<{ description: string; publisher?: string | null; price: number }> = [];
+    let totalPrice = 0;
+    let customerName = targetEmail.split("@")[0] || "Customer";
+    let orderDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
+    const rawRef = orderRef.replace(/^#/, "");
+    const { data: dbOrders } = await supabase
+      .from("orders")
+      .select("id, order_reference, total_price, cart_items, customer_name, game_id, variant_type, created_at")
+      .or(`order_reference.eq.${orderRef},id.eq.${Number(rawRef) || 0}`)
+      .limit(1);
+
+    if (dbOrders && dbOrders.length > 0) {
+      const o = dbOrders[0];
+      if (o.customer_name) customerName = o.customer_name;
+      if (o.created_at) {
+        orderDate = new Date(o.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+      }
+      totalPrice = Number(o.total_price ?? 0);
+      const parsedItems = parseOrderItems(o.cart_items, o.game_id, o.variant_type, totalPrice);
+      cleanItems = parsedItems.map((item) => ({
+        description: `${item.title}${item.platform ? ` (${item.platform})` : ""}`,
+        publisher: item.platform || "Rakexura Store",
+        price: item.price || totalPrice,
+      }));
+    }
+
+    if (!cleanItems.length) {
+      const priceMatch = message.match(/(?:Rs\.?|₹|TOTAL:?\s*₹?)\s*([\d,.]+)/i);
+      totalPrice = priceMatch ? Number(priceMatch[1].replace(/,/g, "")) : 0;
+      const itemLinesMatch = message.match(/•\s*(.*?)(?=\n|$)/g);
+      if (itemLinesMatch && itemLinesMatch.length > 0) {
+        cleanItems = itemLinesMatch.map((line) => ({
+          description: line.replace(/^•\s*/, "").replace(/\s*-\s*₹.*$/, "").trim(),
+          publisher: "Rakexura Store",
+          price: totalPrice || 0,
+        }));
+      } else {
+        cleanItems = [{ description: "PC Game Purchase", publisher: "Rakexura Store", price: totalPrice }];
+      }
+    }
+
+    emailHtml = buildCleanInvoiceEmailHtml({
+      customerName,
+      orderRef,
+      orderDate,
+      billToEmail: targetEmail,
+      items: cleanItems,
+      totalPrice,
+    });
+  } else {
+    emailHtml = buildProfessionalEmailHtml({
+      title,
+      message,
+      link,
+      imageUrl,
+      price,
+      originalPrice,
+      discountPercentage,
+      discountTag,
+      platforms,
+    });
+  }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
   const textContent = `${message}\n\nView details: ${siteUrl}${link}`;
@@ -1138,7 +1246,7 @@ export async function sendSingleEmailNotification(formData: FormData) {
     to: targetEmail,
     subject: title,
     text: textContent,
-    html: profHtml,
+    html: emailHtml,
   });
 
   if (!result.ok) {

@@ -42,9 +42,10 @@ export default async function AdminMessagesPage({ searchParams }: { searchParams
     }
   }
 
-  const [{ data: rawCustomers }, { data: games }] = await Promise.all([
+  const [{ data: rawCustomers }, { data: games }, { data: rawOrders }] = await Promise.all([
     supabase.from("profiles").select("id,display_name,whatsapp,email").eq("role", "customer").order("display_name"),
-    supabase.from("games").select("id,title").eq("archived", false).order("title")
+    supabase.from("games").select("id,title").eq("archived", false).order("title"),
+    supabase.from("orders").select("id,order_reference,user_id,game_id,variant_type,total_price,cart_items,customer_name,customer_whatsapp,account_access,order_status,created_at").order("created_at", { ascending: false }).limit(50)
   ]);
 
   const customers = (rawCustomers ?? []).map((c) => {
@@ -71,7 +72,7 @@ export default async function AdminMessagesPage({ searchParams }: { searchParams
       <p className="eyebrow">Customer communication</p>
       <h1 className="mt-3 text-4xl font-black md:text-5xl">Messages & announcements</h1>
       <p className="section-copy mb-8">Tell customers about new games, offers, and giveaways without editing code.</p>
-      <BroadcastComposer customers={customers} games={games ?? []} prefill={prefill} />
+      <BroadcastComposer customers={customers} games={games ?? []} orders={(rawOrders ?? []) as any} prefill={prefill} />
     </main>
   );
 }

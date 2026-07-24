@@ -326,6 +326,163 @@ export function buildProfessionalEmailHtml(options: StoreEmailOptions) {
   `;
 }
 
+export type CleanInvoiceItem = {
+  description: string;
+  publisher?: string | null;
+  price: number;
+};
+
+export type CleanInvoiceOptions = {
+  customerName: string;
+  orderRef: string;
+  orderDate?: string;
+  billToEmail: string;
+  items: CleanInvoiceItem[];
+  totalPrice: number;
+};
+
+export function buildCleanInvoiceEmailHtml(options: CleanInvoiceOptions) {
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
+  const logoUrl = `${siteUrl}/images/rakexura-silver-badge.png`;
+  const { customerName, orderRef, orderDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }), billToEmail, items, totalPrice } = options;
+
+  const itemRowsHtml = items
+    .map(
+      (item) => `
+      <tr>
+        <td style="padding:12px 14px;font-size:13px;font-weight:700;color:#121212;border-bottom:1px solid #eeeeee;">${escapeHtml(item.description)}</td>
+        <td style="padding:12px 14px;font-size:12px;font-weight:500;color:#666666;border-bottom:1px solid #eeeeee;">${escapeHtml(item.publisher || "Rakexura Store")}</td>
+        <td style="padding:12px 14px;font-size:13px;font-weight:800;color:#121212;border-bottom:1px solid #eeeeee;" align="right">₹${Number(item.price).toFixed(2)} INR</td>
+      </tr>
+    `
+    )
+    .join("");
+
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Invoice ID: ${escapeHtml(orderRef)}</title>
+      </head>
+      <body style="margin:0;padding:0;background-color:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#121212;-webkit-font-smoothing:antialiased;">
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f5f5f7;padding:32px 12px;">
+          <tr>
+            <td align="center">
+              
+              <!-- Clean White Card Container matching Apple/Epic Receipt Style -->
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:580px;background-color:#ffffff;border-radius:12px;border:1px solid #e2e2e8;padding:36px 32px;box-shadow:0 10px 30px rgba(0,0,0,0.06);text-align:left;">
+                <tr>
+                  <td>
+                    
+                    <!-- Top Logo Header -->
+                    <div style="text-align:center;margin-bottom:28px;">
+                      <img src="${logoUrl}" alt="Rakexura Logo" width="44" height="52" style="display:block;margin:0 auto;border:0;outline:none;" />
+                    </div>
+
+                    <!-- Thank You Heading -->
+                    <div style="text-align:center;margin-bottom:28px;">
+                      <h1 style="font-size:32px;font-weight:900;color:#000000;margin:0 0 10px 0;letter-spacing:-0.5px;line-height:1.1;">Thank You.</h1>
+                      <div style="font-size:15px;font-weight:700;color:#121212;margin-bottom:4px;">Hi ${escapeHtml(customerName)}!</div>
+                      <div style="font-size:14px;color:#555555;">Thank you for your purchase!</div>
+                    </div>
+
+                    <!-- Invoice ID Header -->
+                    <div style="text-align:center;margin-bottom:32px;">
+                      <div style="font-size:11px;font-weight:900;letter-spacing:1.5px;color:#666666;text-transform:uppercase;margin-bottom:6px;">INVOICE ID:</div>
+                      <div style="font-size:26px;font-weight:900;color:#000000;letter-spacing:1px;font-family:monospace,Consolas,Courier,monospace;">${escapeHtml(orderRef)}</div>
+                    </div>
+
+                    <!-- Order Information Section -->
+                    <div style="font-size:11px;font-weight:900;letter-spacing:1.2px;color:#777777;text-transform:uppercase;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #eeeeee;">
+                      YOUR ORDER INFORMATION:
+                    </div>
+
+                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:28px;">
+                      <tr>
+                        <td width="50%" style="vertical-align:top;padding-right:12px;">
+                          <div style="font-size:12px;font-weight:700;color:#121212;margin-bottom:2px;">Order ID:</div>
+                          <div style="font-size:12px;color:#666666;margin-bottom:12px;">${escapeHtml(orderRef)}</div>
+
+                          <div style="font-size:12px;font-weight:700;color:#121212;margin-bottom:2px;">Order Date:</div>
+                          <div style="font-size:12px;color:#666666;">${escapeHtml(orderDate)}</div>
+                        </td>
+                        <td width="50%" style="vertical-align:top;padding-left:12px;">
+                          <div style="font-size:12px;font-weight:700;color:#121212;margin-bottom:2px;">Bill To:</div>
+                          <div style="font-size:12px;color:#0066cc;margin-bottom:12px;word-break:break-all;"><a href="mailto:${escapeHtml(billToEmail)}" style="color:#0066cc;text-decoration:underline;">${escapeHtml(billToEmail)}</a></div>
+
+                          <div style="font-size:12px;font-weight:700;color:#121212;margin-bottom:2px;">Source:</div>
+                          <div style="font-size:12px;color:#666666;">Rakexura Store</div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Items Table -->
+                    <div style="font-size:11px;font-weight:900;letter-spacing:1.2px;color:#777777;text-transform:uppercase;margin-bottom:12px;">
+                      HERE'S WHAT YOU ORDERED:
+                    </div>
+
+                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin-bottom:24px;border:1px solid #eeeeee;border-radius:6px;overflow:hidden;">
+                      <thead>
+                        <tr style="background-color:#f8f8f8;border-bottom:1px solid #eeeeee;">
+                          <th align="left" style="padding:10px 14px;font-size:11px;font-weight:900;color:#444444;text-transform:uppercase;letter-spacing:0.5px;" width="50%">DESCRIPTION</th>
+                          <th align="left" style="padding:10px 14px;font-size:11px;font-weight:900;color:#444444;text-transform:uppercase;letter-spacing:0.5px;" width="25%">PUBLISHER</th>
+                          <th align="right" style="padding:10px 14px;font-size:11px;font-weight:900;color:#444444;text-transform:uppercase;letter-spacing:0.5px;" width="25%">PRICE</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${itemRowsHtml}
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td colspan="2" align="right" style="padding:16px 14px;font-size:13px;font-weight:900;color:#444444;text-transform:uppercase;">TOTAL:</td>
+                          <td align="right" style="padding:16px 14px;font-size:16px;font-weight:900;color:#000000;">₹${Number(totalPrice).toFixed(2)} INR</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+
+                    <!-- Links Section -->
+                    <div style="text-align:center;font-size:12px;color:#666666;margin:24px 0;">
+                      <p style="margin:0 0 8px 0;">Please keep a copy of this receipt for your records.</p>
+                      <div style="margin-top:6px;">
+                        <a href="${siteUrl}/dashboard/orders" style="color:#0066cc;font-weight:700;text-decoration:underline;margin:0 8px;display:inline-block;">View your purchase history</a><br style="display:block;margin-bottom:4px;" />
+                        <a href="${siteUrl}/dashboard" style="color:#0066cc;font-weight:700;text-decoration:underline;margin:0 8px;display:inline-block;">View your Rakexura Rewards balance</a>
+                      </div>
+                    </div>
+
+                    <hr style="border:none;border-top:1px solid #eeeeee;margin:28px 0 20px 0;" />
+
+                    <!-- Footer Legal & Disclaimer -->
+                    <div style="text-align:center;font-size:11px;line-height:1.6;color:#777777;">
+                      <p style="margin:0 0 10px 0;">PC games and apps purchased on Rakexura Store are eligible for instant delivery upon payment verification. If you have any activation questions, please contact our support team.</p>
+                      
+                      <div style="font-weight:800;color:#121212;margin-bottom:2px;">Rakexura Store Gaming Pvt Ltd</div>
+                      <div style="font-size:10px;color:#888888;margin-bottom:12px;">Authorized PC Game Reseller &middot; India</div>
+
+                      <img src="${logoUrl}" alt="Rakexura Shield" width="24" height="28" style="display:block;margin:0 auto 12px auto;border:0;outline:none;opacity:0.8;" />
+
+                      <div style="font-size:10px;color:#888888;margin-bottom:8px;">&copy; 2026 Rakexura Store. All rights reserved. Rakexura, Epic Games, Steam, and their respective logos are trademarks or registered trademarks of their respective owners.</div>
+
+                      <div>
+                        <a href="${siteUrl}/terms" style="color:#666666;text-decoration:underline;margin:0 6px;">Terms of Service</a> |
+                        <a href="${siteUrl}/privacy" style="color:#666666;text-decoration:underline;margin:0 6px;">Privacy Policy</a> |
+                        <a href="${siteUrl}/support" style="color:#666666;text-decoration:underline;margin:0 6px;">Need Help?</a>
+                      </div>
+                    </div>
+
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `;
+}
+
 export async function sendEmail({ to, subject, text, html }: SendEmailInput): Promise<EmailResult> {
   const ownerEmail = (process.env.OWNER_EMAIL || "12k21rakeshkannam@gmail.com").toLowerCase().trim();
 
