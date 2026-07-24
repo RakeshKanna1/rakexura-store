@@ -1024,6 +1024,42 @@ export async function sendSinglePushNotification(formData: FormData) {
   return { success: true, sentCount: result.sentCount ?? 0 };
 }
 
+export async function sendSingleEmailNotification(formData: FormData) {
+  await writeAuditLog("SEND_EMAIL_NOTIFICATION", "profiles", formData);
+  const supabase = await getAdminClient();
+  const userId = String(formData.get("userId") ?? "");
+  const customEmail = String(formData.get("email") ?? "").trim();
+  const title = String(formData.get("title") ?? "").trim();
+  const message = String(formData.get("message") ?? "").trim();
+  const link = String(formData.get("link") ?? "").trim() || "/";
+
+  if (!title || !message) throw new Error("Title and message are required");
+
+  let targetEmail = customEmail && customEmail.includes("@") ? customEmail : null;
+  if (!targetEmail && userId) {
+    targetEmail = await getCustomerEmail(supabase, userId);
+  }
+
+  if (!targetEmail || !targetEmail.includes("@")) {
+    throw new Error("No valid customer email address found. Please type a target email address.");
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
+  const textContent = `${message}\n\nView details: ${siteUrl}${link}`;
+
+  const result = await sendEmail({
+    to: targetEmail,
+    subject: title,
+    text: textContent,
+  });
+
+  if (!result.ok) {
+    throw new Error(result.error || result.reason || "Failed to send email");
+  }
+
+  return { success: true, recipient: targetEmail };
+}
+
 export async function giftGameToCustomer(formData: FormData) {
   await writeAuditLog("GIFT_GAME", "customer_library", formData);
   try {
