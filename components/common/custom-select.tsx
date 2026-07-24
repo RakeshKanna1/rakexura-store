@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Check, Search } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { matchesSearchQuery } from "@/lib/utils";
 
 export type SelectOption = {
   value: string;
@@ -35,11 +36,15 @@ export function CustomSelect({
   const selectedOption = options.find((opt) => opt.value === value);
 
   const filteredOptions = searchQuery
-    ? options.filter(
-        (opt) =>
-          opt.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (opt.sublabel && opt.sublabel.toLowerCase().includes(searchQuery.toLowerCase()))
-      )
+    ? options.filter((opt) => {
+        const query = searchQuery.trim();
+        if (matchesSearchQuery(opt.label, query)) return true;
+        if (opt.sublabel && matchesSearchQuery(opt.sublabel, query)) return true;
+        return (
+          opt.label.toLowerCase().includes(query.toLowerCase()) ||
+          (opt.sublabel && opt.sublabel.toLowerCase().includes(query.toLowerCase()))
+        );
+      })
     : options;
 
   useEffect(() => {
@@ -85,7 +90,7 @@ export function CustomSelect({
             className="absolute left-0 right-0 top-full z-[999] overflow-hidden rounded-lg border border-white/15 bg-[#0e0b1f] p-2 shadow-[0_12px_40px_rgba(0,0,0,0.8)] backdrop-blur-xl"
           >
             {/* Optional Search Filter */}
-            {searchable && options.length > 5 && (
+            {searchable && options.length > 3 && (
               <div className="relative mb-2">
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8991a6]" />
                 <input

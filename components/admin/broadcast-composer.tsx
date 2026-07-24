@@ -235,7 +235,7 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
     { value: "", label: "Select registered customer account" },
     ...customers.map((c) => ({
       value: c.id,
-      label: c.display_name ? `${c.display_name}${c.email ? ` (${c.email})` : ''}` : (c.email || "Customer"),
+      label: c.display_name || c.email?.split("@")[0] || c.email || "Customer",
       sublabel: c.email ? `Email: ${c.email}${c.whatsapp ? ` · WA: ${c.whatsapp}` : ''}` : `${c.whatsapp ? `WA: ${c.whatsapp}` : 'Registered Account'}`,
     })),
   ];
@@ -269,27 +269,29 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
         </div>
 
         {/* Quick Template Buttons */}
-        <div className="mt-6 space-y-2.5">
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#8991a8]">
-            <Sparkles size={14} className="text-[#b9a4ff]" />
-            <span>Select Notification Template</span>
+        <div className="mt-6">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#94a3b8] mb-3">
+            <Sparkles size={15} className="text-[#a78bfa]" />
+            <span>SELECT NOTIFICATION TEMPLATE</span>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2.5">
             {(Object.keys(templates) as Array<keyof typeof templates>).map((key) => {
               const item = templates[key];
               const Icon = item.icon;
+              const isSelected = selectedTemplateKey === key;
               return (
                 <button
                   key={key}
                   type="button"
                   onClick={() => applyTemplate(key)}
-                  className={`btn btn-secondary text-xs font-bold transition cursor-pointer ${
-                    selectedTemplateKey === key
-                      ? "border-[#b9a4ff] bg-[#8b5cf6]/20 text-[#b9a4ff]"
-                      : "hover:border-[#b9a4ff]/40 hover:bg-[#8b5cf6]/10"
+                  className={`inline-flex items-center gap-2.5 rounded-lg border px-4 py-3 text-sm font-extrabold transition-all select-none cursor-pointer ${
+                    isSelected
+                      ? "border-[#a78bfa] bg-[#a78bfa]/15 text-white shadow-[0_0_20px_rgba(167,139,250,0.25)]"
+                      : "border-white/10 bg-[#16171a] text-white hover:border-white/20 hover:bg-[#1f2024]"
                   }`}
                 >
-                  <Icon size={14} className="text-[#b9a4ff]" /> {item.label}
+                  <Icon size={16} className={isSelected ? "text-[#c4b5fd]" : "text-[#a78bfa]"} />
+                  <span>{item.label}</span>
                 </button>
               );
             })}
@@ -360,7 +362,7 @@ export function BroadcastComposer({ customers, games, prefill }: { customers: Cu
           </p>
 
           <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Website Customer (Name & Email)</label>
+            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Website Customer</label>
             <CustomSelect
               options={customerOptions}
               value={customerId}

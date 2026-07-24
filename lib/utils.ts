@@ -83,20 +83,21 @@ export function matchesSearchQuery(
 ): boolean {
   const value = query.trim().toLowerCase();
   if (!value) return true;
-  if (value.length < 2) return false;
 
   const cleanQuery = value.replace(/[^a-z0-9]/g, "");
+  if (!cleanQuery) return true;
+
   const expandedQuery = ABBREVIATIONS[cleanQuery] || value;
   const cleanExpandedQuery = expandedQuery.replace(/[^a-z0-9]/g, "");
 
   const cleanTitle = title.toLowerCase().replace(/[^a-z0-9]/g, "");
 
   // 1. Direct match on cleaned title (case-insensitive substring)
-  if (cleanTitle.includes(cleanQuery) || cleanTitle.includes(cleanExpandedQuery)) {
+  if (cleanTitle.includes(cleanQuery) || cleanTitle.includes(cleanExpandedQuery) || title.toLowerCase().includes(value)) {
     return true;
   }
 
-  // 2. Initials matching (e.g. gta -> grand theft auto)
+  // 2. Initials matching (e.g. gta -> grand theft auto, rdr -> red dead redemption)
   const matchesInitials = (titleText: string, qText: string) => {
     const words = titleText.toLowerCase().split(/\s+/).filter(Boolean);
     if (words.length < 2) return false;
@@ -106,7 +107,7 @@ export function matchesSearchQuery(
       .filter((c) => /[a-z]/i.test(c))
       .join("");
     const cleanQ = qText.replace(/[^a-z0-9]/g, "");
-    return initials.startsWith(cleanQ) || initialsNoNumbers.startsWith(cleanQ);
+    return initials.startsWith(cleanQ) || initialsNoNumbers.startsWith(cleanQ) || initials.includes(cleanQ);
   };
 
   if (matchesInitials(title, cleanQuery) || matchesInitials(title, cleanExpandedQuery)) {
