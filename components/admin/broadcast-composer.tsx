@@ -383,7 +383,7 @@ export function BroadcastComposer({
         data.set("message", message);
         data.set("link", link);
         const pRes = await sendSinglePushNotification(data);
-        if (pRes?.count && pRes.count > 0) pushStatus = true;
+        if (pRes?.sentCount && pRes.sentCount > 0) pushStatus = true;
       }
     } catch (e) {
       console.warn("Combo push dispatch failed:", e);
