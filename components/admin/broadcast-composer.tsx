@@ -402,15 +402,19 @@ export function BroadcastComposer({
     window.open(`https://wa.me/${normalized}?text=${encodeURIComponent(`${title}\n\n${message}\n\n${location.origin}${link}`)}`, "_blank", "noopener,noreferrer");
   }
 
+  const safeGames = (games ?? []).filter((g) => Boolean(g && g.id));
+  const safeCustomers = (customers ?? []).filter((c) => Boolean(c && c.id));
+  const safeOrders = (orders ?? []).filter((o) => Boolean(o && o.id));
+
   const gameOptions = [
     { value: "", label: "Custom announcement" },
-    ...games.map((g) => ({ value: String(g.id), label: g.title })),
+    ...safeGames.map((g) => ({ value: String(g.id), label: g.title || "Game" })),
   ];
 
   const customerOptions = [
     { value: "", label: "Select registered customer account" },
-    ...customers.map((c) => ({
-      value: c.id,
+    ...safeCustomers.map((c) => ({
+      value: String(c.id),
       label: c.display_name || c.email?.split("@")[0] || c.email || "Customer",
       sublabel: c.email ? `Email: ${c.email}${c.whatsapp ? ` · WA: ${c.whatsapp}` : ''}` : `${c.whatsapp ? `WA: ${c.whatsapp}` : 'Registered Account'}`,
     })),
@@ -418,7 +422,7 @@ export function BroadcastComposer({
 
   const giftGameOptions = [
     { value: "", label: "Choose game to gift" },
-    ...games.map((g) => ({ value: String(g.id), label: g.title })),
+    ...safeGames.map((g) => ({ value: String(g.id), label: g.title || "Game" })),
   ];
 
   const platformOptions = [
@@ -488,9 +492,9 @@ export function BroadcastComposer({
               <CustomSelect
                 options={[
                   { value: "", label: "Pick recent order..." },
-                  ...orders.map((o) => ({
+                  ...safeOrders.map((o) => ({
                     value: String(o.id),
-                    label: `${o.order_reference || `#${o.id}`} - Rs. ${(o.total_price ?? 0).toLocaleString("en-IN")}`,
+                    label: `${o.order_reference || `#${o.id}`} - Rs. ${Number(o.total_price ?? 0).toLocaleString("en-IN")}`,
                     sublabel: `${o.customer_name || 'Customer'} · Status: ${o.order_status || 'Pending'}`,
                   })),
                 ]}

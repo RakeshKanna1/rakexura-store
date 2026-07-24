@@ -2,9 +2,17 @@ import { redirect } from "next/navigation";
 import { BroadcastComposer, type OrderOption } from "@/components/admin/broadcast-composer";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 
-export default async function AdminMessagesPage({ searchParams }: { searchParams: Promise<{ prefill?: string }> }) {
-  const query = await searchParams;
-  const prefill = query.prefill ?? "";
+export default async function AdminMessagesPage({ searchParams }: { searchParams?: Promise<{ prefill?: string }> }) {
+  let prefill = "";
+  if (searchParams) {
+    try {
+      const query = await Promise.resolve(searchParams);
+      prefill = query?.prefill ?? "";
+    } catch {
+      prefill = "";
+    }
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/admin/messages");
@@ -18,7 +26,7 @@ export default async function AdminMessagesPage({ searchParams }: { searchParams
     const { data: rpcEmails } = await supabase.rpc("get_customer_emails");
     if (Array.isArray(rpcEmails)) {
       rpcEmails.forEach((item: { id: string; email: string }) => {
-        if (item.id && item.email) emailMap.set(item.id, item.email);
+        if (item && item.id && item.email) emailMap.set(item.id, item.email);
       });
     }
   } catch (e) {
@@ -32,7 +40,7 @@ export default async function AdminMessagesPage({ searchParams }: { searchParams
       const { data: authData } = await adminSupabase.auth.admin.listUsers();
       if (authData?.users) {
         authData.users.forEach((u) => {
-          if (u.id && u.email) {
+          if (u && u.id && u.email) {
             emailMap.set(u.id, u.email);
           }
         });
@@ -52,9 +60,9 @@ export default async function AdminMessagesPage({ searchParams }: { searchParams
       supabase.from("games").select("id,title").eq("archived", false).order("title"),
       supabase.from("orders").select("id,order_reference,user_id,game_id,variant_type,total_price,cart_items,customer_name,customer_whatsapp,order_status,created_at").order("created_at", { ascending: false }).limit(50)
     ]);
-    if (custRes.data) rawCustomers = custRes.data;
-    if (gamesRes.data) games = gamesRes.data;
-    if (ordersRes.data) rawOrders = ordersRes.data as unknown as OrderOption[];
+    if (custRes.data) rawCustomers = custRes.data.filter(Boolean);
+    if (gamesRes.data) games = gamesRes.data.filter(Boolean);
+    if (ordersRes.data) rawOrders = (ordersRes.data.filter(Boolean) as unknown) as OrderOption[];
   } catch (err) {
     console.warn("Data fetch fallback in admin messages:", err);
   }
