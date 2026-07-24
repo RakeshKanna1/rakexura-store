@@ -251,24 +251,25 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
   // =========================================================================
   // STRICT RULE 2: CUSTOMER EMAILS -> BREVO SMTP / BREVO API FIRST, THEN FALLBACKS
   // =========================================================================
-  const brevoApiKey = process.env.BREVO_API_KEY;
+  const brevoApiKey = process.env.BREVO_API_KEY || process.env.SMTP_PASS;
   if (brevoApiKey) {
-    const senderEmail = process.env.SMTP_USER || "cheappcgamesrake@gmail.com";
+    const brevoLogin = process.env.BREVO_SMTP_USER || process.env.SMTP_USER || "b30b46001@smtp-brevo.com";
+    const senderEmail = process.env.EMAIL_FROM || "Rakexura Store <cheappcgamesrake@gmail.com>";
 
     if (nodemailer) {
       try {
         const transporter = nodemailer.createTransport({
-          host: "smtp-relay.brevo.com",
-          port: 587,
-          secure: false,
+          host: process.env.SMTP_HOST || "smtp-relay.brevo.com",
+          port: Number(process.env.SMTP_PORT || "587"),
+          secure: Number(process.env.SMTP_PORT) === 465,
           auth: {
-            user: senderEmail,
+            user: brevoLogin,
             pass: brevoApiKey,
           },
         });
 
         await transporter.sendMail({
-          from: `Rakexura Store <${senderEmail}>`,
+          from: senderEmail,
           to: recipient,
           subject,
           text,
@@ -279,7 +280,7 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
         console.log(`[Brevo SMTP] Customer email successfully delivered to ${recipient}`);
         return { ok: true };
       } catch (smtpErr) {
-        console.warn("[Brevo SMTP] Dispatch failed, trying Gmail Direct SMTP fallback:", smtpErr);
+        console.warn("[Brevo SMTP] Dispatch failed, trying fallbacks:", smtpErr);
       }
     }
   }
