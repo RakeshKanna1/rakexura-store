@@ -565,9 +565,9 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
   // =========================================================================
   // STRICT RULE 2: CUSTOMER EMAILS -> BREVO SMTP / BREVO API FIRST, THEN FALLBACKS
   // =========================================================================
-  const brevoApiKey = process.env.BREVO_API_KEY || process.env.SMTP_PASS;
+  const brevoApiKey = process.env.BREVO_API_KEY;
   if (brevoApiKey) {
-    const brevoLogin = process.env.BREVO_SMTP_USER || process.env.SMTP_USER || "b30b46001@smtp-brevo.com";
+    const brevoLogin = process.env.BREVO_SMTP_USER || "b30b46001@smtp-brevo.com";
     const senderEmail = process.env.EMAIL_FROM || "Rakexura Store <cheappcgamesrake@gmail.com>";
 
     if (nodemailer) {
