@@ -505,7 +505,8 @@ export async function updateOrderStatus(formData: FormData) {
   let emailSent = false;
   let emailError = null;
 
-  const shouldSendEmail = ["Verified", "Processing", "Delivered", "Completed", "Rejected"].includes(status);
+  // Invoice email is sent ONLY when admin clicks "Mark Delivered" or "Completed"
+  const shouldSendEmail = ["Delivered", "Completed"].includes(status);
 
   if (customerEmail && shouldSendEmail) {
     const emailData = buildStatusEmail(order, status, items);
