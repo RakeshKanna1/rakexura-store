@@ -55,6 +55,9 @@ export function OrderActions({
   const [pending, startTransition] = useTransition();
   const [accountAccess, setAccountAccess] = useState(initialAccountAccess);
   const [savingAccess, setSavingAccess] = useState(false);
+  const [optimisticStatus, setOptimisticStatus] = useState<string | null>(null);
+
+  const activeStatus = optimisticStatus ?? currentStatus;
 
   async function handleSaveAccess() {
     setSavingAccess(true);
@@ -74,6 +77,9 @@ export function OrderActions({
 
   function update(status: string, label: string) {
     if (!window.confirm(`${label} for this order? Customer tracking will immediately show "${status}".`)) return;
+
+    // Instantly reflect state change in the UI without waiting for server response
+    setOptimisticStatus(status);
 
     // Open WhatsApp synchronously inside user click context so browser popup blockers do not intercept it!
     if (status === "Delivered") {
@@ -120,6 +126,7 @@ export function OrderActions({
 
         router.refresh();
       } catch (error) {
+        setOptimisticStatus(null);
         toast.error(error instanceof Error ? error.message : "Could not update this order");
       }
     });
@@ -129,10 +136,10 @@ export function OrderActions({
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
         {actions.map(({ status, label, icon: Icon, tone }) => {
-          const isDone = isStatusPassed(currentStatus, status);
+          const isDone = isStatusPassed(activeStatus, status);
           const showDoneText = status === "Rejected"
-            ? currentStatus === "Rejected"
-            : (currentStatus === "Rejected" ? false : isDone);
+            ? activeStatus === "Rejected"
+            : (activeStatus === "Rejected" ? false : isDone);
 
           return (
             <button
