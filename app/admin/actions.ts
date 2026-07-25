@@ -874,6 +874,31 @@ export async function saveMarqueeMessage(formData: FormData) {
   revalidateTag("offers");
 }
 
+export async function deleteMarqueeMessage(formData: FormData) {
+  await writeAuditLog("DELETE_MARQUEE_MESSAGE", "marquee_messages", formData);
+  const supabase = await getAdminClient();
+  const id = idFrom(formData);
+  const { error } = await supabase.from("marquee_messages").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/storefront");
+  revalidatePath("/");
+  revalidateTag("marquee");
+  revalidateTag("offers");
+}
+
+export async function toggleMarqueeMessage(formData: FormData) {
+  await writeAuditLog("TOGGLE_MARQUEE_MESSAGE", "marquee_messages", formData);
+  const supabase = await getAdminClient();
+  const id = idFrom(formData);
+  const active = String(formData.get("active")) === "true";
+  const { error } = await supabase.from("marquee_messages").update({ active }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/storefront");
+  revalidatePath("/");
+  revalidateTag("marquee");
+  revalidateTag("offers");
+}
+
 export async function updateMarqueeMessage(formData: FormData) {
   await writeAuditLog("UPDATE_MARQUEE_MESSAGE", "marquee_messages", formData);
   const supabase = await getAdminClient();
@@ -901,6 +926,33 @@ export async function saveStoreCategory(formData: FormData) {
     sort_order: optionalNumber(formData.get("sort_order")) ?? 0,
     active: true,
   });
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/storefront");
+  revalidatePath("/admin/games");
+  revalidatePath("/");
+  revalidatePath("/games");
+  revalidateTag("categories");
+}
+
+export async function deleteStoreCategory(formData: FormData) {
+  await writeAuditLog("DELETE_STORE_CATEGORY", "store_categories", formData);
+  const supabase = await getAdminClient();
+  const id = idFrom(formData);
+  const { error } = await supabase.from("store_categories").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/storefront");
+  revalidatePath("/admin/games");
+  revalidatePath("/");
+  revalidatePath("/games");
+  revalidateTag("categories");
+}
+
+export async function toggleStoreCategory(formData: FormData) {
+  await writeAuditLog("TOGGLE_STORE_CATEGORY", "store_categories", formData);
+  const supabase = await getAdminClient();
+  const id = idFrom(formData);
+  const active = String(formData.get("active")) === "true";
+  const { error } = await supabase.from("store_categories").update({ active }).eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/storefront");
   revalidatePath("/admin/games");

@@ -1,6 +1,6 @@
 import { Megaphone, Tags } from "lucide-react";
 import { redirect } from "next/navigation";
-import { saveMarqueeMessage, saveStoreCategory, updateMarqueeMessage, updateStoreCategory } from "@/app/admin/actions";
+import { deleteMarqueeMessage, deleteStoreCategory, saveMarqueeMessage, saveStoreCategory, toggleMarqueeMessage, toggleStoreCategory } from "@/app/admin/actions";
 import { createClient } from "@/lib/supabase/server";
 
 const input = "h-11 rounded-md border border-white/10 bg-black/25 px-3 text-sm outline-none focus:border-[#8b5cf6]";
@@ -31,7 +31,7 @@ export default async function StorefrontAdminPage() {
           <input className={input} name="sort_order" type="number" defaultValue="10" aria-label="Sort order" />
           <button className="btn btn-primary">Add</button>
         </form>
-        <div className="mt-5 space-y-2">{messages?.map((message) => <div key={message.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-white/[.08] bg-black/20 p-3"><div><strong className={message.active ? "" : "text-[#697084] line-through"}>{message.message}</strong><p className="mt-1 text-xs text-[#8991a6]">{message.icon_key} · order {message.sort_order}</p></div><form action={updateMarqueeMessage} className="flex gap-2"><input type="hidden" name="id" value={message.id} /><button name="decision" value={message.active ? "disable" : "enable"} className="btn btn-secondary min-h-9 px-3 text-xs">{message.active ? "Hide" : "Show"}</button><button name="decision" value="delete" className="btn min-h-9 border border-red-500/30 bg-red-950/30 px-3 text-xs text-red-300">Delete</button></form></div>)}</div>
+        <div className="mt-5 space-y-2">{messages?.map((message) => <div key={message.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-white/[.08] bg-black/20 p-3"><div><strong className={message.active ? "" : "text-[#697084] line-through"}>{message.message}</strong><p className="mt-1 text-xs text-[#8991a6]">{message.icon_key} · order {message.sort_order}</p></div><div className="flex gap-2"><form action={toggleMarqueeMessage}><input type="hidden" name="id" value={message.id} /><input type="hidden" name="active" value={message.active ? "false" : "true"} /><button className="btn btn-secondary min-h-9 px-3 text-xs">{message.active ? "Hide" : "Show"}</button></form><form action={deleteMarqueeMessage}><input type="hidden" name="id" value={message.id} /><button className="btn min-h-9 border border-red-500/30 bg-red-950/30 px-3 text-xs text-red-300">Delete</button></form></div></div>)}</div>
       </div>
 
       <div className="premium-panel rounded-lg p-5">
@@ -42,7 +42,7 @@ export default async function StorefrontAdminPage() {
           <input className={input} name="sort_order" type="number" defaultValue="10" aria-label="Sort order" />
           <button className="btn btn-primary">Add</button>
         </form>
-        <div className="mt-5 space-y-2">{categories?.map((category) => <div key={category.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-white/[.08] bg-black/20 p-3"><div><strong className={category.active ? "" : "text-[#697084] line-through"}>{category.name}</strong><p className="mt-1 text-xs text-[#8991a6]">{category.icon_key} · order {category.sort_order}</p></div><form action={updateStoreCategory} className="flex gap-2"><input type="hidden" name="id" value={category.id} /><button name="decision" value={category.active ? "disable" : "enable"} className="btn btn-secondary min-h-9 px-3 text-xs">{category.active ? "Hide" : "Show"}</button><button name="decision" value="delete" className="btn min-h-9 border border-red-500/30 bg-red-950/30 px-3 text-xs text-red-300">Delete</button></form></div>)}</div>
+        <div className="mt-5 space-y-2">{categories?.map((category) => <div key={category.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-white/[.08] bg-black/20 p-3"><div><strong className={category.active ? "" : "text-[#697084] line-through"}>{category.name}</strong><p className="mt-1 text-xs text-[#8991a6]">{category.icon_key} · order {category.sort_order}</p></div><div className="flex gap-2"><form action={toggleStoreCategory}><input type="hidden" name="id" value={category.id} /><input type="hidden" name="active" value={category.active ? "false" : "true"} /><button className="btn btn-secondary min-h-9 px-3 text-xs">{category.active ? "Hide" : "Show"}</button></form><form action={deleteStoreCategory}><input type="hidden" name="id" value={category.id} /><button className="btn min-h-9 border border-red-500/30 bg-red-950/30 px-3 text-xs text-red-300">Delete</button></form></div></div>)}</div>
       </div>
     </section>
   </main>;
