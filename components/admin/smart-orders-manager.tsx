@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { ArrowLeft, Calendar, CheckSquare, ExternalLink, HelpCircle, Phone, ReceiptText, Trash2, Sparkles, Filter } from "lucide-react";
+import { ArrowLeft, Calendar, CheckSquare, ExternalLink, HelpCircle, Phone, ReceiptText, Trash2, Filter, Search } from "lucide-react";
 import { OrderActions } from "@/components/admin/order-actions";
 import { cleanupOldDeliveredOrders, deleteSingleOrder, deleteSelectedOrders } from "@/app/admin/actions";
 import { toast } from "sonner";
@@ -164,10 +164,11 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
             type="button"
             disabled={isPending || oldDeliveredCount === 0}
             onClick={handleCleanupOld}
-            className="inline-flex min-h-10 items-center gap-2 rounded-md border border-amber-400/30 bg-amber-400/10 px-4 text-xs font-bold text-amber-200 transition hover:bg-amber-400/20 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-semibold text-[#a0a8c0] transition hover:border-white/20 hover:bg-white/[0.08] hover:text-white disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
           >
-            <Sparkles size={14} className="text-amber-400" />
-            Cleanup Delivered (&gt;30 Days) [{oldDeliveredCount}]
+            <Trash2 size={14} className="text-[#8b5cf6]" />
+            <span>Purge Old Orders (30+ Days)</span>
+            <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-mono font-bold text-white">{oldDeliveredCount}</span>
           </button>
           <span className="rounded-md border border-white/10 bg-white/[.04] px-4 py-2 text-xs font-bold">
             {filteredOrders.length} / {initialOrders.length} orders
@@ -185,43 +186,43 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
         </div>
       </aside>
 
-      {/* FIRST CLEAN DESIGN TOOLBAR */}
-      <div className="mt-6 space-y-4 rounded-xl border border-white/10 bg-[#0f0c22]/90 p-4">
+      {/* PROFESSIONAL CLEAN TOOLBAR CONTROL CENTER */}
+      <div className="mt-6 space-y-4 rounded-xl border border-white/10 bg-[#0c0919] p-4 shadow-xl">
         <div className="flex flex-wrap items-center justify-between gap-4">
           {/* Period Tabs */}
-          <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-white/10 bg-black/40 p-1 text-xs">
+          <div className="inline-flex flex-wrap items-center gap-1 rounded-lg border border-white/10 bg-black/50 p-1 text-xs">
             <button
               type="button"
               onClick={() => setPeriod("all")}
-              className={`rounded-md px-3 py-1.5 font-bold transition cursor-pointer ${period === "all" ? "bg-[#8b5cf6] text-white" : "text-[#a0a8c0] hover:text-white"}`}
+              className={`rounded px-3 py-1.5 font-bold transition cursor-pointer ${period === "all" ? "bg-[#8b5cf6] text-white shadow-sm" : "text-[#a0a8c0] hover:text-white"}`}
             >
               All Time
             </button>
             <button
               type="button"
               onClick={() => setPeriod("today")}
-              className={`rounded-md px-3 py-1.5 font-bold transition cursor-pointer ${period === "today" ? "bg-[#8b5cf6] text-white" : "text-[#a0a8c0] hover:text-white"}`}
+              className={`rounded px-3 py-1.5 font-bold transition cursor-pointer ${period === "today" ? "bg-[#8b5cf6] text-white shadow-sm" : "text-[#a0a8c0] hover:text-white"}`}
             >
               Today
             </button>
             <button
               type="button"
               onClick={() => setPeriod("week")}
-              className={`rounded-md px-3 py-1.5 font-bold transition cursor-pointer ${period === "week" ? "bg-[#8b5cf6] text-white" : "text-[#a0a8c0] hover:text-white"}`}
+              className={`rounded px-3 py-1.5 font-bold transition cursor-pointer ${period === "week" ? "bg-[#8b5cf6] text-white shadow-sm" : "text-[#a0a8c0] hover:text-white"}`}
             >
               This Week
             </button>
             <button
               type="button"
               onClick={() => setPeriod("month")}
-              className={`rounded-md px-3 py-1.5 font-bold transition cursor-pointer ${period === "month" ? "bg-[#8b5cf6] text-white" : "text-[#a0a8c0] hover:text-white"}`}
+              className={`rounded px-3 py-1.5 font-bold transition cursor-pointer ${period === "month" ? "bg-[#8b5cf6] text-white shadow-sm" : "text-[#a0a8c0] hover:text-white"}`}
             >
               This Month
             </button>
             <button
               type="button"
               onClick={() => setPeriod("older")}
-              className={`rounded-md px-3 py-1.5 font-bold transition cursor-pointer ${period === "older" ? "bg-amber-500 text-black" : "text-[#a0a8c0] hover:text-white"}`}
+              className={`rounded px-3 py-1.5 font-bold transition cursor-pointer ${period === "older" ? "bg-amber-500 text-black" : "text-[#a0a8c0] hover:text-white"}`}
             >
               Older (&gt;30 Days)
             </button>
@@ -232,8 +233,8 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
             <Filter size={14} className="text-[#a0a8c0]" />
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="rounded-md border border-white/15 bg-black/60 px-3 py-1.5 text-xs font-bold text-white outline-none focus:border-[#8b5cf6]"
+              onChange={(e) => setStatusFilter(e.target.value as "all" | "pending" | "delivered" | "rejected")}
+              className="rounded-lg border border-white/10 bg-black/50 px-3.5 py-1.5 text-xs font-semibold text-white outline-none focus:border-[#8b5cf6] cursor-pointer"
             >
               <option value="all">All Order Statuses</option>
               <option value="pending">Pending / Needs Action</option>
@@ -244,21 +245,24 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
         </div>
 
         {/* Search & Batch Actions Row */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-          <input
-            type="text"
-            placeholder="Search order ref, customer name, phone..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="min-w-64 flex-1 rounded-md border border-white/10 bg-black/50 px-3 py-2 text-xs text-white outline-none placeholder:text-[#6a7288] focus:border-[#8b5cf6]"
-          />
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div className="relative min-w-64 flex-1">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6a7288]" />
+            <input
+              type="text"
+              placeholder="Search order reference, customer name, phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-lg border border-white/10 bg-black/50 pl-9 pr-3 py-2 text-xs text-white outline-none placeholder:text-[#6a7288] focus:border-[#8b5cf6]"
+            />
+          </div>
 
           <div className="flex flex-wrap items-center gap-2">
             {filteredOrders.length > 0 && (
               <button
                 type="button"
                 onClick={toggleSelectAll}
-                className="inline-flex items-center gap-1.5 rounded border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs font-bold text-[#a0a8c0] hover:text-white transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-semibold text-[#a0a8c0] hover:bg-white/[0.08] hover:text-white transition cursor-pointer"
               >
                 <CheckSquare size={13} />
                 {selectedIds.length === filteredOrders.length ? "Deselect All" : "Select All"}
@@ -270,7 +274,7 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
                 type="button"
                 disabled={isPending}
                 onClick={handleDeleteSelected}
-                className="inline-flex items-center gap-1.5 rounded border border-red-500/30 bg-red-500/20 px-3 py-1.5 text-xs font-bold text-red-200 transition hover:bg-red-500/30 cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/20 px-3.5 py-2 text-xs font-semibold text-red-200 transition hover:bg-red-500/30 cursor-pointer"
               >
                 <Trash2 size={13} />
                 Delete Selected ({selectedIds.length})
@@ -364,7 +368,7 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
                       disabled={isPending}
                       onClick={() => handleDeleteSingle(row.id, String(row.order_reference || `#${row.id}`))}
                       title="Delete Order"
-                      className="rounded-md border border-red-500/25 bg-red-500/10 p-2 text-red-300 transition hover:bg-red-500/25 disabled:opacity-40 cursor-pointer"
+                      className="rounded-md border border-red-500/25 bg-red-500/10 p-2 text-red-300 transition hover:bg-red-500/25 disabled:opacity-40 cursor-pointer shrink-0"
                     >
                       <Trash2 size={15} />
                     </button>
