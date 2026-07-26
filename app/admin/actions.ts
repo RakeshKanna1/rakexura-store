@@ -1864,3 +1864,56 @@ export async function updateSupportTicketStatus(formData: FormData) {
   revalidatePath("/dashboard/support");
   revalidatePath("/admin/support");
 }
+
+export async function deleteSingleOrder(formData: FormData) {
+  await writeAuditLog("DELETE_SINGLE_ORDER", "orders", formData);
+  const supabase = await getAdminClient();
+  const id = idFrom(formData);
+  const { error } = await supabase.from("orders").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin");
+  revalidatePath("/dashboard/orders");
+}
+
+export async function cleanupOldDeliveredOrders(daysThreshold: number = 30) {
+  const formData = new FormData();
+  formData.set("days", String(daysThreshold));
+  await writeAuditLog("CLEANUP_OLD_DELIVERED_ORDERS", "orders", formData);
+  const supabase = await getAdminClient();
+  
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - daysThreshold);
+  const cutoffIso = cutoffDate.toISOString();
+
+  const { data, error } = await supabase
+    .from("orders")
+    .delete()
+    .in("order_status", ["Delivered", "Rejected"])
+    .lt("created_at", cutoffIso)
+    .select("id");
+
+  if (error) throw new Error(error.message);
+  
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin");
+  revalidatePath("/dashboard/orders");
+
+  return { deletedCount: data?.length || 0 };
+}
+
+export async function deleteSelectedOrders(formData: FormData) {
+  await writeAuditLog("DELETE_SELECTED_ORDERS", "orders", formData);
+  const supabase = await getAdminClient();
+  const idsRaw = String(formData.get("order_ids") ?? "");
+  const ids = idsRaw.split(",").map((s) => Number(s.trim())).filter((n) => !isNaN(n) && n > 0);
+  if (!ids.length) throw new Error("No valid orders selected for deletion.");
+  
+  const { error } = await supabase.from("orders").delete().in("id", ids);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin");
+  revalidatePath("/dashboard/orders");
+}
+
