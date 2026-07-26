@@ -663,6 +663,16 @@ export async function toggleCoupon(formData: FormData) {
   revalidatePath("/admin/coupons");
 }
 
+export async function deleteCoupon(formData: FormData) {
+  await writeAuditLog("DELETE_COUPON", "coupons", formData);
+  const supabase = await getAdminClient();
+  const id = idFrom(formData);
+  const { error } = await supabase.from("coupons").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/coupons");
+  revalidateTag("coupons");
+}
+
 export async function archiveGame(formData: FormData) {
   await writeAuditLog("ARCHIVE_GAME", "games", formData);
   const supabase = await getAdminClient();

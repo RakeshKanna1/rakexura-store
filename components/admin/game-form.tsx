@@ -114,8 +114,28 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
         <label className="text-sm font-bold">Tagline<input name="tagline" defaultValue={game?.tagline ?? ""} className={input} /></label>
         <label className="text-sm font-bold">Developer<input name="developer" defaultValue={game?.developer ?? ""} className={input} /></label>
         <label className="text-sm font-bold">Publisher<input name="publisher" defaultValue={game?.publisher ?? ""} className={input} /></label>
-        <label className="text-sm font-bold md:col-span-2">Short description<textarea name="description" defaultValue={game?.description ?? ""} rows={3} className={`${input} h-auto py-3`} /></label>
-        <label className="text-sm font-bold md:col-span-2">Full description<textarea name="long_description" defaultValue={game?.long_description ?? ""} rows={6} className={`${input} h-auto py-3`} /></label>
+        <label className="text-sm font-bold md:col-span-2">
+          Short description
+          <textarea
+            name="description"
+            defaultValue={game?.description ?? ""}
+            rows={3}
+            className={`${input} h-auto py-3 custom-scrollbar`}
+            style={{ overscrollBehavior: "contain", touchAction: "pan-y" }}
+            onWheel={(e) => { e.stopPropagation(); e.currentTarget.scrollTop += e.deltaY; }}
+          />
+        </label>
+        <label className="text-sm font-bold md:col-span-2">
+          Full description
+          <textarea
+            name="long_description"
+            defaultValue={game?.long_description ?? ""}
+            rows={6}
+            className={`${input} h-auto py-3 custom-scrollbar`}
+            style={{ overscrollBehavior: "contain", touchAction: "pan-y" }}
+            onWheel={(e) => { e.stopPropagation(); e.currentTarget.scrollTop += e.deltaY; }}
+          />
+        </label>
         
         {["original_price", "sale_price", "steam_price", "epic_price", "offline_price", "online_price", "xbox_price", "geforce_price", "activation_slots"].map((field) => (
           <label key={field} className="text-sm font-bold capitalize">
@@ -148,7 +168,19 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
         <label className="text-sm font-bold">Offer end date<input type="datetime-local" name="offer_end_date" defaultValue={game?.offer_end_date ? new Date(game.offer_end_date).toISOString().slice(0, 16) : ""} className={input} /></label>
         <label className="text-sm font-bold">Release / preorder date & time<input type="datetime-local" name="release_date" defaultValue={game?.release_date ? new Date(game.release_date).toISOString().slice(0, 16) : ""} className={input} /><span className="mt-2 block text-xs font-normal text-[#8991a6]">A future date & time places this title in Upcoming Games.</span></label>
         <label className="text-sm font-bold md:col-span-2">Trailer URL<input type="url" name="trailer_url" defaultValue={game?.trailer_url ?? ""} placeholder="YouTube link or direct .mp4/.webm URL" className={input} /><span className="mt-2 block text-xs font-normal text-[#8991a6]">YouTube links play on the game page. A direct MP4 or WebM link can also animate the homepage spotlight.</span></label>
-        <label className="text-sm font-bold md:col-span-2">Key Features (one per line)<textarea name="key_features" defaultValue={game?.key_features?.join("\n") ?? ""} rows={4} placeholder="e.g.&#10;Stunning next-gen graphics&#10;Expansive open world sandbox&#10;Cooperative multiplayer campaign" className={`${input} h-auto py-3`} /><span className="mt-2 block text-xs font-normal text-[#8991a6]">Add distinctive game elements, one per line, to showcase on the game&apos;s details page.</span></label>
+        <label className="text-sm font-bold md:col-span-2">
+          Key Features (one per line)
+          <textarea
+            name="key_features"
+            defaultValue={game?.key_features?.join("\n") ?? ""}
+            rows={4}
+            placeholder="e.g.&#10;Stunning next-gen graphics&#10;Expansive open world sandbox&#10;Cooperative multiplayer campaign"
+            className={`${input} h-auto py-3 custom-scrollbar`}
+            style={{ overscrollBehavior: "contain", touchAction: "pan-y" }}
+            onWheel={(e) => { e.stopPropagation(); e.currentTarget.scrollTop += e.deltaY; }}
+          />
+          <span className="mt-2 block text-xs font-normal text-[#8991a6]">Add distinctive game elements, one per line, to showcase on the game&apos;s details page.</span>
+        </label>
         <ImageUploader name="cover_image" label="Cover image" initial={game?.cover_image} type="cover" />
         <ImageUploader name="banner_image" label="Banner image" initial={game?.banner_image} type="banner" />
       </div>

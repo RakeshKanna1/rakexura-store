@@ -1,17 +1,47 @@
 "use client";
 
 import { useState } from "react";
-import { Search, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ExternalLink, ChevronLeft, ChevronRight, Copy, Check } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { OrderActions } from "@/components/admin/order-actions";
 import { DeleteCustomerButton } from "@/components/admin/delete-customer-button";
-import { archiveGame, moderateProof, moderateReview, toggleCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale, toggleCampaign, deleteCampaign, deleteCampaignGame } from "@/app/admin/actions";
+import { archiveGame, moderateProof, moderateReview, toggleCoupon, deleteCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale, toggleCampaign, deleteCampaign, deleteCampaignGame } from "@/app/admin/actions";
 
 type AdminRow = Record<string, unknown> & { id?: number | string; screenshot_url?: string; proof_url?: string; media_urls?: string[]; media_links?: string[] };
 
 function SubmitButton({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "positive" | "danger" }) {
   const color = tone === "positive" ? "border-[#00d68f]/30 text-[#70efbb]" : tone === "danger" ? "border-red-400/30 text-red-300 hover:bg-red-500/10" : "border-white/10 text-[#c8cedc]";
   return <button type="submit" className={`rounded border bg-black/20 px-3 py-2 text-xs font-bold transition hover:bg-white/[.06] cursor-pointer ${color}`}>{children}</button>;
+}
+
+function CopyCouponBadge({ code, discountType, discountValue, minimumOrder }: { code: string; discountType: string; discountValue: number; minimumOrder?: number }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const offerText = discountType === "percentage" ? `${discountValue}% OFF` : `Rs. ${discountValue} OFF`;
+    const minOrderText = minimumOrder && minimumOrder > 0 ? ` (Min order: Rs. ${minimumOrder})` : "";
+    const promoMessage = `Use coupon code "${code}" to get ${offerText}${minOrderText} on Rakexura Store! 🎁🎮\nShop now: https://rakexura-store.vercel.app/games`;
+
+    navigator.clipboard.writeText(promoMessage);
+    setCopied(true);
+    toast.success(`Copied promo message for ${code}!`);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      title="Click to copy promo offer message for WhatsApp/Telegram"
+      className="inline-flex items-center gap-1 rounded border border-[#8b5cf6]/40 bg-[#8b5cf6]/20 px-2 py-1 text-[11px] font-bold text-[#c4b5fd] transition hover:bg-[#8b5cf6]/40 hover:text-white cursor-pointer shrink-0"
+    >
+      {copied ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
+      <span>{copied ? "Copied!" : "Copy Offer"}</span>
+    </button>
+  );
 }
 
 function RowActions({ section, row }: { section: string; row: AdminRow }) {
@@ -72,7 +102,22 @@ function RowActions({ section, row }: { section: string; row: AdminRow }) {
     );
   }
   if (section === "requests") return <div className="flex min-w-60 flex-wrap gap-2">{["Reviewing", "Planned", "Added", "Declined"].map((status) => <form action={updateRequestStatus} key={status}><input type="hidden" name="id" value={id} /><input type="hidden" name="status" value={status} /><SubmitButton tone={status === "Declined" ? "danger" : status === "Added" ? "positive" : "neutral"}>{status}</SubmitButton></form>)}</div>;
-  if (section === "coupons") return <div className="flex gap-2"><Link href={`/admin/coupons?edit=${id}`} className="rounded border border-white/10 bg-black/20 px-3 py-2 text-xs font-bold text-[#c8cedc]">Edit</Link><form action={toggleCoupon}><input type="hidden" name="id" value={id} /><input type="hidden" name="active" value={String(!row.active)} /><SubmitButton tone={row.active ? "danger" : "positive"}>{row.active ? "Disable" : "Enable"}</SubmitButton></form></div>;
+  if (section === "coupons") return (
+    <div className="flex gap-2 items-center">
+      <Link href={`/admin/coupons?edit=${id}`} className="rounded border border-white/10 bg-black/20 px-3 py-2 text-xs font-bold text-[#c8cedc]">
+        Edit
+      </Link>
+      <form action={toggleCoupon}>
+        <input type="hidden" name="id" value={id} />
+        <input type="hidden" name="active" value={String(!row.active)} />
+        <SubmitButton tone={row.active ? "neutral" : "positive"}>{row.active ? "Disable" : "Enable"}</SubmitButton>
+      </form>
+      <form action={deleteCoupon}>
+        <input type="hidden" name="id" value={id} />
+        <SubmitButton tone="danger">Delete</SubmitButton>
+      </form>
+    </div>
+  );
   if (section === "support") return <Link href={`/dashboard/support/${id}`} className="inline-flex min-h-9 items-center gap-2 rounded border border-white/10 bg-black/20 px-3 text-xs font-bold text-[#f8e38a]"><ExternalLink size={13} /> Open conversation</Link>;
   if (section === "games") return <div className="flex gap-2"><Link href={`/admin/games?edit=${id}`} className="rounded border border-white/10 bg-black/20 px-3 py-2 text-xs font-bold text-[#c8cedc]">Edit</Link><form action={archiveGame}><input type="hidden" name="id" value={id} /><input type="hidden" name="archived" value={String(!row.archived)} /><SubmitButton tone={row.archived ? "positive" : "danger"}>{row.archived ? "Restore" : "Archive"}</SubmitButton></form></div>;
   if (section === "media") return <div className="flex gap-2">{!row.approved && <form action={moderateProof}><input type="hidden" name="id" value={id} /><input type="hidden" name="decision" value="approve" /><SubmitButton tone="positive">Approve</SubmitButton></form>}<form action={moderateProof}><input type="hidden" name="id" value={id} /><input type="hidden" name="decision" value="delete" /><SubmitButton tone="danger">Delete</SubmitButton></form></div>;
@@ -137,11 +182,28 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
           <tbody>
             {paginated.map((row, index) => (
               <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
-                {headers.map((header) => (
-                  <td key={header} className="max-w-72 truncate p-4">
-                    {display(row[header])}
-                  </td>
-                ))}
+                {headers.map((header) => {
+                  const isCodeColumn = section === "coupons" && header === "code";
+                  return (
+                    <td key={header} className="max-w-72 truncate p-4">
+                      {isCodeColumn ? (
+                        <div className="flex items-center gap-2">
+                          <code className="font-mono font-bold text-white bg-black/40 px-2 py-1 rounded border border-white/10">
+                            {String(row[header])}
+                          </code>
+                          <CopyCouponBadge
+                            code={String(row.code || "")}
+                            discountType={String(row.discount_type || "percentage")}
+                            discountValue={Number(row.discount_value || 0)}
+                            minimumOrder={Number(row.minimum_order || 0)}
+                          />
+                        </div>
+                      ) : (
+                        display(row[header])
+                      )}
+                    </td>
+                  );
+                })}
                 {hasActions && (
                   <td className="p-4">
                     <RowActions section={section} row={row} />

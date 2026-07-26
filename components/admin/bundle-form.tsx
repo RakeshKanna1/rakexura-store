@@ -84,7 +84,21 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
             </label>
             <label className="text-sm font-bold sm:col-span-2">
               Description
-              <textarea name="description" rows={4} defaultValue={bundle?.description ?? ""} className={`${field} h-auto py-3`} />
+              <textarea
+                name="description"
+                rows={5}
+                defaultValue={bundle?.description ?? ""}
+                className={`${field} h-auto max-h-48 overflow-y-auto py-3 custom-scrollbar`}
+                style={{
+                  overscrollBehavior: "contain",
+                  WebkitOverflowScrolling: "touch",
+                  touchAction: "pan-y"
+                }}
+                onWheel={(e) => {
+                  e.stopPropagation();
+                  e.currentTarget.scrollTop += e.deltaY;
+                }}
+              />
             </label>
           </div>
 
