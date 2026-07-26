@@ -27,14 +27,21 @@ export function OfferCountdown({ end }: { end?: string | null }) {
 
   const distance = Math.max(0, new Date(end).getTime() - Date.now());
   if (!distance) return null;
-  const h = Math.floor(distance / 3_600_000);
-  const m = Math.floor((distance / 60_000) % 60);
-  const s = Math.floor((distance / 1000) % 60);
+
+  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  const formattedDays = days > 0 ? `${days} ${days === 1 ? "Day" : "Days"}, ` : "";
+  const formattedTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 
   return (
     <div className="flex items-center justify-between rounded-md border border-[#ffb800]/15 bg-[#ffb800]/[.05] px-4 py-3 text-xs">
       <span className="flex items-center gap-2 font-bold text-[#ffca55]"><Clock3 size={15} /> Offer ends in</span>
-      <strong className="font-mono text-sm">{String(h).padStart(2, "0")}:{String(m).padStart(2, "0")}:{String(s).padStart(2, "0")}</strong>
+      <strong className="font-mono text-sm text-[#ffffff] bg-black/30 px-2.5 py-1 rounded border border-white/10">
+        {formattedDays}{formattedTime}
+      </strong>
     </div>
   );
 }

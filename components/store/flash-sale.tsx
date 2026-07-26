@@ -11,7 +11,11 @@ import { BorderGlow } from "@/components/animations/border-glow";
 
 function remaining(end: string, now: number) {
   const distance = Math.max(0, new Date(end).getTime() - now);
-  return { h: Math.floor(distance / 3_600_000), m: Math.floor((distance / 60_000) % 60), s: Math.floor((distance / 1000) % 60) };
+  const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const s = Math.floor((distance % (1000 * 60)) / 1000);
+  return { d, h, m, s };
 }
 
 export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
@@ -47,9 +51,14 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
       </div>
       <div className="touch-row hide-scrollbar grid auto-cols-[82%] grid-flow-col gap-4 overflow-x-auto md:auto-cols-[46%] xl:auto-cols-[31%]">
         {active.map((sale) => {
-          const timer = mounted ? remaining(sale.ends_at, now) : { h: 0, m: 0, s: 0 };
+          const timer = mounted ? remaining(sale.ends_at, now) : { d: 0, h: 0, m: 0, s: 0 };
           const game = sale.games;
           if (!game) return null;
+
+          const timeBlocks = timer.d > 0
+            ? [[timer.d, "D"], [timer.h, "H"], [timer.m, "M"], [timer.s, "S"]]
+            : [[timer.h, "H"], [timer.m, "M"], [timer.s, "S"]];
+
           return (
             <BorderGlow
               key={sale.id}
@@ -70,9 +79,9 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                   <span className="text-[10px] font-black uppercase tracking-wider text-[#ffca55]">Limited deal</span>
                   <h3 className="mt-2 line-clamp-2 font-black">{game.title}</h3>
                   <strong className="mt-4 text-2xl">{formatPrice(sale.sale_price)}</strong>
-                  <div className="mt-4 flex gap-1.5">
-                    {[[timer.h, "H"], [timer.m, "M"], [timer.s, "S"]].map(([value, label]) => (
-                      <span key={label} className="min-w-11 rounded bg-black/35 px-2 py-2 text-center text-xs">
+                  <div className="mt-4 flex gap-1.5 flex-wrap">
+                    {timeBlocks.map(([value, label]) => (
+                      <span key={String(label)} className="min-w-10 rounded bg-black/35 px-2 py-2 text-center text-xs border border-white/5">
                         <b className="block text-white">
                           {mounted ? String(value).padStart(2, "0") : "--"}
                         </b>
