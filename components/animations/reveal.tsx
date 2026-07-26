@@ -18,15 +18,16 @@ export function Reveal({ children, className, delay = 0 }: { children: React.Rea
   }, []);
 
   const animateProps = isMobile ? {} : {
-    initial: { opacity: 0, y: 24 },
+    initial: { opacity: 0, y: 16 },
     whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, amount: 0.12 },
-    transition: { duration: 0.55, delay, ease: [0.2, 0.7, 0.2, 1] as [number, number, number, number] }
+    viewport: { once: true, amount: 0.05 },
+    transition: { duration: 0.4, delay, ease: "easeOut" as const }
   };
 
   return (
     <motion.div
-      className={cn(className)}
+      className={cn(className, "will-change-transform")}
+      style={{ transform: "translate3d(0,0,0)" }}
       {...animateProps}
     >
       {children}

@@ -53,18 +53,17 @@ export function FireflyCanvas() {
           return (
             <div
               key={p.id}
-              className="absolute rounded-full bg-gradient-to-br from-amber-400 via-orange-400 to-orange-600 blur-[0.5px]"
+              className="absolute rounded-full bg-[radial-gradient(circle,rgba(251,191,36,0.9)_0%,rgba(249,115,22,0.6)_50%,transparent_100%)]"
               style={{
                 top: `${p.top}%`,
                 left: `${p.left}%`,
-                width: `${p.size}px`,
-                height: `${p.size}px`,
-                boxShadow: `0 0 ${p.size * 3}px ${p.size / 2}px rgba(249, 115, 22, 0.35)`,
+                width: `${p.size * 2.5}px`,
+                height: `${p.size * 2.5}px`,
                 opacity: 0,
                 willChange: "transform, opacity",
-                transform: "translateZ(0)",
+                transform: "translate3d(0,0,0)",
                 animation: `firefly-drift ${p.duration}s infinite linear`,
-                animationDelay: `-${p.delay}s`, // Negative delay makes them start at different points in their animation cycle
+                animationDelay: `-${p.delay}s`,
               }}
             />
           );
@@ -72,15 +71,14 @@ export function FireflyCanvas() {
           return (
             <div
               key={p.id}
-              className="absolute bg-white blur-[0.3px]"
+              className="absolute bg-[radial-gradient(circle,rgba(255,255,255,1)_0%,rgba(255,255,255,0.4)_50%,transparent_100%)]"
               style={{
                 top: `${p.top}%`,
                 left: `${p.left}%`,
-                width: `${p.size}px`,
-                height: `${p.size}px`,
+                width: `${p.size * 2.5}px`,
+                height: `${p.size * 2.5}px`,
                 willChange: "transform, opacity",
-                transform: "rotate(45deg) translateZ(0)",
-                boxShadow: `0 0 ${p.size * 4}px ${p.size}px rgba(255, 255, 255, 0.6)`,
+                transform: "rotate(45deg) translate3d(0,0,0)",
                 opacity: 0,
                 animation: `diamond-sparkle ${p.duration}s infinite ease-in-out`,
                 animationDelay: `-${p.delay}s`,

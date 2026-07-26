@@ -118,6 +118,27 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
               Search and click any game to select or deselect.
             </p>
 
+            {/* Selected Games Pill Badges Bar */}
+            {selectedGameIds.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-1.5 rounded-md border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 p-2.5">
+                {selectedGameIds.map((sId) => {
+                  const g = games.find((item) => item.id === sId);
+                  if (!g) return null;
+                  return (
+                    <span
+                      key={sId}
+                      onClick={() => toggleGame(sId)}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-[#a78bfa]/40 bg-[#8b5cf6]/25 px-2.5 py-1 text-xs font-bold text-white transition hover:bg-red-500/20 hover:border-red-400/50 cursor-pointer group"
+                      title="Click to remove from bundle"
+                    >
+                      <span>{g.title}</span>
+                      <span className="text-[#a78bfa] group-hover:text-red-300 font-extrabold text-[11px]">✕</span>
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Search Input */}
             <div className="relative mt-3">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8991a6]" />

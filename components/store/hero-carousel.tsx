@@ -50,7 +50,6 @@ export function HeroCarousel({ games }: { games: Game[] }) {
   return (
     <div className="hero-with-featured">
       <div className="min-w-0 relative">
-        {mounted ? (
           <>
             <Swiper
               modules={[Autoplay, Navigation]}
@@ -126,11 +125,6 @@ export function HeroCarousel({ games }: { games: Game[] }) {
               {games.map((game, index) => <span key={game.id} className="h-0.5 flex-1 overflow-hidden bg-white/20"><span key={active === index ? `active-${game.id}` : game.id} className={`block h-full origin-left bg-[#facc15] ${active === index ? "animate-[hero-progress_6.5s_linear_forwards]" : index < active ? "scale-x-100" : "scale-x-0"}`} /></span>)}
             </div>
           </>
-        ) : (
-          <div className="w-full h-[420px] md:h-[570px] bg-[#1a1a1a] rounded-xl border border-white/5 animate-pulse flex items-center justify-center">
-            <span className="text-neutral-700 text-xs font-bold uppercase tracking-widest">Loading Spotlight...</span>
-          </div>
-        )}
       </div>
 
       <aside className="featured-now min-w-0" aria-label="Featured games">
