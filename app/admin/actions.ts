@@ -718,7 +718,7 @@ function optionalNumber(value: FormDataEntryValue | null) {
 }
 
 export async function saveGame(formData: FormData) {
-  await writeAuditLog("SAVE_GAME", "games", formData);
+  writeAuditLogAsync("SAVE_GAME", "games", formData);
   const supabase = await getAdminClient();
   const rawId = String(formData.get("id") ?? "");
   const title = String(formData.get("title") ?? "").trim();
@@ -784,7 +784,7 @@ export async function saveGame(formData: FormData) {
 }
 
 export async function saveCoupon(formData: FormData) {
-  await writeAuditLog("SAVE_COUPON", "coupons", formData);
+  writeAuditLogAsync("SAVE_COUPON", "coupons", formData);
   const supabase = await getAdminClient();
   const code = String(formData.get("code") ?? "").trim().toUpperCase();
   const discountType = String(formData.get("discount_type") ?? "percentage");
@@ -809,7 +809,7 @@ export async function saveCoupon(formData: FormData) {
 }
 
 export async function moderateProof(formData: FormData) {
-  await writeAuditLog("MODERATE_PROOF", "customer_proofs", formData);
+  writeAuditLogAsync("MODERATE_PROOF", "customer_proofs", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const decision = String(formData.get("decision") ?? "");
@@ -822,7 +822,7 @@ export async function moderateProof(formData: FormData) {
 }
 
 export async function saveBundle(formData: FormData) {
-  await writeAuditLog("SAVE_BUNDLE", "bundles", formData);
+  writeAuditLogAsync("SAVE_BUNDLE", "bundles", formData);
   const supabase = await getAdminClient();
   const rawId = String(formData.get("id") ?? "");
   const title = String(formData.get("title") ?? "").trim();
