@@ -38,8 +38,12 @@ export function MouseSpotlight() {
   return (
     <div
       ref={ref}
-      className="pointer-events-none fixed left-0 top-0 z-[1] hidden h-[420px] w-[420px] rounded-full bg-[#b89412]/[.055] blur-[90px] will-change-transform lg:block"
-      style={{ transform: "translate3d(-500px, -500px, 0)" }}
+      className="pointer-events-none fixed left-0 top-0 z-[1] hidden h-[420px] w-[420px] rounded-full will-change-transform lg:block"
+      style={{
+        transform: "translate3d(-500px, -500px, 0)",
+        background: "radial-gradient(circle, rgba(184, 148, 18, 0.08) 0%, rgba(184, 148, 18, 0.03) 40%, transparent 70%)",
+        contain: "strict"
+      }}
       aria-hidden
     />
   );

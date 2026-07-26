@@ -18,6 +18,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(callbackUrl);
   }
 
+  const pathname = request.nextUrl.pathname;
+  const isProtectedRoute = pathname.startsWith("/admin") || pathname.startsWith("/account");
+
+  if (!isProtectedRoute) {
+    return NextResponse.next();
+  }
+
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return NextResponse.next();
   }
