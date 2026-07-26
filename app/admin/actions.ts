@@ -1018,8 +1018,9 @@ export async function sendStoreAnnouncement(formData: FormData) {
   const supabase = await getAdminClient();
   const title = String(formData.get("title") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
+  const shortMessage = String(formData.get("shortMessage") || formData.get("short_message") || message).trim();
   const link = String(formData.get("link") ?? "").trim() || "/games";
-  if (title.length < 3 || title.length > 80 || message.length < 5 || message.length > 500) throw new Error("Enter a clear title and message");
+  if (title.length < 3 || title.length > 80 || message.length < 5 || message.length > 3000) throw new Error("Enter a clear title and message");
   if (!link.startsWith("/")) throw new Error("Announcement link must be a Rakexura path");
   const { data: profiles, error: profileError } = await supabase.from("profiles").select("id, email");
   if (profileError) throw new Error(profileError.message);
@@ -1027,7 +1028,7 @@ export async function sendStoreAnnouncement(formData: FormData) {
   const { error } = await supabase.from("notifications").insert(profiles.map(({ id }) => ({ user_id: id, title, message, type: "promotion", link })));
   if (error) throw new Error(error.message);
   await Promise.all(
-    profiles.map((p) => sendPushNotification(p.id, title, message, link))
+    profiles.map((p) => sendPushNotification(p.id, title, shortMessage, link))
   );
 
   let imageUrl: string | null = null;
@@ -1182,13 +1183,14 @@ export async function sendSinglePushNotification(formData: FormData) {
   const userId = String(formData.get("userId") ?? "");
   const title = String(formData.get("title") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
+  const shortMessage = String(formData.get("shortMessage") || formData.get("short_message") || message).trim();
   const link = String(formData.get("link") ?? "").trim() || "/";
 
   if (!userId) throw new Error("Select a customer");
   if (!title || !message) throw new Error("Title and message are required");
 
-  // Send push notification specifically to this user
-  const result = await sendPushNotification(userId, title, message, link);
+  // Send push notification specifically to this user with shortMessage
+  const result = await sendPushNotification(userId, title, shortMessage, link);
   if (!result.success) {
     throw new Error(result.error || "Failed to send push notification");
   }

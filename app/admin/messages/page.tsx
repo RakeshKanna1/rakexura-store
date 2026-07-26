@@ -57,7 +57,7 @@ export default async function AdminMessagesPage({ searchParams }: { searchParams
   try {
     const [custRes, gamesRes, ordersRes] = await Promise.all([
       supabase.from("profiles").select("id,display_name,whatsapp,email").eq("role", "customer").order("display_name"),
-      supabase.from("games").select("id,title").eq("archived", false).order("title"),
+      supabase.from("games").select("id,title,sale_price,original_price,offline_price,steam_price,discount_percent").eq("archived", false).order("title"),
       supabase.from("orders").select("id,order_reference,user_id,game_id,variant_type,total_price,cart_items,customer_name,customer_whatsapp,order_status,created_at").order("created_at", { ascending: false }).limit(50)
     ]);
     if (custRes.data) rawCustomers = custRes.data.filter(Boolean);

@@ -7,7 +7,15 @@ import { sendStoreAnnouncement, sendSinglePushNotification, sendSingleEmailNotif
 import { CustomSelect } from "@/components/common/custom-select";
 
 type Customer = { id: string; display_name: string | null; whatsapp: string | null; email?: string | null };
-type GameOption = { id: number; title: string };
+type GameOption = {
+  id: number;
+  title: string;
+  sale_price?: number | null;
+  original_price?: number | null;
+  offline_price?: number | null;
+  steam_price?: number | null;
+  discount_percent?: number | null;
+};
 export type OrderOption = {
   id: number;
   order_reference: string | null;
@@ -39,6 +47,7 @@ const templates = {
       "• Purchased Items\n\n" +
       "Please keep a copy of this receipt for your records.\n" +
       "View your purchase history: https://rakexura-store.vercel.app/dashboard/orders",
+    shortMessage: "🧾 Invoice RKX-ORDER-REF processed! View receipt details.",
     link: "/dashboard/orders",
   },
   review: {
@@ -46,6 +55,7 @@ const templates = {
     icon: Star,
     title: "How was your gaming experience? Leave a review!",
     message: "Thank you for shopping at Rakexura Store! We hope you are enjoying your new game. Please take 30 seconds to rate your experience and leave a review. Your feedback helps fellow gamers!",
+    shortMessage: "⭐ Leave a review on Rakexura Store! Share your gaming experience.",
     link: "/dashboard/orders",
   },
   game: {
@@ -53,13 +63,15 @@ const templates = {
     icon: Gamepad2,
     title: "New game added",
     message: "A new game just landed at Rakexura. View the latest price and available platforms now.",
+    shortMessage: "🎮 New Game added to Rakexura Store catalog!",
     link: "/games",
   },
   offer: {
     label: "Special Offer",
     icon: Flame,
-    title: "Exclusive Rakexura Offer Live",
-    message: "A fresh limited-time offer is live. Open Rakexura Store before the deal ends.",
+    title: "🔥 Special Offer Live on Rakexura Store",
+    message: "A fresh limited-time special offer is live! Check out our exclusive discounts on top PC games and grab your keys before stock runs out.",
+    shortMessage: "🔥 Special Offer: Top PC game deals live on Rakexura Store now!",
     link: "/games",
   },
   giveaway: {
@@ -67,6 +79,7 @@ const templates = {
     icon: Gift,
     title: "Rakexura Free Game Giveaway",
     message: "A new Rakexura giveaway is open. Check the details and join before entries close.",
+    shortMessage: "🎁 Giveaway Alert: Win a free game on Rakexura Store!",
     link: "/",
   },
   activation: {
@@ -74,6 +87,7 @@ const templates = {
     icon: Key,
     title: "Game Activation & Account Guide",
     message: "Your game activation instructions and account details are ready. View your orders to claim access.",
+    shortMessage: "🗝️ Activation Guide: Claim your game access now.",
     link: "/dashboard/orders",
   },
   announcement: {
@@ -81,6 +95,7 @@ const templates = {
     icon: Megaphone,
     title: "Important Rakexura Store Update",
     message: "We have updated our store catalog and platform options. Discover what's new today on Rakexura!",
+    shortMessage: "📢 Announcement: New store features updated on Rakexura!",
     link: "/",
   },
   support: {
@@ -88,6 +103,7 @@ const templates = {
     icon: LifeBuoy,
     title: "Rakexura Support Update",
     message: "Need activation help or order assistance? Our support desk is ready to help you.",
+    shortMessage: "⚽ Support Notice: Need help with your order? Contact support.",
     link: "/support",
   },
 };
@@ -106,6 +122,7 @@ export function BroadcastComposer({
   const [selectedTemplateKey, setSelectedTemplateKey] = useState<string>("game");
   const [title, setTitle] = useState(prefill ? `${prefill} is now available` : templates.game.title);
   const [message, setMessage] = useState(prefill ? `${prefill} has arrived at Rakexura. Check platforms, live pricing, trailers, and current offers.` : templates.game.message);
+  const [shortMessage, setShortMessage] = useState(prefill ? `🎮 New Game: ${prefill} is now live on Rakexura!` : templates.game.shortMessage);
   const [link, setLink] = useState(prefill ? `/games` : templates.game.link);
   const [customerId, setCustomerId] = useState(customers[0]?.id ?? "");
   const [targetEmail, setTargetEmail] = useState(customers[0]?.email ?? "");
@@ -273,22 +290,67 @@ export function BroadcastComposer({
   function applyTemplate(key: string) {
     setSelectedTemplateKey(key);
     const template = templates[key as keyof typeof templates];
-    setTitle(template.title);
-    setMessage(template.message);
-    setLink(template.link);
+    const game = games.find((item) => item.id === Number(selectedGameId));
+
+    if (key === "offer") {
+      if (game) {
+        const salePrice = game.sale_price || game.offline_price || game.steam_price || 0;
+        const origPrice = game.original_price || (salePrice ? Math.round(salePrice * 1.3) : 0);
+        const discount = game.discount_percent || (origPrice && salePrice ? Math.round(((origPrice - salePrice) / origPrice) * 100) : 30);
+        const priceStr = salePrice ? `₹${salePrice.toLocaleString("en-IN")}` : "Special Price";
+        const origStr = origPrice ? `₹${origPrice.toLocaleString("en-IN")}` : "";
+
+        setTitle(`🔥 Limited Time Deal: ${game.title} is on Sale!`);
+        setMessage(
+          `Exclusive Special Offer on ${game.title}!\n\n` +
+          `Grab your copy now for only ${priceStr}${origStr ? ` (was ${origStr}, save ${discount}% OFF)` : ''}.\n\n` +
+          `Limited stock available on Rakexura Store. Claim your key before the deal ends!`
+        );
+        setShortMessage(`🔥 Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
+        setLink(`/games/${game.id}`);
+      } else {
+        setTitle("🔥 Exclusive Rakexura Offer Live");
+        setMessage("A fresh limited-time special offer is live! Check out our exclusive discounts on top PC games and grab your keys before stock runs out.");
+        setShortMessage("🔥 Special Offer: Top PC game deals live on Rakexura Store now!");
+        setLink("/games");
+      }
+    } else {
+      setTitle(template.title);
+      setMessage(template.message);
+      setShortMessage(template.shortMessage || template.title);
+      setLink(template.link);
+    }
   }
 
   function chooseGame(id: string) {
     const game = games.find((item) => item.id === Number(id));
     if (!game) return;
     setSelectedGameId(id);
-    if (selectedTemplateKey === "review") {
+
+    const salePrice = game.sale_price || game.offline_price || game.steam_price || 0;
+    const origPrice = game.original_price || (salePrice ? Math.round(salePrice * 1.3) : 0);
+    const discount = game.discount_percent || (origPrice && salePrice ? Math.round(((origPrice - salePrice) / origPrice) * 100) : 30);
+    const priceStr = salePrice ? `₹${salePrice.toLocaleString("en-IN")}` : "Special Price";
+    const origStr = origPrice ? `₹${origPrice.toLocaleString("en-IN")}` : "";
+
+    if (selectedTemplateKey === "offer") {
+      setTitle(`🔥 Limited Time Deal: ${game.title} is on Sale!`);
+      setMessage(
+        `Exclusive Special Offer on ${game.title}!\n\n` +
+        `Grab your copy now for only ${priceStr}${origStr ? ` (was ${origStr}, save ${discount}% OFF)` : ''}.\n\n` +
+        `Limited stock available on Rakexura Store. Claim your key before the deal ends!`
+      );
+      setShortMessage(`🔥 Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
+      setLink(`/games/${game.id}`);
+    } else if (selectedTemplateKey === "review") {
       setTitle(`How is ${game.title}? Leave a review!`);
       setMessage(`Hope you are enjoying ${game.title}! Please take 30 seconds to rate your experience and leave a review on Rakexura Store.`);
+      setShortMessage(`⭐ Leave a review for ${game.title}! Share your experience.`);
       setLink(`/games/${game.id}`);
     } else {
       setTitle(`${game.title} is now available`);
-      setMessage(`${game.title} has arrived at Rakexura. Check platforms, live pricing, trailers, and current offers.`);
+      setMessage(`${game.title} has arrived at Rakexura. Check platforms, live pricing${priceStr !== "Special Price" ? ` (from ${priceStr})` : ''}, trailers, and current offers.`);
+      setShortMessage(`🎮 New Game: ${game.title} is now live on Rakexura Store!`);
       setLink(`/games/${game.id}`);
     }
   }
@@ -297,6 +359,7 @@ export function BroadcastComposer({
     const data = new FormData();
     data.set("title", title);
     data.set("message", message);
+    data.set("shortMessage", shortMessage);
     data.set("link", link);
     if (selectedGameId) data.set("gameId", selectedGameId);
     startTransition(async () => {
@@ -317,6 +380,7 @@ export function BroadcastComposer({
       data.set("userId", customerId);
       data.set("title", title);
       data.set("message", message);
+      data.set("shortMessage", shortMessage);
       data.set("link", link);
       if (selectedGameId) data.set("gameId", selectedGameId);
       const result = await sendSinglePushNotification(data);
@@ -569,6 +633,20 @@ export function BroadcastComposer({
             rows={8}
             style={{ overflowY: "auto", scrollbarWidth: "thin" }}
             className="mt-2 w-full min-h-[180px] max-h-[600px] overflow-y-auto resize-y rounded-md border border-white/10 bg-black/25 p-4 text-sm leading-relaxed text-white outline-none focus:border-[#8b5cf6]"
+          />
+        </label>
+
+        <label className="mt-4 block text-sm font-bold">
+          <span className="flex items-center justify-between">
+            <span>Push Notification Short Message</span>
+            <span className="text-[10px] font-black uppercase text-[#a78bfa] tracking-wider bg-[#a78bfa]/10 px-2 py-0.5 rounded border border-[#a78bfa]/20">Device Push Alert</span>
+          </span>
+          <input
+            value={shortMessage}
+            onChange={(event) => setShortMessage(event.target.value)}
+            maxLength={120}
+            placeholder="Short message for browser & mobile push notifications..."
+            className="mt-2 h-11 w-full rounded-md border border-[#a78bfa]/40 bg-black/25 px-4 text-xs font-bold text-white outline-none focus:border-[#a78bfa]"
           />
         </label>
 
