@@ -61,6 +61,8 @@ export function FireflyCanvas() {
                 height: `${p.size}px`,
                 boxShadow: `0 0 ${p.size * 3}px ${p.size / 2}px rgba(249, 115, 22, 0.35)`,
                 opacity: 0,
+                willChange: "transform, opacity",
+                transform: "translateZ(0)",
                 animation: `firefly-drift ${p.duration}s infinite linear`,
                 animationDelay: `-${p.delay}s`, // Negative delay makes them start at different points in their animation cycle
               }}
@@ -76,7 +78,8 @@ export function FireflyCanvas() {
                 left: `${p.left}%`,
                 width: `${p.size}px`,
                 height: `${p.size}px`,
-                transform: "rotate(45deg)",
+                willChange: "transform, opacity",
+                transform: "rotate(45deg) translateZ(0)",
                 boxShadow: `0 0 ${p.size * 4}px ${p.size}px rgba(255, 255, 255, 0.6)`,
                 opacity: 0,
                 animation: `diamond-sparkle ${p.duration}s infinite ease-in-out`,
