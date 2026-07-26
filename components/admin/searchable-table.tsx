@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
 import { Search, ExternalLink, ChevronLeft, ChevronRight, Copy, Check } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -11,8 +12,24 @@ import { archiveGame, moderateProof, moderateReview, toggleCoupon, deleteCoupon,
 type AdminRow = Record<string, unknown> & { id?: number | string; screenshot_url?: string; proof_url?: string; media_urls?: string[]; media_links?: string[] };
 
 function SubmitButton({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "positive" | "danger" }) {
-  const color = tone === "positive" ? "border-[#00d68f]/30 text-[#70efbb]" : tone === "danger" ? "border-red-400/30 text-red-300 hover:bg-red-500/10" : "border-white/10 text-[#c8cedc]";
-  return <button type="submit" className={`rounded border bg-black/20 px-3 py-2 text-xs font-bold transition hover:bg-white/[.06] cursor-pointer ${color}`}>{children}</button>;
+  const { pending } = useFormStatus();
+  const color = tone === "positive" ? "border-[#00d68f]/30 text-[#70efbb] hover:bg-[#00d68f]/10" : tone === "danger" ? "border-red-400/30 text-red-300 hover:bg-red-500/10" : "border-white/10 text-[#c8cedc] hover:bg-white/[.06]";
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className={`rounded border bg-black/20 px-3 py-2 text-xs font-bold transition cursor-pointer disabled:opacity-40 flex items-center gap-1.5 ${color}`}
+    >
+      {pending ? (
+        <>
+          <span className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          <span>Processing...</span>
+        </>
+      ) : (
+        children
+      )}
+    </button>
+  );
 }
 
 function CopyCouponBadge({ code, discountType, discountValue, minimumOrder }: { code: string; discountType: string; discountValue: number; minimumOrder?: number }) {

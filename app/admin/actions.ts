@@ -48,6 +48,12 @@ async function writeAuditLog(action: string, affectedEntity: string, formData: F
   }
 }
 
+function writeAuditLogAsync(action: string, affectedEntity: string, formData: FormData) {
+  writeAuditLog(action, affectedEntity, formData).catch((err) => {
+    console.error("Async audit log error:", err);
+  });
+}
+
 function idFrom(formData: FormData) {
   const id = Number(formData.get("id"));
   if (!Number.isInteger(id) || id <= 0) throw new Error("Invalid record");
@@ -654,7 +660,7 @@ export async function updateRequestStatus(formData: FormData) {
 }
 
 export async function toggleCoupon(formData: FormData) {
-  await writeAuditLog("TOGGLE_COUPON", "coupons", formData);
+  writeAuditLogAsync("TOGGLE_COUPON", "coupons", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const active = String(formData.get("active")) === "true";
@@ -664,7 +670,7 @@ export async function toggleCoupon(formData: FormData) {
 }
 
 export async function deleteCoupon(formData: FormData) {
-  await writeAuditLog("DELETE_COUPON", "coupons", formData);
+  writeAuditLogAsync("DELETE_COUPON", "coupons", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const { error } = await supabase.from("coupons").delete().eq("id", id);
@@ -674,7 +680,7 @@ export async function deleteCoupon(formData: FormData) {
 }
 
 export async function archiveGame(formData: FormData) {
-  await writeAuditLog("ARCHIVE_GAME", "games", formData);
+  writeAuditLogAsync("ARCHIVE_GAME", "games", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   const archived = String(formData.get("archived")) === "true";
@@ -847,7 +853,7 @@ export async function toggleBundle(formData: FormData) {
 }
 
 export async function deleteBundle(formData: FormData) {
-  await writeAuditLog("DELETE_BUNDLE", "bundles", formData);
+  writeAuditLogAsync("DELETE_BUNDLE", "bundles", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
   // First delete associated games mappings in bundle_games relation
