@@ -659,6 +659,25 @@ export async function updateRequestStatus(formData: FormData) {
   }
 }
 
+export async function deleteGameRequest(formData: FormData) {
+  writeAuditLogAsync("DELETE_GAME_REQUEST", "game_requests", formData);
+  const supabase = await getAdminClient();
+  const id = idFrom(formData);
+  const { error } = await supabase.from("game_requests").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/requests");
+  revalidatePath("/admin/game-requests");
+}
+
+export async function deleteSupportTicket(formData: FormData) {
+  writeAuditLogAsync("DELETE_SUPPORT_TICKET", "support_tickets", formData);
+  const supabase = await getAdminClient();
+  const id = idFrom(formData);
+  const { error } = await supabase.from("support_tickets").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/requests");
+}
+
 export async function toggleCoupon(formData: FormData) {
   writeAuditLogAsync("TOGGLE_COUPON", "coupons", formData);
   const supabase = await getAdminClient();

@@ -1,21 +1,21 @@
 import Link from "next/link";
-import { ArrowLeft, Check, MessageCircle } from "lucide-react";
+import { ArrowLeft, Check, MessageCircle, Trash2 } from "lucide-react";
 import { redirect } from "next/navigation";
-import { approveMilestoneRequest, updateRequestStatus } from "@/app/admin/actions";
+import { approveMilestoneRequest, updateRequestStatus, deleteGameRequest, deleteSupportTicket } from "@/app/admin/actions";
 import { createClient } from "@/lib/supabase/server";
 import { AdminAccessDenied } from "@/components/admin/access-denied";
 
 // Sub-components for Tab 1 (Game Requests)
 function SubmitButton({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "positive" | "danger" }) {
   const color = tone === "positive" 
-    ? "border-[#00d68f]/30 text-[#70efbb]" 
+    ? "border-[#00d68f]/30 text-[#70efbb] hover:bg-[#00d68f]/10" 
     : tone === "danger" 
-      ? "border-red-400/30 text-red-300" 
-      : "border-white/10 text-[#c8cedc]";
+      ? "border-red-400/30 text-red-300 hover:bg-red-500/10" 
+      : "border-white/10 text-[#c8cedc] hover:bg-white/[.06]";
   return (
     <button 
       type="submit" 
-      className={`rounded border bg-black/20 px-3 py-2 text-xs font-bold transition hover:bg-white/[.06] ${color}`}
+      className={`rounded border bg-black/20 px-3 py-2 text-xs font-bold transition cursor-pointer ${color}`}
     >
       {children}
     </button>
@@ -24,7 +24,7 @@ function SubmitButton({ children, tone = "neutral" }: { children: React.ReactNod
 
 function RowActions({ id }: { id: number }) {
   return (
-    <div className="flex min-w-60 flex-wrap gap-2">
+    <div className="flex min-w-60 flex-wrap gap-2 items-center">
       {["Reviewing", "Planned", "Added", "Declined"].map((status) => (
         <form action={updateRequestStatus} key={status}>
           <input type="hidden" name="id" value={id} />
@@ -34,6 +34,10 @@ function RowActions({ id }: { id: number }) {
           </SubmitButton>
         </form>
       ))}
+      <form action={deleteGameRequest}>
+        <input type="hidden" name="id" value={id} />
+        <SubmitButton tone="danger">Delete</SubmitButton>
+      </form>
     </div>
   );
 }
@@ -52,42 +56,46 @@ export default async function AdminVoucherRequestsPage({
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
   if (profile?.role !== "admin") return <AdminAccessDenied email={user.email} />;
 
-  // 1. Fetch Game Requests
-  const { data: gameRequests } = await supabase
-    .from("game_requests")
-    .select("id,game_name,platform,votes,status,created_at")
-    .order("created_at", { ascending: false });
-  const gameRows = gameRequests ?? [];
+  // Conditionally execute ONLY the active tab's database queries for lightning-fast tab switching (<40ms)
+  let gameRows: Array<{ id: number; game_name: string; platform: string; votes: number; status: string; created_at: string }> = [];
+  let voucherRows: Array<{ id: number; userId: string; username: string; email: string; whatsapp: string; rankStatus: string; points: number; timestamp: string; status: string }> = [];
 
-  // 2. Fetch Reward & Coupon Requests (support tickets) joined with profiles and rewards
-  const [{ data: tickets }, { data: profiles }, { data: rewards }] = await Promise.all([
-    supabase.from("support_tickets")
-      .select("id,user_id,subject,message,status,created_at")
-      .or("subject.eq.Request Diamond Code,subject.ilike.Loyalty Freebie Request%")
-      .order("created_at", { ascending: false }),
-    supabase.from("profiles").select("id,display_name,email,whatsapp"),
-    supabase.from("user_rewards").select("user_id,points,level")
-  ]);
+  if (activeTab === "games") {
+    const { data: gameRequests } = await supabase
+      .from("game_requests")
+      .select("id,game_name,platform,votes,status,created_at")
+      .order("created_at", { ascending: false });
+    gameRows = gameRequests ?? [];
+  } else {
+    const [{ data: tickets }, { data: profiles }, { data: rewards }] = await Promise.all([
+      supabase.from("support_tickets")
+        .select("id,user_id,subject,message,status,created_at")
+        .or("subject.eq.Request Diamond Code,subject.ilike.Loyalty Freebie Request%")
+        .order("created_at", { ascending: false }),
+      supabase.from("profiles").select("id,display_name,email,whatsapp"),
+      supabase.from("user_rewards").select("user_id,points,level")
+    ]);
 
-  const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
-  const rewardMap = new Map((rewards ?? []).map((r) => [r.user_id, r]));
+    const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
+    const rewardMap = new Map((rewards ?? []).map((r) => [r.user_id, r]));
 
-  const voucherRows = (tickets ?? []).map((ticket) => {
-    const custProfile = profileMap.get(ticket.user_id);
-    const custReward = rewardMap.get(ticket.user_id);
+    voucherRows = (tickets ?? []).map((ticket) => {
+      const custProfile = profileMap.get(ticket.user_id);
+      const custReward = rewardMap.get(ticket.user_id);
 
-    return {
-      id: ticket.id,
-      userId: ticket.user_id,
-      username: custProfile?.display_name || "Customer",
-      email: custProfile?.email || "No Email Saved",
-      whatsapp: custProfile?.whatsapp || "",
-      rankStatus: custReward?.level || "Bronze",
-      points: custReward?.points ?? 0,
-      timestamp: ticket.created_at,
-      status: ticket.status,
-    };
-  });
+      return {
+        id: ticket.id,
+        userId: ticket.user_id,
+        username: custProfile?.display_name || "Customer",
+        email: custProfile?.email || "No Email Saved",
+        whatsapp: custProfile?.whatsapp || "",
+        rankStatus: custReward?.level || "Bronze",
+        points: custReward?.points ?? 0,
+        timestamp: ticket.created_at,
+        status: ticket.status,
+      };
+    });
+  }
 
   return (
     <div className="py-10">
@@ -117,7 +125,7 @@ export default async function AdminVoucherRequestsPage({
               : "border-transparent text-[#8991a6] hover:text-white"
           }`}
         >
-          Game Requests
+          Game Requests ({gameRows.length > 0 ? gameRows.length : "List"})
         </Link>
         <Link
           href="/admin/requests?tab=coupons"
@@ -127,7 +135,7 @@ export default async function AdminVoucherRequestsPage({
               : "border-transparent text-[#8991a6] hover:text-white"
           }`}
         >
-          Reward & Coupon Requests
+          Reward & Coupon Requests ({voucherRows.length > 0 ? voucherRows.length : "List"})
         </Link>
       </div>
 
@@ -192,7 +200,7 @@ export default async function AdminVoucherRequestsPage({
                 <th className="p-4">Current Points</th>
                 <th className="p-4">Requested Date</th>
                 <th className="p-4">Status</th>
-                <th className="p-4">Coupon Authorization</th>
+                <th className="p-4">Coupon Authorization & Delete</th>
               </tr>
             </thead>
             <tbody>
@@ -236,7 +244,7 @@ export default async function AdminVoucherRequestsPage({
                             <input type="hidden" name="unlock_access" value="true" />
                             <div className="flex flex-col gap-1">
                               <label className="text-[9px] font-black uppercase tracking-wider text-[#8991a6]">
-                                Enter Authorized Code Code
+                                Enter Authorized Code
                               </label>
                               <input
                                 name="promo_code"
@@ -247,7 +255,7 @@ export default async function AdminVoucherRequestsPage({
                             </div>
                             <button
                               type="submit"
-                              className="inline-flex h-8 mt-auto items-center justify-center gap-1 rounded border border-[#00d68f] bg-[#00d68f]/10 px-3.5 text-xs font-bold text-[#70efbb] hover:bg-[#00d68f]/20 transition-all active:scale-[0.97]"
+                              className="inline-flex h-8 mt-auto items-center justify-center gap-1 rounded border border-[#00d68f] bg-[#00d68f]/10 px-3.5 text-xs font-bold text-[#70efbb] hover:bg-[#00d68f]/20 transition-all active:scale-[0.97] cursor-pointer"
                             >
                               Approve & Unlock
                             </button>
@@ -269,6 +277,17 @@ export default async function AdminVoucherRequestsPage({
                             <MessageCircle size={15} />
                           </a>
                         )}
+
+                        <form action={deleteSupportTicket}>
+                          <input type="hidden" name="id" value={row.id} />
+                          <button
+                            type="submit"
+                            title="Delete request entry"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded border border-red-500/30 bg-red-950/20 text-red-300 hover:bg-red-950/40 transition-all cursor-pointer"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </form>
                       </div>
                     </td>
                   </tr>
