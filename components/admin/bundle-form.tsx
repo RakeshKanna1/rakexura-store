@@ -117,7 +117,18 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
             </div>
 
             {/* Mouse-Scrollable Game List */}
-            <div className="mt-3 max-h-64 overflow-y-auto pr-1 space-y-1.5 custom-scrollbar">
+            <div
+              className="mt-3 max-h-64 overflow-y-auto pr-1 space-y-1.5 custom-scrollbar"
+              style={{
+                overscrollBehavior: "contain",
+                WebkitOverflowScrolling: "touch",
+                touchAction: "pan-y"
+              }}
+              onWheel={(e) => {
+                e.stopPropagation();
+                e.currentTarget.scrollTop += e.deltaY;
+              }}
+            >
               {filteredGames.length === 0 ? (
                 <div className="py-6 text-center text-xs text-[#8991a6]">
                   No games found matching &quot;{searchQuery}&quot;
