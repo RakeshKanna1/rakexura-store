@@ -141,7 +141,22 @@ export default async function AdminSection({ params, searchParams }: { params: P
   }
 
   if (section === "orders") {
-    return <SmartOrdersManager initialOrders={rows as unknown as OrderRow[]} />;
+    return <div className="py-10">
+      <Link href="/admin" className="inline-flex min-h-11 items-center gap-2 text-sm text-[#8991a6] hover:text-white"><ArrowLeft size={16} /> Admin home</Link>
+      <div className="mt-7 flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow">Orders</p><h1 className="mt-3 text-4xl font-black md:text-5xl">Review and deliver</h1><p className="section-copy">Check the payment proof, choose the next status, then send the prepared WhatsApp update.</p></div><span className="rounded-md border border-white/10 bg-white/[.04] px-4 py-2 text-xs font-bold">{rows.length} orders</span></div>
+      <aside className="mt-6 flex gap-3 rounded-md border border-[#8b5cf6]/25 bg-[#8b5cf6]/[.07] p-4 text-sm text-[#cbbfff]"><HelpCircle className="mt-0.5 shrink-0" size={18} /><div><strong className="text-white">Simple order flow</strong><p className="mt-1 leading-6">1. Open payment proof. 2. Verify payment. 3. Start delivery. 4. Mark delivered. Every change updates customer tracking and prepares the correct WhatsApp message.</p></div></aside>
+      <div className="mt-6 space-y-3">{rows.map((row) => {
+        const items = Array.isArray(row.cart_items) ? row.cart_items as Array<Record<string, unknown>> : [];
+        const gameName = items.length ? items.map((item) => String(item.title || "Game")).join(", ") : "Order items";
+
+        return <article key={String(row.id)} className="premium-panel bg-[#0f0c22]/80 border-[#8b5cf6]/20 rounded-lg p-5 transition hover:border-white/15 md:p-6">
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+            <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><strong className="text-lg">{String(row.order_reference || `Order #${row.id}`)}</strong><span className="rounded-full border border-white/10 bg-white/[.05] px-3 py-1 text-xs font-bold">{String(row.order_status || "Pending")}</span></div><p className="mt-2 text-sm text-[#a0a8c0]">{String(row.customer_name)} · {new Date(String(row.created_at)).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</p><div className="mt-3 flex flex-wrap gap-3 text-xs text-[#8991a6]"><span className="inline-flex items-center gap-1.5"><Phone size={13} />{String(row.customer_whatsapp || "No phone")}</span><span className="inline-flex items-center gap-1.5"><ReceiptText size={13} />{gameName}</span><strong className="text-white">₹{Number(row.total_price || 0).toLocaleString("en-IN")}</strong></div></div>
+            <div className="space-y-3">{row.proof_url ? <a href={row.proof_url} target="_blank" rel="noreferrer" className="btn btn-secondary w-full text-xs"><ExternalLink size={14} /> View payment proof</a> : <p className="rounded-md border border-amber-400/20 bg-amber-400/[.06] px-3 py-2 text-xs text-amber-200">No payment proof attached</p>}<OrderActions id={Number(row.id)} currentStatus={String(row.order_status ?? "Pending")} customerPhone={String(row.customer_whatsapp || "")} gameName={gameName} orderReference={String(row.order_reference || `#${row.id}`)} initialAccountAccess={String(row.account_access || "")} totalPrice={Number(row.total_price || 0)} /></div>
+          </div>
+        </article>;
+      })}{!rows.length && <p className="premium-panel bg-[#0f0c22]/80 border-[#8b5cf6]/20 rounded-lg p-10 text-center text-[#8991a6]">No orders need attention.</p>}</div>
+    </div>;
   }
 
   const hidden = new Set(["screenshot_url", "proof_url", "media_urls", "media_links"]);
