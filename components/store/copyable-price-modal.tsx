@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Copy, Check, X, Share2, MessageSquareText, ExternalLink } from "lucide-react";
 import type { Game, Bundle } from "@/types/store";
 import { lowestPrice } from "@/lib/utils";
@@ -14,6 +14,19 @@ interface CopyablePriceModalProps {
 
 export function CopyablePriceModal({ games, bundles, isOpen, onClose }: CopyablePriceModalProps) {
   const [copied, setCopied] = useState(false);
+  const scrollRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || !isOpen) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.stopPropagation();
+    };
+
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    return () => el.removeEventListener("wheel", handleWheel);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -104,7 +117,7 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#facc15]/10 text-[#facc15]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-400/10 text-amber-400 border border-amber-400/20">
               <Share2 size={20} />
             </div>
             <div>
@@ -123,22 +136,20 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
           </button>
         </div>
 
-        {/* Text Preview Box */}
-        <div
+        {/* Textarea Box - Natively Mouse Wheel Scrollable */}
+        <textarea
+          ref={scrollRef}
+          readOnly
           data-lenis-prevent
-          onWheel={(e) => {
-            e.stopPropagation();
-            e.currentTarget.scrollTop += e.deltaY;
-          }}
+          data-lenis-prevent-wheel
+          value={formattedText}
           style={{
             overscrollBehavior: "contain",
             WebkitOverflowScrolling: "touch",
             touchAction: "pan-y"
           }}
-          className="my-4 max-h-[55vh] flex-1 overflow-y-auto rounded-lg border border-white/10 bg-[#06080d] p-4 text-xs font-mono text-neutral-200 leading-relaxed custom-scrollbar whitespace-pre-wrap select-all"
-        >
-          {formattedText}
-        </div>
+          className="my-4 h-96 min-h-[280px] max-h-[50vh] w-full resize-none rounded-lg border border-white/10 bg-[#06080d] p-4 text-xs font-mono text-neutral-200 leading-relaxed outline-none custom-scrollbar focus:border-amber-400/40 select-all"
+        />
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
