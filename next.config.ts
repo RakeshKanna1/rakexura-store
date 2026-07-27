@@ -24,9 +24,21 @@ const cspHeader = `
 `.replace(/\s{2,}/g, " ").trim();
 
 const nextConfig: NextConfig = {
+  compress: true,
   crossOrigin: "anonymous",
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "framer-motion",
+      "recharts",
+      "date-fns",
+      "sonner",
+      "clsx",
+      "tailwind-merge",
+    ],
+  },
   images: {
-    unoptimized: true,
+    minimumCacheTTL: 2592000, // 30 days image caching
     remotePatterns: [
       {
         protocol: "https",
@@ -81,6 +93,15 @@ const nextConfig: NextConfig = {
           {
             key: "X-Frame-Options",
             value: "DENY",
+          },
+        ],
+      },
+      {
+        source: "/(images|fonts|_next/static)/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },

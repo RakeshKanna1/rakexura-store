@@ -8,6 +8,8 @@ import { saveBundle } from "@/app/admin/actions";
 import { ImageUploader } from "@/components/admin/image-uploader";
 import { assetUrl } from "@/lib/utils";
 
+import { useUnsavedChanges } from "@/lib/hooks/use-unsaved-changes";
+
 type GameChoice = { id: number; title: string };
 type BundleEdit = {
   id: number;
@@ -24,11 +26,13 @@ type BundleEdit = {
 const field = "mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm outline-none focus:border-[#8b5cf6]";
 
 export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: BundleEdit | null }) {
+  const { setIsDirty, setIsSubmitting, confirmNavigation } = useUnsavedChanges();
   const initialSelected = bundle?.bundle_games?.map((item) => item.game_id) ?? [];
   const [selectedIds, setSelectedIds] = useState<number[]>(initialSelected);
   const [search, setSearch] = useState("");
 
   const toggleGame = (id: number) => {
+    setIsDirty(true);
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
@@ -39,7 +43,13 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
   );
 
   return (
-    <form key={bundle?.id ?? "new"} action={saveBundle} className="premium-panel mt-8 rounded-md p-5 md:p-7">
+    <form
+      key={bundle?.id ?? "new"}
+      action={saveBundle}
+      onChange={() => setIsDirty(true)}
+      onSubmit={() => setIsSubmitting(true)}
+      className="premium-panel mt-8 rounded-md p-5 md:p-7"
+    >
       <input type="hidden" name="id" value={bundle?.id ?? ""} />
       
       {/* Hidden inputs for form submission */}
@@ -55,7 +65,7 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
               <h2 className="mt-2 text-2xl font-black">{bundle ? `Edit ${bundle.title}` : "Create a bundle"}</h2>
             </div>
             {bundle && (
-              <Link href="/admin/bundles" className="btn btn-secondary">
+              <Link href="/admin/bundles" onClick={confirmNavigation} className="btn btn-secondary">
                 Cancel edit
               </Link>
             )}

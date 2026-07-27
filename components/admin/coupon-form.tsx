@@ -4,20 +4,37 @@ import { useState } from "react";
 import { TicketPercent, Percent, IndianRupee } from "lucide-react";
 import Link from "next/link";
 import { saveCoupon } from "@/app/admin/actions";
+import { useUnsavedChanges } from "@/lib/hooks/use-unsaved-changes";
 
 const input = "mt-2 h-11 w-full rounded-lg border border-[#8b5cf6]/25 bg-[#070512] px-3.5 text-xs font-bold outline-none focus:border-[#b9a4ff] focus:ring-1 focus:ring-[#8b5cf6]/30 text-white placeholder-slate-600 transition-all [color-scheme:dark]";
 
 type CouponValue = { id: number; code: string; discount_type: string; discount_value: number; minimum_order: number | null; usage_limit: number | null; per_user_limit: number | null; expires_at: string | null };
 
 export function CouponForm({ coupon }: { coupon?: CouponValue | null }) {
+  const { setIsDirty, setIsSubmitting, confirmNavigation } = useUnsavedChanges();
   const expiry = coupon?.expires_at ? new Date(coupon.expires_at).toISOString().slice(0, 16) : "";
   const [discountType, setDiscountType] = useState(coupon?.discount_type ?? "percentage");
 
   return (
-    <form key={coupon?.id ?? "new"} action={saveCoupon} className="premium-panel mt-8 rounded-xl p-6 md:p-8 border border-[#8b5cf6]/20 bg-[#0e0a1f]/90 shadow-[0_12px_40px_rgba(0,0,0,0.4)]">
+    <form
+      key={coupon?.id ?? "new"}
+      action={saveCoupon}
+      onChange={() => setIsDirty(true)}
+      onSubmit={() => setIsSubmitting(true)}
+      className="premium-panel mt-8 rounded-xl p-6 md:p-8 border border-[#8b5cf6]/20 bg-[#0e0a1f]/90 shadow-[0_12px_40px_rgba(0,0,0,0.4)]"
+    >
       {coupon && <input type="hidden" name="id" value={coupon.id} />}
-      <p className="eyebrow text-[#b9a4ff]">Promotion</p>
-      <h2 className="mt-2 text-2xl font-black text-white">{coupon ? "Edit coupon" : "Create coupon"}</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="eyebrow text-[#b9a4ff]">Promotion</p>
+          <h2 className="mt-2 text-2xl font-black text-white">{coupon ? "Edit coupon" : "Create coupon"}</h2>
+        </div>
+        {coupon && (
+          <Link href="/admin/coupons" onClick={confirmNavigation} className="btn btn-secondary text-xs">
+            Cancel edit
+          </Link>
+        )}
+      </div>
       <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <label className="flex flex-col text-xs font-black uppercase tracking-wider text-slate-300">
           <span>Code</span>

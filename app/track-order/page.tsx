@@ -130,7 +130,7 @@ function TrackOrderContent() {
         .from("games")
         .select("is_subscription")
         .in("id", gameIds);
-      isSub = dbGames?.some((g) => g.is_subscription) ?? false;
+      isSub = dbGames?.some((g: { is_subscription?: boolean | null }) => g.is_subscription) ?? false;
     }
     setHasSubscription(isSub);
 

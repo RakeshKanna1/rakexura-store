@@ -16,7 +16,7 @@ export function MediaManager() {
   async function load() {
     const supabase = createClient();
     const { data } = await supabase.storage.from("game-images").list("library", { limit: 100, sortBy: { column: "created_at", order: "desc" } });
-    setItems((data ?? []).filter((item) => item.name && !item.name.endsWith("/")).map((item) => ({ name: item.name, url: supabase.storage.from("game-images").getPublicUrl(`library/${item.name}`).data.publicUrl })));
+    setItems((data ?? []).filter((item: { name?: string }) => item.name && !item.name.endsWith("/")).map((item: { name: string }) => ({ name: item.name, url: supabase.storage.from("game-images").getPublicUrl(`library/${item.name}`).data.publicUrl })));
   }
   useEffect(() => { void load(); }, []);
   async function upload(file?: File) {

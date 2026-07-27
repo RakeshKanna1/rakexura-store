@@ -112,7 +112,7 @@ export function WhatsAppOnboardingModal() {
 
     checkUserOnboarding();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string) => {
       if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
         if (typeof sessionStorage !== "undefined") {
           sessionStorage.removeItem("wp_modal_session_dismissed");

@@ -54,7 +54,7 @@ export function ProductActions({ game }: { game: Game }) {
   useEffect(() => {
     setMounted(true);
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user } }: { data: { user: User | null } }) => {
       setUser(user);
       setCheckedAuth(true);
     });

@@ -103,7 +103,7 @@ export function StoreCloudSync() {
         cloudLines.forEach((line) => lineMap.set(`${line.game.id}:${line.platform}`, line));
         const bundleMap = new Map(local.bundleLines.map((line) => [line.bundle.id, line]));
         cloudBundles.forEach((line) => bundleMap.set(line.bundle.id, line));
-        const wishlistIds = [...new Set([...local.wishlistIds, ...(wishlistRows ?? []).map((row) => Number(row.game_id))])];
+        const wishlistIds = [...new Set([...local.wishlistIds, ...(wishlistRows ?? []).map((row: { game_id: number | string }) => Number(row.game_id))])];
         local.replaceFromCloud([...lineMap.values()], [...bundleMap.values()], wishlistIds);
         await persist();
         unsubscribe = useCartStore.subscribe(() => { if (timer) clearTimeout(timer); timer = setTimeout(() => void persist(), 700); });

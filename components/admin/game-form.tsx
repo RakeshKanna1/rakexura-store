@@ -7,6 +7,8 @@ import { saveGame } from "@/app/admin/actions";
 import { ImageUploader } from "@/components/admin/image-uploader";
 import type { Game } from "@/types/store";
 
+import { useUnsavedChanges } from "@/lib/hooks/use-unsaved-changes";
+
 const input = "mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm outline-none focus:border-[#8b5cf6]";
 
 function CustomThemeSelect({ defaultValue }: { defaultValue: string }) {
@@ -80,6 +82,7 @@ function CustomThemeSelect({ defaultValue }: { defaultValue: string }) {
 }
 
 export function GameForm({ game, genres }: { game?: Game | null; genres: string[] }) {
+  const { setIsDirty, setIsSubmitting, confirmNavigation } = useUnsavedChanges();
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
     game?.available_platforms ?? []
   );
@@ -88,6 +91,7 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
   );
 
   const handlePlatformChange = (platform: string, checked: boolean) => {
+    setIsDirty(true);
     if (checked) {
       setSelectedPlatforms([...selectedPlatforms, platform]);
     } else {
@@ -98,7 +102,13 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
   const showDuration = isSubscription || selectedPlatforms.includes("Xbox") || selectedPlatforms.includes("Nvidia GeForce");
 
   return (
-    <form key={game?.id ?? "new"} action={saveGame} className="premium-panel mt-8 rounded-md p-5 md:p-7">
+    <form
+      key={game?.id ?? "new"}
+      action={saveGame}
+      onChange={() => setIsDirty(true)}
+      onSubmit={() => setIsSubmitting(true)}
+      className="premium-panel mt-8 rounded-md p-5 md:p-7"
+    >
       <input type="hidden" name="id" value={game?.id ?? ""} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -106,7 +116,11 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
           <h2 className="mt-2 text-2xl font-black">{game ? `Edit ${game.title}` : "Add a game"}</h2>
           <p className="mt-2 text-sm text-[#8991a6]">Upload optimized artwork, set live platforms and prices, then choose where the game appears.</p>
         </div>
-        {game && <Link href="/admin/games" className="btn btn-secondary">Cancel edit</Link>}
+        {game && (
+          <Link href="/admin/games" onClick={confirmNavigation} className="btn btn-secondary">
+            Cancel edit
+          </Link>
+        )}
       </div>
       
       <div className="mt-6 grid gap-4 md:grid-cols-2">

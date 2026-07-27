@@ -13,7 +13,7 @@ export function TicketConversation({ ticketId, userId, initial, isStaff }: { tic
   const [sending, setSending] = useState(false);
   useEffect(() => {
     const supabase = createClient();
-    const channel = supabase.channel(`ticket:${ticketId}`).on("postgres_changes", { event: "INSERT", schema: "public", table: "support_messages", filter: `ticket_id=eq.${ticketId}` }, (payload) => {
+    const channel = supabase.channel(`ticket:${ticketId}`).on("postgres_changes", { event: "INSERT", schema: "public", table: "support_messages", filter: `ticket_id=eq.${ticketId}` }, (payload: { new: Record<string, unknown> }) => {
       const row = payload.new as Message;
       setMessages((items) => items.some((item) => item.id === row.id) ? items : [...items, row]);
     }).subscribe();

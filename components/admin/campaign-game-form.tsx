@@ -3,6 +3,7 @@
 import { Percent } from "lucide-react";
 import Link from "next/link";
 import { saveCampaignGame } from "@/app/admin/actions";
+import { useUnsavedChanges } from "@/lib/hooks/use-unsaved-changes";
 
 const input = "mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm outline-none focus:border-[#facc15]";
 
@@ -26,11 +27,28 @@ export function CampaignGameForm({
   campaigns: SimpleCampaign[]; 
   games: SimpleGame[]; 
 }) {
+  const { setIsDirty, setIsSubmitting, confirmNavigation } = useUnsavedChanges();
+
   return (
-    <form key={campaignGame?.id ?? "new"} action={saveCampaignGame} className="premium-panel mt-8 rounded-md p-5 md:p-7">
+    <form
+      key={campaignGame?.id ?? "new"}
+      action={saveCampaignGame}
+      onChange={() => setIsDirty(true)}
+      onSubmit={() => setIsSubmitting(true)}
+      className="premium-panel mt-8 rounded-md p-5 md:p-7"
+    >
       {campaignGame && <input type="hidden" name="id" value={campaignGame.id} />}
-      <p className="eyebrow">Price Overrides</p>
-      <h2 className="mt-2 text-2xl font-black">{campaignGame ? "Edit Override Price" : "Add Override Price"}</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="eyebrow">Price Overrides</p>
+          <h2 className="mt-2 text-2xl font-black">{campaignGame ? "Edit Override Price" : "Add Override Price"}</h2>
+        </div>
+        {campaignGame && (
+          <Link href="/admin/campaign-games" onClick={confirmNavigation} className="btn btn-secondary text-xs">
+            Cancel edit
+          </Link>
+        )}
+      </div>
       
       <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <label className="flex flex-col text-sm font-bold">

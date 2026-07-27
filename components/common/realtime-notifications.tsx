@@ -19,7 +19,7 @@ export function RealtimeNotifications() {
         
         channel = supabase
           .channel(`notifications:${user.id}`)
-          .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, (payload) => {
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, (payload: { new: Record<string, unknown> }) => {
             const notification = payload.new as NotificationRow;
             toast(notification.title || "Rakexura update", { description: notification.message });
           })

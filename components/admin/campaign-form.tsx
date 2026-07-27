@@ -3,6 +3,7 @@
 import { CalendarRange } from "lucide-react";
 import Link from "next/link";
 import { saveCampaign } from "@/app/admin/actions";
+import { useUnsavedChanges } from "@/lib/hooks/use-unsaved-changes";
 
 const input = "mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm outline-none focus:border-[#facc15]";
 
@@ -18,14 +19,30 @@ type CampaignValue = {
 };
 
 export function CampaignForm({ campaign }: { campaign?: CampaignValue | null }) {
+  const { setIsDirty, setIsSubmitting, confirmNavigation } = useUnsavedChanges();
   const starts = campaign?.starts_at ? new Date(campaign.starts_at).toISOString().slice(0, 16) : "";
   const ends = campaign?.ends_at ? new Date(campaign.ends_at).toISOString().slice(0, 16) : "";
 
   return (
-    <form key={campaign?.id ?? "new"} action={saveCampaign} className="premium-panel mt-8 rounded-md p-5 md:p-7">
+    <form
+      key={campaign?.id ?? "new"}
+      action={saveCampaign}
+      onChange={() => setIsDirty(true)}
+      onSubmit={() => setIsSubmitting(true)}
+      className="premium-panel mt-8 rounded-md p-5 md:p-7"
+    >
       {campaign && <input type="hidden" name="id" value={campaign.id} />}
-      <p className="eyebrow">Seasonal Sales</p>
-      <h2 className="mt-2 text-2xl font-black">{campaign ? "Edit Campaign" : "Create Campaign"}</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="eyebrow">Seasonal Sales</p>
+          <h2 className="mt-2 text-2xl font-black">{campaign ? "Edit Campaign" : "Create Campaign"}</h2>
+        </div>
+        {campaign && (
+          <Link href="/admin/campaigns" onClick={confirmNavigation} className="btn btn-secondary text-xs">
+            Cancel edit
+          </Link>
+        )}
+      </div>
       
       <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <label className="flex flex-col text-sm font-bold">

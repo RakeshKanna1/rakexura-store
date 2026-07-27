@@ -58,7 +58,7 @@ export function VisitorAnalytics() {
         .gte("created_at", fiveMinsAgo);
 
       if (activeData) {
-        const uniqueActive = new Set(activeData.map((item) => item.visitor_id));
+        const uniqueActive = new Set(activeData.map((item: { visitor_id: string }) => item.visitor_id));
         setActiveCount(uniqueActive.size);
       }
     } catch (err) {
