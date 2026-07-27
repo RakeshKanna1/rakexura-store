@@ -9,11 +9,11 @@ export function BackButton() {
   if (pathname === "/") return null;
 
   function goBack() {
-    if (
-      pathname.startsWith("/dashboard") ||
-      pathname.startsWith("/admin") ||
-      pathname.startsWith("/profile")
-    ) {
+    if (pathname.startsWith("/admin/") && pathname !== "/admin") {
+      router.push("/admin");
+    } else if (pathname.startsWith("/dashboard/") && pathname !== "/dashboard") {
+      router.push("/dashboard");
+    } else if (pathname === "/admin" || pathname === "/dashboard" || pathname === "/profile") {
       router.push("/");
     } else if (window.history.length > 1) {
       router.back();
