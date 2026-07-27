@@ -11,7 +11,7 @@ export default async function RewardsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/dashboard/rewards");
 
-  const [, { data: offers }, { data: referral }, { count: libraryCount }, { count: referralCount }, { data: redemptions }] = await Promise.all([
+  const [{ data: userReward }, { data: offers }, { data: referral }, { count: libraryCount }, { count: referralCount }, { data: redemptions }] = await Promise.all([
     supabase.from("user_rewards").select("points,level").eq("user_id", user.id).maybeSingle(),
     supabase.from("reward_offers").select("id,title,points_cost,coupons(code)").eq("active", true).order("points_cost"),
     supabase.from("referrals").select("code").eq("referrer_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
@@ -30,12 +30,14 @@ export default async function RewardsPage() {
   else if (totalPoints >= 2000) currentLevel = "Gold";
   else if (totalPoints >= 1000) currentLevel = "Silver";
 
-  // Sync user_rewards table data inline
-  await supabase.from("user_rewards").upsert({ user_id: user.id, points: totalPoints, level: currentLevel });
+  // Sync user_rewards table data non-blocking if outdated
+  if (userReward?.points !== totalPoints || userReward?.level !== currentLevel) {
+    void supabase.from("user_rewards").upsert({ user_id: user.id, points: totalPoints, level: currentLevel });
+  }
 
   return (
     <div className="page-shell py-10">
-      <Link href="/dashboard" className="inline-flex min-h-11 items-center gap-2 text-sm text-[#8991a6] hover:text-[#b9a4ff] transition-colors">
+      <Link href="/dashboard" prefetch={true} className="inline-flex min-h-11 items-center gap-2 text-sm text-[#8991a6] hover:text-[#b9a4ff] transition-colors">
         <ArrowLeft size={16} /> Dashboard
       </Link>
       <div className="mt-6 flex items-center gap-3">

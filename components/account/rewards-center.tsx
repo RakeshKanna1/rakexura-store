@@ -51,7 +51,6 @@ export function RewardsCenter({
   };
 
   useEffect(() => {
-    router.refresh();
     if (typeof window !== "undefined") {
       const lastRequest = localStorage.getItem("last_diamond_request");
       if (lastRequest) {
@@ -61,7 +60,7 @@ export function RewardsCenter({
         }
       }
     }
-  }, [router]);
+  }, []);
 
   async function requestDiamondCode() {
     if (cooldown) return;

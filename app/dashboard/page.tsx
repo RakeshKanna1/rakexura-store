@@ -35,13 +35,12 @@ export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  const [{ data: profile }, { data: orders }, { data: rewards }, { data: notifications }, { count: libraryCount }, { count: totalOrdersCount }, { count: referralCount }, { data: latestTicket }, { count: purchasedLibraryCount }] = await Promise.all([
+  const [{ data: profile }, { data: orders, count: totalOrdersCount }, { data: rewards }, { data: notifications }, { count: libraryCount }, { count: referralCount }, { data: latestTicket }, { count: purchasedLibraryCount }] = await Promise.all([
     supabase.from("profiles").select("display_name,role,last_request_date").eq("id", user.id).maybeSingle(),
-    supabase.from("orders").select("id,order_reference,order_status,total_price,created_at,cart_items,payment_reference,coupon_usage(coupons(code))").eq("user_id", user.id).order("created_at", { ascending: false }).limit(5),
+    supabase.from("orders").select("id,order_reference,order_status,total_price,created_at,cart_items,payment_reference,coupon_usage(coupons(code))", { count: "exact" }).eq("user_id", user.id).order("created_at", { ascending: false }).limit(5),
     supabase.from("user_rewards").select("points,level").eq("user_id", user.id).maybeSingle(),
     supabase.from("notifications").select("id,title,message").eq("user_id", user.id).eq("read", false),
     supabase.from("customer_library").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-    supabase.from("orders").select("id", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("referrals").select("id", { count: "exact", head: true }).eq("referrer_id", user.id),
     supabase.from("support_tickets").select("status").eq("user_id", user.id).or("subject.eq.Request Diamond Code,subject.ilike.Loyalty Freebie Request%").order("created_at", { ascending: false }).limit(1).maybeSingle(),
     supabase.from("customer_library").select("id", { count: "exact", head: true }).eq("user_id", user.id).neq("platform", "Gifted"),
@@ -64,8 +63,10 @@ export default async function DashboardPage() {
   else if (totalPoints >= 2000) currentLevel = "Gold";
   else if (totalPoints >= 1000) currentLevel = "Silver";
 
-  // Sync user_rewards table data inline
-  await supabase.from("user_rewards").upsert({ user_id: user.id, points: totalPoints, level: currentLevel });
+  // Sync user_rewards table data non-blocking if outdated
+  if (rewards?.points !== totalPoints || rewards?.level !== currentLevel) {
+    void supabase.from("user_rewards").upsert({ user_id: user.id, points: totalPoints, level: currentLevel });
+  }
 
   const stats = [
     { label: "Orders", value: totalOrdersCount ?? 0, icon: PackageSearch, color: "text-[#b9a4ff] filter drop-shadow-[0_0_8px_rgba(139,92,246,0.4)]", hover: "hover:border-[#b9a4ff]/25 hover:shadow-[0_12px_28px_rgba(139,92,246,0.05)]" },
