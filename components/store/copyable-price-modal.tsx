@@ -30,49 +30,56 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
 
   if (!isOpen) return null;
 
-  // Filter available (non-archived, non-out-of-stock) games
-  const activeGames = games.filter((g) => !g.archived && !g.out_of_stock);
+  // Include all non-archived games so price list is complete
+  const activeGames = games.filter((g) => !g.archived);
 
-  // Group games by price categories
-  const under99 = activeGames.filter((g) => lowestPrice(g) <= 99).sort((a, b) => lowestPrice(a) - lowestPrice(b));
+  // Helper to format detailed platform prices for each game
+  const formatGameLine = (g: Game) => {
+    const parts: string[] = [];
+    if (g.offline_price && Number(g.offline_price) > 0) parts.push(`₹${g.offline_price} (Offline)`);
+    if (g.steam_price && Number(g.steam_price) > 0) parts.push(`₹${g.steam_price} (Steam)`);
+    if (g.online_price && Number(g.online_price) > 0) parts.push(`₹${g.online_price} (Online)`);
+    if (g.epic_price && Number(g.epic_price) > 0) parts.push(`₹${g.epic_price} (Epic)`);
+    if (g.xbox_price && Number(g.xbox_price) > 0) parts.push(`₹${g.xbox_price} (Xbox)`);
+    if (g.geforce_price && Number(g.geforce_price) > 0) parts.push(`₹${g.geforce_price} (GeForce)`);
+
+    const priceStr = parts.length > 0 ? parts.join(" | ") : `₹${lowestPrice(g)}`;
+    const statusStr = g.out_of_stock ? " [Out of Stock]" : "";
+    return `• ${g.title} — ${priceStr}${statusStr}`;
+  };
+
+  // Group games by price categories based on lowest price
+  const under99 = activeGames.filter((g) => lowestPrice(g) > 0 && lowestPrice(g) <= 99).sort((a, b) => lowestPrice(a) - lowestPrice(b));
   const range100to199 = activeGames.filter((g) => lowestPrice(g) >= 100 && lowestPrice(g) <= 199).sort((a, b) => lowestPrice(a) - lowestPrice(b));
   const range200to499 = activeGames.filter((g) => lowestPrice(g) >= 200 && lowestPrice(g) <= 499).sort((a, b) => lowestPrice(a) - lowestPrice(b));
   const range500plus = activeGames.filter((g) => lowestPrice(g) >= 500).sort((a, b) => lowestPrice(a) - lowestPrice(b));
 
-  // Build clean plain text message with minimal emojis
+  // Build clean plain text message
   const messageLines: string[] = [];
 
-  messageLines.push("*RAKEXURA STORE — AVAILABLE GAMES & BUNDLES LIST*\n");
+  messageLines.push("*RAKEXURA STORE — COMPLETE GAMES & BUNDLES PRICE LIST*\n");
 
   if (under99.length > 0) {
     messageLines.push("*UNDER ₹99 GAMES:*");
-    under99.forEach((g) => {
-      messageLines.push(`• ${g.title} — ₹${lowestPrice(g)}`);
-    });
+    under99.forEach((g) => messageLines.push(formatGameLine(g)));
     messageLines.push("");
   }
 
   if (range100to199.length > 0) {
     messageLines.push("*₹100 - ₹199 GAMES:*");
-    range100to199.forEach((g) => {
-      messageLines.push(`• ${g.title} — ₹${lowestPrice(g)}`);
-    });
+    range100to199.forEach((g) => messageLines.push(formatGameLine(g)));
     messageLines.push("");
   }
 
   if (range200to499.length > 0) {
     messageLines.push("*₹200 - ₹499 GAMES:*");
-    range200to499.forEach((g) => {
-      messageLines.push(`• ${g.title} — ₹${lowestPrice(g)}`);
-    });
+    range200to499.forEach((g) => messageLines.push(formatGameLine(g)));
     messageLines.push("");
   }
 
   if (range500plus.length > 0) {
     messageLines.push("*₹500+ PREMIUM GAMES:*");
-    range500plus.forEach((g) => {
-      messageLines.push(`• ${g.title} — ₹${lowestPrice(g)}`);
-    });
+    range500plus.forEach((g) => messageLines.push(formatGameLine(g)));
     messageLines.push("");
   }
 
