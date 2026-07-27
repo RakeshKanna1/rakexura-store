@@ -124,7 +124,19 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
         </div>
 
         {/* Text Preview Box */}
-        <div className="my-4 flex-1 overflow-y-auto rounded-lg border border-white/10 bg-[#06080d] p-4 text-xs font-mono text-neutral-200 leading-relaxed custom-scrollbar whitespace-pre-wrap select-all">
+        <div
+          data-lenis-prevent
+          onWheel={(e) => {
+            e.stopPropagation();
+            e.currentTarget.scrollTop += e.deltaY;
+          }}
+          style={{
+            overscrollBehavior: "contain",
+            WebkitOverflowScrolling: "touch",
+            touchAction: "pan-y"
+          }}
+          className="my-4 max-h-[55vh] flex-1 overflow-y-auto rounded-lg border border-white/10 bg-[#06080d] p-4 text-xs font-mono text-neutral-200 leading-relaxed custom-scrollbar whitespace-pre-wrap select-all"
+        >
           {formattedText}
         </div>
 
