@@ -61,37 +61,37 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
   const range200to499 = activeGames.filter((g) => lowestPrice(g) >= 200 && lowestPrice(g) <= 499).sort((a, b) => lowestPrice(a) - lowestPrice(b));
   const range500plus = activeGames.filter((g) => lowestPrice(g) >= 500).sort((a, b) => lowestPrice(a) - lowestPrice(b));
 
-  // Build clean plain text message
+  // Build clean formatted text message with neat category icons
   const messageLines: string[] = [];
 
-  messageLines.push("*RAKEXURA STORE — COMPLETE GAMES & BUNDLES PRICE LIST*\n");
+  messageLines.push("🛍️ *RAKEXURA STORE — COMPLETE CATALOG & PRICE LIST*\n");
 
   if (under99.length > 0) {
-    messageLines.push("*UNDER ₹99 GAMES:*");
+    messageLines.push("🔥 *UNDER ₹99 GAMES:*");
     under99.forEach((g) => messageLines.push(formatGameLine(g)));
     messageLines.push("");
   }
 
   if (range100to199.length > 0) {
-    messageLines.push("*₹100 - ₹199 GAMES:*");
+    messageLines.push("⚡ *₹100 - ₹199 GAMES:*");
     range100to199.forEach((g) => messageLines.push(formatGameLine(g)));
     messageLines.push("");
   }
 
   if (range200to499.length > 0) {
-    messageLines.push("*₹200 - ₹499 GAMES:*");
+    messageLines.push("🎮 *₹200 - ₹499 GAMES:*");
     range200to499.forEach((g) => messageLines.push(formatGameLine(g)));
     messageLines.push("");
   }
 
   if (range500plus.length > 0) {
-    messageLines.push("*₹500+ PREMIUM GAMES:*");
+    messageLines.push("💎 *₹500+ PREMIUM GAMES:*");
     range500plus.forEach((g) => messageLines.push(formatGameLine(g)));
     messageLines.push("");
   }
 
   if (bundles.length > 0) {
-    messageLines.push("*COMBO BUNDLES:*");
+    messageLines.push("📦 *COMBO BUNDLES:*");
     bundles.forEach((b) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const gameTitles = b.bundle_games?.map((bg: any) => bg.games?.title || bg.games?.[0]?.title).filter(Boolean) || [];
@@ -101,7 +101,7 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
     messageLines.push("");
   }
 
-  messageLines.push("To order, reply with the game title or visit our storefront!");
+  messageLines.push("💬 To order, reply with the game title or visit our storefront!");
 
   const formattedText = messageLines.join("\n");
 
@@ -166,7 +166,13 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
               </button>
             </div>
 
-            {/* Textarea Box - Natively Mouse Wheel Scrollable */}
+            {/* Helper label above textarea */}
+            <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-[#8991a6]">
+              <span>📋 Formatted text ready for WhatsApp / Telegram broadcast</span>
+              <span className="text-[#70efbb]">Auto-formatted</span>
+            </div>
+
+            {/* Textarea Box - Sleek Sans-Serif Typography */}
             <textarea
               ref={scrollRef}
               readOnly
@@ -178,7 +184,7 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
                 WebkitOverflowScrolling: "touch",
                 touchAction: "pan-y"
               }}
-              className="my-4 h-96 min-h-[280px] max-h-[50vh] w-full resize-none rounded-lg border border-white/10 bg-[#06080d] p-4 text-xs font-mono text-neutral-200 leading-relaxed outline-none custom-scrollbar focus:border-amber-400/40 select-all"
+              className="my-2.5 h-96 min-h-[280px] max-h-[50vh] w-full resize-none rounded-lg border border-white/10 bg-[#06080e] p-4 text-[13px] font-sans font-medium text-slate-100 leading-relaxed tracking-wide outline-none custom-scrollbar focus:border-amber-400/40 select-all shadow-inner"
             />
 
             {/* Action Buttons */}
