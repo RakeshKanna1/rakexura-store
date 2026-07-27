@@ -11,6 +11,7 @@ import { assetUrl, formatPrice, isHighEndDevice } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { triggerFlyToCart } from "@/components/common/fly-to-cart-animator";
 import type { Game, Platform } from "@/types/store";
+import { WishlistButton } from "./wishlist-button";
 
 function gamePrice(game: Game) {
   const prices = [game.steam_price, game.epic_price, game.offline_price, game.online_price, game.xbox_price, game.geforce_price]
@@ -117,17 +118,7 @@ function GameCardInner({
       </div>
 
       <div className="absolute right-2.5 top-2.5 flex gap-1.5 z-10">
-        <button
-          suppressHydrationWarning={true}
-          onClick={() => {
-            toggleWishlist(game.id);
-            toast(saved ? "Removed from wishlist" : "Saved to wishlist");
-          }}
-          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/75 backdrop-blur-md hover:scale-110 hover:border-white/40 hover:bg-black/90 active:scale-90 transition-all duration-200"
-          aria-label={saved ? "Remove from wishlist" : "Add to wishlist"}
-        >
-          <Heart size={14} fill={saved ? "#facc15" : "none"} className={saved ? "text-[#facc15]" : "text-white"} />
-        </button>
+        <WishlistButton gameId={game.id} size={14} variant="card" />
 
         {onQuickView && (
           <button

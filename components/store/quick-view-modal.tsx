@@ -12,6 +12,7 @@ import { useCartStore } from "@/stores/cart-store";
 import type { Game } from "@/types/store";
 import { availablePlatforms } from "./game-card";
 import { Confetti } from "@/components/common/confetti";
+import { WishlistButton } from "./wishlist-button";
 
 export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: () => void }) {
   const [celebrate, setCelebrate] = useState(false);
@@ -219,16 +220,7 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
                 >
                   <ShoppingBag size={17} /> Add to cart
                 </button>
-                <button
-                  onClick={() => {
-                    toggle(game.id);
-                    toast(isSaved ? "Removed from wishlist" : "Saved to wishlist");
-                  }}
-                  className="btn btn-secondary btn-icon"
-                  aria-label="Save to wishlist"
-                >
-                  <Heart size={18} fill={isSaved ? "currentColor" : "none"} />
-                </button>
+                <WishlistButton gameId={game.id} size={18} variant="details" />
               </div>
               <Link href={`/games/${game.id}`} className="mt-3 text-center text-sm font-semibold text-[#f6dc73]">
                 Open full game page

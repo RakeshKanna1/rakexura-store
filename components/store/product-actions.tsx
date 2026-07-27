@@ -17,6 +17,7 @@ import { availablePlatforms } from "./game-card";
 import { OfferCountdown } from "./offer-countdown";
 import { Confetti } from "@/components/common/confetti";
 import { ButtonPopRocks } from "@/components/common/button-pop-rocks";
+import { WishlistButton } from "./wishlist-button";
 
 function price(game: Game, platform: Platform) {
   if (platform === "Epic") return Number(game.epic_price ?? 0);
@@ -321,18 +322,7 @@ export function ProductActions({ game }: { game: Game }) {
               </AnimatePresence>
             </div>
           </div>
-          <button
-            type="button"
-            suppressHydrationWarning
-            onClick={() => {
-              toggle(game.id);
-              toast(saved ? "Removed from wishlist" : "Saved to wishlist");
-            }}
-            className="grid h-11 w-11 place-items-center rounded-md bg-white/[.07]"
-            aria-label="Save game"
-          >
-            <Heart size={20} fill={isSaved ? "currentColor" : "none"} />
-          </button>
+          <WishlistButton gameId={game.id} size={20} variant="details" />
         </div>
 
         {typeof game.activation_slots === "number" && game.activation_slots > 0 && <div className="flex items-center gap-2 rounded-md bg-[#ffb800]/[.06] px-3 py-2 text-xs text-[#ffca55]"><Zap size={15} /> {game.activation_slots} activation slots currently available</div>}
