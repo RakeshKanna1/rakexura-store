@@ -20,29 +20,30 @@ type BundleEdit = {
   bundle_games?: Array<{ game_id: number }>;
   offer_end_date?: string | null;
 };
+
 const field = "mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px-3 text-sm outline-none focus:border-[#8b5cf6]";
 
 export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: BundleEdit | null }) {
-  const initialSelected = new Set(bundle?.bundle_games?.map((item) => item.game_id) ?? []);
-  const [selectedGameIds, setSelectedGameIds] = useState<number[]>([...initialSelected]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const initialSelected = bundle?.bundle_games?.map((item) => item.game_id) ?? [];
+  const [selectedIds, setSelectedIds] = useState<number[]>(initialSelected);
+  const [search, setSearch] = useState("");
 
   const toggleGame = (id: number) => {
-    setSelectedGameIds((prev) =>
-      prev.includes(id) ? prev.filter((gId) => gId !== id) : [...prev, id]
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
 
   const filteredGames = games.filter((g) =>
-    g.title.toLowerCase().includes(searchQuery.toLowerCase())
+    g.title.toLowerCase().includes(search.toLowerCase().trim())
   );
 
   return (
     <form key={bundle?.id ?? "new"} action={saveBundle} className="premium-panel mt-8 rounded-md p-5 md:p-7">
       <input type="hidden" name="id" value={bundle?.id ?? ""} />
       
-      {/* Hidden inputs to pass selected game_ids to server action */}
-      {selectedGameIds.map((id) => (
+      {/* Hidden inputs for form submission */}
+      {selectedIds.map((id) => (
         <input key={id} type="hidden" name="game_ids" value={id} />
       ))}
 
@@ -89,15 +90,6 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
                 rows={5}
                 defaultValue={bundle?.description ?? ""}
                 className={`${field} h-auto max-h-48 overflow-y-auto py-3 custom-scrollbar`}
-                style={{
-                  overscrollBehavior: "contain",
-                  WebkitOverflowScrolling: "touch",
-                  touchAction: "pan-y"
-                }}
-                onWheel={(e) => {
-                  e.stopPropagation();
-                  e.currentTarget.scrollTop += e.deltaY;
-                }}
               />
             </label>
           </div>
@@ -111,7 +103,7 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
             <div className="flex flex-wrap items-center justify-between gap-2">
               <legend className="text-sm font-bold text-white">Included Games</legend>
               <span className="rounded-full bg-[#8b5cf6]/20 px-2.5 py-0.5 text-xs font-bold text-[#a78bfa]">
-                {selectedGameIds.length} Selected
+                {selectedIds.length} Selected
               </span>
             </div>
             <p className="mt-1 text-xs text-[#8991a6]">
@@ -119,9 +111,9 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
             </p>
 
             {/* Selected Games Pill Badges Bar */}
-            {selectedGameIds.length > 0 && (
+            {selectedIds.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-1.5 rounded-md border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 p-2.5">
-                {selectedGameIds.map((sId) => {
+                {selectedIds.map((sId) => {
                   const g = games.find((item) => item.id === sId);
                   if (!g) return null;
                   return (
@@ -145,37 +137,26 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
               <input
                 type="text"
                 placeholder="Search games by title..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 className="h-10 w-full rounded-md border border-white/10 bg-black/40 pl-9 pr-3 text-xs outline-none focus:border-[#8b5cf6]"
               />
             </div>
 
-            {/* Mouse-Scrollable Game List */}
-            <div
-              className="mt-3 max-h-64 overflow-y-auto pr-1 space-y-1.5 custom-scrollbar"
-              style={{
-                overscrollBehavior: "contain",
-                WebkitOverflowScrolling: "touch",
-                touchAction: "pan-y"
-              }}
-              onWheel={(e) => {
-                e.stopPropagation();
-                e.currentTarget.scrollTop += e.deltaY;
-              }}
-            >
+            {/* Scrollable Game List */}
+            <div className="mt-3 max-h-64 overflow-y-auto pr-1 space-y-1.5 custom-scrollbar">
               {filteredGames.length === 0 ? (
                 <div className="py-6 text-center text-xs text-[#8991a6]">
-                  No games found matching &quot;{searchQuery}&quot;
+                  No games found matching &quot;{search}&quot;
                 </div>
               ) : (
                 filteredGames.map((game) => {
-                  const isSelected = selectedGameIds.includes(game.id);
+                  const isSelected = selectedIds.includes(game.id);
                   return (
                     <div
                       key={game.id}
                       onClick={() => toggleGame(game.id)}
-                      className={`flex cursor-pointer items-center justify-between rounded-md px-3 py-2.5 text-xs font-medium transition-all ${
+                      className={`flex cursor-pointer items-center justify-between rounded-md px-3 py-2.5 text-xs font-medium transition-all select-none ${
                         isSelected
                           ? "border border-[#8b5cf6]/60 bg-[#8b5cf6]/15 text-white shadow-sm"
                           : "border border-white/5 bg-black/20 text-[#a3adc2] hover:border-white/20 hover:bg-white/5"
@@ -204,14 +185,17 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
             </div>
           </fieldset>
 
-          <label className="mt-4 flex min-h-11 items-center gap-2 text-sm font-bold">
+          <label className="mt-4 flex min-h-11 items-center gap-2 text-sm font-bold cursor-pointer select-none">
             <input type="checkbox" name="active" defaultChecked={bundle?.active ?? true} />
             Active on storefront
           </label>
 
-          <button className="btn btn-primary mt-5">
+          <button className="btn btn-primary mt-5" disabled={selectedIds.length < 2}>
             <PackagePlus size={17} /> {bundle ? "Update bundle" : "Save bundle"}
           </button>
+          {selectedIds.length < 2 && (
+            <p className="mt-2 text-xs text-amber-400 font-medium">Please select at least 2 games for the combo bundle.</p>
+          )}
         </div>
 
         <aside className="overflow-hidden rounded-md border border-white/[.08] bg-black/20">

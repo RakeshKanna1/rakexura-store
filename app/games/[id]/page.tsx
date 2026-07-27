@@ -13,6 +13,7 @@ import type { Platform, Game } from "@/types/store";
 import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
 import { PremiumAmbientEffect } from "@/components/animations/premium-ambient";
 import { fetchOfficialSteamRequirements } from "@/lib/steam-requirements";
+import { DynamicBannerAccent } from "@/components/store/dynamic-banner-accent";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -31,12 +32,16 @@ function platformPrice(game: Game, platform: Platform) {
   return Number(game.steam_price ?? 0);
 }
 
-function gameAccent(title: string, genres?: string[] | null) {
-  const titleLower = title.toLowerCase();
-  const genresLower = (genres ?? []).map((g) => g.toLowerCase());
-  const identity = `${title} ${(genres ?? []).join(" ")}`.toLowerCase();
+function gameAccent(game: Game) {
+  const customTheme = (game as unknown as Record<string, unknown>).theme_color as string | undefined;
+  if (customTheme) return customTheme;
+
+  const titleLower = game.title.toLowerCase();
+  const genresLower = (game.genres ?? []).map((g) => g.toLowerCase());
+  const identity = `${game.title} ${(game.genres ?? []).join(" ")}`.toLowerCase();
 
   // 1. Specific title matches
+  if (titleLower.includes("chameleon") || titleLower.includes("meccha")) return "#a855f7"; // Chameleon Purple/Magenta
   if (titleLower.includes("xbox")) return "#107c10"; // Xbox Green
   if (titleLower.includes("nvidia") || titleLower.includes("geforce")) return "#76b900"; // Nvidia Green
   if (titleLower.includes("mafia")) return "#c2410c"; // Crimson orange / vintage red
@@ -51,11 +56,11 @@ function gameAccent(title: string, genres?: string[] | null) {
 
   // 2. Genre-based keyword matching
   if (genresLower.includes("horror") || identity.includes("zombie") || identity.includes("resident evil")) return "#dc2626"; // Horror red
-  if (genresLower.includes("racing") || genresLower.includes("sports") || identity.includes("truck") || identity.includes("simulator")) return "#2563eb"; // Sports/Sim blue
+  if (genresLower.includes("racing") || genresLower.includes("sports") || identity.includes("truck")) return "#2563eb"; // Sports/Sim blue
   if (genresLower.includes("rpg") || identity.includes("fantasy")) return "#8b5cf6"; // RPG purple
   if (genresLower.includes("shooter") || genresLower.includes("action") || identity.includes("warfare") || identity.includes("combat")) return "#ef4444"; // Shooter/Action red
-  if (genresLower.includes("strategy") || genresLower.includes("simulation")) return "#06b6d4"; // Strategy/Simulation cyan
-  if (genresLower.includes("adventure") || identity.includes("tomb raider") || identity.includes("uncharted")) return "#10b981"; // Adventure green
+  if (genresLower.includes("survival") || genresLower.includes("adventure") || identity.includes("tomb raider") || identity.includes("uncharted")) return "#10b981"; // Survival/Adventure emerald green
+  if (genresLower.includes("strategy") || genresLower.includes("simulation")) return "#8b5cf6"; // Strategy/Simulation purple
 
   // Default fallback
   return "#7c3aed";
@@ -220,7 +225,7 @@ export default async function GamePage({ params }: Props) {
   const features = game.key_features?.length ? game.key_features : game.features ?? [];
   const platforms = (game.available_platforms ?? ["Steam", "Epic"]).filter((platform) => platform !== "Offline" && platform !== "Online" && platformPrice(game, platform) > 0);
   const premiumTheme = game.is_premium ? getPremiumTheme(game.premium_theme, game.title, game.genres) : null;
-  const accent = premiumTheme ? getPremiumAccent(premiumTheme) : gameAccent(game.title, game.genres);
+  const accent = premiumTheme ? getPremiumAccent(premiumTheme) : gameAccent(game);
   const isSubscriptionOrCloudOnly = 
     Boolean(game.is_subscription) || 
     (game.available_platforms?.length === 1 && game.available_platforms[0] === "Nvidia GeForce") ||
@@ -397,6 +402,7 @@ export default async function GamePage({ params }: Props) {
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
     />
+    <DynamicBannerAccent src={bannerUrl} />
     {premiumTheme && <PremiumAmbientEffect theme={premiumTheme} />}
     <RecentlyViewedTracker gameId={game.id} />
     <section className={`game-detail-hero relative min-h-[560px] overflow-hidden rounded-xl border ${heroBorderClass}`}>

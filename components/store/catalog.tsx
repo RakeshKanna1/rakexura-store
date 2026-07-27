@@ -1,12 +1,13 @@
 "use client";
 
-import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronDown, Share2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { lowestPrice, matchesSearchQuery } from "@/lib/utils";
 import { GameCard, availablePlatforms } from "./game-card";
 import { QuickViewModal } from "./quick-view-modal";
-import type { Game, Platform } from "@/types/store";
+import { CopyablePriceModal } from "./copyable-price-modal";
+import type { Game, Bundle, Platform } from "@/types/store";
 
 const platforms: Array<"All" | Platform | "Pre-orders" | "Subscriptions"> = ["All", "Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce", "Pre-orders", "Subscriptions"];
 const sorts = ["Featured", "Price: Low to high", "Price: High to low", "Best sellers", "Latest"] as const;
@@ -65,7 +66,7 @@ function CustomSelect({ value, onChange, options, className = "" }: CustomSelect
   );
 }
 
-export function Catalog({ games }: { games: Game[] }) {
+export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bundle[] }) {
   const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
   const [platform, setPlatform] = useState<(typeof platforms)[number]>("All");
@@ -73,6 +74,7 @@ export function Catalog({ games }: { games: Game[] }) {
   const [budget, setBudget] = useState("All");
   const [sort, setSort] = useState<(typeof sorts)[number]>("Featured");
   const [quickView, setQuickView] = useState<Game | null>(null);
+  const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(24);
 
   useEffect(() => {
@@ -117,8 +119,8 @@ export function Catalog({ games }: { games: Game[] }) {
   return (
     <>
       <div className="mb-6 space-y-3 rounded-md border border-white/[.08] bg-[#11131a] p-3">
-        <div className="flex flex-col gap-3 md:flex-row">
-          <label className="flex min-h-12 flex-1 items-center gap-3 rounded-md bg-black/20 px-4">
+        <div className="flex flex-col gap-3 md:flex-row items-center">
+          <label className="flex min-h-12 flex-1 items-center gap-3 rounded-md bg-black/20 px-4 w-full">
             <Search size={18} className="text-[#8991a6]" />
             <span className="sr-only">Search games</span>
             <input
@@ -129,16 +131,27 @@ export function Catalog({ games }: { games: Game[] }) {
               className="w-full border-0 bg-transparent text-white outline-none placeholder:text-[#737b90]"
             />
           </label>
-          <label className="flex min-h-12 items-center gap-2 rounded-md bg-black/20 px-4 text-sm">
-            <SlidersHorizontal size={17} className="text-[#facc15]" />
-            <span className="sr-only">Sort games</span>
-            <CustomSelect
-              value={sort}
-              onChange={(val) => setSort(val as (typeof sorts)[number])}
-              options={sorts}
-              className="w-44"
-            />
-          </label>
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <label className="flex min-h-12 flex-1 md:flex-none items-center gap-2 rounded-md bg-black/20 px-4 text-sm">
+              <SlidersHorizontal size={17} className="text-[#facc15]" />
+              <span className="sr-only">Sort games</span>
+              <CustomSelect
+                value={sort}
+                onChange={(val) => setSort(val as (typeof sorts)[number])}
+                options={sorts}
+                className="w-44"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => setIsCopyModalOpen(true)}
+              title="Copy formatted price list for WhatsApp/Telegram"
+              className="flex h-12 items-center gap-2 rounded-md border border-[#facc15]/40 bg-[#facc15]/10 px-4 text-xs font-bold text-[#facc15] hover:bg-[#facc15]/20 hover:border-[#facc15]/80 transition-all cursor-pointer shadow-lg shrink-0"
+            >
+              <Share2 size={16} />
+              <span className="hidden sm:inline">Copy Price List</span>
+            </button>
+          </div>
         </div>
         <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">
           {platforms.map((item) => (
@@ -201,6 +214,12 @@ export function Catalog({ games }: { games: Game[] }) {
         </div>
       )}
       <QuickViewModal game={quickView} onClose={() => setQuickView(null)} />
+      <CopyablePriceModal
+        games={games}
+        bundles={bundles}
+        isOpen={isCopyModalOpen}
+        onClose={() => setIsCopyModalOpen(false)}
+      />
     </>
   );
 }
