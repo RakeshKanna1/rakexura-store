@@ -129,10 +129,22 @@ function GameCardInner({
               e.stopPropagation();
               onQuickView(game);
             }}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/75 backdrop-blur-md hover:scale-110 hover:border-white/40 hover:bg-black/90 active:scale-90 transition-all duration-200 text-white"
+            className="group/eyebtn flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/75 backdrop-blur-md hover:scale-110 hover:border-white/40 hover:bg-black/90 active:scale-90 transition-all duration-200 text-white"
             aria-label={`Quick view ${game.title}`}
           >
-            <Eye size={14} />
+            <motion.div
+              whileHover={{
+                scaleY: [1, 0.15, 1],
+                scaleX: [1, 1.25, 1],
+              }}
+              transition={{
+                duration: 0.32,
+                ease: "easeInOut",
+              }}
+              className="flex items-center justify-center"
+            >
+              <Eye size={14} />
+            </motion.div>
           </button>
         )}
       </div>
