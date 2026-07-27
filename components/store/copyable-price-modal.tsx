@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { Copy, Check, X, Share2, MessageSquareText, ExternalLink } from "lucide-react";
 import type { Game, Bundle } from "@/types/store";
 import { lowestPrice } from "@/lib/utils";
@@ -14,7 +16,12 @@ interface CopyablePriceModalProps {
 
 export function CopyablePriceModal({ games, bundles, isOpen, onClose }: CopyablePriceModalProps) {
   const [copied, setCopied] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const scrollRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -28,7 +35,7 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
     return () => el.removeEventListener("wheel", handleWheel);
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   // Include all non-archived games so price list is complete
   const activeGames = games.filter((g) => !g.archived);
@@ -117,82 +124,102 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
 
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(formattedText)}`;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-xl border border-white/15 bg-[#0d1017] p-5 md:p-7 shadow-2xl">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-400/10 text-amber-400 border border-amber-400/20">
-              <Share2 size={20} />
-            </div>
-            <div>
-              <h3 className="text-xl font-black text-white">Copyable Inventory List</h3>
-              <p className="text-xs text-[#8991a6]">
-                {activeGames.length} games & {bundles.length} bundles categorized by price
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Close modal"
-            className="rounded-lg border border-white/10 p-2 text-[#8991a6] hover:bg-white/10 hover:text-white transition-colors"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Textarea Box - Natively Mouse Wheel Scrollable */}
-        <textarea
-          ref={scrollRef}
-          readOnly
-          data-lenis-prevent
-          data-lenis-prevent-wheel
-          value={formattedText}
-          style={{
-            overscrollBehavior: "contain",
-            WebkitOverflowScrolling: "touch",
-            touchAction: "pan-y"
+  const modalContent = (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/85 p-4 backdrop-blur-md"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
           }}
-          className="my-4 h-96 min-h-[280px] max-h-[50vh] w-full resize-none rounded-lg border border-white/10 bg-[#06080d] p-4 text-xs font-mono text-neutral-200 leading-relaxed outline-none custom-scrollbar focus:border-amber-400/40 select-all"
-        />
-
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn border border-emerald-500/30 bg-emerald-950/40 text-emerald-300 hover:bg-emerald-900/50 text-xs gap-2 min-h-10"
+        >
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ type: "spring", stiffness: 350, damping: 25 }}
+            className="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-xl border border-white/15 bg-[#0d1017] p-5 md:p-7 shadow-2xl"
           >
-            <MessageSquareText size={16} /> Share directly on WhatsApp <ExternalLink size={14} />
-          </a>
+            
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-400/10 text-amber-400 border border-amber-400/20">
+                  <Share2 size={20} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white">Copyable Inventory List</h3>
+                  <p className="text-xs text-[#8991a6]">
+                    {activeGames.length} games & {bundles.length} bundles categorized by price
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                aria-label="Close modal"
+                className="rounded-lg border border-white/10 p-2 text-[#8991a6] hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
 
-          <div className="flex items-center gap-2 ml-auto">
-            <button
-              type="button"
-              onClick={handleCopy}
-              className={`btn min-h-10 gap-2 text-xs font-bold transition-all ${
-                copied
-                  ? "bg-emerald-500 text-black border-emerald-400"
-                  : "btn-primary"
-              }`}
-            >
-              {copied ? (
-                <>
-                  <Check size={16} /> Copied to Clipboard!
-                </>
-              ) : (
-                <>
-                  <Copy size={16} /> Copy Message
-                </>
-              )}
-            </button>
-          </div>
-        </div>
+            {/* Textarea Box - Natively Mouse Wheel Scrollable */}
+            <textarea
+              ref={scrollRef}
+              readOnly
+              data-lenis-prevent
+              data-lenis-prevent-wheel
+              value={formattedText}
+              style={{
+                overscrollBehavior: "contain",
+                WebkitOverflowScrolling: "touch",
+                touchAction: "pan-y"
+              }}
+              className="my-4 h-96 min-h-[280px] max-h-[50vh] w-full resize-none rounded-lg border border-white/10 bg-[#06080d] p-4 text-xs font-mono text-neutral-200 leading-relaxed outline-none custom-scrollbar focus:border-amber-400/40 select-all"
+            />
 
-      </div>
-    </div>
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn border border-emerald-500/30 bg-emerald-950/40 text-emerald-300 hover:bg-emerald-900/50 text-xs gap-2 min-h-10"
+              >
+                <MessageSquareText size={16} /> Share directly on WhatsApp <ExternalLink size={14} />
+              </a>
+
+              <div className="flex items-center gap-2 ml-auto">
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className={`btn min-h-10 gap-2 text-xs font-bold transition-all ${
+                    copied
+                      ? "bg-emerald-500 text-black border-emerald-400"
+                      : "btn-primary"
+                  }`}
+                >
+                  {copied ? (
+                    <>
+                      <Check size={16} /> Copied to Clipboard!
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={16} /> Copy Message
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 }
