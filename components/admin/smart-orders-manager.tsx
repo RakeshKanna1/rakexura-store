@@ -7,6 +7,7 @@ import { OrderActions } from "@/components/admin/order-actions";
 import { cleanupOldDeliveredOrders, deleteSingleOrder, deleteSelectedOrders } from "@/app/admin/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { matchesSearchQuery } from "@/lib/utils";
 
 export interface OrderRow {
   id: number;
@@ -55,15 +56,22 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
 
       // Search Query Filter
       if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const ref = String(order.order_reference || "").toLowerCase();
-        const name = String(order.customer_name || "").toLowerCase();
-        const phone = String(order.customer_whatsapp || "").toLowerCase();
+        const ref = String(order.order_reference || "");
+        const name = String(order.customer_name || "");
+        const phone = String(order.customer_whatsapp || "");
         const idStr = String(order.id);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const items = Array.isArray(order.cart_items) ? (order.cart_items as any[]) : [];
+        const itemTitles = items.map((i) => String(i?.title || i?.name || "")).join(" ");
 
-        if (!ref.includes(q) && !name.includes(q) && !phone.includes(q) && !idStr.includes(q)) {
-          return false;
-        }
+        const matchesAny =
+          matchesSearchQuery(ref, searchQuery) ||
+          matchesSearchQuery(name, searchQuery) ||
+          matchesSearchQuery(phone, searchQuery) ||
+          matchesSearchQuery(idStr, searchQuery) ||
+          (itemTitles ? matchesSearchQuery(itemTitles, searchQuery) : false);
+
+        if (!matchesAny) return false;
       }
 
       return true;

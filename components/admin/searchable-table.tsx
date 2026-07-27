@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 import { Search, ExternalLink, ChevronLeft, ChevronRight, Copy, Check } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { matchesSearchQuery } from "@/lib/utils";
 import { OrderActions } from "@/components/admin/order-actions";
 import { DeleteCustomerButton } from "@/components/admin/delete-customer-button";
 import { archiveGame, moderateProof, moderateReview, toggleCoupon, deleteCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale, toggleCampaign, deleteCampaign, deleteCampaignGame } from "@/app/admin/actions";
@@ -157,12 +158,11 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
   const pageSize = 15;
 
   const filtered = rows.filter((row) => {
-    if (!query) return true;
-    const q = query.toLowerCase();
+    if (!query.trim()) return true;
     return headers.some((header) => {
       const val = row[header];
       if (val === null || val === undefined) return false;
-      return String(val).toLowerCase().includes(q);
+      return matchesSearchQuery(String(val), query);
     });
   });
 
