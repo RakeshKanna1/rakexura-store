@@ -37,6 +37,7 @@ function CustomSelect({ value, onChange, options, className = "" }: CustomSelect
     <div className={`relative select-none ${className}`} ref={dropdownRef}>
       <button
         type="button"
+        suppressHydrationWarning
         onClick={() => setIsOpen(!isOpen)}
         className="flex h-9 w-full items-center justify-between gap-2 rounded-md bg-[#090b10] border border-white/5 hover:border-white/15 px-3 py-1 text-xs font-bold text-white transition-all focus:outline-none"
       >
@@ -48,6 +49,7 @@ function CustomSelect({ value, onChange, options, className = "" }: CustomSelect
           {options.map((option) => (
             <button
               type="button"
+              suppressHydrationWarning
               key={option}
               onClick={() => {
                 onChange(option);
@@ -200,6 +202,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
         <div className="mt-10 flex justify-center">
           <button
             type="button"
+            suppressHydrationWarning
             onClick={() => setVisibleCount((prev) => prev + 24)}
             className="btn btn-secondary px-8 py-3 text-sm font-bold tracking-wide cursor-pointer"
           >

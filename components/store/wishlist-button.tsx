@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -29,7 +29,13 @@ export function WishlistButton({
 }: WishlistButtonProps) {
   const toggleWishlist = useCartStore((state) => state.toggleWishlist);
   const wishlistIds = useCartStore((state) => state.wishlistIds);
-  const isSaved = wishlistIds.includes(gameId);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isSaved = mounted && wishlistIds.includes(gameId);
 
   const [particles, setParticles] = useState<FloatingHeart[]>([]);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -73,6 +79,7 @@ export function WishlistButton({
   return (
     <button
       type="button"
+      suppressHydrationWarning
       onClick={handleToggle}
       aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
       className={`${getContainerStyle()} ${variant === "default" ? className : ""}`}
