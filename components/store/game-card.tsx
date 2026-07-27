@@ -122,8 +122,13 @@ function GameCardInner({
 
         {onQuickView && (
           <button
+            type="button"
             suppressHydrationWarning={true}
-            onClick={() => onQuickView(game)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onQuickView(game);
+            }}
             className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/75 backdrop-blur-md hover:scale-110 hover:border-white/40 hover:bg-black/90 active:scale-90 transition-all duration-200 text-white"
             aria-label={`Quick view ${game.title}`}
           >
@@ -204,7 +209,7 @@ export function GameCard({
 }) {
   const add = useCartStore((state) => state.add);
   const toggleWishlist = useCartStore((state) => state.toggleWishlist);
-  const saved = useCartStore((state) => state.wishlistIds.includes(game.id));
+  const saved = useCartStore((state) => (state.wishlistIds || []).includes(game.id));
   const price = gamePrice(game);
   const original = Number(game.original_price ?? 0);
   const discount = original > price && price > 0 ? Math.round((1 - price / original) * 100) : 0;

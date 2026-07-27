@@ -49,7 +49,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
   return (
     <html lang="en" suppressHydrationWarning className={geist.variable}>
-      <body className={geist.className}>
+      <body className={geist.className} suppressHydrationWarning>
         <ClickSpark sparkColor="#facc15" sparkSize={10} sparkRadius={24} sparkCount={10} duration={450}>
           <AppProviders>
             <VisitorTracker />

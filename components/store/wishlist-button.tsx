@@ -28,14 +28,14 @@ export function WishlistButton({
   variant = "default",
 }: WishlistButtonProps) {
   const toggleWishlist = useCartStore((state) => state.toggleWishlist);
-  const wishlistIds = useCartStore((state) => state.wishlistIds);
+  const wishlistIds = useCartStore((state) => state.wishlistIds || []);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const isSaved = mounted && wishlistIds.includes(gameId);
+  const isSaved = mounted && (wishlistIds || []).includes(gameId);
 
   const [particles, setParticles] = useState<FloatingHeart[]>([]);
   const [isAnimating, setIsAnimating] = useState(false);

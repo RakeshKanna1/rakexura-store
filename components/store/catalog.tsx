@@ -72,12 +72,19 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
   const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
   const [platform, setPlatform] = useState<(typeof platforms)[number]>("All");
-  const [genre, setGenre] = useState(searchParams.get("category") ?? "All");
+  const [genre, setGenre] = useState("All");
   const [budget, setBudget] = useState("All");
   const [sort, setSort] = useState<(typeof sorts)[number]>("Featured");
   const [quickView, setQuickView] = useState<Game | null>(null);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(24);
+
+  useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    if (categoryParam) {
+      setGenre(categoryParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     setVisibleCount(24);
@@ -146,6 +153,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
             </label>
             <button
               type="button"
+              suppressHydrationWarning
               onClick={() => setIsCopyModalOpen(true)}
               title="Copy formatted price list for WhatsApp/Telegram"
               className="flex min-h-12 items-center gap-2 rounded-md border border-white/10 bg-black/20 px-3.5 sm:px-4 text-xs font-bold text-white hover:bg-white/[0.06] hover:border-white/20 transition-all cursor-pointer shrink-0"
