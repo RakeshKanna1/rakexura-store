@@ -9,8 +9,11 @@ import { QuickViewModal } from "./quick-view-modal";
 import { CopyablePriceModal } from "./copyable-price-modal";
 import type { Game, Bundle, Platform } from "@/types/store";
 
+import { createClient } from "@/lib/supabase/client";
+
 const platforms: Array<"All" | Platform | "Pre-orders" | "Subscriptions"> = ["All", "Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce", "Pre-orders", "Subscriptions"];
 const sorts = ["Featured", "Price: Low to high", "Price: High to low", "Best sellers", "Latest"] as const;
+const OWNER_EMAIL = "12k21rakeshkannam@gmail.com";
 
 interface CustomSelectProps {
   value: string;
@@ -78,6 +81,40 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
   const [quickView, setQuickView] = useState<Game | null>(null);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(24);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    async function checkAdminStatus() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+      const ownerEmail = (process.env.NEXT_PUBLIC_OWNER_EMAIL || OWNER_EMAIL).trim().toLowerCase();
+      const isOwner = user.email?.toLowerCase() === ownerEmail;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      setIsAdmin(isOwner || profile?.role === "admin");
+    }
+
+    void checkAdminStatus();
+
+    const { data: listener } = supabase.auth.onAuthStateChange(() => void checkAdminStatus());
+    const refresh = () => void checkAdminStatus();
+    window.addEventListener("rakexura-role-updated", refresh);
+    window.addEventListener("rakexura-auth-updated", refresh);
+    return () => {
+      listener.subscription.unsubscribe();
+      window.removeEventListener("rakexura-role-updated", refresh);
+      window.removeEventListener("rakexura-auth-updated", refresh);
+    };
+  }, []);
 
   useEffect(() => {
     const categoryParam = searchParams.get("category");
@@ -151,16 +188,18 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
                 className="w-44"
               />
             </label>
-            <button
-              type="button"
-              suppressHydrationWarning
-              onClick={() => setIsCopyModalOpen(true)}
-              title="Copy formatted price list for WhatsApp/Telegram"
-              className="flex min-h-12 items-center gap-2 rounded-md border border-white/10 bg-black/20 px-3.5 sm:px-4 text-xs font-bold text-white hover:bg-white/[0.06] hover:border-white/20 transition-all cursor-pointer shrink-0"
-            >
-              <Share2 size={16} className="text-[#facc15]" />
-              <span>Copy Price List</span>
-            </button>
+            {isAdmin && (
+              <button
+                type="button"
+                suppressHydrationWarning
+                onClick={() => setIsCopyModalOpen(true)}
+                title="Copy formatted price list for WhatsApp/Telegram"
+                className="flex min-h-12 items-center gap-2 rounded-md border border-white/10 bg-black/20 px-3.5 sm:px-4 text-xs font-bold text-white hover:bg-white/[0.06] hover:border-white/20 transition-all cursor-pointer shrink-0"
+              >
+                <Share2 size={16} className="text-[#facc15]" />
+                <span>Copy Price List</span>
+              </button>
+            )}
           </div>
         </div>
         <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">
@@ -225,12 +264,14 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
         </div>
       )}
       <QuickViewModal game={quickView} onClose={() => setQuickView(null)} />
-      <CopyablePriceModal
-        games={games}
-        bundles={bundles}
-        isOpen={isCopyModalOpen}
-        onClose={() => setIsCopyModalOpen(false)}
-      />
+      {isAdmin && (
+        <CopyablePriceModal
+          games={games}
+          bundles={bundles}
+          isOpen={isCopyModalOpen}
+          onClose={() => setIsCopyModalOpen(false)}
+        />
+      )}
     </>
   );
 }
