@@ -26,13 +26,13 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
   const range200to499 = activeGames.filter((g) => lowestPrice(g) >= 200 && lowestPrice(g) <= 499).sort((a, b) => lowestPrice(a) - lowestPrice(b));
   const range500plus = activeGames.filter((g) => lowestPrice(g) >= 500).sort((a, b) => lowestPrice(a) - lowestPrice(b));
 
-  // Build plain text message
-  let messageLines: string[] = [];
+  // Build clean plain text message with minimal emojis
+  const messageLines: string[] = [];
 
-  messageLines.push("🎮 *RAKEXURA STORE — AVAILABLE GAMES & BUNDLES LIST* 🎮\n");
+  messageLines.push("*RAKEXURA STORE — AVAILABLE GAMES & BUNDLES LIST*\n");
 
   if (under99.length > 0) {
-    messageLines.push("🔥 *UNDER ₹99 GAMES:*");
+    messageLines.push("*UNDER ₹99 GAMES:*");
     under99.forEach((g) => {
       messageLines.push(`• ${g.title} — ₹${lowestPrice(g)}`);
     });
@@ -40,7 +40,7 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
   }
 
   if (range100to199.length > 0) {
-    messageLines.push("⚡ *₹100 - ₹199 GAMES:*");
+    messageLines.push("*₹100 - ₹199 GAMES:*");
     range100to199.forEach((g) => {
       messageLines.push(`• ${g.title} — ₹${lowestPrice(g)}`);
     });
@@ -48,7 +48,7 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
   }
 
   if (range200to499.length > 0) {
-    messageLines.push("💎 *₹200 - ₹499 GAMES:*");
+    messageLines.push("*₹200 - ₹499 GAMES:*");
     range200to499.forEach((g) => {
       messageLines.push(`• ${g.title} — ₹${lowestPrice(g)}`);
     });
@@ -56,7 +56,7 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
   }
 
   if (range500plus.length > 0) {
-    messageLines.push("👑 *₹500+ PREMIUM GAMES:*");
+    messageLines.push("*₹500+ PREMIUM GAMES:*");
     range500plus.forEach((g) => {
       messageLines.push(`• ${g.title} — ₹${lowestPrice(g)}`);
     });
@@ -64,7 +64,7 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
   }
 
   if (bundles.length > 0) {
-    messageLines.push("🎁 *COMBO BUNDLES:*");
+    messageLines.push("*COMBO BUNDLES:*");
     bundles.forEach((b) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const gameTitles = b.bundle_games?.map((bg: any) => bg.games?.title || bg.games?.[0]?.title).filter(Boolean) || [];
@@ -74,7 +74,7 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
     messageLines.push("");
   }
 
-  messageLines.push("📩 *To order, reply with the game name or visit our storefront!*");
+  messageLines.push("To order, reply with the game title or visit our storefront!");
 
   const formattedText = messageLines.join("\n");
 
@@ -84,7 +84,6 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      // Fallback for older browsers
       const textarea = document.createElement("textarea");
       textarea.value = formattedText;
       document.body.appendChild(textarea);
@@ -117,6 +116,7 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
           </div>
           <button
             onClick={onClose}
+            aria-label="Close modal"
             className="rounded-lg border border-white/10 p-2 text-[#8991a6] hover:bg-white/10 hover:text-white transition-colors"
           >
             <X size={18} />
