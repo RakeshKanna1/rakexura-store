@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Clock3 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { assetUrl, formatPrice } from "@/lib/utils";
+import { assetUrl, formatPrice, gameUrl } from "@/lib/utils";
 import type { FlashSale } from "@/types/store";
 import { BorderGlow } from "@/components/animations/border-glow";
 
@@ -71,7 +71,7 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
               colors={['#ffca55', '#facc15', '#b59241']}
               className="w-full h-full"
             >
-              <Link href={`/games/${game.id}`} className="group grid min-h-56 grid-cols-[40%_1fr] overflow-hidden w-full h-full">
+              <Link href={gameUrl(game)} className="group grid min-h-56 grid-cols-[40%_1fr] overflow-hidden w-full h-full">
                 <div className="relative">
                   <Image src={assetUrl(game.cover_image)} alt="" fill className="object-cover transition duration-500 group-hover:scale-105" />
                 </div>

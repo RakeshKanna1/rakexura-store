@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { assetUrl, formatPrice, lowestPrice, matchesSearchQuery } from "@/lib/utils";
+import { assetUrl, formatPrice, gameUrl, lowestPrice, matchesSearchQuery } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import type { Game } from "@/types/store";
 import { availablePlatforms } from "./game-card";
@@ -104,7 +104,7 @@ export function PremiumSearch() {
               if (e.key === "Enter" && shown.length > 0) {
                 e.preventDefault();
                 remember(shown[0]);
-                router.push(`/games/${shown[0].id}`);
+                router.push(gameUrl(shown[0]));
                 setOpen(false);
               }
             }}
@@ -141,10 +141,10 @@ export function PremiumSearch() {
             {loading && <p className="p-4 text-sm text-[#8f96a8]">Searching Rakexura...</p>}
             {!loading && shown.map((game) => (
               <article key={game.id} className="grid grid-cols-[48px_minmax(0,1fr)_40px] items-center gap-3 rounded-md p-2 transition hover:bg-white/[.055]">
-                <Link href={`/games/${game.id}`} onClick={() => remember(game)} className="relative h-14 overflow-hidden rounded-sm bg-black">
+                <Link href={gameUrl(game)} onClick={() => remember(game)} className="relative h-14 overflow-hidden rounded-sm bg-black">
                   <Image src={assetUrl(game.cover_image)} alt={`${game.title} cover`} fill className="object-cover" sizes="48px" />
                 </Link>
-                <Link href={`/games/${game.id}`} onClick={() => remember(game)} className="min-w-0">
+                <Link href={gameUrl(game)} onClick={() => remember(game)} className="min-w-0">
                   <strong className="block truncate text-sm">{game.title}</strong>
                   <span className="mt-1 block truncate text-xs text-[#9ba2b3]">{formatPrice(lowestPrice(game))} · {availablePlatforms(game).join(" / ") || "Check availability"}</span>
                 </Link>

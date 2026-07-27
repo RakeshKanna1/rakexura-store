@@ -17,6 +17,25 @@ export function slugify(value: string) {
   return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+export function gameUrl(game: { id: number | string; title?: string } | null | undefined): string {
+  if (!game) return "/games";
+  const idStr = String(game.id);
+  if (!game.title) return `/games/${idStr}`;
+  const slug = slugify(game.title);
+  return slug ? `/games/${slug}-${idStr}` : `/games/${idStr}`;
+}
+
+export function parseGameId(idOrSlug: string): number {
+  if (!idOrSlug) return 0;
+  const match = idOrSlug.match(/-(\d+)$/);
+  if (match) {
+    return parseInt(match[1], 10);
+  }
+  const parsed = parseInt(idOrSlug, 10);
+  return isNaN(parsed) ? 0 : parsed;
+}
+
+
 export function assetUrl(value?: string | null) {
   if (!value) return "/Assets/RakeLogo.png";
   if (/^(https?:|data:|\/)/.test(value)) return value;

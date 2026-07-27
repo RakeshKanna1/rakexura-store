@@ -8,7 +8,7 @@ import { useEffect, useState, useRef } from "react";
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import { assetUrl, formatPrice, lowestPrice } from "@/lib/utils";
+import { assetUrl, formatPrice, gameUrl, lowestPrice } from "@/lib/utils";
 import type { Game } from "@/types/store";
 import { BlurText } from "@/components/animations/blur-text";
 
@@ -107,11 +107,11 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                       <p className="mt-6 max-w-xl text-base leading-7 text-[#d4d8e4] md:text-lg">{game.tagline || game.description || "A standout PC experience, ready for your library."}</p>
                       <div className="mt-7 flex flex-wrap items-center gap-3">
                         {game.preorder ? (
-                          <Link href={`/games/${game.id}`} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">
+                          <Link href={gameUrl(game)} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">
                             Pre-order now <ArrowRight size={17} />
                           </Link>
                         ) : (
-                          <Link href={`/games/${game.id}`} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">View game <ArrowRight size={17} /></Link>
+                          <Link href={gameUrl(game)} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">View game <ArrowRight size={17} /></Link>
                         )}
                         {game.trailer_url && <a href={game.trailer_url} target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/12 bg-black/40 px-5 text-sm font-semibold backdrop-blur hover:bg-black/60"><Play size={16} fill="currentColor" /> Trailer</a>}
                         <span className="rounded-md bg-black/45 px-4 py-3 text-sm font-semibold backdrop-blur">From {formatPrice(lowestPrice(game))}</span>

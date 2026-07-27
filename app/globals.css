@@ -229,6 +229,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   background-size: 40px 40px;
 }
 .premium-panel { background: #0c0c0c; border: 1px solid rgba(255,255,255,.08); box-shadow: 0 24px 70px rgba(0,0,0,.28); }
+
+@keyframes eyeBlink {
+  0% { transform: scale(1); }
+  45% { transform: scaleY(0.12) scaleX(1.25); }
+  100% { transform: scale(1); }
+}
+
+.group\/eyebtn:hover .eye-icon-blink {
+  animation: eyeBlink 0.35s ease-in-out;
+}
 .hero-frame {
   box-shadow: 0 32px 110px rgba(0, 0, 0, .42), inset 0 0 0 1px rgba(255, 255, 255, .055);
 }

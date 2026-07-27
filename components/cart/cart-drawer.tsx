@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Minus, Package, Plus, ShoppingBag, Trash2, X } from "lucide-react";
-import { assetUrl, formatPrice } from "@/lib/utils";
+import { assetUrl, formatPrice, gameUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { DustDisintegration } from "@/components/common/dust-disintegration";
 
@@ -117,11 +117,11 @@ export function CartDrawer() {
                 <DustDisintegration key={`${line.game.id}-${line.platform}`} onRemove={() => remove(line.game.id, line.platform)}>
                   {(triggerRemove: () => void) => (
                     <article className="grid grid-cols-[66px_1fr_auto] gap-3 rounded-md border border-white/[.07] bg-white/[0.03] p-3">
-                      <Link href={`/games/${line.game.id}`} onClick={() => close(false)} className="relative h-20 w-[62px] overflow-hidden rounded-sm block shrink-0 hover:opacity-90 transition-opacity">
+                      <Link href={gameUrl(line.game)} onClick={() => close(false)} className="relative h-20 w-[62px] overflow-hidden rounded-sm block shrink-0 hover:opacity-90 transition-opacity">
                         <Image src={assetUrl(line.game.cover_image)} alt={line.game.title} fill className="object-cover" />
                       </Link>
                       <div className="min-w-0">
-                        <Link href={`/games/${line.game.id}`} onClick={() => close(false)} className="line-clamp-1 text-sm font-bold text-white hover:underline hover:text-[#facc15] transition-colors block">
+                        <Link href={gameUrl(line.game)} onClick={() => close(false)} className="line-clamp-1 text-sm font-bold text-white hover:underline hover:text-[#facc15] transition-colors block">
                           {line.game.title}
                         </Link>
                         <span className="mt-1 block text-xs text-[#8991a6]">

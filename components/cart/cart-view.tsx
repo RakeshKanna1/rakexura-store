@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/common/empty-state";
 import { createClient } from "@/lib/supabase/client";
-import { assetUrl, formatPrice } from "@/lib/utils";
+import { assetUrl, formatPrice, gameUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 
 function linePrice(line: ReturnType<typeof useCartStore.getState>["lines"][number]) {
@@ -193,7 +193,7 @@ export function CartView() {
               key={`${line.game.id}-${line.platform}`}
               className="relative flex w-full gap-4 rounded-md border border-white/[.08] bg-[#0b0f19] p-4"
             >
-              <Link href={`/games/${line.game.id}`} className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-sm sm:h-28 sm:w-[88px] block hover:opacity-90 transition-opacity">
+              <Link href={gameUrl(line.game)} className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-sm sm:h-28 sm:w-[88px] block hover:opacity-90 transition-opacity">
                 <Image
                   src={assetUrl(line.game.cover_image)}
                   alt={line.game.title}
@@ -202,7 +202,7 @@ export function CartView() {
                 />
               </Link>
               <div className="min-w-0 flex-1 pr-10">
-                <Link href={`/games/${line.game.id}`} className="line-clamp-2 font-bold hover:underline pr-4">
+                <Link href={gameUrl(line.game)} className="line-clamp-2 font-bold hover:underline pr-4">
                   {line.game.title}
                 </Link>
                 <p className="mt-2 text-xs text-[#8991a6]">

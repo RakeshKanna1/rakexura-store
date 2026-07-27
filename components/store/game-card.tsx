@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { assetUrl, formatPrice, isHighEndDevice } from "@/lib/utils";
+import { assetUrl, formatPrice, gameUrl, isHighEndDevice } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { triggerFlyToCart } from "@/components/common/fly-to-cart-animator";
 import type { Game, Platform } from "@/types/store";
@@ -78,7 +78,7 @@ function GameCardInner({
 }: GameCardInnerProps) {
   const router = useRouter();
   const handleMouseEnter = () => {
-    router.prefetch(`/games/${game.id}`);
+    router.prefetch(gameUrl(game));
   };
 
   const lines = useCartStore((state) => state.lines);
@@ -97,7 +97,7 @@ function GameCardInner({
           />
         </div>
       )}
-      <Link href={`/games/${game.id}`} prefetch={false} onMouseEnter={handleMouseEnter} className="block aspect-[4/5] overflow-hidden bg-[#08090c]">
+      <Link href={gameUrl(game)} prefetch={false} onMouseEnter={handleMouseEnter} className="block aspect-[4/5] overflow-hidden bg-[#08090c]">
         <Image
           src={assetUrl(game.cover_image)}
           alt={game.title}
@@ -132,19 +132,7 @@ function GameCardInner({
             className="group/eyebtn flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/75 backdrop-blur-md hover:scale-110 hover:border-white/40 hover:bg-black/90 active:scale-90 transition-all duration-200 text-white"
             aria-label={`Quick view ${game.title}`}
           >
-            <motion.div
-              whileHover={{
-                scaleY: [1, 0.15, 1],
-                scaleX: [1, 1.25, 1],
-              }}
-              transition={{
-                duration: 0.32,
-                ease: "easeInOut",
-              }}
-              className="flex items-center justify-center"
-            >
-              <Eye size={14} />
-            </motion.div>
+            <Eye size={14} className="eye-icon-blink" />
           </button>
         )}
       </div>
@@ -153,7 +141,7 @@ function GameCardInner({
         <div>
           <p className="mb-1 truncate text-[9px] font-extrabold uppercase tracking-wider text-[#81889a]">{game.is_subscription ? "Service Membership" : (game.genres?.slice(0, 2).join(" / ") || "PC Game")}</p>
 
-          <Link href={`/games/${game.id}`} prefetch={false} onMouseEnter={handleMouseEnter} className="line-clamp-2 min-h-[2.5rem] text-sm font-extrabold leading-snug text-white group-hover:text-[#facc15] transition-colors">
+          <Link href={gameUrl(game)} prefetch={false} onMouseEnter={handleMouseEnter} className="line-clamp-2 min-h-[2.5rem] text-sm font-extrabold leading-snug text-white group-hover:text-[#facc15] transition-colors">
             {game.title}
           </Link>
 

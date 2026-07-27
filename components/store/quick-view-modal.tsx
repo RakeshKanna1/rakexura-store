@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Heart, ShoppingBag, X, TicketPercent } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
-import { assetUrl, formatPrice, lowestPrice } from "@/lib/utils";
+import { assetUrl, formatPrice, gameUrl, lowestPrice } from "@/lib/utils";
 import { triggerFlyToCart } from "@/components/common/fly-to-cart-animator";
 import { useCartStore } from "@/stores/cart-store";
 import type { Game } from "@/types/store";
@@ -237,7 +237,7 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
                 </button>
                 <WishlistButton gameId={game.id} size={18} variant="details" />
               </div>
-              <Link href={`/games/${game.id}`} className="mt-2.5 text-center text-xs font-semibold text-[#f6dc73] hover:underline">
+              <Link href={gameUrl(game)} className="mt-2.5 text-center text-xs font-semibold text-[#f6dc73] hover:underline">
                 Open full game page
               </Link>
             </div>

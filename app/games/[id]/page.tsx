@@ -7,7 +7,7 @@ import { GameShelf } from "@/components/store/game-shelf";
 import { MediaGallery } from "@/components/store/media-gallery";
 import { ProductActions } from "@/components/store/product-actions";
 import { RecentlyViewedTracker } from "@/components/store/recently-viewed";
-import { assetUrl, formatPrice } from "@/lib/utils";
+import { assetUrl, formatPrice, gameUrl, parseGameId, slugify } from "@/lib/utils";
 import { getGame, getGames, getGameReviews } from "@/lib/supabase/queries";
 import type { Platform, Game } from "@/types/store";
 import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
@@ -19,7 +19,7 @@ type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const game = await getGame(Number(id));
+  const game = await getGame(parseGameId(id));
   return game ? { title: game.title, description: game.description ?? game.tagline, openGraph: { images: [assetUrl(game.banner_image || game.cover_image)] } } : { title: "Game not found" };
 }
 
@@ -207,14 +207,15 @@ function titleSize(title: string) {
 
 export async function generateStaticParams() {
   const games = await getGames();
-  return games.map((game) => ({
-    id: String(game.id),
-  }));
+  return games.flatMap((game) => [
+    { id: `${slugify(game.title)}-${game.id}` },
+    { id: String(game.id) },
+  ]);
 }
 
 export default async function GamePage({ params }: Props) {
   const { id } = await params;
-  const game = await getGame(Number(id));
+  const game = await getGame(parseGameId(id));
   if (!game || game.archived) notFound();
 
   const bannerUrl = assetUrl(game.banner_image || game.cover_image);
@@ -393,7 +394,7 @@ export default async function GamePage({ params }: Props) {
       "price": game.sale_price || game.original_price || 0,
       "priceCurrency": "INR",
       "availability": game.out_of_stock ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
-      "url": `${process.env.NEXT_PUBLIC_SITE_URL || "https://rakeon-store.vercel.app"}/games/${game.id}`,
+      "url": `${process.env.NEXT_PUBLIC_SITE_URL || "https://rakeon-store.vercel.app"}${gameUrl(game)}`,
     }
   };
 
