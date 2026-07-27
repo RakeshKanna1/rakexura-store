@@ -81,10 +81,10 @@ export function ProductActions({ game }: { game: Game }) {
   useEffect(() => {
     if (coupon && !isDiamondOrPlatinumCoupon(coupon.code)) {
       const basePrice = price(game, selected);
-      if (basePrice * quantity <= 99) {
+      if (basePrice * quantity < 99) {
         setCoupon(null);
         setCouponCode("");
-        toast.error("Coupon removed: General coupons can only be applied to games priced above Rs. 99.");
+        toast.error("Coupons cannot be applied to a single game priced under Rs. 99.");
       }
     }
   }, [selected, coupon, game, quantity, setCoupon]);

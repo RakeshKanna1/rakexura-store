@@ -44,13 +44,16 @@ export async function POST(request: Request) {
     const normalized = code.trim().toUpperCase();
     const isDiamondOrPlat = isDiamondOrPlatinumCoupon(normalized);
 
-    // 1. General coupon price check
-    if (!isDiamondOrPlat && normalized !== "RAKETHREE" && gamePrice !== undefined && Number(gamePrice) < 99) {
+    // 1. General coupon single-item check
+    const totalSubtotal = subtotal !== undefined ? Number(subtotal) : (gamePrice !== undefined ? Number(gamePrice) : 0);
+    const itemsCount = cartItemsCount !== undefined ? Number(cartItemsCount) : (quantity !== undefined ? Number(quantity) : 1);
+
+    if (!isDiamondOrPlat && normalized !== "RAKETHREE" && itemsCount === 1 && totalSubtotal < 99) {
       return NextResponse.json(
         {
           success: false,
           error: {
-            message: "General coupons can only be applied to games priced at Rs. 99 or above.",
+            message: "Coupons cannot be applied to a single game priced under Rs. 99.",
             code: "PRICE_RESTRICTION"
           }
         },

@@ -146,21 +146,11 @@ export function CheckoutForm() {
         return;
       }
       if (!isDiamondOrPlatinumCoupon(coupon.code) && coupon.code !== "RAKETHREE") {
-        const hasLowPricedGame = lines.some((line) => {
-          if (!line || !line.game || line.game.is_subscription) return false;
-          const platform = line.platform || "Steam";
-          const g = line.game;
-          const value = getCheckoutLinePrice(g, platform);
-          return Number(value ?? 0) * (line.quantity || 1) < 99;
-        });
-        const hasLowPricedBundle = bundleLines.some((line) => {
-          if (!line || !line.bundle) return false;
-          return Number(line.bundle.bundle_price || 0) * (line.quantity || 1) < 99;
-        });
-        if (hasLowPricedGame || hasLowPricedBundle) {
+        const totalItemCount = lines.reduce((sum, l) => sum + (l?.quantity || 1), 0) + bundleLines.reduce((sum, b) => sum + (b?.quantity || 1), 0);
+        if (totalItemCount === 1 && subtotal < 99) {
           setCoupon(null);
           setCouponCode("");
-          toast.error("Coupon removed: General coupons can only be applied to games priced at Rs. 99 or above.");
+          toast.error("Coupons cannot be applied to a single game priced under Rs. 99.");
         }
       }
     }
