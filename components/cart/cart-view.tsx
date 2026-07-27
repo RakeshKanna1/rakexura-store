@@ -21,7 +21,7 @@ function linePrice(line: ReturnType<typeof useCartStore.getState>["lines"][numbe
 }
 
 function Quantity({ value, decrease, increase }: { value: number; decrease: () => void; increase: () => void }) {
-  return <div className="mt-3 inline-grid grid-cols-[34px_38px_34px] items-center overflow-hidden rounded-md border border-white/10 bg-black/20"><button onClick={decrease} disabled={value <= 1} className="grid h-9 place-items-center disabled:opacity-30" aria-label="Decrease quantity"><Minus size={14} /></button><span className="text-center text-sm font-bold">{value}</span><button onClick={increase} disabled={value >= 5} className="grid h-9 place-items-center disabled:opacity-30" aria-label="Increase quantity"><Plus size={14} /></button></div>;
+  return <div className="mt-3 inline-grid grid-cols-[34px_38px_34px] items-center overflow-hidden rounded-md border border-white/10 bg-black/20"><button onClick={decrease} disabled={value <= 1} className="grid h-9 place-items-center disabled:opacity-30 cursor-pointer" aria-label="Decrease quantity"><Minus size={14} /></button><span className="text-center text-sm font-bold">{value}</span><button onClick={increase} disabled={value >= 5} className="grid h-9 place-items-center disabled:opacity-30 cursor-pointer" aria-label="Increase quantity"><Plus size={14} /></button></div>;
 }
 
 function getPlatformLabel(platform: string, isSubscription?: boolean | null, duration?: string | null) {
@@ -156,14 +156,14 @@ export function CartView() {
               key={`bundle-${line.bundle.id}`}
               className="relative flex w-full gap-4 rounded-md border border-[#8b5cf6]/20 bg-[#8b5cf6]/[.04] p-4"
             >
-              <div className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-sm sm:h-28 sm:w-[88px]">
+              <Link href={`/bundles/${line.bundle.id}`} className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-sm sm:h-28 sm:w-[88px] block hover:opacity-90 transition-opacity">
                 <Image
                   src={assetUrl(line.bundle.cover_image)}
-                  alt=""
+                  alt={line.bundle.title}
                   fill
                   className="object-cover"
                 />
-              </div>
+              </Link>
               <div className="min-w-0 flex-1 pr-10">
                 <Link href={`/bundles/${line.bundle.id}`} className="line-clamp-2 font-bold hover:underline pr-4">
                   {line.bundle.title}
@@ -193,14 +193,14 @@ export function CartView() {
               key={`${line.game.id}-${line.platform}`}
               className="relative flex w-full gap-4 rounded-md border border-white/[.08] bg-[#0b0f19] p-4"
             >
-              <div className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-sm sm:h-28 sm:w-[88px]">
+              <Link href={`/games/${line.game.id}`} className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-sm sm:h-28 sm:w-[88px] block hover:opacity-90 transition-opacity">
                 <Image
                   src={assetUrl(line.game.cover_image)}
-                  alt=""
+                  alt={line.game.title}
                   fill
                   className="object-cover"
                 />
-              </div>
+              </Link>
               <div className="min-w-0 flex-1 pr-10">
                 <Link href={`/games/${line.game.id}`} className="line-clamp-2 font-bold hover:underline pr-4">
                   {line.game.title}
@@ -312,5 +312,5 @@ export function CartView() {
         </aside>
       </div>
     </>
-  );;
+  );
 }

@@ -474,7 +474,9 @@ export function CheckoutForm() {
                     {(triggerRemove: () => void) => (
                       <div className="flex items-center justify-between gap-3 rounded-md border border-[#facc15]/20 bg-[#b89412]/[.08] p-2.5 text-xs">
                         <div className="min-w-0 flex-1">
-                          <span className="font-extrabold text-white block truncate">{line.bundle.title}</span>
+                          <Link href={`/bundles/${line.bundle.id}`} target="_blank" className="font-extrabold text-white block truncate hover:underline hover:text-[#facc15] transition-colors">
+                            {line.bundle.title}
+                          </Link>
                           <span className="text-[10px] text-[#facc15] font-mono">Combo Bundle x{line.quantity}</span>
                         </div>
                         <span className="font-extrabold text-white shrink-0">{formatPrice(Number(line.bundle.bundle_price || 0) * line.quantity)}</span>
@@ -503,7 +505,9 @@ export function CheckoutForm() {
                     {(triggerRemove: () => void) => (
                       <div className="flex items-center justify-between gap-3 rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5 text-xs">
                         <div className="min-w-0 flex-1">
-                          <span className="font-extrabold text-white block truncate">{line.game.title}</span>
+                          <Link href={`/games/${line.game.id}`} target="_blank" className="font-extrabold text-white block truncate hover:underline hover:text-[#facc15] transition-colors">
+                            {line.game.title}
+                          </Link>
                           <span className="text-[10px] text-[#b9a4ff] font-mono">{line.platform} · Qty: {line.quantity}</span>
                         </div>
                         <span className="font-extrabold text-[#facc15] shrink-0">{formatPrice(Number(priceVal || 0) * line.quantity)}</span>
