@@ -146,10 +146,10 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
               type="button"
               onClick={() => setIsCopyModalOpen(true)}
               title="Copy formatted price list for WhatsApp/Telegram"
-              className="flex min-h-12 items-center gap-2 rounded-md border border-white/10 bg-black/20 px-4 text-xs font-bold text-white hover:bg-white/[0.06] hover:border-white/20 transition-all cursor-pointer shrink-0"
+              className="flex min-h-12 items-center gap-2 rounded-md border border-white/10 bg-black/20 px-3.5 sm:px-4 text-xs font-bold text-white hover:bg-white/[0.06] hover:border-white/20 transition-all cursor-pointer shrink-0"
             >
               <Share2 size={16} className="text-[#facc15]" />
-              <span className="hidden sm:inline">Copy Price List</span>
+              <span>Copy Price List</span>
             </button>
           </div>
         </div>
