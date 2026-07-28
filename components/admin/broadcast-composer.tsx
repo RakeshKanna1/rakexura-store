@@ -5,6 +5,7 @@ import { useState, useTransition, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { sendStoreAnnouncement, sendSinglePushNotification, sendSingleEmailNotification, giftGameToCustomer, fetchOrderInvoiceData } from "@/app/admin/actions";
 import { CustomSelect } from "@/components/common/custom-select";
+import { gameUrl } from "@/lib/utils";
 
 type Customer = { id: string; display_name: string | null; whatsapp: string | null; email?: string | null };
 type GameOption = {
@@ -307,7 +308,7 @@ export function BroadcastComposer({
           `Limited stock available on Rakexura Store. Claim your key before the deal ends!`
         );
         setShortMessage(`🔥 Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
-        setLink(`/games/${game.id}`);
+        setLink(gameUrl(game));
       } else {
         setTitle("🔥 Exclusive Rakexura Offer Live");
         setMessage("A fresh limited-time special offer is live! Check out our exclusive discounts on top PC games and grab your keys before stock runs out.");
@@ -341,17 +342,17 @@ export function BroadcastComposer({
         `Limited stock available on Rakexura Store. Claim your key before the deal ends!`
       );
       setShortMessage(`🔥 Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
-      setLink(`/games/${game.id}`);
+      setLink(gameUrl(game));
     } else if (selectedTemplateKey === "review") {
       setTitle(`How is ${game.title}? Leave a review!`);
       setMessage(`Hope you are enjoying ${game.title}! Please take 30 seconds to rate your experience and leave a review on Rakexura Store.`);
       setShortMessage(`⭐ Leave a review for ${game.title}! Share your experience.`);
-      setLink(`/games/${game.id}`);
+      setLink(gameUrl(game));
     } else {
       setTitle(`${game.title} is now available`);
       setMessage(`${game.title} has arrived at Rakexura. Check platforms, live pricing${priceStr !== "Special Price" ? ` (from ${priceStr})` : ''}, trailers, and current offers.`);
       setShortMessage(`🎮 New Game: ${game.title} is now live on Rakexura Store!`);
-      setLink(`/games/${game.id}`);
+      setLink(gameUrl(game));
     }
   }
 

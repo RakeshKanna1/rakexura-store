@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { sendEmail, buildProfessionalEmailHtml, buildCleanInvoiceEmailHtml, buildReviewRequestEmailHtml } from "@/lib/email";
 import { createClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
+import { gameUrl } from "@/lib/utils";
 
 
 async function getAdminClient() {
@@ -1538,7 +1539,7 @@ export async function saveFlashSale(formData: FormData) {
       const gameTitle = game?.title || "A hot title";
       const title = "Flash Sale Alert!";
       const message = `${gameTitle} is now on Flash Sale for only Rs. ${sale_price}! Get it before the timer ends.`;
-      const link = `/games/${game_id}`;
+      const link = gameUrl({ id: game_id, title: gameTitle });
       
       const { data: profiles } = await supabase.from("profiles").select("id");
       if (profiles && profiles.length > 0) {
@@ -1593,7 +1594,7 @@ export async function toggleFlashSale(formData: FormData) {
         const gameTitle = (sale.games as unknown as { title?: string })?.title || "A hot title";
         const title = "Flash Sale Alert!";
         const message = `${gameTitle} is now on Flash Sale for only Rs. ${sale.sale_price}! Get it before the timer ends.`;
-        const link = `/games/${sale.game_id}`;
+        const link = gameUrl({ id: sale.game_id, title: gameTitle });
         
         const { data: profiles } = await supabase.from("profiles").select("id");
         if (profiles && profiles.length > 0) {

@@ -13,7 +13,7 @@ import { z } from "zod";
 import { Button } from "@/components/common/button";
 import { OnboardingHint } from "@/components/common/onboarding-hint";
 import { createClient } from "@/lib/supabase/client";
-import { formatPrice, isDiamondOrPlatinumCoupon } from "@/lib/utils";
+import { formatPrice, gameUrl, isDiamondOrPlatinumCoupon } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
 import type { Game } from "@/types/store";
@@ -495,7 +495,7 @@ export function CheckoutForm() {
                     {(triggerRemove: () => void) => (
                       <div className="flex items-center justify-between gap-3 rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5 text-xs">
                         <div className="min-w-0 flex-1">
-                          <Link href={`/games/${line.game.id}`} target="_blank" className="font-extrabold text-white block truncate hover:underline hover:text-[#facc15] transition-colors">
+                          <Link href={gameUrl(line.game)} target="_blank" className="font-extrabold text-white block truncate hover:underline hover:text-[#facc15] transition-colors">
                             {line.game.title}
                           </Link>
                           <span className="text-[10px] text-[#b9a4ff] font-mono">{line.platform} · Qty: {line.quantity}</span>
