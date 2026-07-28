@@ -123,18 +123,30 @@ DROP POLICY IF EXISTS "public read avatars" ON storage.objects;
 DROP POLICY IF EXISTS "Public read game images" ON storage.objects;
 
 -- --------------------------------------------------------------------
--- 6. SET FUNCTION SEARCH_PATH & REVOKE UNINTENDED RPC EXECUTIONS
+-- 6. SET FUNCTION SECURITY INVOKER & SEARCH_PATH FOR STOREFRONT RPCS
 -- --------------------------------------------------------------------
--- Revoke internal DB trigger functions from direct PostgREST RPC invocation
-REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
+-- Revoke internal DB trigger/admin functions from direct RPC invocation
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon;
 REVOKE EXECUTE ON FUNCTION public.get_customer_emails() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.activate_rakexura_owner() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.notify_owner_of_new_order() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.award_delivered_order_points() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.handle_order_status_change() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.qualify_referral_after_delivery() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.is_admin() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.current_user_role() FROM anon;
 
--- Set explicit immutable search_path for all public RPC functions
+-- Convert storefront RPCs to SECURITY INVOKER to satisfy Supabase Linter
+ALTER FUNCTION public.claim_referral(text) SECURITY INVOKER;
+ALTER FUNCTION public.create_store_order(text, text, jsonb, jsonb, text, text, text) SECURITY INVOKER;
+ALTER FUNCTION public.get_or_create_referral_code() SECURITY INVOKER;
+ALTER FUNCTION public.redeem_reward_offer(bigint) SECURITY INVOKER;
+ALTER FUNCTION public.search_games(text) SECURITY INVOKER;
+ALTER FUNCTION public.submit_verified_review(bigint, integer, text, text[]) SECURITY INVOKER;
+ALTER FUNCTION public.sync_customer_store_state(jsonb, jsonb, jsonb) SECURITY INVOKER;
+ALTER FUNCTION public.track_store_order(text, text) SECURITY INVOKER;
+
+-- Set explicit immutable search_path on all functions
 ALTER FUNCTION public.claim_referral(text) SET search_path = public, pg_temp;
 ALTER FUNCTION public.create_store_order(text, text, jsonb, jsonb, text, text, text) SET search_path = public, pg_temp;
 ALTER FUNCTION public.current_user_role() SET search_path = public, pg_temp;
