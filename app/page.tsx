@@ -16,7 +16,6 @@ import { RecentlyViewedShelf } from "@/components/store/recently-viewed";
 import { TrustStats } from "@/components/store/trust-stats";
 import { WhatsAppCommunity } from "@/components/store/whatsapp-community";
 import { WhatsAppCta } from "@/components/store/whatsapp-cta";
-import { WhatsAppFloat } from "@/components/common/whatsapp-float";
 import { getBundles, getCustomerProofs, getFlashSales, getGames, getRecentDeliveries, getReviews } from "@/lib/supabase/queries";
 import { lowestPrice } from "@/lib/utils";
 
@@ -71,6 +70,5 @@ export default async function Home() {
         <WhatsAppCta />
       </div>
     </div>
-    <WhatsAppFloat />
   </>;
 }

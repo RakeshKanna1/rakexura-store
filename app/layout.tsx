@@ -17,6 +17,7 @@ import { WhatsAppOnboardingModal } from "@/components/layout/whatsapp-onboarding
 import { MobilePromptManager } from "@/components/layout/mobile-prompt-manager";
 import { VisitorTracker } from "@/components/common/visitor-tracker";
 import { FlyToCartAnimator } from "@/components/common/fly-to-cart-animator";
+import { WhatsAppFloat } from "@/components/common/whatsapp-float";
 import { Sparkles } from "lucide-react";
 import "./globals.css";
 
@@ -76,6 +77,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <main><BackButton />{children}</main>
             <Footer />
             <WhatsAppOnboardingModal />
+            <WhatsAppFloat />
             <MobileNav />
             <MobilePromptManager />
             <Toaster theme="dark" richColors position="top-center" />

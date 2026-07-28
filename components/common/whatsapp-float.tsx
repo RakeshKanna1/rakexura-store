@@ -1,10 +1,15 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 
 export function WhatsAppFloat() {
+  const pathname = usePathname();
   const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695";
   const message = encodeURIComponent("Hi Rakexura, I need help with a game or order.");
+
+  // Only render floating button on the homepage ("/")
+  if (pathname !== "/") return null;
 
   return (
     <a
