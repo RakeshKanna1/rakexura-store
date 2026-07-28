@@ -2,7 +2,7 @@ import { Suspense, type CSSProperties } from "react";
 import { preload } from "react-dom";
 import type { Metadata } from "next";
 import { BadgeCheck, Check, Clock, Info, KeyRound, MessageSquare, MonitorCog, ShieldCheck, Sparkles, Star, Zap } from "lucide-react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { GameShelf } from "@/components/store/game-shelf";
 import { MediaGallery } from "@/components/store/media-gallery";
 import { ProductActions } from "@/components/store/product-actions";
@@ -217,6 +217,14 @@ export default async function GamePage({ params }: Props) {
   const { id } = await params;
   const game = await getGame(parseGameId(id));
   if (!game || game.archived) notFound();
+
+  // If URL is just raw numeric ID (/games/60) instead of SEO title slug (/games/title-slug-60), redirect to canonical SEO URL
+  if (id === String(game.id) && game.title) {
+    const canonical = gameUrl(game);
+    if (canonical !== `/games/${id}`) {
+      redirect(canonical);
+    }
+  }
 
   const bannerUrl = assetUrl(game.banner_image || game.cover_image);
   preload(bannerUrl, { as: "image", fetchPriority: "high", crossOrigin: "anonymous" });
