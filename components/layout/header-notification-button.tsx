@@ -65,37 +65,58 @@ export function HeaderNotificationButton() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchUserNotifications = useCallback(async (uid: string) => {
-    const supabase = createClient();
-    const { data } = await supabase
-      .from("notifications")
-      .select("id,title,message,read,link,created_at,type")
-      .eq("user_id", uid)
-      .order("created_at", { ascending: false })
-      .limit(10);
-    if (data) setNotifications(data);
+    try {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("notifications")
+        .select("id,title,message,read,link,created_at,type")
+        .eq("user_id", uid)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (data) setNotifications(data);
+    } catch (e) {
+      console.warn("Failed to fetch user notifications:", e);
+    }
   }, []);
 
   const fetchAnnouncements = useCallback(async () => {
-    const supabase = createClient();
-    const { data } = await supabase
-      .from("marquee_messages")
-      .select("id,message,icon_key")
-      .eq("active", true)
-      .limit(5);
-    if (data) setAnnouncements(data);
+    try {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("marquee_messages")
+        .select("id,message,icon_key")
+        .eq("active", true)
+        .limit(5);
+      if (data) setAnnouncements(data);
+    } catch (e) {
+      console.warn("Failed to fetch announcements:", e);
+    }
   }, []);
 
   const loadData = useCallback(async () => {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      setUserId(user.id);
-      void fetchUserNotifications(user.id);
-    } else {
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.getUser();
+      if (error) {
+        setUserId(null);
+        setNotifications([]);
+        void fetchAnnouncements();
+        return;
+      }
+      const user = data?.user;
+      if (user) {
+        setUserId(user.id);
+        void fetchUserNotifications(user.id);
+      } else {
+        setUserId(null);
+        setNotifications([]);
+      }
+      void fetchAnnouncements();
+    } catch (e) {
+      console.warn("Error loading user notification state:", e);
       setUserId(null);
       setNotifications([]);
     }
-    void fetchAnnouncements();
   }, [fetchUserNotifications, fetchAnnouncements]);
 
   useEffect(() => {
