@@ -8,7 +8,13 @@ export function SmoothScroll() {
     let frame = 0; let disposed = false; let destroy = () => undefined;
     void import("lenis").then(({ default: Lenis }) => {
       if (disposed) return;
-      const lenis = new Lenis({ duration: 1.05, smoothWheel: true });
+      const lenis = new Lenis({
+        duration: 0.75,
+        smoothWheel: true,
+        wheelMultiplier: 1.0,
+        touchMultiplier: 1.5,
+        syncTouch: false
+      });
       const raf = (time: number) => { lenis.raf(time); frame = requestAnimationFrame(raf); };
       frame = requestAnimationFrame(raf); destroy = () => { cancelAnimationFrame(frame); lenis.destroy(); };
     });
