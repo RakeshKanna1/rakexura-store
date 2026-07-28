@@ -62,6 +62,33 @@ function CopyCouponBadge({ code, discountType, discountValue, minimumOrder }: { 
   );
 }
 
+function CopyIdBadge({ id }: { id: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText(id);
+    setCopied(true);
+    toast.success("User ID copied to clipboard!");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const shortId = id.length > 14 ? `${id.slice(0, 8)}...` : id;
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      title={`Click to copy full ID: ${id}`}
+      className="inline-flex items-center gap-1.5 rounded border border-white/10 bg-black/40 px-2 py-1 text-xs font-mono font-bold text-[#a3aed0] hover:text-white hover:border-[#8b5cf6]/50 transition cursor-pointer shrink-0"
+    >
+      <span>{shortId}</span>
+      {copied ? <Check size={12} className="text-green-400 shrink-0" /> : <Copy size={12} className="text-[#767e90] shrink-0" />}
+    </button>
+  );
+}
+
 function RowActions({ section, row }: { section: string; row: AdminRow }) {
   const id = Number(row.id);
   if (section === "customers") {
@@ -201,6 +228,9 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
               <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
                 {headers.map((header) => {
                   const isCodeColumn = section === "coupons" && header === "code";
+                  const val = row[header];
+                  const isIdColumn = header.toLowerCase() === "id" && typeof val === "string" && val.length > 12;
+
                   return (
                     <td key={header} className="max-w-72 truncate p-4">
                       {isCodeColumn ? (
@@ -215,8 +245,10 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                             minimumOrder={Number(row.minimum_order || 0)}
                           />
                         </div>
+                      ) : isIdColumn ? (
+                        <CopyIdBadge id={String(val)} />
                       ) : (
-                        display(row[header])
+                        display(val)
                       )}
                     </td>
                   );
