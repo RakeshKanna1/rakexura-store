@@ -102,7 +102,7 @@ BEGIN
 END $$;
 
 -- --------------------------------------------------------------------
--- 4. FIX OVERLY PERMISSIVE INSERT POLICIES (WITH CHECK true -> non-null check)
+-- 4. FIX OVERLY PERMISSIVE INSERT POLICIES (WITH CHECK true -> timestamp check)
 -- --------------------------------------------------------------------
 DROP POLICY IF EXISTS "Public insert analytics events" ON public.analytics_events;
 CREATE POLICY "Public insert analytics events" ON public.analytics_events 
@@ -125,7 +125,8 @@ DROP POLICY IF EXISTS "Public read game images" ON storage.objects;
 -- --------------------------------------------------------------------
 -- 6. SET FUNCTION SEARCH_PATH & REVOKE UNINTENDED RPC EXECUTIONS
 -- --------------------------------------------------------------------
--- Revoke admin / internal RPC function execution from anon & authenticated
+-- Revoke internal DB trigger functions from direct PostgREST RPC invocation
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.get_customer_emails() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.activate_rakexura_owner() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.notify_owner_of_new_order() FROM PUBLIC, anon, authenticated;
@@ -133,15 +134,18 @@ REVOKE EXECUTE ON FUNCTION public.award_delivered_order_points() FROM PUBLIC, an
 REVOKE EXECUTE ON FUNCTION public.handle_order_status_change() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.qualify_referral_after_delivery() FROM PUBLIC, anon, authenticated;
 
--- Allow service_role and postgres full access to admin functions
-GRANT EXECUTE ON FUNCTION public.get_customer_emails() TO service_role;
-GRANT EXECUTE ON FUNCTION public.activate_rakexura_owner() TO service_role;
-GRANT EXECUTE ON FUNCTION public.notify_owner_of_new_order() TO service_role;
-GRANT EXECUTE ON FUNCTION public.award_delivered_order_points() TO service_role;
-GRANT EXECUTE ON FUNCTION public.handle_order_status_change() TO service_role;
-GRANT EXECUTE ON FUNCTION public.qualify_referral_after_delivery() TO service_role;
-
--- Fix mutable search path on public functions
+-- Set explicit immutable search_path for all public RPC functions
+ALTER FUNCTION public.claim_referral(text) SET search_path = public, pg_temp;
+ALTER FUNCTION public.create_store_order(text, text, jsonb, jsonb, text, text, text) SET search_path = public, pg_temp;
+ALTER FUNCTION public.current_user_role() SET search_path = public, pg_temp;
+ALTER FUNCTION public.get_or_create_referral_code() SET search_path = public, pg_temp;
+ALTER FUNCTION public.handle_new_user() SET search_path = public, pg_temp;
+ALTER FUNCTION public.is_admin() SET search_path = public, pg_temp;
+ALTER FUNCTION public.redeem_reward_offer(bigint) SET search_path = public, pg_temp;
+ALTER FUNCTION public.search_games(text) SET search_path = public, pg_temp;
+ALTER FUNCTION public.submit_verified_review(bigint, integer, text, text[]) SET search_path = public, pg_temp;
+ALTER FUNCTION public.sync_customer_store_state(jsonb, jsonb, jsonb) SET search_path = public, pg_temp;
+ALTER FUNCTION public.track_store_order(text, text) SET search_path = public, pg_temp;
 ALTER FUNCTION public.get_customer_emails() SET search_path = public, pg_temp;
 
 -- --------------------------------------------------------------------
