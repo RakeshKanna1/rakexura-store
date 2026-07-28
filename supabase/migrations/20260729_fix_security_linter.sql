@@ -90,10 +90,18 @@ BEGIN
       FOR SELECT USING (auth.uid() = user_id);
   END IF;
 
-  -- Customers: Users read/update own profile
+  -- Customers: Cast auth.uid()::text = id::text or check user_id/auth_user_id safely
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'customers' AND policyname = 'Users manage own customer row') THEN
-    CREATE POLICY "Users manage own customer row" ON public.customers 
-      FOR ALL USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'customers' AND column_name = 'user_id') THEN
+      CREATE POLICY "Users manage own customer row" ON public.customers 
+        FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+    ELSIF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'customers' AND column_name = 'auth_user_id') THEN
+      CREATE POLICY "Users manage own customer row" ON public.customers 
+        FOR ALL USING (auth.uid() = auth_user_id) WITH CHECK (auth.uid() = auth_user_id);
+    ELSE
+      CREATE POLICY "Users manage own customer row" ON public.customers 
+        FOR ALL USING (auth.uid()::text = id::text) WITH CHECK (auth.uid()::text = id::text);
+    END IF;
   END IF;
 
   -- Analytics Events: Insert allowed for sessions, read restricted
