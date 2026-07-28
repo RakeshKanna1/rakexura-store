@@ -188,21 +188,21 @@ export function CopyablePriceModal({ games, bundles, isOpen, onClose }: Copyable
             />
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn border border-emerald-500/30 bg-emerald-950/40 text-emerald-300 hover:bg-emerald-900/50 text-xs gap-2 min-h-10"
+                className="btn border border-emerald-500/30 bg-emerald-950/40 text-emerald-300 hover:bg-emerald-900/50 text-xs gap-2 min-h-10 w-full sm:w-auto justify-center"
               >
                 <MessageSquareText size={16} /> Share directly on WhatsApp <ExternalLink size={14} />
               </a>
 
-              <div className="flex items-center gap-2 ml-auto">
+              <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className={`btn min-h-10 gap-2 text-xs font-bold transition-all ${
+                  className={`btn min-h-10 gap-2 text-xs font-bold transition-all w-full sm:w-auto justify-center ${
                     copied
                       ? "bg-emerald-500 text-black border-emerald-400"
                       : "btn-primary"

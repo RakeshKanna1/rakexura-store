@@ -178,14 +178,14 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
             />
           </label>
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <label className="flex min-h-12 flex-1 md:flex-none items-center gap-2 rounded-md bg-black/20 px-4 text-sm">
-              <SlidersHorizontal size={17} className="text-[#facc15]" />
+            <label className="flex min-h-12 flex-1 md:flex-none items-center gap-2 rounded-md bg-black/20 px-3 sm:px-4 text-sm min-w-0">
+              <SlidersHorizontal size={17} className="text-[#facc15] shrink-0" />
               <span className="sr-only">Sort games</span>
               <CustomSelect
                 value={sort}
                 onChange={(val) => setSort(val as (typeof sorts)[number])}
                 options={sorts}
-                className="w-44"
+                className="w-full sm:w-44 min-w-0"
               />
             </label>
             {isAdmin && (
@@ -194,10 +194,11 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
                 suppressHydrationWarning
                 onClick={() => setIsCopyModalOpen(true)}
                 title="Copy formatted price list for WhatsApp/Telegram"
-                className="flex min-h-12 items-center gap-2 rounded-md border border-white/10 bg-black/20 px-3.5 sm:px-4 text-xs font-bold text-white hover:bg-white/[0.06] hover:border-white/20 transition-all cursor-pointer shrink-0"
+                className="flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/10 bg-black/20 px-3 sm:px-4 text-xs font-bold text-white hover:bg-white/[0.06] hover:border-white/20 transition-all cursor-pointer shrink-0"
               >
-                <Share2 size={16} className="text-[#facc15]" />
-                <span>Copy Price List</span>
+                <Share2 size={16} className="text-[#facc15] shrink-0" />
+                <span className="whitespace-nowrap hidden min-[400px]:inline">Copy Price List</span>
+                <span className="whitespace-nowrap min-[400px]:hidden">Copy Price</span>
               </button>
             )}
           </div>
