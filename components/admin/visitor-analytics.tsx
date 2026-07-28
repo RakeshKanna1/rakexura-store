@@ -312,8 +312,9 @@ export function VisitorAnalytics() {
                       <span className="rounded bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-white">
                         {sess.referrer || "Direct"}
                       </span>
-                      <span className="font-mono">
-                        {new Date(sess.latest_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      <span className="font-mono text-[11px]">
+                        {new Date(sess.latest_time).toLocaleDateString("en-US", { month: "short", day: "numeric" })},{" "}
+                        {new Date(sess.latest_time).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}
                       </span>
                       {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </div>
@@ -355,7 +356,7 @@ export function VisitorAnalytics() {
             <table className="w-full min-w-[700px] border-collapse text-left text-xs">
               <thead>
                 <tr className="border-b border-white/10 bg-white/[0.03] text-[#8991a6]">
-                  <th className="p-3">Time</th>
+                  <th className="p-3">Date & Time (12h)</th>
                   <th className="p-3">Visitor / Customer</th>
                   <th className="p-3">Page Visited</th>
                   <th className="p-3">Device</th>
@@ -366,7 +367,8 @@ export function VisitorAnalytics() {
                 {logs.map((log) => (
                   <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="p-3 font-mono text-[#8991a6] whitespace-nowrap">
-                      {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                      {new Date(log.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })},{" "}
+                      {new Date(log.created_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })}
                     </td>
                     <td className="p-3">
                       {log.user_name ? (

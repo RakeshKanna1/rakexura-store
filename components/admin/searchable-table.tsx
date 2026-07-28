@@ -172,11 +172,29 @@ function RowActions({ section, row }: { section: string; row: AdminRow }) {
   return null;
 }
 
+function formatDate12h(isoString: string): string {
+  try {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return isoString;
+    return (
+      date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) +
+      " at " +
+      date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })
+    );
+  } catch {
+    return isoString;
+  }
+}
+
 function display(value: unknown) {
   if (value === null || value === undefined || value === "") return "-";
   if (typeof value === "boolean") return value ? "Yes" : "No";
   if (typeof value === "object") return JSON.stringify(value);
-  return String(value);
+  const str = String(value);
+  if (str.length >= 19 && (str.includes("T") || (str.includes("-") && str.includes(":"))) && !isNaN(Date.parse(str))) {
+    return formatDate12h(str);
+  }
+  return str;
 }
 
 export function SearchableTable({ rows, headers, section, hasActions }: { rows: AdminRow[]; headers: string[]; section: string; hasActions: boolean }) {
@@ -217,7 +235,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
             <tr>
               {headers.map((header) => (
                 <th key={header} className="p-4 capitalize">
-                  {header === "usage_limit" ? "Global Limit" : header === "per_user_limit" ? "Limit Per User" : header === "used_count" ? "Times Used" : header.replaceAll("_", " ")}
+                  {header === "usage_limit" ? "Global Limit" : header === "per_user_limit" ? "Limit Per User" : header === "used_count" ? "Times Used" : header === "created_at" ? "Created At (12h)" : header.replaceAll("_", " ")}
                 </th>
               ))}
               {hasActions && <th className="p-4">Actions</th>}
@@ -229,7 +247,8 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                 {headers.map((header) => {
                   const isCodeColumn = section === "coupons" && header === "code";
                   const val = row[header];
-                  const isIdColumn = header.toLowerCase() === "id" && typeof val === "string" && val.length > 12;
+                  const lowerHeader = header.toLowerCase();
+                  const isIdColumn = (lowerHeader === "id" || lowerHeader.endsWith("_id") || lowerHeader === "visitor_id") && typeof val === "string" && val.length > 10;
 
                   return (
                     <td key={header} className="max-w-72 truncate p-4">
