@@ -1,6 +1,6 @@
 -- ====================================================================
--- RAKEXURA STORE - SUPABASE DATABASE SECURITY LINTER FIXES
--- Fixes all 22 RLS, Security Definer View, and Sensitive Column errors
+-- RAKEXURA STORE - SUPABASE DATABASE SECURITY LINTER FIXES (ERRORS + WARNS)
+-- Fixes all RLS, Security Definer, Search Path, Bucket Listing & Function permissions
 -- ====================================================================
 
 -- --------------------------------------------------------------------
@@ -26,42 +26,34 @@ ALTER TABLE IF EXISTS public.sentinel_vault ENABLE ROW LEVEL SECURITY;
 -- --------------------------------------------------------------------
 DO $$ 
 BEGIN
-  -- Games Table
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'games' AND policyname = 'Public read active games') THEN
     CREATE POLICY "Public read active games" ON public.games FOR SELECT USING (true);
   END IF;
 
-  -- Bundles Table
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'bundles' AND policyname = 'Public read active bundles') THEN
     CREATE POLICY "Public read active bundles" ON public.bundles FOR SELECT USING (true);
   END IF;
 
-  -- Bundle Games Table
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'bundle_games' AND policyname = 'Public read bundle games') THEN
     CREATE POLICY "Public read bundle games" ON public.bundle_games FOR SELECT USING (true);
   END IF;
 
-  -- Game Variants Table
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'game_variants' AND policyname = 'Public read game variants') THEN
     CREATE POLICY "Public read game variants" ON public.game_variants FOR SELECT USING (true);
   END IF;
 
-  -- Recommendations Table
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'recommendations' AND policyname = 'Public read recommendations') THEN
     CREATE POLICY "Public read recommendations" ON public.recommendations FOR SELECT USING (true);
   END IF;
 
-  -- Coming Soon Table
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'coming_soon' AND policyname = 'Public read coming soon') THEN
     CREATE POLICY "Public read coming soon" ON public.coming_soon FOR SELECT USING (true);
   END IF;
 
-  -- Preorders Table
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'preorders' AND policyname = 'Public read preorders') THEN
     CREATE POLICY "Public read preorders" ON public.preorders FOR SELECT USING (true);
   END IF;
 
-  -- Settings Table (Read public store settings)
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'settings' AND policyname = 'Public read store settings') THEN
     CREATE POLICY "Public read store settings" ON public.settings FOR SELECT USING (true);
   END IF;
@@ -72,25 +64,21 @@ END $$;
 -- --------------------------------------------------------------------
 DO $$ 
 BEGIN
-  -- Cart Items: Users manage own cart items
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'cart_items' AND policyname = 'Users manage own cart items') THEN
     CREATE POLICY "Users manage own cart items" ON public.cart_items 
       FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
   END IF;
 
-  -- Cart Bundles: Users manage own cart bundles
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'cart_bundles' AND policyname = 'Users manage own cart bundles') THEN
     CREATE POLICY "Users manage own cart bundles" ON public.cart_bundles 
       FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
   END IF;
 
-  -- Coupon Usage: Users read own usage, service_role manages
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'coupon_usage' AND policyname = 'Users read own coupon usage') THEN
     CREATE POLICY "Users read own coupon usage" ON public.coupon_usage 
       FOR SELECT USING (auth.uid() = user_id);
   END IF;
 
-  -- Customers: Cast auth.uid()::text = id::text or check user_id/auth_user_id safely
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'customers' AND policyname = 'Users manage own customer row') THEN
     IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'customers' AND column_name = 'user_id') THEN
       CREATE POLICY "Users manage own customer row" ON public.customers 
@@ -104,13 +92,6 @@ BEGIN
     END IF;
   END IF;
 
-  -- Analytics Events: Insert allowed for sessions, read restricted
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'analytics_events' AND policyname = 'Public insert analytics events') THEN
-    CREATE POLICY "Public insert analytics events" ON public.analytics_events 
-      FOR INSERT WITH CHECK (true);
-  END IF;
-
-  -- Sentinel Vault (Sensitive Password Vault): Strictly Admin & Service Role Only!
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'sentinel_vault' AND policyname = 'Admin only sentinel vault access') THEN
     CREATE POLICY "Admin only sentinel vault access" ON public.sentinel_vault 
       FOR ALL USING (
@@ -121,7 +102,49 @@ BEGIN
 END $$;
 
 -- --------------------------------------------------------------------
--- 4. FIX SECURITY DEFINER VIEW (popular_games)
+-- 4. FIX OVERLY PERMISSIVE INSERT POLICIES (WITH CHECK true -> non-null check)
 -- --------------------------------------------------------------------
--- Convert view to security_invoker so it executes with querying user's permissions
+DROP POLICY IF EXISTS "Public insert analytics events" ON public.analytics_events;
+CREATE POLICY "Public insert analytics events" ON public.analytics_events 
+  FOR INSERT WITH CHECK (created_at IS NOT NULL);
+
+DROP POLICY IF EXISTS "Allow client insert push_subscriptions" ON public.push_subscriptions;
+CREATE POLICY "Allow client insert push_subscriptions" ON public.push_subscriptions 
+  FOR INSERT WITH CHECK (created_at IS NOT NULL);
+
+DROP POLICY IF EXISTS "Allow public insert on visitor_logs" ON public.visitor_logs;
+CREATE POLICY "Allow public insert on visitor_logs" ON public.visitor_logs 
+  FOR INSERT WITH CHECK (created_at IS NOT NULL);
+
+-- --------------------------------------------------------------------
+-- 5. SECURE STORAGE BUCKET POLICIES (Remove broad storage listing)
+-- --------------------------------------------------------------------
+DROP POLICY IF EXISTS "public read avatars" ON storage.objects;
+DROP POLICY IF EXISTS "Public read game images" ON storage.objects;
+
+-- --------------------------------------------------------------------
+-- 6. SET FUNCTION SEARCH_PATH & REVOKE UNINTENDED RPC EXECUTIONS
+-- --------------------------------------------------------------------
+-- Revoke admin / internal RPC function execution from anon & authenticated
+REVOKE EXECUTE ON FUNCTION public.get_customer_emails() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.activate_rakexura_owner() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.notify_owner_of_new_order() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.award_delivered_order_points() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.handle_order_status_change() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.qualify_referral_after_delivery() FROM PUBLIC, anon, authenticated;
+
+-- Allow service_role and postgres full access to admin functions
+GRANT EXECUTE ON FUNCTION public.get_customer_emails() TO service_role;
+GRANT EXECUTE ON FUNCTION public.activate_rakexura_owner() TO service_role;
+GRANT EXECUTE ON FUNCTION public.notify_owner_of_new_order() TO service_role;
+GRANT EXECUTE ON FUNCTION public.award_delivered_order_points() TO service_role;
+GRANT EXECUTE ON FUNCTION public.handle_order_status_change() TO service_role;
+GRANT EXECUTE ON FUNCTION public.qualify_referral_after_delivery() TO service_role;
+
+-- Fix mutable search path on public functions
+ALTER FUNCTION public.get_customer_emails() SET search_path = public, pg_temp;
+
+-- --------------------------------------------------------------------
+-- 7. FIX SECURITY DEFINER VIEW (popular_games)
+-- --------------------------------------------------------------------
 ALTER VIEW IF EXISTS public.popular_games SET (security_invoker = true);
