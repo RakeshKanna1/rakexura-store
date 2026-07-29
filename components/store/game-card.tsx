@@ -2,7 +2,7 @@
 
 import { useEffect, useState, PointerEvent } from "react";
 import { motion } from "framer-motion";
-import { Eye, Heart, ShoppingCart, X } from "lucide-react";
+import { Eye, ShoppingCart, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

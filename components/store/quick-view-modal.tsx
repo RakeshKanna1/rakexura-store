@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ShoppingBag, X, TicketPercent } from "lucide-react";
+import { ShoppingBag, X, TicketPercent } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import { assetUrl, formatPrice, gameUrl, lowestPrice } from "@/lib/utils";

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState, createElement, useMemo, useCallback, ElementType } from 'react';
-import { gsap } from 'gsap';
 import './text-type.css';
 
 interface TextTypeProps {
@@ -86,19 +85,24 @@ export function TextType({
   }, [startOnVisible]);
 
   useEffect(() => {
-    if (showCursor && cursorRef.current) {
+    if (!showCursor || !cursorRef.current) return;
+    let tween: { kill: () => void } | undefined;
+    let disposed = false;
+    void import('gsap').then(({ default: gsap }) => {
+      if (disposed || !cursorRef.current) return;
       gsap.set(cursorRef.current, { opacity: 1 });
-      const tween = gsap.to(cursorRef.current, {
+      tween = gsap.to(cursorRef.current, {
         opacity: 0,
         duration: cursorBlinkDuration,
         repeat: -1,
         yoyo: true,
         ease: 'power2.inOut'
       });
-      return () => {
-        tween.kill();
-      };
-    }
+    });
+    return () => {
+      disposed = true;
+      if (tween) tween.kill();
+    };
   }, [showCursor, cursorBlinkDuration]);
 
   useEffect(() => {

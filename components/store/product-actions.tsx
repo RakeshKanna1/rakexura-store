@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, Check, Heart, Info, ShieldCheck, ShoppingBag, TicketPercent, Zap } from "lucide-react";
+import { BadgeCheck, Check, Info, ShieldCheck, ShoppingBag, TicketPercent, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
