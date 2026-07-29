@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, HelpCircle, Phone, ReceiptText, ExternalLink } from "lucide-react";
+import { ArrowLeft, HelpCircle } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { GameForm } from "@/components/admin/game-form";
@@ -7,7 +7,6 @@ import { CouponForm } from "@/components/admin/coupon-form";
 import type { Game } from "@/types/store";
 import { AdminAccessDenied } from "@/components/admin/access-denied";
 import { MediaManager } from "@/components/admin/media-manager";
-import { OrderActions } from "@/components/admin/order-actions";
 import { SearchableTable } from "@/components/admin/searchable-table";
 import { FlashSaleForm } from "@/components/admin/flash-sale-form";
 import { CampaignForm } from "@/components/admin/campaign-form";

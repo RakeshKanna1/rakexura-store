@@ -154,7 +154,7 @@ export function CheckoutForm() {
         }
       }
     }
-  }, [coupon, lines, bundleLines, setCoupon]);
+  }, [coupon, lines, bundleLines, subtotal, setCoupon]);
 
   const isRankFreebie = coupon && (
     coupon.code === "DIAMONDFREE" || 
