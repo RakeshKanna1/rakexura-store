@@ -601,9 +601,8 @@ export function BroadcastComposer({
   const platformOptions = [
     { value: "Steam", label: "Steam" },
     { value: "Epic", label: "Epic" },
-    { value: "Offline", label: "Offline" },
     { value: "Xbox", label: "Xbox" },
-    { value: "Nvidia GeForce", label: "Nvidia GeForce" },
+    { value: "Nvidia GeForce NOW", label: "Nvidia GeForce NOW" },
   ];
 
   const [selectedGameId, setSelectedGameId] = useState("");
