@@ -9,6 +9,7 @@ export type SelectOption = {
   value: string;
   label: string;
   sublabel?: string;
+  icon?: React.ElementType;
 };
 
 type CustomSelectProps = {
@@ -57,6 +58,8 @@ export function CustomSelect({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const SelectedIcon = selectedOption?.icon;
+
   return (
     <div ref={containerRef} className={`relative w-full ${isOpen ? "z-50" : "z-10"} ${className}`}>
       {/* Trigger Button */}
@@ -65,9 +68,12 @@ export function CustomSelect({
         onClick={() => setIsOpen(!isOpen)}
         className="flex h-12 w-full items-center justify-between rounded-md border border-white/15 bg-black/40 px-4 text-sm font-medium text-white transition-all hover:border-[#8b5cf6]/50 focus:border-[#8b5cf6] focus:outline-none select-none cursor-pointer"
       >
-        <span className={selectedOption ? "text-white font-medium truncate" : "text-[#8991a6] truncate"}>
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
+        <div className="flex items-center gap-2.5 min-w-0 truncate">
+          {SelectedIcon && <SelectedIcon size={17} className="text-[#a78bfa] shrink-0" />}
+          <span className={selectedOption ? "text-white font-medium truncate" : "text-[#8991a6] truncate"}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+        </div>
         <ChevronDown
           size={18}
           className={`text-[#8991a6] transition-transform duration-200 shrink-0 ml-2 ${
@@ -112,6 +118,7 @@ export function CustomSelect({
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((opt) => {
                   const isSelected = opt.value === value;
+                  const OptIcon = opt.icon;
                   return (
                     <button
                       key={opt.value}
@@ -127,13 +134,16 @@ export function CustomSelect({
                           : "text-[#d0d6e5] hover:bg-white/10 hover:text-white"
                       }`}
                     >
-                      <div className="truncate">
-                        <span className="block truncate font-semibold">{opt.label}</span>
-                        {opt.sublabel && (
-                          <span className={`block text-[10px] truncate ${isSelected ? "text-white/80" : "text-[#8991a6]"}`}>
-                            {opt.sublabel}
-                          </span>
-                        )}
+                      <div className="flex items-center gap-2.5 min-w-0 truncate">
+                        {OptIcon && <OptIcon size={16} className={isSelected ? "text-white shrink-0" : "text-[#a78bfa] shrink-0"} />}
+                        <div className="truncate">
+                          <span className="block truncate font-semibold">{opt.label}</span>
+                          {opt.sublabel && (
+                            <span className={`block text-[10px] truncate ${isSelected ? "text-white/80" : "text-[#8991a6]"}`}>
+                              {opt.sublabel}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       {isSelected && <Check size={16} className="shrink-0 ml-2 text-white" />}
                     </button>

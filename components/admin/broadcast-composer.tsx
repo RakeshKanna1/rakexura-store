@@ -562,6 +562,18 @@ export function BroadcastComposer({
 
   const [selectedGameId, setSelectedGameId] = useState("");
 
+  const templateSelectOptions = [
+    { value: "game", label: "New Game", sublabel: "Announce new game added to store catalog", icon: Gamepad2 },
+    { value: "preorder", label: "Pre-order Game", sublabel: "Announce upcoming pre-order availability & perks", icon: Clock },
+    { value: "offer", label: "Special Offer", sublabel: "Promote limited-time discounts & sale pricing", icon: Flame },
+    { value: "invoice", label: "Order Invoice", sublabel: "Fetch & send purchase receipt to customer", icon: Receipt },
+    { value: "review", label: "Review Request", sublabel: "Ask customer to leave a review & rating", icon: Star },
+    { value: "giveaway", label: "Giveaway Alert", sublabel: "Announce free game giveaway or gift", icon: Gift },
+    { value: "activation", label: "Activation Guide", sublabel: "Send game activation & account instructions", icon: Key },
+    { value: "announcement", label: "Announcement", sublabel: "General store feature or platform update", icon: Megaphone },
+    { value: "support", label: "Support Notice", sublabel: "Send support desk & order help update", icon: LifeBuoy },
+  ];
+
   return (
     <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
       <section className="premium-panel rounded-lg p-5 md:p-7">
@@ -575,34 +587,19 @@ export function BroadcastComposer({
           </div>
         </div>
 
-        {/* Quick Template Buttons */}
+        {/* Quick Template Dropdown */}
         <div className="mt-6">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#94a3b8] mb-3">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#94a3b8] mb-2.5">
             <Sparkles size={15} className="text-[#a78bfa]" />
             <span>SELECT NOTIFICATION TEMPLATE</span>
           </div>
-          <div className="flex flex-wrap gap-2.5">
-            {(Object.keys(templates) as Array<keyof typeof templates>).map((key) => {
-              const item = templates[key];
-              const Icon = item.icon;
-              const isSelected = selectedTemplateKey === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => applyTemplate(key)}
-                  className={`inline-flex items-center gap-2.5 rounded-lg border px-4 py-3 text-sm font-extrabold transition-all select-none cursor-pointer ${
-                    isSelected
-                      ? "border-[#a78bfa] bg-[#a78bfa]/15 text-white shadow-[0_0_20px_rgba(167,139,250,0.25)]"
-                      : "border-white/10 bg-[#16171a] text-white hover:border-white/20 hover:bg-[#1f2024]"
-                  }`}
-                >
-                  <Icon size={16} className={isSelected ? "text-[#c4b5fd]" : "text-[#a78bfa]"} />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
+          <CustomSelect
+            options={templateSelectOptions}
+            value={selectedTemplateKey}
+            onChange={(val) => applyTemplate(val)}
+            placeholder="Select a notification template..."
+            searchable={false}
+          />
         </div>
 
         {/* Order Invoice Fetch & Auto-Fill Section */}
