@@ -598,7 +598,7 @@ export function CheckoutForm() {
                 </div>
               ) : null}
               {/* Screenshot Uploader Component (Permanently Visible) */}
-              <label className="mt-4 flex min-h-20 cursor-pointer items-center gap-3 rounded-md border border-dashed border-white/15 bg-white/[.03] p-4 text-sm transition hover:border-[#facc15]/50"><ImageUp className="shrink-0 text-[#facc15]" /><span className="min-w-0"><b className="block truncate">{proof ? proof.name : "Choose payment screenshot"}</b><small className="muted">JPG, PNG, WebP, or AVIF, maximum 5 MB</small></span><input suppressHydrationWarning type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="sr-only" onChange={(event) => chooseProof(event.target.files?.[0] ?? null)} /></label>
+              <label className="mt-4 flex min-h-20 cursor-pointer items-center gap-3 rounded-md border border-dashed border-white/15 bg-white/[.03] p-4 text-sm transition hover:border-[#facc15]/50"><ImageUp className="shrink-0 text-[#facc15]" /><span className="min-w-0"><b className="block truncate">{proof ? proof.name : "Choose payment screenshot"}</b><small className="muted">JPG, PNG, WebP, or AVIF, maximum 5 MB</small></span><input suppressHydrationWarning type="file" accept="image/*,.avif,.webp,.png,.jpg,.jpeg" className="sr-only" onChange={(event) => chooseProof(event.target.files?.[0] ?? null)} /></label>
             </div>
           </div>
           

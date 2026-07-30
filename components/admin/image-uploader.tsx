@@ -82,7 +82,7 @@ export function ImageUploader({ name, label, initial, type }: { name: string; la
         )}
         <input
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/avif"
+          accept="image/*,.avif,.webp,.png,.jpg,.jpeg"
           className="sr-only"
           disabled={uploading}
           onChange={(event) => void upload(event.target.files?.[0])}
