@@ -1,6 +1,6 @@
 "use client";
 
-import { BellRing, Gamepad2, Gift, MessageCircle, Send, Mail, Flame, Key, Megaphone, LifeBuoy, Sparkles, Receipt, Search, Star, Clock } from "lucide-react";
+import { BellRing, Gamepad2, Gift, MessageCircle, Send, Mail, Flame, Key, Megaphone, LifeBuoy, Sparkles, Receipt, Search, Star, Clock, Copy } from "lucide-react";
 import { useState, useTransition, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { sendStoreAnnouncement, sendSinglePushNotification, sendSingleEmailNotification, giftGameToCustomer, fetchOrderInvoiceData } from "@/app/admin/actions";
@@ -51,71 +51,71 @@ const templates = {
       "• Purchased Items\n\n" +
       "Please keep a copy of this receipt for your records.\n" +
       "View your purchase history: https://rakexura-store.vercel.app/dashboard/orders",
-    shortMessage: "Invoice RKX-ORDER-REF processed! View receipt details.",
+    shortMessage: "🧾 Invoice RKX-ORDER-REF processed! View receipt details.",
     link: "/dashboard/orders",
   },
   review: {
     label: "Review Request",
     icon: Star,
-    title: "How was your gaming experience? Leave a review!",
+    title: "⭐ How was your gaming experience? Leave a review!",
     message: "Thank you for shopping at Rakexura Store! We hope you are enjoying your new game. Please take 30 seconds to rate your experience and leave a review. Your feedback helps fellow gamers!",
-    shortMessage: "Leave a review on Rakexura Store! Share your gaming experience.",
+    shortMessage: "⭐ Leave a review on Rakexura Store! Share your gaming experience.",
     link: "/dashboard/orders",
   },
   game: {
     label: "New Game",
     icon: Gamepad2,
-    title: "New game added",
+    title: "🎮 New game added",
     message: "A new game just landed at Rakexura. View the latest price and available platforms now.",
-    shortMessage: "New Game added to Rakexura Store catalog!",
+    shortMessage: "🎮 New Game added to Rakexura Store catalog!",
     link: "/games",
   },
   preorder: {
     label: "Pre-order Game",
     icon: Clock,
-    title: "Pre-order Live on Rakexura Store",
+    title: "⏳ Pre-order Live on Rakexura Store",
     message: "Pre-orders are now officially open! Reserve your copy today on Rakexura Store to secure day-1 activation access and exclusive perks.",
-    shortMessage: "Pre-order Live: Reserve your copy on Rakexura Store now!",
+    shortMessage: "⏳ Pre-order Live: Reserve your copy on Rakexura Store now!",
     link: "/games",
   },
   offer: {
     label: "Special Offer",
     icon: Flame,
-    title: "Special Offer Live on Rakexura Store",
+    title: "🔥 Special Offer Live on Rakexura Store",
     message: "A fresh limited-time special offer is live! Check out our exclusive discounts on top PC games and grab your keys before stock runs out.",
-    shortMessage: "Special Offer: Top PC game deals live on Rakexura Store now!",
+    shortMessage: "🔥 Special Offer: Top PC game deals live on Rakexura Store now!",
     link: "/games",
   },
   giveaway: {
     label: "Giveaway Alert",
     icon: Gift,
-    title: "Rakexura Free Game Giveaway",
+    title: "🎁 Rakexura Free Game Giveaway",
     message: "A new Rakexura giveaway is open. Check the details and join before entries close.",
-    shortMessage: "Giveaway Alert: Win a free game on Rakexura Store!",
+    shortMessage: "🎁 Giveaway Alert: Win a free game on Rakexura Store!",
     link: "/",
   },
   activation: {
     label: "Activation Guide",
     icon: Key,
-    title: "Game Activation & Account Guide",
+    title: "🗝️ Game Activation & Account Guide",
     message: "Your game activation instructions and account details are ready. View your orders to claim access.",
-    shortMessage: "Activation Guide: Claim your game access now.",
+    shortMessage: "🗝️ Activation Guide: Claim your game access now.",
     link: "/dashboard/orders",
   },
   announcement: {
     label: "Announcement",
     icon: Megaphone,
-    title: "Important Rakexura Store Update",
+    title: "📢 Important Rakexura Store Update",
     message: "We have updated our store catalog and platform options. Discover what's new today on Rakexura!",
-    shortMessage: "Announcement: New store features updated on Rakexura!",
+    shortMessage: "📢 Announcement: New store features updated on Rakexura!",
     link: "/",
   },
   support: {
     label: "Support Notice",
     icon: LifeBuoy,
-    title: "Rakexura Support Update",
+    title: "⚽ Rakexura Support Update",
     message: "Need activation help or order assistance? Our support desk is ready to help you.",
-    shortMessage: "Support Notice: Need help with your order? Contact support.",
+    shortMessage: "⚽ Support Notice: Need help with your order? Contact support.",
     link: "/support",
   },
 };
@@ -315,18 +315,18 @@ export function BroadcastComposer({
         const priceStr = salePrice ? `₹${salePrice.toLocaleString("en-IN")}` : "Special Price";
         const origStr = origPrice ? `₹${origPrice.toLocaleString("en-IN")}` : "";
 
-        setTitle(`Limited Time Deal: ${game.title} is on Sale!`);
+        setTitle(`🔥 Limited Time Deal: ${game.title} is on Sale!`);
         setMessage(
           `Exclusive Special Offer on ${game.title}!\n\n` +
           `Grab your copy now for only ${priceStr}${origStr ? ` (was ${origStr}, save ${discount}% OFF)` : ''}.\n\n` +
           `Limited stock available on Rakexura Store. Claim your key before the deal ends!`
         );
-        setShortMessage(`Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
+        setShortMessage(`🔥 Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
         setLink(gameUrl(game));
       } else {
-        setTitle("Exclusive Rakexura Offer Live");
+        setTitle("🔥 Exclusive Rakexura Offer Live");
         setMessage("A fresh limited-time special offer is live! Check out our exclusive discounts on top PC games and grab your keys before stock runs out.");
-        setShortMessage("Special Offer: Top PC game deals live on Rakexura Store now!");
+        setShortMessage("🔥 Special Offer: Top PC game deals live on Rakexura Store now!");
         setLink("/games");
       }
     } else if (key === "preorder") {
@@ -334,12 +334,12 @@ export function BroadcastComposer({
         const salePrice = game.sale_price || game.offline_price || game.steam_price || 0;
         const priceStr = salePrice ? `₹${salePrice.toLocaleString("en-IN")}` : "Special Price";
 
-        setTitle(`Pre-order Live: ${game.title}`);
+        setTitle(`⏳ Pre-order Live: ${game.title}`);
         setMessage(
           `Pre-orders are officially open for ${game.title}!\n\n` +
           `Reserve your copy today on Rakexura Store${priceStr !== "Special Price" ? ` (from ${priceStr})` : ''} to secure day-1 activation access and exclusive pre-order perks.`
         );
-        setShortMessage(`Pre-order Live: Secure your copy of ${game.title} on Rakexura Store now!`);
+        setShortMessage(`⏳ Pre-order Live: Secure your copy of ${game.title} on Rakexura Store now!`);
         setLink(gameUrl(game));
       } else {
         setTitle(template.title);
@@ -367,31 +367,31 @@ export function BroadcastComposer({
     const origStr = origPrice ? `₹${origPrice.toLocaleString("en-IN")}` : "";
 
     if (selectedTemplateKey === "offer") {
-      setTitle(`Limited Time Deal: ${game.title} is on Sale!`);
+      setTitle(`🔥 Limited Time Deal: ${game.title} is on Sale!`);
       setMessage(
         `Exclusive Special Offer on ${game.title}!\n\n` +
         `Grab your copy now for only ${priceStr}${origStr ? ` (was ${origStr}, save ${discount}% OFF)` : ''}.\n\n` +
         `Limited stock available on Rakexura Store. Claim your key before the deal ends!`
       );
-      setShortMessage(`Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
+      setShortMessage(`🔥 Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
       setLink(gameUrl(game));
     } else if (selectedTemplateKey === "preorder") {
-      setTitle(`Pre-order Live: ${game.title}`);
+      setTitle(`⏳ Pre-order Live: ${game.title}`);
       setMessage(
         `Pre-orders are officially open for ${game.title}!\n\n` +
         `Reserve your copy today on Rakexura Store${priceStr !== "Special Price" ? ` (from ${priceStr})` : ''} to secure day-1 activation access and exclusive pre-order perks.`
       );
-      setShortMessage(`Pre-order Live: Secure your copy of ${game.title} on Rakexura Store now!`);
+      setShortMessage(`⏳ Pre-order Live: Secure your copy of ${game.title} on Rakexura Store now!`);
       setLink(gameUrl(game));
     } else if (selectedTemplateKey === "review") {
-      setTitle(`How is ${game.title}? Leave a review!`);
+      setTitle(`⭐ How is ${game.title}? Leave a review!`);
       setMessage(`Hope you are enjoying ${game.title}! Please take 30 seconds to rate your experience and leave a review on Rakexura Store.`);
-      setShortMessage(`Leave a review for ${game.title}! Share your experience.`);
+      setShortMessage(`⭐ Leave a review for ${game.title}! Share your experience.`);
       setLink(gameUrl(game));
     } else {
-      setTitle(`${game.title} is now available`);
+      setTitle(`🎮 ${game.title} is now available`);
       setMessage(`${game.title} has arrived at Rakexura. Check platforms, live pricing${priceStr !== "Special Price" ? ` (from ${priceStr})` : ''}, trailers, and current offers.`);
-      setShortMessage(`New Game: ${game.title} is now live on Rakexura Store!`);
+      setShortMessage(`🎮 New Game: ${game.title} is now live on Rakexura Store!`);
       setLink(gameUrl(game));
     }
   }
@@ -511,7 +511,7 @@ export function BroadcastComposer({
     window.open(`https://wa.me/${normalized}?text=${encodeURIComponent(`${title}\n\n${message}\n\n${location.origin}${link}`)}`, "_blank", "noopener,noreferrer");
   }
 
-  async function shareToWhatsAppChannel() {
+  async function copyWhatsAppBroadcastText() {
     const selectedGame = games.find((g) => String(g.id) === selectedGameId);
     const imageUrl = selectedGame?.cover_url || selectedGame?.banner_url || "";
 
@@ -521,20 +521,52 @@ export function BroadcastComposer({
     }
     waText += `${message}\n\n`;
     waText += `🎮 *ORDER GAME HERE:* ${location.origin}${link}`;
-    if (whatsappChannelLink) {
-      waText += `\n\n📢 *JOIN RAKEXURA WHATSAPP CHANNEL:* ${whatsappChannelLink}`;
-    }
 
+    let copied = false;
     try {
-      await navigator.clipboard.writeText(waText);
-      toast.success("Pre-built message & game photo copied to clipboard! Opening WhatsApp...");
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(waText);
+        copied = true;
+      }
     } catch {
-      toast.info("Opening WhatsApp...");
+      copied = false;
     }
 
-    const encodedText = encodeURIComponent(waText);
-    const targetUrl = `https://web.whatsapp.com/send?text=${encodedText}`;
-    window.open(targetUrl, "_blank", "noopener,noreferrer");
+    if (!copied) {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = waText;
+        textarea.style.position = "fixed";
+        textarea.style.top = "0";
+        textarea.style.left = "0";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        copied = document.execCommand("copy");
+        document.body.removeChild(textarea);
+      } catch (err) {
+        console.warn("Fallback copy error:", err);
+      }
+    }
+
+    if (copied) {
+      toast.success("WhatsApp broadcast text & photo link copied to clipboard!");
+    } else {
+      toast.error("Could not copy automatically. Please select & copy the text manually.");
+    }
+    return waText;
+  }
+
+  async function shareToWhatsAppChannel() {
+    const waText = await copyWhatsAppBroadcastText();
+    const channelUrl = whatsappChannelLink.trim();
+    if (channelUrl) {
+      window.open(channelUrl, "_blank", "noopener,noreferrer");
+    } else {
+      const encodedText = encodeURIComponent(waText);
+      window.open(`https://web.whatsapp.com/send?text=${encodedText}`, "_blank", "noopener,noreferrer");
+    }
   }
 
   const safeGames = (games ?? []).filter((g) => Boolean(g && g.id));
@@ -743,15 +775,26 @@ export function BroadcastComposer({
           <span className="font-black">{pending ? "Sending Broadcast..." : "Notify all customer accounts"}</span>
         </button>
 
-        {/* WhatsApp Channel & Group Broadcast Button */}
-        <button
-          type="button"
-          onClick={shareToWhatsAppChannel}
-          className="btn mt-3.5 w-full bg-[#25D366] hover:bg-[#20bd5a] text-black font-black text-sm cursor-pointer flex items-center justify-center gap-2.5 py-3.5 rounded-lg shadow-[0_0_22px_rgba(37,211,102,0.35)] transition-all border border-black/10"
-        >
-          <MessageCircle size={20} className="text-black stroke-[2.2] shrink-0" />
-          <span className="font-extrabold text-sm text-black tracking-tight">Open WhatsApp Channel Broadcast</span>
-        </button>
+        {/* WhatsApp Channel & Group Broadcast Buttons */}
+        <div className="mt-3.5 grid gap-2.5 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={shareToWhatsAppChannel}
+            className="btn w-full bg-[#25D366] hover:bg-[#20bd5a] text-black font-black text-xs md:text-sm cursor-pointer flex items-center justify-center gap-2 py-3.5 rounded-lg shadow-[0_0_22px_rgba(37,211,102,0.35)] transition-all border border-black/10"
+          >
+            <MessageCircle size={18} className="text-black stroke-[2.2] shrink-0" />
+            <span>Open WhatsApp Channel</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => void copyWhatsAppBroadcastText()}
+            className="btn w-full bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs md:text-sm cursor-pointer flex items-center justify-center gap-2 py-3.5 rounded-lg border border-white/15 transition-all"
+          >
+            <Copy size={18} className="text-[#a78bfa] shrink-0" />
+            <span>Copy Broadcast Text</span>
+          </button>
+        </div>
       </section>
 
       <aside className="space-y-5">
