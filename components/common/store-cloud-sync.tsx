@@ -59,8 +59,9 @@ export function StoreCloudSync() {
 
     async function start() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!active || !user) return;
+        const { data, error } = await supabase.auth.getUser();
+        if (error || !active || !data?.user) return;
+        const user = data.user;
         
         // Notify owner/admins if this is a first-time customer signup/login
         void fetch("/api/notifications/new-user", { method: "POST" }).catch(console.error);

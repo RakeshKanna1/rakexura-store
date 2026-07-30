@@ -65,6 +65,7 @@ export function CustomSelect({
       {/* Trigger Button */}
       <button
         type="button"
+        suppressHydrationWarning
         onClick={() => setIsOpen(!isOpen)}
         className="flex h-12 w-full items-center justify-between rounded-md border border-white/15 bg-black/40 px-4 text-sm font-medium text-white transition-all hover:border-[#8b5cf6]/50 focus:border-[#8b5cf6] focus:outline-none select-none cursor-pointer"
       >

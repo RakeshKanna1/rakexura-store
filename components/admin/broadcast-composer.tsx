@@ -136,9 +136,7 @@ export function BroadcastComposer({
   const [message, setMessage] = useState(prefill ? `${prefill} has arrived at Rakexura. Check platforms, live pricing, trailers, and current offers.` : templates.game.message);
   const [shortMessage, setShortMessage] = useState(prefill ? `🎮 New Game: ${prefill} is now live on Rakexura!` : templates.game.shortMessage);
   const [link, setLink] = useState(prefill ? `/games` : templates.game.link);
-  const [whatsappChannelLink, setWhatsappChannelLink] = useState(
-    process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL || "https://whatsapp.com/channel/0029Vb4w"
-  );
+  const [whatsappChannelLink, setWhatsappChannelLink] = useState("https://whatsapp.com/channel/0029Vb7ylzhLo4hZDVQL6U46");
   const [customerId, setCustomerId] = useState(customers[0]?.id ?? "");
   const [targetEmail, setTargetEmail] = useState(customers[0]?.email ?? "");
   const [giftGameId, setGiftGameId] = useState("");
@@ -512,12 +510,20 @@ export function BroadcastComposer({
   }
 
   async function copyWhatsAppBroadcastText() {
-    const selectedGame = games.find((g) => String(g.id) === selectedGameId);
-    const imageUrl = selectedGame?.cover_url || selectedGame?.banner_url || "";
+    const selectedGame =
+      games.find((g) => String(g.id) === selectedGameId) ||
+      games.find((g) => g.title && title.toLowerCase().includes(g.title.toLowerCase()));
+
+    const rawImg = selectedGame?.cover_url || "";
+    const imageUrl = rawImg
+      ? rawImg.startsWith("http")
+        ? rawImg
+        : `${location.origin}${rawImg.startsWith("/") ? "" : "/"}${rawImg}`
+      : "";
 
     let waText = `*${title.toUpperCase()}*\n\n`;
     if (imageUrl) {
-      waText += `📸 *GAME PHOTO:* ${imageUrl}\n\n`;
+      waText += `📸 *GAME COVER:* ${imageUrl}\n\n`;
     }
     waText += `${message}\n\n`;
     waText += `🎮 *ORDER GAME HERE:* ${location.origin}${link}`;
@@ -693,33 +699,33 @@ export function BroadcastComposer({
           </div>
         </div>
 
-        <div className="mt-5 block text-sm font-bold">
-          Choose a game <span className="font-normal text-[#8991a6]">(optional)</span>
-          <div className="mt-2">
-            <CustomSelect
-              options={gameOptions}
-              value={selectedGameId}
-              onChange={(val) => {
-                setSelectedGameId(val);
-                chooseGame(val);
-              }}
-              placeholder="Custom announcement"
-            />
-          </div>
+        <div className="mt-5">
+          <label className="block text-sm font-bold mb-2">
+            Choose a game <span className="font-normal text-[#8991a6]">(optional)</span>
+          </label>
+          <CustomSelect
+            options={gameOptions}
+            value={selectedGameId}
+            onChange={(val) => {
+              setSelectedGameId(val);
+              chooseGame(val);
+            }}
+            placeholder="Custom announcement"
+          />
         </div>
 
-        <label className="mt-4 block text-sm font-bold">
-          Title / Email Subject
+        <div className="mt-4">
+          <label className="block text-sm font-bold mb-2">Title / Email Subject</label>
           <input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             maxLength={80}
-            className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
+            className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
           />
-        </label>
+        </div>
 
-        <label className="mt-4 block text-sm font-bold">
-          Message Body
+        <div className="mt-4">
+          <label className="block text-sm font-bold mb-2">Message Body</label>
           <textarea
             ref={textareaRef}
             value={message}
@@ -728,45 +734,48 @@ export function BroadcastComposer({
             maxLength={3000}
             rows={8}
             style={{ overflowY: "auto", scrollbarWidth: "thin" }}
-            className="mt-2 w-full min-h-[180px] max-h-[600px] overflow-y-auto resize-y rounded-md border border-white/10 bg-black/25 p-4 text-sm leading-relaxed text-white outline-none focus:border-[#8b5cf6]"
+            className="w-full min-h-[180px] max-h-[600px] overflow-y-auto resize-y rounded-md border border-white/10 bg-black/25 p-4 text-sm leading-relaxed text-white outline-none focus:border-[#8b5cf6]"
           />
-        </label>
+        </div>
 
-        <label className="mt-4 block text-sm font-bold">
-          <span className="flex items-center justify-between">
+        <div className="mt-4">
+          <div className="flex items-center justify-between text-sm font-bold mb-2">
             <span>Push Notification Short Message</span>
             <span className="text-[10px] font-black uppercase text-[#a78bfa] tracking-wider bg-[#a78bfa]/10 px-2 py-0.5 rounded border border-[#a78bfa]/20">Device Push Alert</span>
-          </span>
+          </div>
           <input
             value={shortMessage}
             onChange={(event) => setShortMessage(event.target.value)}
             maxLength={120}
             placeholder="Short message for browser & mobile push notifications..."
-            className="mt-2 h-11 w-full rounded-md border border-[#a78bfa]/40 bg-black/25 px-4 text-xs font-bold text-white outline-none focus:border-[#a78bfa]"
+            className="h-11 w-full rounded-md border border-[#a78bfa]/40 bg-black/25 px-4 text-xs font-bold text-white outline-none focus:border-[#a78bfa]"
           />
-        </label>
+        </div>
 
-        <label className="mt-4 block text-sm font-bold">
-          Rakexura Target Link
+        <div className="mt-4">
+          <label className="block text-sm font-bold mb-2">Rakexura Target Link</label>
           <input
             value={link}
             onChange={(event) => setLink(event.target.value)}
-            className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
+            className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
           />
-        </label>
+        </div>
 
-        <label className="mt-4 block text-sm font-bold text-[#20c763]">
-          Rakexura WhatsApp Channel Link <span className="font-normal text-[#8991a6]">(for WhatsApp channel broadcast)</span>
+        <div className="mt-4">
+          <label className="block text-sm font-bold text-[#20c763] mb-2">
+            Rakexura WhatsApp Channel Link <span className="font-normal text-[#8991a6]">(for WhatsApp channel broadcast)</span>
+          </label>
           <input
             value={whatsappChannelLink}
             onChange={(event) => setWhatsappChannelLink(event.target.value)}
             placeholder="e.g. https://whatsapp.com/channel/..."
-            className="mt-2 h-12 w-full rounded-md border border-[#20c763]/40 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#20c763]"
+            className="h-12 w-full rounded-md border border-[#20c763]/40 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#20c763]"
           />
-        </label>
+        </div>
 
         <button
           type="button"
+          suppressHydrationWarning
           onClick={notifyAll}
           disabled={pending}
           className="btn btn-primary mt-6 w-full text-sm font-black cursor-pointer disabled:opacity-50"
@@ -779,6 +788,7 @@ export function BroadcastComposer({
         <div className="mt-3.5 grid gap-2.5 sm:grid-cols-2">
           <button
             type="button"
+            suppressHydrationWarning
             onClick={shareToWhatsAppChannel}
             className="btn w-full bg-[#25D366] hover:bg-[#20bd5a] text-black font-black text-xs md:text-sm cursor-pointer flex items-center justify-center gap-2 py-3.5 rounded-lg shadow-[0_0_22px_rgba(37,211,102,0.35)] transition-all border border-black/10"
           >
@@ -788,6 +798,7 @@ export function BroadcastComposer({
 
           <button
             type="button"
+            suppressHydrationWarning
             onClick={() => void copyWhatsAppBroadcastText()}
             className="btn w-full bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs md:text-sm cursor-pointer flex items-center justify-center gap-2 py-3.5 rounded-lg border border-white/15 transition-all"
           >
