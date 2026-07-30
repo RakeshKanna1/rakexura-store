@@ -76,13 +76,13 @@ export function ImageUploader({ name, label, initial, type }: { name: string; la
             )}
             Drop or choose image
             <small>
-              {dimensions[0]} × {dimensions[1]} WebP output
+              {dimensions[0]} × {dimensions[1]} WebP/AVIF output
             </small>
           </span>
         )}
         <input
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/jpeg,image/png,image/webp,image/avif"
           className="sr-only"
           disabled={uploading}
           onChange={(event) => void upload(event.target.files?.[0])}

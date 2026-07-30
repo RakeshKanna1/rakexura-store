@@ -15,8 +15,8 @@ export function ReviewForm({ gameId, gameTitle }: { gameId: number; gameTitle: s
 
   function selectMedia(files: FileList | null) {
     const selected = Array.from(files ?? []).slice(0, 2);
-    const invalid = selected.find((file) => !/^(image\/(jpeg|png|webp)|video\/mp4)$/.test(file.type) || file.size > 10 * 1024 * 1024);
-    if (invalid) return toast.error("Review media must be JPG, PNG, WebP, or MP4 under 10 MB");
+    const invalid = selected.find((file) => !/^(image\/(jpeg|png|webp|avif)|video\/mp4)$/.test(file.type) || file.size > 10 * 1024 * 1024);
+    if (invalid) return toast.error("Review media must be JPG, PNG, WebP, AVIF, or MP4 under 10 MB");
     setMedia(selected);
   }
 
