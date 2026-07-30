@@ -52,12 +52,23 @@ export default async function AdminMessagesPage({ searchParams }: { searchParams
 
   let rawOrders: OrderOption[] = [];
   let rawCustomers: Array<{ id: string; display_name: string | null; whatsapp: string | null; email?: string | null }> = [];
-  let games: Array<{ id: number; title: string }> = [];
+  let games: Array<{
+    id: number;
+    title: string;
+    slug?: string | null;
+    cover_url?: string | null;
+    banner_url?: string | null;
+    sale_price?: number | null;
+    original_price?: number | null;
+    offline_price?: number | null;
+    steam_price?: number | null;
+    discount_percent?: number | null;
+  }> = [];
 
   try {
     const [custRes, gamesRes, ordersRes] = await Promise.all([
       supabase.from("profiles").select("id,display_name,whatsapp,email").eq("role", "customer").order("display_name"),
-      supabase.from("games").select("id,title,sale_price,original_price,offline_price,steam_price,discount_percent").eq("archived", false).order("title"),
+      supabase.from("games").select("id,title,slug,cover_url,banner_url,sale_price,original_price,offline_price,steam_price,discount_percent").eq("archived", false).order("title"),
       supabase.from("orders").select("id,order_reference,user_id,game_id,variant_type,total_price,cart_items,customer_name,customer_whatsapp,order_status,created_at").order("created_at", { ascending: false }).limit(50)
     ]);
     if (custRes.data) rawCustomers = custRes.data.filter(Boolean);

@@ -11,6 +11,9 @@ type Customer = { id: string; display_name: string | null; whatsapp: string | nu
 type GameOption = {
   id: number;
   title: string;
+  slug?: string | null;
+  cover_url?: string | null;
+  banner_url?: string | null;
   sale_price?: number | null;
   original_price?: number | null;
   offline_price?: number | null;
@@ -505,6 +508,27 @@ export function BroadcastComposer({
     window.open(`https://wa.me/${normalized}?text=${encodeURIComponent(`${title}\n\n${message}\n\n${location.origin}${link}`)}`, "_blank", "noopener,noreferrer");
   }
 
+  async function shareToWhatsAppChannel() {
+    const selectedGame = games.find((g) => String(g.id) === selectedGameId);
+    const imageUrl = selectedGame?.cover_url || selectedGame?.banner_url || "";
+
+    let waText = `📢 *${title.toUpperCase()}*\n\n${message}\n\n`;
+    waText += `🔗 *View & Order Here:* ${location.origin}${link}`;
+    if (imageUrl) {
+      waText += `\n\n🖼️ *Game Cover Photo:* ${imageUrl}`;
+    }
+
+    try {
+      await navigator.clipboard.writeText(waText);
+      toast.success("WhatsApp Channel post & image URL copied to clipboard! Opening WhatsApp...");
+    } catch {
+      toast.info("Opening WhatsApp...");
+    }
+
+    const encoded = encodeURIComponent(waText);
+    window.open(`https://web.whatsapp.com/send?text=${encoded}`, "_blank", "noopener,noreferrer");
+  }
+
   const safeGames = (games ?? []).filter((g) => Boolean(g && g.id));
   const safeCustomers = (customers ?? []).filter((c) => Boolean(c && c.id));
   const safeOrders = (orders ?? []).filter((o) => Boolean(o && o.id));
@@ -702,6 +726,16 @@ export function BroadcastComposer({
         >
           <Send size={16} />
           <span className="font-black">{pending ? "Sending Broadcast..." : "Notify all customer accounts"}</span>
+        </button>
+
+        {/* WhatsApp Channel & Group Broadcast Button */}
+        <button
+          type="button"
+          onClick={shareToWhatsAppChannel}
+          className="btn mt-3 w-full bg-[#25D366] hover:bg-[#20bd5a] text-black font-black text-sm cursor-pointer flex items-center justify-center gap-2.5 py-3 shadow-[0_0_20px_rgba(37,211,102,0.25)] transition-all"
+        >
+          <MessageCircle size={18} className="fill-black text-black" />
+          <span>Post to WhatsApp Channel / Group (With Photo & Link)</span>
         </button>
       </section>
 
