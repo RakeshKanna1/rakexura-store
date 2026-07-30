@@ -136,6 +136,9 @@ export function BroadcastComposer({
   const [message, setMessage] = useState(prefill ? `${prefill} has arrived at Rakexura. Check platforms, live pricing, trailers, and current offers.` : templates.game.message);
   const [shortMessage, setShortMessage] = useState(prefill ? `🎮 New Game: ${prefill} is now live on Rakexura!` : templates.game.shortMessage);
   const [link, setLink] = useState(prefill ? `/games` : templates.game.link);
+  const [whatsappChannelLink, setWhatsappChannelLink] = useState(
+    process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL || "https://whatsapp.com/channel/0029Vb4w"
+  );
   const [customerId, setCustomerId] = useState(customers[0]?.id ?? "");
   const [targetEmail, setTargetEmail] = useState(customers[0]?.email ?? "");
   const [giftGameId, setGiftGameId] = useState("");
@@ -512,21 +515,26 @@ export function BroadcastComposer({
     const selectedGame = games.find((g) => String(g.id) === selectedGameId);
     const imageUrl = selectedGame?.cover_url || selectedGame?.banner_url || "";
 
-    let waText = `📢 *${title.toUpperCase()}*\n\n${message}\n\n`;
-    waText += `🔗 *View & Order Here:* ${location.origin}${link}`;
+    let waText = `*${title.toUpperCase()}*\n\n`;
     if (imageUrl) {
-      waText += `\n\n🖼️ *Game Cover Photo:* ${imageUrl}`;
+      waText += `📸 *GAME PHOTO:* ${imageUrl}\n\n`;
+    }
+    waText += `${message}\n\n`;
+    waText += `🎮 *ORDER GAME HERE:* ${location.origin}${link}`;
+    if (whatsappChannelLink) {
+      waText += `\n\n📢 *JOIN RAKEXURA WHATSAPP CHANNEL:* ${whatsappChannelLink}`;
     }
 
     try {
       await navigator.clipboard.writeText(waText);
-      toast.success("WhatsApp Channel post & image URL copied to clipboard! Opening WhatsApp...");
+      toast.success("Pre-built message & game photo copied to clipboard! Opening WhatsApp...");
     } catch {
       toast.info("Opening WhatsApp...");
     }
 
-    const encoded = encodeURIComponent(waText);
-    window.open(`https://web.whatsapp.com/send?text=${encoded}`, "_blank", "noopener,noreferrer");
+    const encodedText = encodeURIComponent(waText);
+    const targetUrl = `https://web.whatsapp.com/send?text=${encodedText}`;
+    window.open(targetUrl, "_blank", "noopener,noreferrer");
   }
 
   const safeGames = (games ?? []).filter((g) => Boolean(g && g.id));
@@ -712,6 +720,16 @@ export function BroadcastComposer({
             value={link}
             onChange={(event) => setLink(event.target.value)}
             className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
+          />
+        </label>
+
+        <label className="mt-4 block text-sm font-bold text-[#20c763]">
+          Rakexura WhatsApp Channel Link <span className="font-normal text-[#8991a6]">(for WhatsApp channel broadcast)</span>
+          <input
+            value={whatsappChannelLink}
+            onChange={(event) => setWhatsappChannelLink(event.target.value)}
+            placeholder="e.g. https://whatsapp.com/channel/..."
+            className="mt-2 h-12 w-full rounded-md border border-[#20c763]/40 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#20c763]"
           />
         </label>
 
