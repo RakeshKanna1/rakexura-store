@@ -93,7 +93,7 @@ export function CustomSelect({
             transition={{ duration: 0.15, ease: "easeOut" }}
             onWheel={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
-            className="absolute left-0 right-0 top-full z-[999] overflow-hidden rounded-lg border border-white/15 bg-[#0e0b1f] p-2 shadow-[0_12px_40px_rgba(0,0,0,0.8)] backdrop-blur-xl"
+            className="absolute left-0 right-0 top-full z-[9999] overflow-hidden rounded-lg border border-white/20 bg-[#120f26] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.98)] backdrop-blur-2xl"
           >
             {/* Optional Search Filter */}
             {searchable && options.length > 3 && (

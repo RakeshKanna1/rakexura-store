@@ -51,7 +51,7 @@ const templates = {
       "• Purchased Items\n\n" +
       "Please keep a copy of this receipt for your records.\n" +
       "View your purchase history: https://rakexura-store.vercel.app/dashboard/orders",
-    shortMessage: "🧾 Invoice RKX-ORDER-REF processed! View receipt details.",
+    shortMessage: "Invoice RKX-ORDER-REF processed! View receipt details.",
     link: "/dashboard/orders",
   },
   review: {
@@ -59,7 +59,7 @@ const templates = {
     icon: Star,
     title: "How was your gaming experience? Leave a review!",
     message: "Thank you for shopping at Rakexura Store! We hope you are enjoying your new game. Please take 30 seconds to rate your experience and leave a review. Your feedback helps fellow gamers!",
-    shortMessage: "⭐ Leave a review on Rakexura Store! Share your gaming experience.",
+    shortMessage: "Leave a review on Rakexura Store! Share your gaming experience.",
     link: "/dashboard/orders",
   },
   game: {
@@ -67,23 +67,23 @@ const templates = {
     icon: Gamepad2,
     title: "New game added",
     message: "A new game just landed at Rakexura. View the latest price and available platforms now.",
-    shortMessage: "🎮 New Game added to Rakexura Store catalog!",
+    shortMessage: "New Game added to Rakexura Store catalog!",
     link: "/games",
   },
   preorder: {
     label: "Pre-order Game",
     icon: Clock,
-    title: "⏳ Pre-order Live on Rakexura Store",
+    title: "Pre-order Live on Rakexura Store",
     message: "Pre-orders are now officially open! Reserve your copy today on Rakexura Store to secure day-1 activation access and exclusive perks.",
-    shortMessage: "⏳ Pre-order Live: Reserve your copy on Rakexura Store now!",
+    shortMessage: "Pre-order Live: Reserve your copy on Rakexura Store now!",
     link: "/games",
   },
   offer: {
     label: "Special Offer",
     icon: Flame,
-    title: "🔥 Special Offer Live on Rakexura Store",
+    title: "Special Offer Live on Rakexura Store",
     message: "A fresh limited-time special offer is live! Check out our exclusive discounts on top PC games and grab your keys before stock runs out.",
-    shortMessage: "🔥 Special Offer: Top PC game deals live on Rakexura Store now!",
+    shortMessage: "Special Offer: Top PC game deals live on Rakexura Store now!",
     link: "/games",
   },
   giveaway: {
@@ -91,7 +91,7 @@ const templates = {
     icon: Gift,
     title: "Rakexura Free Game Giveaway",
     message: "A new Rakexura giveaway is open. Check the details and join before entries close.",
-    shortMessage: "🎁 Giveaway Alert: Win a free game on Rakexura Store!",
+    shortMessage: "Giveaway Alert: Win a free game on Rakexura Store!",
     link: "/",
   },
   activation: {
@@ -99,7 +99,7 @@ const templates = {
     icon: Key,
     title: "Game Activation & Account Guide",
     message: "Your game activation instructions and account details are ready. View your orders to claim access.",
-    shortMessage: "🗝️ Activation Guide: Claim your game access now.",
+    shortMessage: "Activation Guide: Claim your game access now.",
     link: "/dashboard/orders",
   },
   announcement: {
@@ -107,7 +107,7 @@ const templates = {
     icon: Megaphone,
     title: "Important Rakexura Store Update",
     message: "We have updated our store catalog and platform options. Discover what's new today on Rakexura!",
-    shortMessage: "📢 Announcement: New store features updated on Rakexura!",
+    shortMessage: "Announcement: New store features updated on Rakexura!",
     link: "/",
   },
   support: {
@@ -115,7 +115,7 @@ const templates = {
     icon: LifeBuoy,
     title: "Rakexura Support Update",
     message: "Need activation help or order assistance? Our support desk is ready to help you.",
-    shortMessage: "⚽ Support Notice: Need help with your order? Contact support.",
+    shortMessage: "Support Notice: Need help with your order? Contact support.",
     link: "/support",
   },
 };
@@ -312,18 +312,18 @@ export function BroadcastComposer({
         const priceStr = salePrice ? `₹${salePrice.toLocaleString("en-IN")}` : "Special Price";
         const origStr = origPrice ? `₹${origPrice.toLocaleString("en-IN")}` : "";
 
-        setTitle(`🔥 Limited Time Deal: ${game.title} is on Sale!`);
+        setTitle(`Limited Time Deal: ${game.title} is on Sale!`);
         setMessage(
           `Exclusive Special Offer on ${game.title}!\n\n` +
           `Grab your copy now for only ${priceStr}${origStr ? ` (was ${origStr}, save ${discount}% OFF)` : ''}.\n\n` +
           `Limited stock available on Rakexura Store. Claim your key before the deal ends!`
         );
-        setShortMessage(`🔥 Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
+        setShortMessage(`Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
         setLink(gameUrl(game));
       } else {
-        setTitle("🔥 Exclusive Rakexura Offer Live");
+        setTitle("Exclusive Rakexura Offer Live");
         setMessage("A fresh limited-time special offer is live! Check out our exclusive discounts on top PC games and grab your keys before stock runs out.");
-        setShortMessage("🔥 Special Offer: Top PC game deals live on Rakexura Store now!");
+        setShortMessage("Special Offer: Top PC game deals live on Rakexura Store now!");
         setLink("/games");
       }
     } else if (key === "preorder") {
@@ -331,12 +331,12 @@ export function BroadcastComposer({
         const salePrice = game.sale_price || game.offline_price || game.steam_price || 0;
         const priceStr = salePrice ? `₹${salePrice.toLocaleString("en-IN")}` : "Special Price";
 
-        setTitle(`⏳ Pre-order Live: ${game.title}`);
+        setTitle(`Pre-order Live: ${game.title}`);
         setMessage(
           `Pre-orders are officially open for ${game.title}!\n\n` +
           `Reserve your copy today on Rakexura Store${priceStr !== "Special Price" ? ` (from ${priceStr})` : ''} to secure day-1 activation access and exclusive pre-order perks.`
         );
-        setShortMessage(`⏳ Pre-order Live: Secure your copy of ${game.title} on Rakexura Store now!`);
+        setShortMessage(`Pre-order Live: Secure your copy of ${game.title} on Rakexura Store now!`);
         setLink(gameUrl(game));
       } else {
         setTitle(template.title);
@@ -364,31 +364,31 @@ export function BroadcastComposer({
     const origStr = origPrice ? `₹${origPrice.toLocaleString("en-IN")}` : "";
 
     if (selectedTemplateKey === "offer") {
-      setTitle(`🔥 Limited Time Deal: ${game.title} is on Sale!`);
+      setTitle(`Limited Time Deal: ${game.title} is on Sale!`);
       setMessage(
         `Exclusive Special Offer on ${game.title}!\n\n` +
         `Grab your copy now for only ${priceStr}${origStr ? ` (was ${origStr}, save ${discount}% OFF)` : ''}.\n\n` +
         `Limited stock available on Rakexura Store. Claim your key before the deal ends!`
       );
-      setShortMessage(`🔥 Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
+      setShortMessage(`Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
       setLink(gameUrl(game));
     } else if (selectedTemplateKey === "preorder") {
-      setTitle(`⏳ Pre-order Live: ${game.title}`);
+      setTitle(`Pre-order Live: ${game.title}`);
       setMessage(
         `Pre-orders are officially open for ${game.title}!\n\n` +
         `Reserve your copy today on Rakexura Store${priceStr !== "Special Price" ? ` (from ${priceStr})` : ''} to secure day-1 activation access and exclusive pre-order perks.`
       );
-      setShortMessage(`⏳ Pre-order Live: Secure your copy of ${game.title} on Rakexura Store now!`);
+      setShortMessage(`Pre-order Live: Secure your copy of ${game.title} on Rakexura Store now!`);
       setLink(gameUrl(game));
     } else if (selectedTemplateKey === "review") {
       setTitle(`How is ${game.title}? Leave a review!`);
       setMessage(`Hope you are enjoying ${game.title}! Please take 30 seconds to rate your experience and leave a review on Rakexura Store.`);
-      setShortMessage(`⭐ Leave a review for ${game.title}! Share your experience.`);
+      setShortMessage(`Leave a review for ${game.title}! Share your experience.`);
       setLink(gameUrl(game));
     } else {
       setTitle(`${game.title} is now available`);
       setMessage(`${game.title} has arrived at Rakexura. Check platforms, live pricing${priceStr !== "Special Price" ? ` (from ${priceStr})` : ''}, trailers, and current offers.`);
-      setShortMessage(`🎮 New Game: ${game.title} is now live on Rakexura Store!`);
+      setShortMessage(`New Game: ${game.title} is now live on Rakexura Store!`);
       setLink(gameUrl(game));
     }
   }
