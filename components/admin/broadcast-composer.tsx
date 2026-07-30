@@ -732,10 +732,10 @@ export function BroadcastComposer({
         <button
           type="button"
           onClick={shareToWhatsAppChannel}
-          className="btn mt-3 w-full bg-[#25D366] hover:bg-[#20bd5a] text-black font-black text-sm cursor-pointer flex items-center justify-center gap-2.5 py-3 shadow-[0_0_20px_rgba(37,211,102,0.25)] transition-all"
+          className="btn mt-3.5 w-full bg-[#25D366] hover:bg-[#20bd5a] text-black font-black text-sm cursor-pointer flex items-center justify-center gap-2.5 py-3.5 rounded-lg shadow-[0_0_22px_rgba(37,211,102,0.35)] transition-all border border-black/10"
         >
-          <MessageCircle size={18} className="fill-black text-black" />
-          <span>Post to WhatsApp Channel / Group (With Photo & Link)</span>
+          <MessageCircle size={20} className="text-black stroke-[2.2] shrink-0" />
+          <span className="font-extrabold text-sm text-black tracking-tight">Open WhatsApp Channel Broadcast</span>
         </button>
       </section>
 
