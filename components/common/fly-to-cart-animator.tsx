@@ -24,6 +24,8 @@ export function triggerFlyToCart(
   let startWidth = 100;
   let startHeight = 130;
 
+  let flySrc = src;
+
   if (source) {
     let targetEl: Element | null = null;
     if (typeof source === "object" && source !== null) {
@@ -42,6 +44,12 @@ export function triggerFlyToCart(
         startY = rect.top + rect.height / 2;
         startWidth = Math.min(rect.width, 140);
         startHeight = Math.min(rect.height, 160);
+      }
+
+      const cardImg = cardEl.querySelector("img") as HTMLImageElement | null;
+      if (cardImg) {
+        const liveSrc = cardImg.currentSrc || cardImg.src;
+        if (liveSrc) flySrc = liveSrc;
       }
     }
   }
@@ -69,7 +77,7 @@ export function triggerFlyToCart(
     new CustomEvent("trigger-fly-to-cart", {
       detail: {
         id,
-        src,
+        src: flySrc,
         startX,
         startY,
         startWidth,
