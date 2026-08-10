@@ -49,7 +49,9 @@ export function triggerFlyToCart(
       const cardImg = cardEl.querySelector("img") as HTMLImageElement | null;
       if (cardImg) {
         const liveSrc = cardImg.currentSrc || cardImg.src;
-        if (liveSrc) flySrc = liveSrc;
+        if (liveSrc && !liveSrc.startsWith("data:image/svg")) {
+          flySrc = liveSrc;
+        }
       }
     }
   }
@@ -131,12 +133,13 @@ export function FlyToCartAnimator() {
         return (
           <div
             key={item.id}
-            className="absolute rounded-lg border-2 border-[#facc15] shadow-[0_0_25px_rgba(250,204,21,0.7)] bg-[#08090c] overflow-hidden"
+            className="absolute rounded-lg border-2 border-[#facc15] shadow-[0_0_25px_rgba(250,204,21,0.7)] bg-[#08090c] overflow-hidden bg-cover bg-center"
             style={{
               width: `${item.startWidth}px`,
               height: `${item.startHeight}px`,
               left: `${item.startX - item.startWidth / 2}px`,
               top: `${item.startY - item.startHeight / 2}px`,
+              backgroundImage: `url("${item.src}")`,
               animation: `flyToCartKeyframes 0.65s cubic-bezier(0.18, 0.89, 0.32, 1.15) forwards`,
               transformOrigin: "center center",
               "--delta-x": `${deltaX}px`,
@@ -147,7 +150,7 @@ export function FlyToCartAnimator() {
             <img
               src={item.src}
               alt="Flying Game"
-              className="h-full w-full object-cover block"
+              className="h-full w-full object-cover block relative z-10"
               loading="eager"
               decoding="sync"
             />
