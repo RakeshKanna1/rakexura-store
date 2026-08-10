@@ -139,7 +139,9 @@ export function FlyToCartAnimator() {
             <img
               src={item.src}
               alt="Flying Game"
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover block"
+              loading="eager"
+              decoding="sync"
             />
           </div>
         );
