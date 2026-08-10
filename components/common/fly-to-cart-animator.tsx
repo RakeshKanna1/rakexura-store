@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 interface FlyingItem {
   id: string;
   src: string;
+  srcset?: string;
   startX: number;
   startY: number;
   startWidth: number;
@@ -25,6 +26,7 @@ export function triggerFlyToCart(
   let startHeight = 130;
 
   let flySrc = src;
+  let flySrcSet = "";
 
   if (source) {
     let targetEl: Element | null = null;
@@ -48,9 +50,12 @@ export function triggerFlyToCart(
 
       const cardImg = cardEl.querySelector("img") as HTMLImageElement | null;
       if (cardImg) {
-        const liveSrc = cardImg.currentSrc || cardImg.src;
+        const liveSrc = cardImg.currentSrc || cardImg.src || cardImg.getAttribute("src");
         if (liveSrc && !liveSrc.startsWith("data:image/svg")) {
           flySrc = liveSrc;
+        }
+        if (cardImg.srcset) {
+          flySrcSet = cardImg.srcset;
         }
       }
     }
@@ -80,6 +85,7 @@ export function triggerFlyToCart(
       detail: {
         id,
         src: flySrc,
+        srcset: flySrcSet,
         startX,
         startY,
         startWidth,
@@ -129,6 +135,7 @@ export function FlyToCartAnimator() {
       {items.map((item) => {
         const deltaX = item.endX - item.startX;
         const deltaY = item.endY - item.startY;
+        const encodedBgUrl = item.src ? encodeURI(item.src).replace(/'/g, "%27") : "";
 
         return (
           <div
@@ -139,7 +146,7 @@ export function FlyToCartAnimator() {
               height: `${item.startHeight}px`,
               left: `${item.startX - item.startWidth / 2}px`,
               top: `${item.startY - item.startHeight / 2}px`,
-              backgroundImage: `url("${item.src}")`,
+              backgroundImage: encodedBgUrl ? `url('${encodedBgUrl}')` : undefined,
               animation: `flyToCartKeyframes 0.65s cubic-bezier(0.18, 0.89, 0.32, 1.15) forwards`,
               transformOrigin: "center center",
               "--delta-x": `${deltaX}px`,
@@ -149,6 +156,8 @@ export function FlyToCartAnimator() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={item.src}
+              srcSet={item.srcset}
+              sizes="(max-width: 768px) 170px, 240px"
               alt="Flying Game"
               className="h-full w-full object-cover block relative z-10"
               loading="eager"
