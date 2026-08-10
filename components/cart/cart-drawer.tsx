@@ -92,8 +92,9 @@ export function CartDrawer() {
                 <DustDisintegration key={`bundle-${line.bundle.id}`} onRemove={() => removeBundle(line.bundle.id)}>
                   {(triggerRemove: () => void) => (
                     <article className="grid grid-cols-[66px_1fr_auto] gap-3 rounded-md border border-[#8b5cf6]/20 bg-[#8b5cf6]/[.04] p-3">
-                      <Link href={`/bundles/${line.bundle.id}`} onClick={() => close(false)} className="relative h-20 w-[62px] overflow-hidden rounded-sm block shrink-0 hover:opacity-90 transition-opacity">
-                        <Image src={assetUrl(line.bundle.cover_image)} alt={line.bundle.title} fill className="object-cover" />
+                      <Link href={`/bundles/${line.bundle.id}`} onClick={() => close(false)} className="relative h-20 w-[62px] overflow-hidden rounded-sm block shrink-0 hover:opacity-90 transition-opacity bg-[#08090c]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={assetUrl(line.bundle.cover_image)} alt={line.bundle.title} className="h-full w-full object-cover" />
                       </Link>
                       <div className="min-w-0 flex-1">
                         <Link href={`/bundles/${line.bundle.id}`} onClick={() => close(false)} className="line-clamp-1 text-sm font-bold text-white hover:underline hover:text-[#facc15] transition-colors block">
@@ -117,8 +118,9 @@ export function CartDrawer() {
                 <DustDisintegration key={`${line.game.id}-${line.platform}`} onRemove={() => remove(line.game.id, line.platform)}>
                   {(triggerRemove: () => void) => (
                     <article className="grid grid-cols-[66px_1fr_auto] gap-3 rounded-md border border-white/[.07] bg-white/[0.03] p-3">
-                      <Link href={gameUrl(line.game)} onClick={() => close(false)} className="relative h-20 w-[62px] overflow-hidden rounded-sm block shrink-0 hover:opacity-90 transition-opacity">
-                        <Image src={assetUrl(line.game.cover_image)} alt={line.game.title} fill className="object-cover" />
+                      <Link href={gameUrl(line.game)} onClick={() => close(false)} className="relative h-20 w-[62px] overflow-hidden rounded-sm block shrink-0 hover:opacity-90 transition-opacity bg-[#08090c]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={assetUrl(line.game.cover_image)} alt={line.game.title} className="h-full w-full object-cover" />
                       </Link>
                       <div className="min-w-0">
                         <Link href={gameUrl(line.game)} onClick={() => close(false)} className="line-clamp-1 text-sm font-bold text-white hover:underline hover:text-[#facc15] transition-colors block">
