@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 
 interface FlyingItem {
   id: string;
@@ -136,13 +135,11 @@ export function FlyToCartAnimator() {
               "--delta-y": `${deltaY}px`,
             } as React.CSSProperties}
           >
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={item.src}
               alt="Flying Game"
-              fill
-              className="object-cover"
-              sizes="140px"
-              unoptimized
+              className="h-full w-full object-cover"
             />
           </div>
         );
