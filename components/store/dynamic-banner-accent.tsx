@@ -10,6 +10,10 @@ export function DynamicBannerAccent({ src }: { src?: string | null }) {
     img.crossOrigin = "Anonymous";
     img.src = src;
 
+    img.onerror = () => {
+      // Fallback silently if image load fails
+    };
+
     img.onload = () => {
       try {
         const canvas = document.createElement("canvas");

@@ -13,6 +13,30 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({ defaultOptions: { queries: { staleTime: 60_000, refetchOnWindowFocus: false } } }));
 
   useEffect(() => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      if (
+        !event.reason ||
+        event.reason instanceof Event ||
+        (typeof event.reason === "object" && (event.reason?.constructor?.name === "Event" || event.reason?.constructor?.name === "ErrorEvent")) ||
+        String(event.reason) === "[object Event]"
+      ) {
+        event.preventDefault();
+      }
+    };
+
+    const handleWindowError = (event: ErrorEvent) => {
+      if (
+        event.error instanceof Event ||
+        String(event.error) === "[object Event]" ||
+        (!event.error && event.message && event.message.includes("[object Event]"))
+      ) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
+    window.addEventListener("error", handleWindowError);
+
     const handleGlobalClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const button = target.closest("button, [role='button'], input[type='submit'], input[type='button']");
@@ -91,7 +115,11 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     };
 
     document.addEventListener("click", handleGlobalClick, true);
-    return () => document.removeEventListener("click", handleGlobalClick, true);
+    return () => {
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+      window.removeEventListener("error", handleWindowError);
+      document.removeEventListener("click", handleGlobalClick, true);
+    };
   }, []);
 
   return <QueryClientProvider client={queryClient}><SmoothScroll /><GsapEffects /><ServiceWorker /><StoreCloudSync /><RealtimeNotifications />{children}</QueryClientProvider>;
