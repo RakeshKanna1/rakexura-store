@@ -14,8 +14,9 @@ export function RealtimeNotifications() {
 
     async function setupRealtime() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user || !active) return;
+        const res = await supabase.auth.getUser().catch(() => null);
+        if (!res?.data?.user || !active) return;
+        const user = res.data.user;
         
         channel = supabase
           .channel(`notifications:${user.id}`)
@@ -24,8 +25,8 @@ export function RealtimeNotifications() {
             toast(notification.title || "Rakexura update", { description: notification.message });
           })
           .subscribe();
-      } catch (err) {
-        console.warn("Could not setup realtime notifications:", err);
+      } catch {
+        // Silently catch network errors during offline or server restart
       }
     }
 

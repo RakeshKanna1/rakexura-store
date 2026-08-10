@@ -2,7 +2,15 @@
 
 import { WifiOff, Globe, Monitor } from "lucide-react";
 
-export function PlatformIcon({ platform, className = "h-2.5 w-2.5 shrink-0" }: { platform: string; className?: string }) {
+export function PlatformIcon({
+  platform,
+  className = "h-2.5 w-2.5 shrink-0",
+  active = false,
+}: {
+  platform: string;
+  className?: string;
+  active?: boolean;
+}) {
   const p = platform.toLowerCase();
 
   if (p.includes("steam")) {
@@ -19,7 +27,8 @@ export function PlatformIcon({ platform, className = "h-2.5 w-2.5 shrink-0" }: {
       <img
         src="/Assets/epic-games-logo-32.png"
         alt="Epic Games"
-        className={`${className} object-contain brightness-0 invert`}
+        className={`${className} object-contain`}
+        style={{ filter: active ? "brightness(0)" : "brightness(0) invert(1)" }}
       />
     );
   }
@@ -30,7 +39,8 @@ export function PlatformIcon({ platform, className = "h-2.5 w-2.5 shrink-0" }: {
       <img
         src="/Assets/xbox-logo-50.png"
         alt="Xbox"
-        className={`${className} object-contain invert`}
+        className={`${className} object-contain`}
+        style={{ filter: active ? "brightness(0)" : "invert(1)" }}
       />
     );
   }

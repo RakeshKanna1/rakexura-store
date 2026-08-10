@@ -48,9 +48,11 @@ export function WhatsAppOnboardingModal() {
     let timer: NodeJS.Timeout;
 
     async function checkUserOnboarding() {
-      const { data: { user } } = await supabase.auth.getUser();
-      let existingPhone = "";
-      let currentUserId: string | null = null;
+      try {
+        const res = await supabase.auth.getUser().catch(() => null);
+        const user = res?.data?.user;
+        let existingPhone = "";
+        let currentUserId: string | null = null;
 
       if (user) {
         currentUserId = user.id;
@@ -108,7 +110,10 @@ export function WhatsAppOnboardingModal() {
       } else {
         setIsOpen(false);
       }
+    } catch {
+      setIsOpen(false);
     }
+  }
 
     checkUserOnboarding();
 

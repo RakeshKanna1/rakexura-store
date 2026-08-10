@@ -96,26 +96,22 @@ export function HeaderNotificationButton() {
   const loadData = useCallback(async () => {
     try {
       const supabase = createClient();
-      const { data, error } = await supabase.auth.getUser();
-      if (error) {
+      const res = await supabase.auth.getUser().catch(() => null);
+      if (!res || res.error || !res.data?.user) {
         setUserId(null);
         setNotifications([]);
         void fetchAnnouncements();
         return;
       }
-      const user = data?.user;
-      if (user) {
-        setUserId(user.id);
-        void fetchUserNotifications(user.id);
-      } else {
-        setUserId(null);
-        setNotifications([]);
-      }
+      const user = res.data.user;
+      setUserId(user.id);
+      void fetchUserNotifications(user.id);
       void fetchAnnouncements();
     } catch (e) {
       console.warn("Error loading user notification state:", e);
       setUserId(null);
       setNotifications([]);
+      void fetchAnnouncements();
     }
   }, [fetchUserNotifications, fetchAnnouncements]);
 

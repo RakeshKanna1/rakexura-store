@@ -38,13 +38,13 @@ export function BundleAddonMatrix({ games, excludeId }: { games: Game[]; exclude
   const needed = Math.max(0, 3 - mainGamesCount - selectedAddons.length);
 
   return (
-    <div className="mt-8 rounded-lg border border-dashed border-[#8b5cf6]/20 bg-[#0c0a1a]/80 p-5 shadow-[0_12px_36px_rgba(0,0,0,0.3)]">
-      <h3 className="text-sm font-black uppercase tracking-wider text-white mb-2">
+    <div className="mt-4 rounded-md border border-white/[0.08] bg-white/[0.025] p-5">
+      <h3 className="text-xs font-black uppercase tracking-wider text-white mb-1.5">
         {needed > 0
           ? `Want to select ${needed} more ${needed === 1 ? "game" : "games"} to unlock your bundle offer?`
           : "Milestone bundle offer unlocked!"}
       </h3>
-      <p className="text-xs text-[#8991a6] mb-4">
+      <p className="text-[11px] leading-relaxed text-[#7f879d] mb-4">
         {needed > 0
           ? `Select exactly ${needed} more ${needed === 1 ? "game" : "games"} to complete your milestone bundle and get 10% off the entire cart!`
           : "You are now eligible to apply the RAKETHREE coupon code for 10% off the entire cart!"}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, PointerEvent } from "react";
+import { useEffect, useState, useRef, PointerEvent } from "react";
 import { motion } from "framer-motion";
 import { Eye, ShoppingCart, X } from "lucide-react";
 import Image from "next/image";
@@ -98,7 +98,12 @@ function GameCardInner({
           />
         </div>
       )}
-      <Link href={gameUrl(game)} prefetch={false} onMouseEnter={handleMouseEnter} className="block aspect-[4/5] overflow-hidden bg-[#08090c]">
+      <Link 
+        href={gameUrl(game)} 
+        prefetch={false} 
+        onMouseEnter={handleMouseEnter}
+        className="block aspect-[4/5] overflow-hidden bg-[#08090c] relative"
+      >
         <Image
           src={assetUrl(game.cover_image)}
           alt={game.title}

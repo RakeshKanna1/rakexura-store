@@ -164,7 +164,7 @@ export function ProductActions({ game }: { game: Game }) {
                     : "border-white/10 bg-black/20 text-[#bbc1d1] hover:border-white/25"
                 }`}
               >
-                <PlatformIcon platform={platform} className={`h-4 w-4 shrink-0 ${selected === platform ? "text-black" : "text-[#bbc1d1]"}`} />
+                <PlatformIcon platform={platform} active={selected === platform} className={`h-4 w-4 shrink-0 ${selected === platform ? "text-black" : "text-[#bbc1d1]"}`} />
                 <span>
                   {game.is_subscription
                     ? game.duration

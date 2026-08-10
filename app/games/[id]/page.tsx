@@ -289,7 +289,10 @@ export default async function GamePage({ params }: Props) {
     background: backgroundStyle,
   } as CSSProperties;
 
-  const heroBackground = `linear-gradient(90deg, rgba(3,5,11,0.98), rgba(3,5,11,0.72) 44%, rgba(3,5,11,0.15)), linear-gradient(0deg, rgba(3,5,11,0.92), transparent 58%)`;
+  const heroBackground = `
+    linear-gradient(90deg, rgba(3,5,11,0.98) 0%, rgba(3,5,11,0.72) 44%, rgba(3,5,11,0.2) 75%, rgba(3,5,11,0.98) 100%),
+    linear-gradient(0deg, rgba(3,5,11,0.98) 0%, rgba(3,5,11,0.6) 30%, transparent 60%)
+  `;
 
   let heroBorderClass = "border-white/[0.08]";
   if (premiumTheme === "jungle") {
@@ -415,12 +418,16 @@ export default async function GamePage({ params }: Props) {
     <DynamicBannerAccent src={bannerUrl} />
     {premiumTheme && <PremiumAmbientEffect theme={premiumTheme} />}
     <RecentlyViewedTracker gameId={game.id} />
-    <section className={`game-detail-hero relative min-h-[560px] overflow-hidden rounded-xl border ${heroBorderClass}`}>
+    <section className="game-detail-hero relative min-h-[560px] overflow-hidden border-0">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img 
         src={bannerUrl} 
         alt={game.title} 
         className="absolute inset-0 h-full w-full object-cover" 
+        style={{
+          maskImage: "linear-gradient(to right, black 65%, transparent 100%), linear-gradient(to bottom, black 65%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to right, black 65%, transparent 100%), linear-gradient(to bottom, black 65%, transparent 100%)",
+        }}
         loading="eager"
         decoding="sync"
         crossOrigin="anonymous"
@@ -492,24 +499,28 @@ export default async function GamePage({ params }: Props) {
                 <h2 className="section-title">System requirements</h2>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <article className={`premium-panel rounded-md p-5 border ${reqPanelClass}`}>
-                  <span className="text-xs font-black uppercase tracking-wider text-[#8991a8]">Minimum Specs</span>
-                  <div className="mt-4 space-y-2 text-sm leading-6 text-[#c4c9d6]">
+                <article className="rounded-xl p-6 border border-white/10 bg-[#08090c]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#8991a8]">MINIMUM SPECS</span>
+                  <div className="mt-4 space-y-2.5 text-sm leading-6 text-[#d7dae4]">
                     {reqs.minimum.split("\n").filter(Boolean).map((line, idx) => (
-                      <div key={idx} className="flex items-start gap-2">
-                        <span className="text-emerald-400 font-bold shrink-0">•</span>
+                      <div key={idx} className="flex items-start gap-2.5">
+                        <span className="text-[#00d68f] font-bold shrink-0">•</span>
                         <span>{line.replace(/^•\s*/, "")}</span>
                       </div>
                     ))}
                   </div>
                 </article>
-                <article className={`premium-panel rounded-md p-5 border ${reqPanelClass}`}>
-                  <span className="text-xs font-black uppercase tracking-wider text-[#8991a8]">Recommended Specs</span>
-                  <div className="mt-4 space-y-2 text-sm leading-6 text-[#c4c9d6]">
+                <article className="relative overflow-hidden rounded-xl p-6 pt-7 border border-[#facc15]/25 bg-[#0e1017]">
+                  {/* Top-Right Corner Flat Yellow Recommended Badge */}
+                  <div className="absolute top-0 right-0 rounded-bl-xl bg-[#facc15] px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-black">
+                    RECOMMENDED
+                  </div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#facc15]">Recommended Specs</span>
+                  <div className="mt-4 space-y-2.5 text-sm leading-6 text-white">
                     {reqs.recommended.split("\n").filter(Boolean).map((line, idx) => (
-                      <div key={idx} className="flex items-start gap-2">
-                        <span className="text-amber-400 font-bold shrink-0">•</span>
-                        <span>{line.replace(/^•\s*/, "")}</span>
+                      <div key={idx} className="flex items-start gap-2.5">
+                        <span className="text-[#facc15] font-bold shrink-0">•</span>
+                        <span className="font-semibold text-white/95">{line.replace(/^•\s*/, "")}</span>
                       </div>
                     ))}
                   </div>

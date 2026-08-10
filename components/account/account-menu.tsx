@@ -19,22 +19,28 @@ export function AccountMenu() {
   const [open, setOpen] = useState(false);
 
   const load = useCallback(async () => {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    try {
+      const supabase = createClient();
+      const res = await supabase.auth.getUser().catch(() => null);
+      const user = res?.data?.user;
+      if (!user) {
+        setAccount(null);
+        setReady(true);
+        setOpen(false);
+        return;
+      }
+      const { data: profile } = await supabase.from("profiles").select("display_name,role,avatar_url").eq("id", user.id).maybeSingle();
+      setAccount({
+        email: user.email ?? "Rakexura account",
+        name: profile?.display_name || user.user_metadata?.display_name || user.user_metadata?.full_name || "Player",
+        role: profile?.role ?? "customer",
+        avatarUrl: profile?.avatar_url,
+      });
+      setReady(true);
+    } catch {
       setAccount(null);
       setReady(true);
-      setOpen(false);
-      return;
     }
-    const { data: profile } = await supabase.from("profiles").select("display_name,role,avatar_url").eq("id", user.id).maybeSingle();
-    setAccount({
-      email: user.email ?? "Rakexura account",
-      name: profile?.display_name || user.user_metadata.display_name || user.user_metadata.full_name || "Player",
-      role: profile?.role ?? "customer",
-      avatarUrl: profile?.avatar_url,
-    });
-    setReady(true);
   }, []);
 
   useEffect(() => {

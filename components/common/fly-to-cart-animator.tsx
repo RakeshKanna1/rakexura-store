@@ -16,21 +16,23 @@ interface FlyingItem {
 
 export function triggerFlyToCart(
   src: string,
-  source: HTMLElement | React.MouseEvent | Element | null
+  source?: HTMLElement | React.MouseEvent | Element | null
 ) {
   if (typeof window === "undefined") return;
 
   let startX = window.innerWidth / 2;
   let startY = window.innerHeight / 2;
-  let startWidth = 80;
-  let startHeight = 100;
+  let startWidth = 100;
+  let startHeight = 130;
 
   if (source) {
     let targetEl: Element | null = null;
-    if ("currentTarget" in source && source.currentTarget instanceof Element) {
-      targetEl = source.currentTarget;
-    } else if (source instanceof Element) {
-      targetEl = source;
+    if (typeof source === "object" && source !== null) {
+      if ("currentTarget" in source && source.currentTarget instanceof Element) {
+        targetEl = source.currentTarget;
+      } else if (source instanceof Element) {
+        targetEl = source;
+      }
     }
 
     if (targetEl) {
@@ -45,15 +47,21 @@ export function triggerFlyToCart(
     }
   }
 
-  // Find header cart button in top navbar
-  const cartBtn = document.querySelector('[aria-label^="Open cart"]') || document.querySelector('.btn-secondary[aria-label*="cart"]');
+  // Find header cart button in top navbar or mobile navigation
+  const cartBtn =
+    document.querySelector('[aria-label^="Open cart"]') ||
+    document.querySelector('[aria-label*="cart"]') ||
+    document.querySelector('.btn-secondary[aria-label*="cart"]');
+
   let endX = window.innerWidth - 80;
-  let endY = 30;
+  let endY = 35;
 
   if (cartBtn) {
     const cartRect = cartBtn.getBoundingClientRect();
-    endX = cartRect.left + cartRect.width / 2;
-    endY = cartRect.top + cartRect.height / 2;
+    if (cartRect.width > 0 && cartRect.height > 0) {
+      endX = cartRect.left + cartRect.width / 2;
+      endY = cartRect.top + cartRect.height / 2;
+    }
   }
 
   const id = `${Date.now()}-${Math.random()}`;
@@ -86,7 +94,7 @@ export function FlyToCartAnimator() {
 
       // Trigger cart icon pulse animation after flight completes (~650ms)
       setTimeout(() => {
-        const cartBtn = document.querySelector('[aria-label^="Open cart"]');
+        const cartBtn = document.querySelector('[aria-label^="Open cart"]') || document.querySelector('[aria-label*="cart"]');
         if (cartBtn) {
           cartBtn.classList.add("scale-125", "ring-4", "ring-[#facc15]/60", "transition-all", "duration-200");
           setTimeout(() => {
