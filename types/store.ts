@@ -10,6 +10,7 @@ export interface Game {
   cover_image?: string | null;
   banner_image?: string | null;
   trailer_url?: string | null;
+  card_video_url?: string | null;
   screenshots?: string[] | null;
   genres?: string[] | null;
   tags?: string[] | null;

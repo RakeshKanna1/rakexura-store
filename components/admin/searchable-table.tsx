@@ -225,6 +225,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
             setPage(0);
           }}
           placeholder={`Search ${section}...`}
+          suppressHydrationWarning={true}
           className="h-10 w-full bg-transparent outline-none placeholder:text-[#767e90] text-white"
         />
       </div>

@@ -742,6 +742,7 @@ export async function saveGame(formData: FormData) {
     cover_image: String(formData.get("cover_image") ?? "").trim() || null,
     banner_image: String(formData.get("banner_image") ?? "").trim() || null,
     trailer_url: String(formData.get("trailer_url") ?? "").trim() || null,
+    card_video_url: String(formData.get("card_video_url") ?? "").trim() || null,
     key_features: key_features.length ? key_features : null,
     steam_price: optionalNumber(formData.get("steam_price")),
     epic_price: optionalNumber(formData.get("epic_price")),
@@ -771,8 +772,16 @@ export async function saveGame(formData: FormData) {
     out_of_stock: formData.get("out_of_stock") === "on",
     archived: false,
   };
-  const query = rawId ? supabase.from("games").update(payload).eq("id", Number(rawId)) : supabase.from("games").insert(payload);
-  const { error } = await query;
+  let query = rawId ? supabase.from("games").update(payload).eq("id", Number(rawId)) : supabase.from("games").insert(payload);
+  let { error } = await query;
+
+  if (error && (error.message.includes("card_video_url") || error.code === "PGRST204")) {
+    const { card_video_url, ...fallbackPayload } = payload;
+    query = rawId ? supabase.from("games").update(fallbackPayload).eq("id", Number(rawId)) : supabase.from("games").insert(fallbackPayload);
+    const retryResult = await query;
+    error = retryResult.error;
+  }
+
   if (error) throw new Error(error.message);
   revalidatePath("/admin/games");
   revalidatePath("/");

@@ -18,6 +18,7 @@ import { OfferCountdown } from "./offer-countdown";
 import { Confetti } from "@/components/common/confetti";
 import { ButtonPopRocks } from "@/components/common/button-pop-rocks";
 import { WishlistButton } from "./wishlist-button";
+import { PlatformIcon } from "./platform-icon";
 
 function price(game: Game, platform: Platform) {
   if (platform === "Epic") return Number(game.epic_price ?? 0);
@@ -157,23 +158,26 @@ export function ProductActions({ game }: { game: Game }) {
                 type="button"
                 suppressHydrationWarning
                 onClick={() => setSelected(platform)}
-                className={`rounded-md border px-3 py-3 text-sm font-semibold transition ${
+                className={`inline-flex items-center justify-center gap-2 rounded-md border px-3 py-3 text-sm font-semibold transition ${
                   selected === platform
                     ? "border-white bg-white text-black"
                     : "border-white/10 bg-black/20 text-[#bbc1d1] hover:border-white/25"
                 }`}
               >
-                {game.is_subscription
-                  ? game.duration
-                    ? `${platform} (${game.duration})`
-                    : platform === "Steam"
-                    ? "1 Month"
-                    : platform === "Epic"
-                    ? "3 Months"
-                    : platform === "Offline"
-                    ? "12 Months"
-                    : platform
-                  : platform}
+                <PlatformIcon platform={platform} className={`h-4 w-4 shrink-0 ${selected === platform ? "text-black" : "text-[#bbc1d1]"}`} />
+                <span>
+                  {game.is_subscription
+                    ? game.duration
+                      ? `${platform} (${game.duration})`
+                      : platform === "Steam"
+                      ? "1 Month"
+                      : platform === "Epic"
+                      ? "3 Months"
+                      : platform === "Offline"
+                      ? "12 Months"
+                      : platform
+                    : platform}
+                </span>
               </button>
             ))}
           </div>

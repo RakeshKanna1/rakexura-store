@@ -64,7 +64,7 @@ export function StoreCloudSync() {
         const user = data.user;
         
         // Notify owner/admins if this is a first-time customer signup/login
-        void fetch("/api/notifications/new-user", { method: "POST" }).catch(console.error);
+        void fetch("/api/notifications/new-user", { method: "POST" }).catch(() => {});
 
         const [{ data: cartRows, error: cartError }, { data: bundleRows, error: bundleError }, { data: wishlistRows, error: wishlistError }] = await Promise.all([
           supabase.from("cart_items").select("variant_type,quantity,games(id,title,cover_image,sale_price,original_price,steam_price,epic_price,offline_price,online_price,xbox_price,geforce_price,is_subscription,duration)").eq("user_id", user.id),
@@ -73,7 +73,6 @@ export function StoreCloudSync() {
         ]);
         if (!active) return;
         if (cartError || bundleError || wishlistError) { 
-          console.warn("Could not load your synced cart and wishlist."); 
           return; 
         }
         const local = useCartStore.getState();

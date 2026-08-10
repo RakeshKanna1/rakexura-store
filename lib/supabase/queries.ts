@@ -17,11 +17,22 @@ export const getGames = unstable_cache(
   async (): Promise<Game[]> => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return fallbackGames;
     const supabase = getStaticClient();
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from("games")
-      .select("id, title, tagline, developer, publisher, description, cover_image, banner_image, sale_price, original_price, available_platforms, archived, genres, is_premium, premium_theme, preorder, is_subscription, steam_price, epic_price, offline_price, online_price, xbox_price, geforce_price, offer_enabled, offer_end_date, out_of_stock, featured_deal, show_in_hero, show_in_featured, show_in_trending, show_in_recommended")
+      .select("id, title, tagline, developer, publisher, description, cover_image, banner_image, trailer_url, card_video_url, sale_price, original_price, available_platforms, archived, genres, is_premium, premium_theme, preorder, is_subscription, steam_price, epic_price, offline_price, online_price, xbox_price, geforce_price, offer_enabled, offer_end_date, out_of_stock, featured_deal, show_in_hero, show_in_featured, show_in_trending, show_in_recommended")
       .or("archived.is.null,archived.eq.false")
       .order("title");
+
+    if (error && (error.message.includes("card_video_url") || error.code === "PGRST204")) {
+      const retryResult = await supabase
+        .from("games")
+        .select("id, title, tagline, developer, publisher, description, cover_image, banner_image, trailer_url, sale_price, original_price, available_platforms, archived, genres, is_premium, premium_theme, preorder, is_subscription, steam_price, epic_price, offline_price, online_price, xbox_price, geforce_price, offer_enabled, offer_end_date, out_of_stock, featured_deal, show_in_hero, show_in_featured, show_in_trending, show_in_recommended")
+        .or("archived.is.null,archived.eq.false")
+        .order("title");
+      data = retryResult.data;
+      error = retryResult.error;
+    }
+
     if (error || !data?.length) return fallbackGames;
     return data as Game[];
   },

@@ -12,6 +12,7 @@ import { useCartStore } from "@/stores/cart-store";
 import { triggerFlyToCart } from "@/components/common/fly-to-cart-animator";
 import type { Game, Platform } from "@/types/store";
 import { WishlistButton } from "./wishlist-button";
+import { PlatformIcon } from "./platform-icon";
 
 function gamePrice(game: Game) {
   const prices = [game.steam_price, game.epic_price, game.offline_price, game.online_price, game.xbox_price, game.geforce_price]
@@ -147,8 +148,9 @@ function GameCardInner({
 
           <div className="mt-2 flex flex-wrap gap-1">
             {platforms.slice(0, 3).map((platform) => (
-              <span key={platform} className="rounded-md border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[8px] font-black uppercase text-[#a7adbb]">
-                {game.is_subscription ? (game.duration ? game.duration : (platform === "Steam" ? "1 Month" : platform === "Epic" ? "3 Months" : "12 Months")) : platform}
+              <span key={platform} className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[8px] font-black uppercase text-[#a7adbb]">
+                <PlatformIcon platform={platform} className="h-2.5 w-2.5 shrink-0 text-[#a7adbb]" />
+                <span>{game.is_subscription ? (game.duration ? game.duration : (platform === "Steam" ? "1 Month" : platform === "Epic" ? "3 Months" : "12 Months")) : platform}</span>
               </span>
             ))}
           </div>

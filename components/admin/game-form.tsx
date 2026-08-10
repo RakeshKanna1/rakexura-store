@@ -107,6 +107,7 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
       action={saveGame}
       onChange={() => setIsDirty(true)}
       onSubmit={() => setIsSubmitting(true)}
+      suppressHydrationWarning={true}
       className="premium-panel mt-8 rounded-md p-5 md:p-7"
     >
       <input type="hidden" name="id" value={game?.id ?? ""} />
@@ -124,10 +125,10 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
       </div>
       
       <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <label className="text-sm font-bold">Game title<input name="title" defaultValue={game?.title ?? ""} required minLength={2} className={input} /></label>
-        <label className="text-sm font-bold">Tagline<input name="tagline" defaultValue={game?.tagline ?? ""} className={input} /></label>
-        <label className="text-sm font-bold">Developer<input name="developer" defaultValue={game?.developer ?? ""} className={input} /></label>
-        <label className="text-sm font-bold">Publisher<input name="publisher" defaultValue={game?.publisher ?? ""} className={input} /></label>
+        <label className="text-sm font-bold">Game title<input name="title" defaultValue={game?.title ?? ""} required minLength={2} suppressHydrationWarning={true} className={input} /></label>
+        <label className="text-sm font-bold">Tagline<input name="tagline" defaultValue={game?.tagline ?? ""} suppressHydrationWarning={true} className={input} /></label>
+        <label className="text-sm font-bold">Developer<input name="developer" defaultValue={game?.developer ?? ""} suppressHydrationWarning={true} className={input} /></label>
+        <label className="text-sm font-bold">Publisher<input name="publisher" defaultValue={game?.publisher ?? ""} suppressHydrationWarning={true} className={input} /></label>
         <label className="text-sm font-bold md:col-span-2">
           Short description
           <textarea
@@ -160,6 +161,7 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
               step="1" 
               name={field} 
               defaultValue={String(game?.[field as keyof Game] ?? "")} 
+              suppressHydrationWarning={true}
               className={input} 
             />
           </label>
@@ -179,9 +181,9 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
           </label>
         )}
 
-        <label className="text-sm font-bold">Offer end date<input type="datetime-local" name="offer_end_date" defaultValue={game?.offer_end_date ? new Date(game.offer_end_date).toISOString().slice(0, 16) : ""} className={input} /></label>
-        <label className="text-sm font-bold">Release / preorder date & time<input type="datetime-local" name="release_date" defaultValue={game?.release_date ? new Date(game.release_date).toISOString().slice(0, 16) : ""} className={input} /><span className="mt-2 block text-xs font-normal text-[#8991a6]">A future date & time places this title in Upcoming Games.</span></label>
-        <label className="text-sm font-bold md:col-span-2">Trailer URL<input type="url" name="trailer_url" defaultValue={game?.trailer_url ?? ""} placeholder="YouTube link or direct .mp4/.webm URL" className={input} /><span className="mt-2 block text-xs font-normal text-[#8991a6]">YouTube links play on the game page. A direct MP4 or WebM link can also animate the homepage spotlight.</span></label>
+        <label className="text-sm font-bold">Offer end date<input type="datetime-local" name="offer_end_date" defaultValue={game?.offer_end_date ? new Date(game.offer_end_date).toISOString().slice(0, 16) : ""} suppressHydrationWarning={true} className={input} /></label>
+        <label className="text-sm font-bold">Release / preorder date & time<input type="datetime-local" name="release_date" defaultValue={game?.release_date ? new Date(game.release_date).toISOString().slice(0, 16) : ""} suppressHydrationWarning={true} className={input} /><span className="mt-2 block text-xs font-normal text-[#8991a6]">A future date & time places this title in Upcoming Games.</span></label>
+        <label className="text-sm font-bold md:col-span-2">Trailer URL<input type="url" name="trailer_url" defaultValue={game?.trailer_url ?? ""} placeholder="YouTube link or direct .mp4/.webm URL" suppressHydrationWarning={true} className={input} /><span className="mt-2 block text-xs font-normal text-[#8991a6]">YouTube links play on the game page. A direct MP4 or WebM link can also animate the homepage spotlight.</span></label>
         <label className="text-sm font-bold md:col-span-2">
           Key Features (one per line)
           <textarea
@@ -284,7 +286,7 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
         </div>
       </fieldset>
 
-      <button className="btn btn-primary mt-7 w-full md:w-auto"><Save size={17} /> {game ? "Update game" : "Add game"}</button>
+      <button className="btn btn-primary mt-7 w-full md:w-auto" suppressHydrationWarning={true}><Save size={17} /> {game ? "Update game" : "Add game"}</button>
     </form>
   );
 }

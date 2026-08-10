@@ -14,6 +14,7 @@ import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
 import { PremiumAmbientEffect } from "@/components/animations/premium-ambient";
 import { fetchOfficialSteamRequirements } from "@/lib/steam-requirements";
 import { DynamicBannerAccent } from "@/components/store/dynamic-banner-accent";
+import { PlatformIcon } from "@/components/store/platform-icon";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -544,7 +545,10 @@ export default async function GamePage({ params }: Props) {
                     : false;
                   return (
                     <tr key={platform} className="border-t border-white/[.07]">
-                      <td className="p-4 font-bold">{platform}</td>
+                      <td className="p-4 font-bold flex items-center gap-2">
+                        <PlatformIcon platform={platform} className="h-4 w-4 shrink-0 text-[#facc15]" />
+                        <span>{platform}</span>
+                      </td>
                       <td className="p-4">{formatPrice(platformPrice(game, platform))}</td>
                       <td className="p-4 text-[#a0a8c0]">Digital assisted delivery</td>
                       <td className="p-4">

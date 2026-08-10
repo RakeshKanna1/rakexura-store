@@ -14,6 +14,7 @@ import type { Game } from "@/types/store";
 import { availablePlatforms } from "./game-card";
 import { Confetti } from "@/components/common/confetti";
 import { WishlistButton } from "./wishlist-button";
+import { PlatformIcon } from "./platform-icon";
 
 export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: () => void }) {
   const [celebrate, setCelebrate] = useState(false);
@@ -139,8 +140,9 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
               <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-[#a0a8c0]">{game.description || game.tagline}</p>
               <div className="mt-3.5 flex flex-wrap gap-1.5">
                 {availablePlatforms(game).map((platform) => (
-                  <span key={platform} className="rounded border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-bold">
-                    {game.is_subscription ? (game.duration ? `${platform} (${game.duration})` : (platform === "Steam" ? "1 Month" : platform === "Epic" ? "3 Months" : "12 Months")) : platform}
+                  <span key={platform} className="inline-flex items-center gap-1.5 rounded border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-bold">
+                    <PlatformIcon platform={platform} className="h-3 w-3 shrink-0 text-[#a0a8c0]" />
+                    <span>{game.is_subscription ? (game.duration ? `${platform} (${game.duration})` : (platform === "Steam" ? "1 Month" : platform === "Epic" ? "3 Months" : "12 Months")) : platform}</span>
                   </span>
                 ))}
               </div>
