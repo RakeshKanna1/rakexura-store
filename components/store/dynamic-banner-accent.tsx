@@ -7,12 +7,16 @@ export function DynamicBannerAccent({ src }: { src?: string | null }) {
     if (!src) return;
 
     const img = new Image();
-    img.crossOrigin = "Anonymous";
-    img.src = src;
-
-    img.onerror = () => {
-      // Fallback silently if image load fails
+    if (src.startsWith("http")) {
+      img.crossOrigin = "Anonymous";
+    }
+    img.onerror = (e: Event | string) => {
+      if (typeof e === "object") {
+        e?.preventDefault?.();
+        e?.stopPropagation?.();
+      }
     };
+    img.src = src;
 
     img.onload = () => {
       try {

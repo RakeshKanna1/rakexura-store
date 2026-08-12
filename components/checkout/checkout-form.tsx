@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
 import { Check, ChevronLeft, ChevronRight, Clipboard, ImageUp, LockKeyhole, MessageCircle, QrCode, ShieldCheck, TicketPercent, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -20,10 +19,11 @@ import type { Game } from "@/types/store";
 import { Confetti } from "@/components/common/confetti";
 import { DustDisintegration } from "@/components/common/dust-disintegration";
 import { EmptyState } from "@/components/common/empty-state";
+import { GenerativeQr } from "@/components/checkout/generative-qr";
 
 const schema = z.object({ name: z.string().min(2), whatsapp: z.string().regex(/^\+?[0-9 ]{10,16}$/, "Enter a valid WhatsApp number"), paymentReference: z.string().optional() });
 type Data = z.infer<typeof schema>;
-const UPI_ID = "916369628215@waaxis";
+const UPI_ID = process.env.NEXT_PUBLIC_UPI_ID || "12k21rakeshkannam@oksbi";
 
 function getCheckoutLinePrice(g: Game, platform: string) {
   if (platform === "Epic") return Number(g.epic_price ?? g.sale_price ?? 0);
@@ -581,15 +581,29 @@ export function CheckoutForm() {
           </h3>
 
           {/* Transaction Section */}
-          <div className="mt-4 grid gap-6 sm:grid-cols-[220px_1fr]">
-            <div className="relative aspect-square overflow-hidden rounded-lg bg-white"><Image src="/Assets/Payments/gpay-qr.png" alt="Rakexura UPI payment QR" fill className="object-contain" /></div>
+          <div className="mt-4 grid gap-6 sm:grid-cols-[220px_1fr] items-start">
+            <GenerativeQr upiId={UPI_ID} amount={total} payeeName="Rakexura" note="Rakexura Game Order" size={160} />
             <div>
               {total > 0 ? (
                 <>
                   <h2 className="text-xl font-bold">Pay exactly {formatPrice(total)}</h2>
-                  <div className="mt-4 rounded-md border border-white/10 bg-black/25 p-3"><span className="block text-[11px] font-bold uppercase tracking-wider text-[#8991a6]">UPI ID</span><button suppressHydrationWarning type="button" onClick={copyUpi} className="mt-1 flex min-h-10 w-full items-center justify-between gap-3 text-left text-sm font-bold"><span className="truncate">{UPI_ID}</span><Clipboard size={16} /></button><div className="mt-2 grid grid-cols-2 gap-2"><a href={upiUrl} className="btn btn-secondary min-h-10 text-xs">Open GPay</a><a href={upiUrl} className="btn btn-secondary min-h-10 text-xs">Open PhonePe</a></div></div>
-                  <ol className="mt-3 space-y-2 text-sm leading-6 text-[#aeb5c6]"><li><b className="text-white">1.</b> Scan the QR or open your UPI app.</li><li><b className="text-white">2.</b> Pay the exact total.</li><li><b className="text-white">3.</b> Upload the successful payment screenshot.</li></ol>
-                  <label className="mt-5 block text-sm font-semibold">UPI reference <span className="muted font-normal">(optional)</span><input suppressHydrationWarning {...register("paymentReference")} className="mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#facc15]" /></label>
+                  <div className="mt-4 rounded-md border border-white/10 bg-black/25 p-3.5">
+                    <span className="block text-[11px] font-bold uppercase tracking-wider text-[#8991a6]">UPI ID</span>
+                    <button suppressHydrationWarning type="button" onClick={copyUpi} className="mt-1 flex min-h-10 w-full items-center justify-between gap-3 text-left text-sm font-bold hover:text-[#facc15] transition-colors cursor-pointer" title="Click to copy UPI ID">
+                      <span className="truncate">{UPI_ID}</span>
+                      <Clipboard size={16} className="shrink-0 text-[#facc15]" />
+                    </button>
+                    <div className="mt-2.5 grid grid-cols-2 gap-2">
+                      <a href={upiUrl} className="btn btn-secondary min-h-10 text-xs flex items-center justify-center gap-1.5 font-bold">Open GPay</a>
+                      <a href={upiUrl} className="btn btn-secondary min-h-10 text-xs flex items-center justify-center gap-1.5 font-bold">Open PhonePe</a>
+                    </div>
+                  </div>
+                  <ol className="mt-3 space-y-2 text-sm leading-6 text-[#aeb5c6]">
+                    <li><b className="text-white">1.</b> Scan the Generative QR or tap Open GPay / PhonePe.</li>
+                    <li><b className="text-white">2.</b> Pay the exact calculated total ({formatPrice(total)}).</li>
+                    <li><b className="text-white">3.</b> Upload your payment screenshot below to complete order.</li>
+                  </ol>
+                  <label className="mt-4 block text-sm font-semibold">UPI reference <span className="muted font-normal">(optional)</span><input suppressHydrationWarning {...register("paymentReference")} className="mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#facc15]" /></label>
                 </>
               ) : subtotal > 0 ? (
                 <div className="p-4 rounded-md border border-[#00d68f]/20 bg-[#00d68f]/[.05] text-[#70efbb] mb-4">

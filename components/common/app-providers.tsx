@@ -14,28 +14,35 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason;
       if (
-        !event.reason ||
-        event.reason instanceof Event ||
-        (typeof event.reason === "object" && (event.reason?.constructor?.name === "Event" || event.reason?.constructor?.name === "ErrorEvent")) ||
-        String(event.reason) === "[object Event]"
+        !reason ||
+        reason instanceof Event ||
+        (typeof reason === "object" && (reason?.constructor?.name === "Event" || reason?.constructor?.name === "ErrorEvent")) ||
+        String(reason) === "[object Event]" ||
+        String(reason?.message).includes("[object Event]")
       ) {
         event.preventDefault();
+        event.stopImmediatePropagation?.();
       }
     };
 
-    const handleWindowError = (event: ErrorEvent) => {
+    const handleWindowError = (event: ErrorEvent | Event) => {
+      const err = (event as ErrorEvent).error;
+      const target = event.target;
       if (
-        event.error instanceof Event ||
-        String(event.error) === "[object Event]" ||
-        (!event.error && event.message && event.message.includes("[object Event]"))
+        err instanceof Event ||
+        String(err) === "[object Event]" ||
+        String(event).includes("[object Event]") ||
+        (target && target !== window && (target instanceof HTMLElement || target instanceof HTMLImageElement || target instanceof HTMLMediaElement))
       ) {
         event.preventDefault();
+        event.stopImmediatePropagation?.();
       }
     };
 
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
-    window.addEventListener("error", handleWindowError);
+    window.addEventListener("error", handleWindowError, true);
 
     const handleGlobalClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;

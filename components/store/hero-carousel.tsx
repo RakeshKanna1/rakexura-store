@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Play, X } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -14,12 +14,17 @@ import { BlurText } from "@/components/animations/blur-text";
 
 const AUTOPLAY_DELAY = 6500;
 
+function getYoutubeId(url: string) {
+  return url.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?/]+)/i)?.[1] || "";
+}
+
 export function HeroCarousel({ games }: { games: Game[] }) {
   const [active, setActive] = useState(0);
   const swiperRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [isMobile, setIsMobile] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [loadVideo, setLoadVideo] = useState(false);
+  const [activeTrailerId, setActiveTrailerId] = useState<number | string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -47,6 +52,25 @@ export function HeroCarousel({ games }: { games: Game[] }) {
 
   if (!games.length) return null;
 
+  const handlePlayTrailer = (game: Game, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!game.trailer_url) return;
+    
+    // Pause swiper autoplay while watching trailer on banner
+    if (swiperRef.current?.autoplay) {
+      swiperRef.current.autoplay.stop();
+    }
+    setActiveTrailerId(game.id);
+  };
+
+  const handleCloseTrailer = () => {
+    setActiveTrailerId(null);
+    if (swiperRef.current?.autoplay) {
+      swiperRef.current.autoplay.start();
+    }
+  };
+
   return (
     <div className="hero-with-featured">
       <div className="min-w-0 relative">
@@ -58,68 +82,133 @@ export function HeroCarousel({ games }: { games: Game[] }) {
               observer={true}
               observeParents={true}
               onSwiper={(s) => { swiperRef.current = s; }}
-              onRealIndexChange={(s) => setActive(s.realIndex)}
+              onRealIndexChange={(s) => {
+                setActive(s.realIndex);
+                setActiveTrailerId(null);
+              }}
               navigation={{ prevEl: ".hero-prev", nextEl: ".hero-next" }}
               className="overflow-hidden rounded-xl h-[420px] md:h-[570px]"
             >
-              <button suppressHydrationWarning={true} className="hero-prev absolute left-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-black/55 backdrop-blur md:grid" aria-label="Previous spotlight"><ChevronLeft /></button>
-              <button suppressHydrationWarning={true} className="hero-next absolute right-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-black/55 backdrop-blur md:grid" aria-label="Next spotlight"><ChevronRight /></button>
-              {games.map((game, index) => (
-                <SwiperSlide key={game.id}>
-                  <article className="hero-frame relative h-full w-full overflow-hidden rounded-xl">
-                    {/* Always render the static Image first for fast SSR and LCP priority */}
-                    <Image 
-                      src={assetUrl(game.banner_image || game.cover_image)} 
-                      alt={`Spotlight ${game.title} banner`} 
-                      fill 
-                      priority={index === 0} 
-                      fetchPriority={index === 0 ? "high" : "low"}
-                      className="hero-media object-cover" 
-                      sizes="100vw" 
-                    />
+              <button suppressHydrationWarning={true} onClick={handleCloseTrailer} className="hero-prev absolute left-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-black/55 backdrop-blur md:grid" aria-label="Previous spotlight"><ChevronLeft /></button>
+              <button suppressHydrationWarning={true} onClick={handleCloseTrailer} className="hero-next absolute right-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-black/55 backdrop-blur md:grid" aria-label="Next spotlight"><ChevronRight /></button>
+              {games.map((game, index) => {
+                const isTrailerActive = activeTrailerId === game.id && game.trailer_url;
+                const youtubeId = game.trailer_url ? getYoutubeId(game.trailer_url) : "";
+                const isDirectVideo = game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i);
 
-                    
-                    {/* Overlay video player client-side after hydration on desktop viewports */}
-                    {mounted && !isMobile && loadVideo && active === index && game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i) && (
-                      <video src={game.trailer_url} autoPlay muted loop playsInline className="hero-media absolute inset-0 h-full w-full object-cover z-0" />
-                    )}
-                    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,11,.97)_0%,rgba(3,5,11,.68)_38%,rgba(3,5,11,.08)_78%),linear-gradient(0deg,rgba(3,5,11,.8),transparent_50%)]" />
-                    <motion.div 
-                      key={`${active}-${game.id}`} 
-                      initial={{ opacity: 0, y: 24 }} 
-                      animate={active === index ? { opacity: 1, y: 0 } : { opacity: .75, y: 12 }} 
-                      transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} 
-                      className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-5 pb-16 pt-8 md:pb-20 md:pt-14 md:px-14"
-                    >
-                      <p className="eyebrow mb-4">
-                        {game.preorder ? "Pre-order spotlight" : "Rakexura spotlight"}
-                      </p>
-                      <h3 className="text-2xl font-black md:text-5xl lg:text-[64px] tracking-tight leading-[1.05]">
-                        <BlurText 
-                          key={`${game.id}-${active === index}`}
-                          text={game.title} 
-                          delay={60} 
-                          animateBy="words" 
-                          direction="bottom" 
-                          stepDuration={0.3} 
-                        />
-                      </h3>
-                      <p className="mt-6 max-w-xl text-base leading-7 text-[#d4d8e4] md:text-lg">{game.tagline || game.description || "A standout PC experience, ready for your library."}</p>
-                      <div className="mt-7 flex flex-wrap items-center gap-3">
-                        {game.preorder ? (
-                          <Link href={gameUrl(game)} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">
-                            Pre-order now <ArrowRight size={17} />
-                          </Link>
-                        ) : (
-                          <Link href={gameUrl(game)} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">View game <ArrowRight size={17} /></Link>
-                        )}
-                        {game.trailer_url && <a href={game.trailer_url} target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/12 bg-black/40 px-5 text-sm font-semibold backdrop-blur hover:bg-black/60"><Play size={16} fill="currentColor" /> Trailer</a>}
-                        <span className="rounded-md bg-black/45 px-4 py-3 text-sm font-semibold backdrop-blur">From {formatPrice(lowestPrice(game))}</span>
-                      </div>
-                    </motion.div>
-                  </article>
-                </SwiperSlide>
-              ))}
+                return (
+                  <SwiperSlide key={game.id}>
+                    <article className="hero-frame relative h-full w-full overflow-hidden rounded-xl">
+                      {/* Active Banner Trailer Video Overlay */}
+                      {isTrailerActive ? (
+                        <div className="absolute inset-0 z-30 bg-black overflow-hidden rounded-xl">
+                          {youtubeId ? (
+                            <iframe
+                              src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`}
+                              title={`${game.title} Official Trailer`}
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                              allowFullScreen
+                              className="h-full w-full border-0"
+                            />
+                          ) : isDirectVideo ? (
+                            <video
+                              src={game.trailer_url!}
+                              autoPlay
+                              controls
+                              playsInline
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <iframe
+                              src={game.trailer_url!}
+                              title={`${game.title} Trailer`}
+                              allow="autoplay; encrypted-media"
+                              className="h-full w-full border-0"
+                            />
+                          )}
+                          <button
+                            suppressHydrationWarning={true}
+                            type="button"
+                            onClick={handleCloseTrailer}
+                            className="absolute top-4 right-4 z-40 flex items-center gap-2 px-4 py-2 rounded-full bg-black/80 hover:bg-[#facc15] hover:text-black text-[#ffffff] transition-all border border-white/20 shadow-xl text-xs font-extrabold tracking-wide cursor-pointer"
+                            aria-label="Close trailer video"
+                          >
+                            <X size={15} /> Close Banner Trailer
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          {/* Always render the static Image first for fast SSR and LCP priority */}
+                          <Image 
+                            src={assetUrl(game.banner_image || game.cover_image)} 
+                            alt={`Spotlight ${game.title} banner`} 
+                            fill 
+                            priority={index === 0} 
+                            fetchPriority={index === 0 ? "high" : "low"}
+                            className="hero-media object-cover" 
+                            sizes="100vw" 
+                          />
+
+                          {/* Background looping silent ambient video client-side */}
+                          {mounted && !isMobile && loadVideo && active === index && game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i) && (
+                            <video src={game.trailer_url} autoPlay muted loop playsInline className="hero-media absolute inset-0 h-full w-full object-cover z-0" />
+                          )}
+                          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,11,.97)_0%,rgba(3,5,11,.68)_38%,rgba(3,5,11,.08)_78%),linear-gradient(0deg,rgba(3,5,11,.8),transparent_50%)]" />
+                          <motion.div 
+                            key={`${active}-${game.id}`} 
+                            initial={{ opacity: 0, y: 24 }} 
+                            animate={active === index ? { opacity: 1, y: 0 } : { opacity: .75, y: 12 }} 
+                            transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} 
+                            className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-5 pb-16 pt-8 md:pb-20 md:pt-14 md:px-14"
+                          >
+                            <p className="eyebrow mb-4">
+                              {game.preorder ? "Pre-order spotlight" : "Rakexura spotlight"}
+                            </p>
+                            <h3 className="text-2xl font-black md:text-5xl lg:text-[64px] tracking-tight leading-[1.05]">
+                              <BlurText 
+                                key={`${game.id}-${active === index}`}
+                                text={game.title} 
+                                delay={60} 
+                                animateBy="words" 
+                                direction="bottom" 
+                                stepDuration={0.3} 
+                              />
+                            </h3>
+                            <p className="mt-6 max-w-xl text-base leading-7 text-[#d4d8e4] md:text-lg">{game.tagline || game.description || "A standout PC experience, ready for your library."}</p>
+                            <div className="mt-7 flex flex-wrap items-center gap-3">
+                              {game.preorder ? (
+                                <Link href={gameUrl(game)} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">
+                                  Pre-order now <ArrowRight size={17} />
+                                </Link>
+                              ) : (
+                                <Link href={gameUrl(game)} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">View game <ArrowRight size={17} /></Link>
+                              )}
+                              {game.trailer_url ? (
+                                <button
+                                  suppressHydrationWarning={true}
+                                  type="button"
+                                  onClick={(e) => handlePlayTrailer(game, e)}
+                                  className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/12 bg-black/40 px-5 text-sm font-semibold backdrop-blur hover:bg-black/60 hover:border-[#facc15]/50 transition-all cursor-pointer"
+                                >
+                                  <Play size={16} fill="currentColor" className="text-[#facc15]" /> Trailer
+                                </button>
+                              ) : (
+                                <Link
+                                  href={gameUrl(game)}
+                                  className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/12 bg-black/40 px-5 text-sm font-semibold backdrop-blur hover:bg-black/60 transition-all"
+                                >
+                                  <Play size={16} fill="currentColor" /> Trailer
+                                </Link>
+                              )}
+                              <span className="rounded-md bg-black/45 px-4 py-3 text-sm font-semibold backdrop-blur">From {formatPrice(lowestPrice(game))}</span>
+                            </div>
+                          </motion.div>
+                        </>
+                      )}
+                    </article>
+                  </SwiperSlide>
+                );
+              })}
             </Swiper>
             <div className="absolute inset-x-6 bottom-5 z-20 flex gap-2 md:inset-x-16">
               {games.map((game, index) => <span key={game.id} className="h-0.5 flex-1 overflow-hidden bg-white/20"><span key={active === index ? `active-${game.id}` : game.id} className={`block h-full origin-left bg-[#facc15] ${active === index ? "animate-[hero-progress_6.5s_linear_forwards]" : index < active ? "scale-x-100" : "scale-x-0"}`} /></span>)}
@@ -140,6 +229,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
               suppressHydrationWarning
               onClick={() => {
                 if (swiperRef.current) swiperRef.current.slideToLoop(index);
+                setActiveTrailerId(null);
               }}
               className={`featured-now-item w-full rounded p-3 text-left transition duration-300 ease-out cursor-pointer group ${
                 active === index ? "is-active" : ""

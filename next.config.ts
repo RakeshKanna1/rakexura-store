@@ -24,8 +24,12 @@ const cspHeader = `
 `.replace(/\s{2,}/g, " ").trim();
 
 const nextConfig: NextConfig = {
+  reactStrictMode: true,
   compress: true,
   crossOrigin: "anonymous",
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
+  },
   experimental: {
     optimizePackageImports: [
       "lucide-react",
@@ -35,6 +39,9 @@ const nextConfig: NextConfig = {
       "sonner",
       "clsx",
       "tailwind-merge",
+      "swiper",
+      "zustand",
+      "@tanstack/react-query",
     ],
   },
   images: {
