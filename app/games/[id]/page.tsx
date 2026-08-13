@@ -454,18 +454,8 @@ export default async function GamePage({ params }: Props) {
             Out of Stock
           </div>
         )}
-        <p className="eyebrow flex items-center gap-1.5" style={{ color: game.preorder ? "#facc15" : accent }}>
-          {game.preorder ? (
-            <>
-              <Clock size={13} className="text-[#facc15]" /> OFFICIAL PRE-ORDER RELEASE
-            </>
-          ) : game.is_premium ? (
-            <>
-              <Sparkles size={13} /> RAKEXURA EXCLUSIVE
-            </>
-          ) : (
-            "Rakexura game page"
-          )}
+        <p className="eyebrow flex items-center gap-1" style={{ color: accent }}>
+          {game.preorder ? "Rakexura pre-order" : game.is_premium ? <><Sparkles size={13} /> RAKEXURA EXCLUSIVE</> : "Rakexura game page"}
         </p>
         <h1 className={`mt-5 max-w-4xl font-black leading-[.95] ${titleSize(game.title)} ${titleGradientClass}`}>{game.title}</h1>
         <p className="mt-5 text-lg text-[#d7dae4]">{game.tagline}</p>
