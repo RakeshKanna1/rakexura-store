@@ -96,14 +96,18 @@ export function HeaderNotificationButton() {
   const loadData = useCallback(async () => {
     try {
       const supabase = createClient();
-      const res = await supabase.auth.getUser().catch(() => null);
-      if (!res || res.error || !res.data?.user) {
+      const userRes = await supabase.auth.getUser().catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.warn("Supabase auth offline:", msg);
+        return null;
+      });
+      const user = userRes?.data?.user;
+      if (!user) {
         setUserId(null);
         setNotifications([]);
         void fetchAnnouncements();
         return;
       }
-      const user = res.data.user;
       setUserId(user.id);
       void fetchUserNotifications(user.id);
       void fetchAnnouncements();
@@ -232,10 +236,11 @@ export function HeaderNotificationButton() {
             </div>
             {unreadCount > 0 && (
               <button
+                type="button"
                 onClick={markAllAsRead}
-                className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] font-bold text-[#8991a6] hover:bg-white/[0.08] hover:border-white/20 hover:text-white transition-all cursor-pointer select-none"
+                className="group inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] hover:border-[#00bb7f]/40 px-2 py-1 text-[11px] font-medium text-[#8d95aa] hover:text-white transition-all cursor-pointer select-none active:scale-[0.97]"
               >
-                <CheckCheck size={12} className="text-[#00d68f]" />
+                <CheckCheck size={12} className="text-[#00d68f]/80 group-hover:text-[#00d68f] transition-colors shrink-0" />
                 <span>Mark all read</span>
               </button>
             )}

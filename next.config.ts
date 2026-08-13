@@ -129,4 +129,5 @@ export default withSentryConfig(nextConfig, {
   silent: true,
   org: "rakexura",
   project: "rakexura-store",
+  widenClientFileUpload: true,
 });

@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { Check, ChevronLeft, ChevronRight, Clipboard, ImageUp, LockKeyhole, MessageCircle, QrCode, ShieldCheck, TicketPercent, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -19,7 +19,14 @@ import type { Game } from "@/types/store";
 import { Confetti } from "@/components/common/confetti";
 import { DustDisintegration } from "@/components/common/dust-disintegration";
 import { EmptyState } from "@/components/common/empty-state";
-import { GenerativeQr } from "@/components/checkout/generative-qr";
+import dynamic from "next/dynamic";
+
+const GenerativeQr = dynamic(
+  () => import("@/components/checkout/generative-qr").then((mod) => mod.GenerativeQr),
+  { ssr: false }
+);
+
+import { ThermalReceiptPrinter } from "@/components/checkout/thermal-receipt-printer";
 
 const schema = z.object({ name: z.string().min(2), whatsapp: z.string().regex(/^\+?[0-9 ]{10,16}$/, "Enter a valid WhatsApp number"), paymentReference: z.string().optional() });
 type Data = z.infer<typeof schema>;
@@ -32,6 +39,107 @@ function getCheckoutLinePrice(g: Game, platform: string) {
   if (platform === "Xbox") return Number(g.xbox_price ?? 0);
   if (platform === "Nvidia GeForce") return Number(g.geforce_price ?? 0);
   return Number(g.steam_price ?? g.sale_price ?? 0);
+}
+
+function FocusModeWhatsAppPrinter({
+  orderReference,
+  customerName,
+  total,
+  items,
+  whatsappUrl,
+}: {
+  orderReference: string;
+  customerName: string;
+  total: number;
+  items: Array<{ name: string; platform?: string; price: number; quantity?: number }>;
+  whatsappUrl: string;
+}) {
+  const [secondsLeft, setSecondsLeft] = useState(12);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  const doRedirect = useCallback(() => {
+    if (isRedirecting) return;
+    setIsRedirecting(true);
+    toast.success("Opening WhatsApp activation...");
+    setTimeout(() => {
+      if (typeof window !== "undefined") {
+        window.location.href = whatsappUrl;
+      }
+    }, 350);
+  }, [whatsappUrl, isRedirecting]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          doRedirect();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [doRedirect]);
+
+  return (
+    <div className="py-2 flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-300 w-full max-w-sm mx-auto font-sans">
+      {/* Clean Professional Header Card */}
+      <div className="w-full mb-4 p-4 rounded-xl border border-white/10 bg-[#0d111c] text-center relative overflow-hidden font-sans shadow-lg">
+        {/* Animated Top Border Progress Bar */}
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-black/40 overflow-hidden">
+          <motion.div
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 12, ease: "linear" }}
+            className="h-full bg-gradient-to-r from-[#00bb7f] via-[#facc15] to-[#00d68f]"
+          />
+        </div>
+
+        <h3 className="text-sm font-bold text-white flex items-center justify-center gap-2 pt-0.5">
+          <span className="h-2 w-2 rounded-full bg-[#00d68f] shadow-[0_0_8px_#00d68f]" />
+          <span>Connecting to WhatsApp</span>
+        </h3>
+
+        <p className="text-xs text-[#8d95aa] mt-1 font-mono">
+          {secondsLeft > 0 ? (
+            <span>Redirecting automatically in <span className="text-[#00d68f] font-bold">{secondsLeft}s</span></span>
+          ) : (
+            <span className="text-[#00d68f] font-bold">Opening WhatsApp...</span>
+          )}
+        </p>
+
+        {/* Skip / Instant Open Button */}
+        <button
+          suppressHydrationWarning
+          type="button"
+          onClick={doRedirect}
+          className="mt-3.5 inline-flex items-center justify-center gap-2 py-2 px-4 rounded-md bg-[#00bb7f] hover:bg-[#00a872] text-[#05070f] font-bold text-xs transition cursor-pointer active:scale-[0.98]"
+        >
+          <span>Open WhatsApp Now</span>
+          <MessageCircle size={14} />
+        </button>
+
+        <p className="text-[11px] text-[#8d95aa] mt-3">
+          Tap or tear receipt below to open WhatsApp immediately
+        </p>
+      </div>
+
+      {/* 3D Thermal Receipt Printer - Fully unrolled paper */}
+      <ThermalReceiptPrinter
+        orderReference={orderReference}
+        customerName={customerName}
+        total={total}
+        items={items}
+        autoPrint={true}
+        statusHeading=""
+        statusSubtext=""
+        hideActions={true}
+        onTearComplete={doRedirect}
+      />
+    </div>
+  );
 }
 
 export function CheckoutForm() {
@@ -57,6 +165,7 @@ export function CheckoutForm() {
   const [finalAmount, setFinalAmount] = useState(0);
   const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(null);
   const [postPurchasePhone, setPostPurchasePhone] = useState("");
+  const [isPrintingReceiptScreen, setIsPrintingReceiptScreen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -681,117 +790,144 @@ export function CheckoutForm() {
     <AnimatePresence>{orderReference && (
       <motion.div className="fixed inset-0 z-[90] grid place-items-center overflow-y-auto bg-[#05070f]/94 p-5 backdrop-blur-xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <motion.div initial={{ y: 20, scale: .96 }} animate={{ y: 0, scale: 1 }} className="premium-panel w-full max-w-lg rounded-lg p-7 text-center">
-          <div className="relative mx-auto h-20 w-20 flex items-center justify-center mb-2">
-            {/* Green energy ring shockwaves */}
-            <motion.span
-              initial={{ opacity: 1, scale: 0.5 }}
-              animate={{ opacity: 0, scale: 1.9 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-              className="absolute inset-0 rounded-full border-2 border-[#00d68f]/80 pointer-events-none"
-            />
-            <motion.span
-              initial={{ opacity: 1, scale: 0.3 }}
-              animate={{ opacity: 0, scale: 2.4 }}
-              transition={{ duration: 0.85, delay: 0.12, ease: "easeOut" }}
-              className="absolute inset-0 rounded-full border-2 border-[#70efbb]/50 pointer-events-none"
-            />
+          {isPrintingReceiptScreen ? (
+            /* Focus Mode: Display ONLY the Thermal Receipt Printer Animation & 5s Countdown Header */
+            (() => {
+              const isRankCouponActive = Boolean(
+                appliedCouponCode === "GOLD-FREEBIE" || 
+                appliedCouponCode === "GOLD50" || 
+                appliedCouponCode === "DIAMONDFREE" || 
+                appliedCouponCode === "DIAMOND-FREEBIE" || 
+                appliedCouponCode === "PLATINUMFREE" || 
+                appliedCouponCode === "PLATINUM-FREEBIE"
+              );
+              const isFreebie = finalAmount === 0 && isRankCouponActive;
+              const gameTitle = purchasedTitles || "Game";
+              const trackingLink = `${typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL ?? "https://rakexura-store.vercel.app")}/track-order?order=${orderReference}&phone=${postPurchasePhone}`;
+              const whatsappUrl = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695"}?text=` + 
+                encodeURIComponent(`NEW ORDER RECEIVED`) + `%0A%0A` +
+                encodeURIComponent(`Game: ${gameTitle} `) + `%0A` +
+                encodeURIComponent(`Order ID: ${orderReference} `) + `%0A` +
+                encodeURIComponent(`Type: ${isFreebie ? '[FREE ORDER via Loyalty Rank Coupon]' : `[PAID ORDER (Amount Paid: Rs. ${finalAmount})]`} `) + `%0A%0A` +
+                encodeURIComponent(`Track Order: ${trackingLink}`) + `%0A%0A` +
+                encodeURIComponent(`Please send over my activation details!`);
 
-            {/* Main Success Circle */}
-            <motion.div
-              initial={{ scale: 0, rotate: -45 }}
-              animate={{ scale: [0, 1.2, 0.95, 1.05, 1], rotate: 0 }}
-              transition={{ duration: 0.65, ease: [0.175, 0.885, 0.32, 1.275] }}
-              className="grid h-20 w-20 place-items-center rounded-full bg-[#00d68f] text-black shadow-[0_0_35px_rgba(0,214,143,0.5)] relative z-10"
-            >
-              <svg
-                width="42"
-                height="42"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <motion.path
-                  d="M20 6L9 17l-5-5"
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: 1 }}
-                  transition={{ duration: 0.45, delay: 0.25, ease: "easeOut" }}
+              const receiptItems = lines.length > 0
+                ? lines.map((l) => ({
+                    name: l.game.title,
+                    platform: l.platform,
+                    price: getCheckoutLinePrice(l.game, l.platform),
+                    quantity: l.quantity,
+                  }))
+                : bundleLines.map((b) => ({
+                    name: b.bundle.title,
+                    price: Number(b.bundle.bundle_price || 0),
+                    quantity: b.quantity,
+                  }));
+
+              return (
+                <FocusModeWhatsAppPrinter
+                  orderReference={orderReference}
+                  customerName={getValues("name") || "Rakexura Customer"}
+                  total={finalAmount}
+                  items={receiptItems}
+                  whatsappUrl={whatsappUrl}
                 />
-              </svg>
-            </motion.div>
-          </div>
-          <p className="eyebrow mt-6">Order created</p>
-          <h2 className="mt-2 text-3xl font-black">Payment review started</h2>
-          <p className="muted mt-3 text-sm leading-6">Save this reference. Use it with your WhatsApp number to track delivery.</p>
-          
-          <button suppressHydrationWarning type="button" onClick={copyReference} className="mt-5 inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-md border border-white/10 bg-black/25 text-xl font-black tracking-wide">
-            <Clipboard size={18} /> {orderReference}
-          </button>
+              );
+            })()
+          ) : (
+            /* Standard Post-Checkout Summary Screen */
+            <>
+              <div className="relative mx-auto h-20 w-20 flex items-center justify-center mb-2">
+                {/* Green energy ring shockwaves */}
+                <motion.span
+                  initial={{ opacity: 1, scale: 0.5 }}
+                  animate={{ opacity: 0, scale: 1.9 }}
+                  transition={{ duration: 0.7, ease: "easeOut" }}
+                  className="absolute inset-0 rounded-full border-2 border-[#00d68f]/80 pointer-events-none"
+                />
+                <motion.span
+                  initial={{ opacity: 1, scale: 0.3 }}
+                  animate={{ opacity: 0, scale: 2.4 }}
+                  transition={{ duration: 0.85, delay: 0.12, ease: "easeOut" }}
+                  className="absolute inset-0 rounded-full border-2 border-[#70efbb]/50 pointer-events-none"
+                />
 
-          {(() => {
-            const isRankCouponActive = Boolean(
-              appliedCouponCode === "GOLD-FREEBIE" || 
-              appliedCouponCode === "GOLD50" || 
-              appliedCouponCode === "DIAMONDFREE" || 
-              appliedCouponCode === "DIAMOND-FREEBIE" || 
-              appliedCouponCode === "PLATINUMFREE" || 
-              appliedCouponCode === "PLATINUM-FREEBIE"
-            );
-            const isFreebie = finalAmount === 0 && isRankCouponActive;
-            const gameTitle = purchasedTitles || "Game";
-            const trackingLink = `${typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL ?? "https://rakexura-store.vercel.app")}/track-order?order=${orderReference}&phone=${postPurchasePhone}`;
-            const whatsappUrl = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695"}?text=` + 
-              encodeURIComponent(`NEW ORDER RECEIVED`) + `%0A%0A` +
-              encodeURIComponent(`Game: ${gameTitle} `) + `%0A` +
-              encodeURIComponent(`Order ID: ${orderReference} `) + `%0A` +
-              encodeURIComponent(`Type: ${isFreebie ? '[FREE ORDER via Loyalty Rank Coupon]' : `[PAID ORDER (Amount Paid: Rs. ${finalAmount})]`} `) + `%0A%0A` +
-              encodeURIComponent(`Track Order: ${trackingLink}`) + `%0A%0A` +
-              encodeURIComponent(`Please send over my activation details!`);
+                {/* Main Success Circle */}
+                <motion.div
+                  initial={{ scale: 0, rotate: -45 }}
+                  animate={{ scale: [0, 1.2, 0.95, 1.05, 1], rotate: 0 }}
+                  transition={{ duration: 0.65, ease: [0.175, 0.885, 0.32, 1.275] }}
+                  className="grid h-20 w-20 place-items-center rounded-full bg-[#00d68f] text-black shadow-[0_0_35px_rgba(0,214,143,0.5)] relative z-10"
+                >
+                  <svg
+                    width="42"
+                    height="42"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <motion.path
+                      d="M20 6L9 17l-5-5"
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      animate={{ pathLength: 1, opacity: 1 }}
+                      transition={{ duration: 0.45, delay: 0.25, ease: "easeOut" }}
+                    />
+                  </svg>
+                </motion.div>
+              </div>
 
-            return (
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noreferrer"
+              <p className="eyebrow mt-6">Order created</p>
+              <h2 className="mt-2 text-3xl font-black">Payment review started</h2>
+              <p className="muted mt-3 text-sm leading-6">Save this reference. Use it with your WhatsApp number to track delivery.</p>
+              
+              <button suppressHydrationWarning type="button" onClick={copyReference} className="mt-5 inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-md border border-white/10 bg-black/25 text-xl font-black tracking-wide">
+                <Clipboard size={18} /> {orderReference}
+              </button>
+
+              <button
+                type="button"
                 onClick={() => {
                   if (typeof window !== "undefined") {
                     localStorage.setItem("activated_" + orderReference, "true");
                   }
-                  toast.success("Activation handshake initiated!");
+                  setIsPrintingReceiptScreen(true);
+                  toast.success("Printing official receipt... Connecting to WhatsApp!");
                 }}
                 className="mt-5 relative inline-flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-md bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold text-sm shadow-[0_0_15px_rgba(16,185,129,0.25)] hover:shadow-[0_0_25px_rgba(16,185,129,0.45)] transition-all hover:scale-[1.01] active:scale-[0.99] select-none cursor-pointer"
               >
                 <MessageCircle size={18} className="animate-bounce shrink-0" />
                 <span>Click to Activate & Receive Your Game via WhatsApp</span>
-              </a>
-            );
-          })()}
+              </button>
 
-          <div className="mt-5 grid gap-2 sm:grid-cols-2">
-            <Link
-              href={`/track-order?order=${orderReference}&phone=${postPurchasePhone}`}
-              className="btn btn-primary flex items-center justify-center"
-            >
-              Track order
-            </Link>
-            <Link href="/support" className="btn btn-secondary">
-              <MessageCircle size={17} /> Support
-            </Link>
-          </div>
-          <p className="mt-5 flex items-center justify-center gap-2 text-xs text-[#82dcb8]">
-            <ShieldCheck size={15} /> Payment proof received. Rakexura can see it in admin.
-          </p>
-          <span
-            onClick={() => {
-              clear();
-              router.push("/");
-            }}
-            className="text-sm text-zinc-400 hover:text-[#00d68f] transition-colors mt-4 cursor-pointer block text-center font-medium"
-          >
-            &lt; Continue Shopping
-          </span>
+              <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                <Link
+                  href={`/track-order?order=${orderReference}&phone=${postPurchasePhone}`}
+                  className="btn btn-primary flex items-center justify-center"
+                >
+                  Track order
+                </Link>
+                <Link href="/support" className="btn btn-secondary">
+                  <MessageCircle size={17} /> Support
+                </Link>
+              </div>
+              <p className="mt-5 flex items-center justify-center gap-2 text-xs text-[#82dcb8]">
+                <ShieldCheck size={15} /> Payment proof received. Rakexura can see it in admin.
+              </p>
+              <span
+                onClick={() => {
+                  clear();
+                  router.push("/");
+                }}
+                className="text-sm text-zinc-400 hover:text-[#00d68f] transition-colors mt-4 cursor-pointer block text-center font-medium"
+              >
+                &lt; Continue Shopping
+              </span>
+            </>
+          )}
         </motion.div>
       </motion.div>
     )}</AnimatePresence>

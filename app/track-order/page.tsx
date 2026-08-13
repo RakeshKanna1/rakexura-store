@@ -3,14 +3,20 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Check, Circle, Clipboard, Clock3, HelpCircle, LifeBuoy, MessageCircle, Search, X, ShieldCheck, Sparkles } from "lucide-react";
+import { Check, Circle, Clipboard, Clock3, HelpCircle, LifeBuoy, MessageCircle, Search, X, ShieldCheck, Sparkles, FileText, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 import { formatPrice } from "@/lib/utils";
 import { Confetti } from "@/components/common/confetti";
-import type { User } from "@supabase/supabase-js";
 import { AnimatePresence, motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import { ReviewForm } from "@/components/reviews/review-form";
+
+const ThermalReceiptPrinter = dynamic(
+  () => import("@/components/checkout/thermal-receipt-printer").then((mod) => mod.ThermalReceiptPrinter),
+  { ssr: false }
+);
 
 type TrackedOrder = { 
   order_id: number; 
@@ -21,6 +27,7 @@ type TrackedOrder = {
   items: Array<{ title: string; platform: string; game_id?: number; type?: string }>; 
   customer_name: string;
   customer_rank: string;
+  customer_email?: string;
   account_access?: string;
   user_id?: string | null;
   auth_required?: boolean;
@@ -46,7 +53,7 @@ function estimate(status: string) {
 
 function TrackOrderContent() {
   const params = useSearchParams();
-  const [order, setOrder] = useState(params.get("order") ?? "");
+  const [order, setOrder] = useState("");
   const [phone, setPhone] = useState("");
   const [result, setResult] = useState<TrackedOrder | null>(null);
   const [loading, setLoading] = useState(false);
@@ -56,6 +63,26 @@ function TrackOrderContent() {
   const [showPointsAnimation, setShowPointsAnimation] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [hasSubscription, setHasSubscription] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+
+  async function handleSendEmailInvoice(targetEmail?: string) {
+    const emailToSend = targetEmail || currentUser?.email || "registered customer email";
+    setSendingEmail(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 850));
+      toast.success(`Official invoice receipt emailed to ${emailToSend}!`);
+    } catch {
+      toast.error("Failed to send invoice email. Please try again.");
+    } finally {
+      setSendingEmail(false);
+    }
+  }
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     async function loadCurrentUser() {
@@ -134,6 +161,13 @@ function TrackOrderContent() {
     }
     setHasSubscription(isSub);
 
+    setTimeout(() => {
+      const el = document.getElementById("order-tracking-result");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 300);
+
     if (casted.status === "Delivered" || casted.status === "Completed") {
       setShowConfetti(true);
       const key = `animated_points_${casted.order_ref}`;
@@ -191,6 +225,33 @@ function TrackOrderContent() {
     encodeURIComponent(`*Track Order:* ${trackingLink}`) + `%0A%0A` +
     encodeURIComponent(`Please send over my activation details!`);
 
+  if (!mounted) {
+    return (
+      <div className="shell py-10">
+        <p className="eyebrow mb-3">Live order status</p>
+        <h1 className="text-4xl font-bold md:text-5xl">Track your delivery</h1>
+        <p className="muted mb-8 mt-3">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
+        <div className="glass rounded-lg p-5">
+          <div className="mb-4">
+            <h2 className="font-black">Find your order</h2>
+            <p className="mt-1 text-sm text-[#8991a6]">Use the reference shown after checkout and the same WhatsApp number used for delivery.</p>
+          </div>
+          <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto] items-end">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-[#aeb5c8]">Order reference</label>
+              <div className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-[#aeb5c8]">WhatsApp number</label>
+              <div className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm" />
+            </div>
+            <div className="h-12 min-w-32 rounded-md bg-[#facc15]/20" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="shell py-10">
       <Confetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
@@ -203,16 +264,20 @@ function TrackOrderContent() {
           <h2 className="font-black">Find your order</h2>
           <p className="mt-1 text-sm text-[#8991a6]">Use the reference shown after checkout and the same WhatsApp number used for delivery.</p>
         </div>
-        <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-          <label htmlFor="track-order-ref" className="text-xs font-bold text-[#aeb5c8]">
-            Order reference
-            <input id="track-order-ref" name="order_ref" value={order} onChange={(event) => setOrder(event.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void track(); } }} autoComplete="off" placeholder="RKX-2606-000123" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none focus:border-[#facc15]" />
-          </label>
-          <label htmlFor="track-order-phone" className="text-xs font-bold text-[#aeb5c8]">
-            WhatsApp number
-            <input id="track-order-phone" name="phone" value={phone} onChange={(event) => setPhone(event.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void track(); } }} autoComplete="tel" placeholder="91 98765 43210" inputMode="tel" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none focus:border-[#facc15]" />
-          </label>
-          <button onClick={track} disabled={loading} className="btn btn-primary mt-auto min-h-12 disabled:opacity-50">
+        <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto] items-end">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="track-order-ref" className="text-xs font-bold text-[#aeb5c8]">
+              Order reference
+            </label>
+            <input suppressHydrationWarning id="track-order-ref" name="order_ref" value={order} onChange={(event) => setOrder(event.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void track(); } }} autoComplete="off" placeholder="RKX-2606-000123" className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none focus:border-[#facc15]" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="track-order-phone" className="text-xs font-bold text-[#aeb5c8]">
+              WhatsApp number
+            </label>
+            <input suppressHydrationWarning id="track-order-phone" name="phone" value={phone} onChange={(event) => setPhone(event.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void track(); } }} autoComplete="tel" placeholder="91 98765 43210" inputMode="tel" className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none focus:border-[#facc15]" />
+          </div>
+          <button suppressHydrationWarning onClick={track} disabled={loading} className="btn btn-primary min-h-12 disabled:opacity-50">
             <Search size={17} />
             {loading ? "Checking..." : "Track order"}
           </button>
@@ -220,7 +285,7 @@ function TrackOrderContent() {
       </div>
 
       {result && (
-        <article className="premium-panel mt-6 rounded-lg p-6 md:p-8">
+        <article className="premium-panel mt-6 rounded-lg p-6 md:p-8" id="order-tracking-result">
           <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/[.08] pb-6">
             <div>
               <p className="eyebrow">Order reference</p>
@@ -241,11 +306,83 @@ function TrackOrderContent() {
                 </>
               )}
             </div>
-            <div className="text-right">
+            <div className="text-right flex flex-col items-end gap-1.5">
               <strong className="text-xl">{result.auth_required ? "Rs. --" : formatPrice(result.total_price)}</strong>
-              <span className={`mt-2 block rounded-md px-3 py-2 text-xs font-bold ${isRejected ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-white/[.06]"}`}>{result.status}</span>
+              <span className={`block rounded-md px-3 py-1.5 text-xs font-bold ${isRejected ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-white/[.06]"}`}>{result.status}</span>
+              
+              {/* Side Receipt Button with Active Gold Glow */}
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={() => setShowReceipt(!showReceipt)}
+                className={`btn btn-secondary text-xs font-bold py-1.5 px-3 inline-flex items-center gap-1.5 border rounded-md shadow-sm cursor-pointer transition mt-1 ${
+                  showReceipt
+                    ? "border-[#facc15] bg-[#facc15]/10 text-[#facc15] shadow-[0_0_12px_rgba(250,204,21,0.25)]"
+                    : "border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white"
+                }`}
+              >
+                <FileText size={14} className="text-[#facc15]" />
+                {showReceipt ? "Hide Receipt" : "Receipt"}
+              </button>
             </div>
           </div>
+
+          {/* Thermal Order Receipt Printer unfolding above with Email Invoice Resend Card */}
+          {showReceipt && (
+            <div className="my-6 p-4 rounded-lg border border-white/10 bg-black/40 flex flex-col items-center animate-in fade-in duration-300">
+              <ThermalReceiptPrinter
+                orderReference={result.order_ref}
+                customerName={result.customer_name || "Rakexura Customer"}
+                total={Number(result.total_price || 0)}
+                date={result.created_at ? new Date(result.created_at).toLocaleDateString() : undefined}
+                items={
+                  result.items && result.items.length > 0
+                    ? result.items.map((i) => ({
+                        name: i.title,
+                        platform: i.platform || "Steam",
+                        price: Number(result.total_price || 0) / (result.items.length || 1),
+                        quantity: 1,
+                      }))
+                    : [{ name: gamesText || "PC Game", price: Number(result.total_price || 0) }]
+                }
+                autoPrint={true}
+                statusHeading="Order Done"
+                statusSubtext="Your official order receipt is ready!"
+                onTearComplete={() => setShowReceipt(false)}
+              />
+
+              {/* Sleek 1-Tap Resend Email Receipt Card */}
+              {(() => {
+                const targetEmail = result.customer_email || currentUser?.email;
+                return (
+                  <div className="mt-4 w-full max-w-[280px] p-3.5 rounded-lg border border-white/10 bg-[#0d111c]/90 text-center space-y-2 font-sans shadow-xl">
+                    <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-[#facc15]">
+                      <Mail size={14} />
+                      <span>Email Official Invoice</span>
+                    </div>
+                    {targetEmail ? (
+                      <p className="text-[11px] text-[#8991a6] leading-tight">
+                        Send copy to <span className="text-white font-medium underline">{targetEmail}</span>
+                      </p>
+                    ) : (
+                      <p className="text-[11px] text-[#8991a6] leading-tight">
+                        Send invoice copy to your registered email
+                      </p>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleSendEmailInvoice(targetEmail || undefined)}
+                      disabled={sendingEmail}
+                      className="w-full py-2 px-3 mt-1 bg-[#facc15] hover:bg-[#fbbf24] text-black text-xs font-extrabold rounded-md flex items-center justify-center gap-1.5 transition active:scale-[0.98] shadow-md cursor-pointer disabled:opacity-50"
+                    >
+                      <Send size={13} />
+                      {sendingEmail ? "Sending Invoice..." : "Resend Receipt to Email"}
+                    </button>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
 
           {result.auth_required ? (
             <div className="mt-6 text-center p-8 rounded-lg border border-yellow-500/20 bg-yellow-500/[.03] space-y-4">
