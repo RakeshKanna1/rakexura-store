@@ -436,12 +436,9 @@ export default async function GamePage({ params }: Props) {
       <div className="absolute inset-0" style={{ background: heroBackground }} />
       <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-end p-7 md:p-14">
         {game.preorder && (
-          <div className="mb-4 self-start inline-flex items-center gap-2 rounded-full border border-[#facc15]/40 bg-[#facc15]/10 px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] text-[#facc15] shadow-[0_0_15px_rgba(250,204,21,0.15)]">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#facc15] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#facc15]"></span>
-            </span>
-            <span>Pre-Order Reservation</span>
+          <div className="mb-4 self-start inline-flex items-center gap-1.5 rounded-md bg-[#facc15] px-2.5 py-0.5 text-xs font-black uppercase tracking-wider text-black shadow-md shadow-black/50">
+            <Clock size={13} className="shrink-0 text-black" />
+            <span>Pre-Order</span>
           </div>
         )}
         {game.is_premium && !game.preorder && (
