@@ -117,7 +117,7 @@ function GameCardInner({
 
       <div className="absolute left-2.5 top-2.5 flex flex-col gap-1 items-start z-10">
         {game.is_premium && <span className="rounded-md bg-gradient-to-r from-[#b8860b] to-[#d4af37] px-2 py-0.5 text-[8px] font-black text-black uppercase tracking-wider shadow-md shadow-black/80">Premium</span>}
-        {game.preorder && <span className="rounded-md bg-purple-600 px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Pre-order</span>}
+        {game.preorder && <span className="rounded-md bg-gradient-to-r from-[#facc15] via-[#eab308] to-[#ca8a04] px-2 py-0.5 text-[9px] font-black text-black uppercase tracking-wider shadow-md shadow-black/50">Pre-order</span>}
         {discount > 0 && <span className="rounded-md bg-gradient-to-r from-[#facc15] to-[#eab308] px-2 py-0.5 text-[10px] font-black text-black shadow-md shadow-black/50">-{discount}%</span>}
         {game.online_activation && <span className="rounded-md bg-[#00d68f] px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Online Activation</span>}
         {game.out_of_stock && <span className="rounded-md bg-red-600 px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Out of Stock</span>}
