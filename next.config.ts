@@ -71,7 +71,7 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
   },
   poweredByHeader: false,
-  serverExternalPackages: ["@supabase/ssr", "@supabase/supabase-js"],
+  serverExternalPackages: ["@supabase/ssr", "@supabase/supabase-js", "@sentry/nextjs", "@sentry/node", "@opentelemetry/api"],
   async headers() {
     return [
       {
