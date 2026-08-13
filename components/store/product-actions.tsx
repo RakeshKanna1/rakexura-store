@@ -166,16 +166,8 @@ export function ProductActions({ game }: { game: Game }) {
               >
                 <PlatformIcon platform={platform} active={selected === platform} className={`h-4 w-4 shrink-0 ${selected === platform ? "text-black" : "text-[#bbc1d1]"}`} />
                 <span>
-                  {game.is_subscription
-                    ? game.duration
-                      ? `${platform} (${game.duration})`
-                      : platform === "Steam"
-                      ? "1 Month"
-                      : platform === "Epic"
-                      ? "3 Months"
-                      : platform === "Offline"
-                      ? "12 Months"
-                      : platform
+                  {game.is_subscription && game.duration
+                    ? `${platform} (${game.duration})`
                     : platform}
                 </span>
               </button>

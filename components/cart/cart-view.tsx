@@ -25,11 +25,8 @@ function Quantity({ value, decrease, increase }: { value: number; decrease: () =
 }
 
 function getPlatformLabel(platform: string, isSubscription?: boolean | null, duration?: string | null) {
-  if (isSubscription) {
-    if (duration) return `${platform} (${duration})`;
-    if (platform === "Steam") return "1 Month";
-    if (platform === "Epic") return "3 Months";
-    if (platform === "Offline") return "12 Months";
+  if (isSubscription && duration) {
+    return `${platform} (${duration})`;
   }
   return platform;
 }

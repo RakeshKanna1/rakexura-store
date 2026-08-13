@@ -142,7 +142,7 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
                 {availablePlatforms(game).map((platform) => (
                   <span key={platform} className="inline-flex items-center gap-1.5 rounded border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-bold">
                     <PlatformIcon platform={platform} className="h-3 w-3 shrink-0 text-[#a0a8c0]" />
-                    <span>{game.is_subscription ? (game.duration ? `${platform} (${game.duration})` : (platform === "Steam" ? "1 Month" : platform === "Epic" ? "3 Months" : "12 Months")) : platform}</span>
+                    <span>{game.is_subscription && game.duration ? `${platform} (${game.duration})` : platform}</span>
                   </span>
                 ))}
               </div>

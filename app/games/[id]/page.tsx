@@ -436,8 +436,8 @@ export default async function GamePage({ params }: Props) {
       <div className="absolute inset-0" style={{ background: heroBackground }} />
       <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-end p-7 md:p-14">
         {game.preorder && (
-          <div className="mb-4 self-start inline-flex items-center gap-2 rounded border border-[#facc15]/30 bg-[#facc15]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#facc15] backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#facc15]" /> Pre-Order
+          <div suppressHydrationWarning className="mb-4 self-start inline-flex items-center rounded border border-[#facc15]/30 bg-[#facc15]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#facc15] backdrop-blur-sm">
+            Pre-Order
           </div>
         )}
         {game.is_premium && !game.preorder && (

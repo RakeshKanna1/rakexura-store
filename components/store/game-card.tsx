@@ -155,7 +155,7 @@ function GameCardInner({
             {platforms.slice(0, 3).map((platform) => (
               <span key={platform} className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[8px] font-black uppercase text-[#a7adbb]">
                 <PlatformIcon platform={platform} className="h-2.5 w-2.5 shrink-0 text-[#a7adbb]" />
-                <span>{game.is_subscription ? (game.duration ? game.duration : (platform === "Steam" ? "1 Month" : platform === "Epic" ? "3 Months" : "12 Months")) : platform}</span>
+                <span>{game.is_subscription && game.duration ? game.duration : platform}</span>
               </span>
             ))}
           </div>
