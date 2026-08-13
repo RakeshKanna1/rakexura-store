@@ -436,9 +436,8 @@ export default async function GamePage({ params }: Props) {
       <div className="absolute inset-0" style={{ background: heroBackground }} />
       <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-end p-7 md:p-14">
         {game.preorder && (
-          <div className="mb-4 self-start inline-flex items-center gap-1.5 rounded-md bg-[#facc15] px-2.5 py-0.5 text-xs font-black uppercase tracking-wider text-black shadow-md shadow-black/50">
-            <Clock size={13} className="shrink-0 text-black" />
-            <span>Pre-Order</span>
+          <div className="mb-4 self-start inline-flex items-center gap-2 rounded border border-[#facc15]/30 bg-[#facc15]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#facc15] backdrop-blur-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#facc15]" /> Pre-Order
           </div>
         )}
         {game.is_premium && !game.preorder && (
@@ -452,7 +451,7 @@ export default async function GamePage({ params }: Props) {
           </div>
         )}
         <p className="eyebrow flex items-center gap-1" style={{ color: accent }}>
-          {game.preorder ? "Rakexura pre-order" : game.is_premium ? <><Sparkles size={13} /> RAKEXURA EXCLUSIVE</> : "Rakexura game page"}
+          {game.preorder ? "Pre-order title" : game.is_premium ? <><Sparkles size={13} /> RAKEXURA EXCLUSIVE</> : "Rakexura game page"}
         </p>
         <h1 className={`mt-5 max-w-4xl font-black leading-[.95] ${titleSize(game.title)} ${titleGradientClass}`}>{game.title}</h1>
         <p className="mt-5 text-lg text-[#d7dae4]">{game.tagline}</p>
