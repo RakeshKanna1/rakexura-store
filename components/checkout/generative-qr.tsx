@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import QRCode from "qrcode";
 import { RefreshCw, QrCode } from "lucide-react";
@@ -19,36 +19,24 @@ export function GenerativeQr({
   amount,
   payeeName = "Rakexura",
   note = "Rakexura Game Order",
-  size = 160,
+  size = 180,
   className = "",
 }: GenerativeQrProps) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [generating, setGenerating] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(true);
   const [hasError, setHasError] = useState(false);
 
   const formattedAmount = amount.toFixed(2);
   const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${formattedAmount}&cu=INR&tn=${encodeURIComponent(note)}`;
 
   const renderQrCode = useCallback(async () => {
-    if (!canvasRef.current) return;
     setGenerating(true);
     setHasError(false);
 
     try {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) throw new Error("Could not get 2d canvas context");
-
-      // High-DPI canvas resolution scaling for sharp QR rendering
-      const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-      const displaySize = size;
-      canvas.width = displaySize * dpr;
-      canvas.height = displaySize * dpr;
-      ctx.scale(dpr, dpr);
-
-      // Generate clean QR code onto canvas without center overlay
-      await QRCode.toCanvas(canvas, upiUrl, {
-        width: displaySize * dpr,
+      // Generate ultra-sharp 512x512 QR code data URL (scales responsively via CSS without layout blowout)
+      const dataUrl = await QRCode.toDataURL(upiUrl, {
+        width: 512,
         margin: 1,
         errorCorrectionLevel: "M",
         color: {
@@ -57,59 +45,69 @@ export function GenerativeQr({
         },
       });
 
+      setQrDataUrl(dataUrl);
     } catch (err) {
       console.error("Generative QR code rendering failed:", err);
       setHasError(true);
     } finally {
       setGenerating(false);
     }
-  }, [upiUrl, size]);
+  }, [upiUrl]);
 
   useEffect(() => {
     void renderQrCode();
   }, [renderQrCode]);
 
   return (
-    <div className={`relative flex flex-col items-center justify-between rounded-lg bg-white p-3 text-black text-center shadow-sm border border-slate-200 select-none ${className}`}>
+    <div className={`relative flex flex-col items-center justify-between rounded-xl bg-white p-3.5 text-black text-center shadow-md border border-slate-200 select-none w-full max-w-[220px] mx-auto overflow-hidden ${className}`}>
       {/* Header with Rakexura Brand Badge & Name */}
-      <div className="flex items-center gap-1.5 mb-1">
-        <span className="relative h-5 w-5 rounded-full overflow-hidden shrink-0 bg-[#0d111c]">
-          <Image
-            src="/Assets/RakeBadge.png"
-            alt="Rakexura Logo"
-            fill
-            className="object-contain p-0.5"
-          />
+      <div className="flex items-center justify-between w-full mb-2 px-0.5">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="relative h-5 w-5 rounded-full overflow-hidden shrink-0 bg-[#0d111c]">
+            <Image
+              src="/Assets/RakeBadge.png"
+              alt="Rakexura Logo"
+              fill
+              className="object-contain p-0.5"
+            />
+          </span>
+          <span className="text-xs font-extrabold text-slate-900 truncate">{payeeName}</span>
+        </div>
+        <span className="text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded-full shrink-0">
+          ₹{formattedAmount}
         </span>
-        <span className="text-xs font-extrabold text-slate-900 truncate">{payeeName}</span>
       </div>
 
-      {/* Clean QR Canvas */}
-      <div className="relative flex items-center justify-center my-0.5">
-        <canvas
-          ref={canvasRef}
-          style={{ width: `${size}px`, height: `${size}px` }}
-          className="block cursor-pointer"
-          title={`Scan to pay ₹${formattedAmount} via any UPI app`}
-        />
+      {/* Responsive Sharp QR Image */}
+      <div className="relative w-full aspect-square max-w-[180px] mx-auto flex items-center justify-center my-1 bg-white rounded-lg overflow-hidden">
+        {qrDataUrl ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={qrDataUrl}
+            alt={`UPI QR Code for ₹${formattedAmount}`}
+            className="w-full h-full object-contain block"
+            width={size}
+            height={size}
+          />
+        ) : null}
 
         {generating && (
-          <div className="absolute inset-0 bg-white/90 rounded flex flex-col items-center justify-center text-slate-700 text-[11px] font-semibold gap-1">
-            <RefreshCw size={16} className="animate-spin text-slate-600" />
-            <span>Updating...</span>
+          <div className="absolute inset-0 bg-white/95 rounded-lg flex flex-col items-center justify-center text-slate-700 text-[11px] font-semibold gap-1.5">
+            <RefreshCw size={18} className="animate-spin text-violet-600" />
+            <span>Generating QR...</span>
           </div>
         )}
 
         {hasError && (
-          <div className="absolute inset-0 bg-white rounded flex flex-col items-center justify-center text-center p-2 text-red-500 text-[11px]">
-            <QrCode size={18} className="mb-1" />
+          <div className="absolute inset-0 bg-white rounded-lg flex flex-col items-center justify-center text-center p-2 text-red-500 text-[11px]">
+            <QrCode size={20} className="mb-1" />
             <span>Could not load QR</span>
           </div>
         )}
       </div>
 
       {/* Footer UPI ID */}
-      <div className="mt-1 pt-1 border-t border-slate-100 w-full text-[10px] text-slate-500 font-mono font-medium truncate">
+      <div className="mt-2 pt-2 border-t border-slate-100 w-full text-[10px] text-slate-500 font-mono font-medium truncate" title={upiId}>
         UPI ID: {upiId}
       </div>
     </div>

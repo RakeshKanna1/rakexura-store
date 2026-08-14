@@ -691,8 +691,10 @@ export function CheckoutForm() {
 
           {/* Transaction Section */}
           <div className="mt-4 grid gap-6 sm:grid-cols-[220px_1fr] items-start">
-            <GenerativeQr upiId={UPI_ID} amount={total} payeeName="Rakexura" note="Rakexura Game Order" size={160} />
-            <div>
+            <div className="flex justify-center sm:block w-full">
+              <GenerativeQr upiId={UPI_ID} amount={total} payeeName="Rakexura" note="Rakexura Game Order" size={180} />
+            </div>
+            <div className="min-w-0">
               {total > 0 ? (
                 <>
                   <h2 className="text-xl font-bold">Pay exactly {formatPrice(total)}</h2>
