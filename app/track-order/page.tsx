@@ -336,6 +336,7 @@ function TrackOrderContent() {
                 total={Number(result.total_price || 0)}
                 date={result.created_at ? new Date(result.created_at).toLocaleDateString() : undefined}
                 isPaid={["delivered", "completed", "payment verified", "processing", "approved"].some((s) => (result.status || "").toLowerCase().includes(s))}
+                isGift={result.order_ref.toUpperCase().includes("GIFT") || result.order_ref.toUpperCase().includes("GIVEAWAY") || (result.status || "").toLowerCase().includes("gift")}
                 paymentStatus={result.status}
                 items={
                   result.items && result.items.length > 0

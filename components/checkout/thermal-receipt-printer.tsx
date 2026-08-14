@@ -22,6 +22,7 @@ interface ThermalReceiptPrinterProps {
   couponCode?: string;
   couponDiscount?: number;
   isPaid?: boolean;
+  isGift?: boolean;
   paymentStatus?: string;
   autoPrint?: boolean;
   statusHeading?: string;
@@ -39,6 +40,7 @@ export function ThermalReceiptPrinter({
   couponCode,
   couponDiscount = 0,
   isPaid = false,
+  isGift = false,
   paymentStatus,
   autoPrint = true,
   statusHeading = "",
@@ -63,13 +65,16 @@ export function ThermalReceiptPrinter({
     year: "numeric",
   }).toUpperCase();
 
+  // Auto-detect gift status from order reference or explicit prop
+  const isOrderGift = isGift || orderReference.toUpperCase().includes("GIFT") || orderReference.toUpperCase().includes("GIVEAWAY");
+
   // Calculate subtotals
   const subtotal = items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
   const taxAmount = subtotal * (taxRate / 100);
   const effectiveDiscount = couponDiscount > 0 ? couponDiscount : (subtotal + taxAmount > total && total >= 0 ? (subtotal + taxAmount) - total : 0);
-  const grandTotal = total >= 0 ? total : Math.max(0, subtotal + taxAmount - effectiveDiscount);
+  const grandTotal = isOrderGift && total === 0 ? 0 : (total >= 0 ? total : Math.max(0, subtotal + taxAmount - effectiveDiscount));
 
-  const isOrderPaid = isPaid || (paymentStatus && ["paid", "verified", "delivered", "completed"].includes(paymentStatus.toLowerCase()));
+  const isOrderPaid = isOrderGift || isPaid || (paymentStatus && ["paid", "verified", "delivered", "completed"].includes(paymentStatus.toLowerCase()));
 
   // Initialize Web Audio API
   const initAudio = () => {
@@ -192,13 +197,13 @@ export function ThermalReceiptPrinter({
     }, 550);
   };
 
-  // Only auto-print ONCE on initial mount for a given orderReference
+  // Auto-print immediately when mounted/opened
   useEffect(() => {
     if (autoPrint && hasAutoPrintedRef.current !== orderReference) {
       hasAutoPrintedRef.current = orderReference;
       const timer = setTimeout(() => {
         triggerPrint();
-      }, 300);
+      }, 50);
       return () => clearTimeout(timer);
     }
   }, [orderReference, autoPrint, triggerPrint]);
@@ -358,8 +363,15 @@ export function ThermalReceiptPrinter({
                   }}
                 />
 
-                {/* Slanted Ink Stamp: PAID & VERIFIED or PENDING */}
-                {isOrderPaid ? (
+                {/* Slanted Ink Stamp: GIFTED or PAID & VERIFIED or PENDING */}
+                {isOrderGift ? (
+                  <div className="absolute right-2 top-14 z-30 pointer-events-none -rotate-12 select-none">
+                    <div className="border-2 border-dashed border-purple-600/90 text-purple-800 bg-purple-500/[0.08] px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase text-center shadow-sm">
+                      GIFTED
+                      <div className="text-[6.5px] tracking-normal font-bold -mt-0.5 opacity-85">RAKEXURA OFFICIAL</div>
+                    </div>
+                  </div>
+                ) : isOrderPaid ? (
                   <div className="absolute right-2 top-14 z-30 pointer-events-none -rotate-12 select-none">
                     <div className="border-2 border-dashed border-emerald-600/90 text-emerald-700 bg-emerald-500/[0.08] px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase text-center shadow-sm">
                       PAID
@@ -380,7 +392,9 @@ export function ThermalReceiptPrinter({
                   <div className="flex justify-between items-start mb-2 font-sans">
                     <div>
                       <div className="font-extrabold text-[11px] text-[#6d28d9] tracking-wider font-sans">RAKEXURA STORE</div>
-                      <div className="text-[9px] text-[#6a7282] font-sans">CYBER ORDER RECEIPT</div>
+                      <div className="text-[9px] text-[#6a7282] font-sans">
+                        {isOrderGift ? "GIFT ORDER RECEIPT" : "CYBER ORDER RECEIPT"}
+                      </div>
                     </div>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -393,7 +407,7 @@ export function ThermalReceiptPrinter({
                   {/* Amount Display */}
                   <div className="mb-2 font-sans">
                     <div className="text-xl font-black text-[#05070f] leading-none font-sans">
-                      {formatPrice(grandTotal)}
+                      {grandTotal === 0 ? "₹0" : formatPrice(grandTotal)}
                     </div>
                     <div className="text-[8px] text-[#6a7282] uppercase mt-0.5 font-sans">
                       {formattedDate} | {orderReference}
@@ -411,7 +425,12 @@ export function ThermalReceiptPrinter({
                           {item.name}
                           {item.platform ? ` (${item.platform})` : ""}
                         </span>
-                        <span className="font-bold">{formatPrice(item.price * (item.quantity || 1))}</span>
+                        <span className="font-bold">
+                          {isOrderGift ? (
+                            <span className="line-through text-[#8d95aa] mr-1">{formatPrice(item.price * (item.quantity || 1))}</span>
+                          ) : null}
+                          {isOrderGift ? "FREE" : formatPrice(item.price * (item.quantity || 1))}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -425,15 +444,23 @@ export function ThermalReceiptPrinter({
                       <span>{formatPrice(subtotal)}</span>
                     </div>
 
+                    {/* Dynamic Gift Waiver Line */}
+                    {isOrderGift && (
+                      <div className="flex justify-between text-purple-700 font-bold">
+                        <span>Gift Privilege (Owner)</span>
+                        <span>-{formatPrice(subtotal)}</span>
+                      </div>
+                    )}
+
                     {/* Dynamic Coupon Code Discount Row */}
-                    {(couponCode || effectiveDiscount > 0) && (
+                    {!isOrderGift && (couponCode || effectiveDiscount > 0) && (
                       <div className="flex justify-between text-emerald-700 font-bold">
                         <span>Coupon {couponCode ? `(${couponCode.toUpperCase()})` : "Discount"}</span>
                         <span>-{formatPrice(effectiveDiscount)}</span>
                       </div>
                     )}
 
-                    {taxRate > 0 && (
+                    {taxRate > 0 && !isOrderGift && (
                       <div className="flex justify-between text-[#6a7282]">
                         <span>Tax ({taxRate}%)</span>
                         <span>{formatPrice(taxAmount)}</span>
@@ -443,7 +470,7 @@ export function ThermalReceiptPrinter({
                     <div className="flex justify-between font-black text-[11px] pt-1 border-t border-[#05070f] text-[#05070f]">
                       <span>TOTAL</span>
                       <span className={grandTotal === 0 ? "text-emerald-700 font-black" : ""}>
-                        {grandTotal === 0 ? "₹0 (FREE)" : formatPrice(grandTotal)}
+                        {grandTotal === 0 ? "₹0" : formatPrice(grandTotal)}
                       </span>
                     </div>
                   </div>
@@ -451,7 +478,7 @@ export function ThermalReceiptPrinter({
                   {/* Footer barcode */}
                   <div className="text-center mt-2.5 pt-1.5 font-sans">
                     <div className="text-[9px] font-bold text-[#6a7282] tracking-wider mb-1 font-sans">
-                      HAVE A NICE DAY!
+                      {isOrderGift ? "ENJOY YOUR GAME!" : "HAVE A NICE DAY!"}
                     </div>
                     <div className="flex flex-col items-center gap-0.5 opacity-80 font-sans">
                       <div
