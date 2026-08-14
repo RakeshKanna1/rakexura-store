@@ -11,6 +11,8 @@ const supabaseHostname = (() => {
   }
 })();
 
+const isDev = process.env.NODE_ENV !== "production";
+
 const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com;
@@ -18,7 +20,7 @@ const cspHeader = `
   img-src 'self' blob: data: https://*.supabase.co https://*.supabase.in https://images.unsplash.com https://wa.me https://img.youtube.com https://*.ytimg.com https://*.youtube.com;
   media-src 'self' blob: data: https://*.supabase.co https://*.supabase.in;
   font-src 'self' data:;
-  connect-src 'self' ws: wss: https://*.supabase.co wss://*.supabase.co https://*.wa.me https://*.upstash.io https://*.upstash.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://vitals.vercel-insights.com https://vitals.vercel-analytics.com;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.wa.me https://*.upstash.io https://*.upstash.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://vitals.vercel-insights.com https://vitals.vercel-analytics.com;
   frame-src 'self' https://*.discord.com https://*.google.com https://www.youtube.com https://www.youtube-nocookie.com;
   frame-ancestors 'none';
 `.replace(/\s{2,}/g, " ").trim();
@@ -71,35 +73,41 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   serverExternalPackages: ["@supabase/ssr", "@supabase/supabase-js", "@sentry/nextjs", "@sentry/node", "@opentelemetry/api"],
   async headers() {
+    const securityHeaders = [
+      ...(!isDev
+        ? [
+            {
+              key: "Content-Security-Policy",
+              value: cspHeader,
+            },
+          ]
+        : []),
+      {
+        key: "X-Content-Type-Options",
+        value: "nosniff",
+      },
+      {
+        key: "Referrer-Policy",
+        value: "strict-origin-when-cross-origin",
+      },
+      {
+        key: "Permissions-Policy",
+        value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+      },
+      {
+        key: "Strict-Transport-Security",
+        value: "max-age=31536000; includeSubDomains; preload",
+      },
+      {
+        key: "X-Frame-Options",
+        value: "DENY",
+      },
+    ];
+
     return [
       {
         source: "/(.*)",
-        headers: [
-          {
-            key: "Content-Security-Policy",
-            value: cspHeader,
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
-          {
-            key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
-          },
-          {
-            key: "Strict-Transport-Security",
-            value: "max-age=31536000; includeSubDomains; preload",
-          },
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
-          },
-        ],
+        headers: securityHeaders,
       },
       {
         source: "/(images|fonts|_next/static)/:path*",
