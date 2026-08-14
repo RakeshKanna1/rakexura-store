@@ -97,8 +97,8 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                 const isDirectVideo = game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i);
 
                 return (
-                  <SwiperSlide key={game.id}>
-                    <article className="hero-frame relative h-full w-full overflow-hidden rounded-xl">
+                  <SwiperSlide key={game.id} className="w-full h-full relative overflow-hidden rounded-xl" style={{ position: "relative", overflow: "hidden" }}>
+                    <article className="hero-frame relative h-full w-full overflow-hidden rounded-xl" style={{ position: "relative", overflow: "hidden" }}>
                       {/* Active Banner Trailer Video Overlay */}
                       {isTrailerActive ? (
                         <div className="absolute inset-0 z-30 bg-black overflow-hidden rounded-xl">
