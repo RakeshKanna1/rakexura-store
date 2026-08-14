@@ -72,8 +72,8 @@ export function HeroCarousel({ games }: { games: Game[] }) {
   };
 
   return (
-    <div className="hero-with-featured">
-      <div className="min-w-0 relative">
+    <div className="hero-with-featured w-full min-w-0">
+      <div className="min-w-0 w-full relative">
           <>
             <Swiper
               modules={[Autoplay, Navigation]}
@@ -87,7 +87,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                 setActiveTrailerId(null);
               }}
               navigation={{ prevEl: ".hero-prev", nextEl: ".hero-next" }}
-              className="overflow-hidden rounded-xl h-[420px] md:h-[570px]"
+              className="w-full overflow-hidden rounded-xl h-[460px] sm:h-[500px] md:h-[570px]"
             >
               <button suppressHydrationWarning={true} onClick={handleCloseTrailer} className="hero-prev absolute left-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-black/55 backdrop-blur md:grid" aria-label="Previous spotlight"><ChevronLeft /></button>
               <button suppressHydrationWarning={true} onClick={handleCloseTrailer} className="hero-next absolute right-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-black/55 backdrop-blur md:grid" aria-label="Next spotlight"><ChevronRight /></button>
@@ -159,12 +159,12 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                             initial={{ opacity: 0, y: 24 }} 
                             animate={active === index ? { opacity: 1, y: 0 } : { opacity: .75, y: 12 }} 
                             transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} 
-                            className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-5 pb-16 pt-8 md:pb-20 md:pt-14 md:px-14"
+                            className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-4 pb-12 pt-6 sm:p-6 sm:pb-14 md:pb-20 md:pt-14 md:px-14"
                           >
-                            <p className="eyebrow mb-4">
+                            <p className="eyebrow mb-1.5 md:mb-4 text-xs md:text-sm">
                               {game.preorder ? "Pre-order spotlight" : "Rakexura spotlight"}
                             </p>
-                            <h3 className="text-2xl font-black md:text-5xl lg:text-[64px] tracking-tight leading-[1.05]">
+                            <h3 className="text-xl sm:text-3xl md:text-5xl lg:text-[64px] font-black tracking-tight leading-[1.1] line-clamp-2 md:line-clamp-none">
                               <BlurText 
                                 key={`${game.id}-${active === index}`}
                                 text={game.title} 
@@ -174,33 +174,32 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                                 stepDuration={0.3} 
                               />
                             </h3>
-                            <p className="mt-6 max-w-xl text-base leading-7 text-[#d4d8e4] md:text-lg">{game.tagline || game.description || "A standout PC experience, ready for your library."}</p>
-                            <div className="mt-7 flex flex-wrap items-center gap-3">
+                            <p className="mt-2 md:mt-6 max-w-xl text-xs sm:text-base md:text-lg leading-relaxed text-[#d4d8e4] line-clamp-2 md:line-clamp-3">
+                              {game.tagline || game.description || "A standout PC experience, ready for your library."}
+                            </p>
+                            <div className="mt-3 md:mt-7 flex flex-wrap items-center gap-2 md:gap-3">
                               {game.preorder ? (
-                                <Link href={gameUrl(game)} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">
-                                  Pre-order now <ArrowRight size={17} />
+                                <Link href={gameUrl(game)} className="magnetic-button inline-flex min-h-10 md:min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-4 md:px-6 text-xs md:text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">
+                                  Pre-order now <ArrowRight size={15} />
                                 </Link>
                               ) : (
-                                <Link href={gameUrl(game)} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">View game <ArrowRight size={17} /></Link>
+                                <Link href={gameUrl(game)} className="magnetic-button inline-flex min-h-10 md:min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-4 md:px-6 text-xs md:text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">
+                                  View game <ArrowRight size={15} />
+                                </Link>
                               )}
                               {game.trailer_url ? (
                                 <button
                                   suppressHydrationWarning={true}
                                   type="button"
                                   onClick={(e) => handlePlayTrailer(game, e)}
-                                  className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/12 bg-black/40 px-5 text-sm font-semibold backdrop-blur hover:bg-black/60 hover:border-[#facc15]/50 transition-all cursor-pointer"
+                                  className="inline-flex min-h-10 md:min-h-12 items-center gap-2 rounded-md border border-white/12 bg-black/40 px-3 md:px-5 text-xs md:text-sm font-semibold backdrop-blur hover:bg-black/60 hover:border-[#facc15]/50 transition-all cursor-pointer"
                                 >
-                                  <Play size={16} fill="currentColor" className="text-[#facc15]" /> Trailer
+                                  <Play size={14} fill="currentColor" className="text-[#facc15]" /> Trailer
                                 </button>
-                              ) : (
-                                <Link
-                                  href={gameUrl(game)}
-                                  className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/12 bg-black/40 px-5 text-sm font-semibold backdrop-blur hover:bg-black/60 transition-all"
-                                >
-                                  <Play size={16} fill="currentColor" /> Trailer
-                                </Link>
-                              )}
-                              <span className="rounded-md bg-black/45 px-4 py-3 text-sm font-semibold backdrop-blur">From {formatPrice(lowestPrice(game))}</span>
+                              ) : null}
+                              <span className="rounded-md bg-black/45 px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm font-semibold backdrop-blur">
+                                From {formatPrice(lowestPrice(game))}
+                              </span>
                             </div>
                           </motion.div>
                         </>
