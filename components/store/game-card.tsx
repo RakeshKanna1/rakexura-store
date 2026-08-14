@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, PointerEvent } from "react";
+import { useEffect, useState, PointerEvent } from "react";
 import { motion } from "framer-motion";
 import { Eye, ShoppingCart, X } from "lucide-react";
 import Image from "next/image";
@@ -22,32 +22,18 @@ function gamePrice(game: Game) {
   return prices.length ? Math.min(...prices) : 0;
 }
 
-function platformPrice(game: Game, platform: Platform) {
-  if (platform === "Epic") return Number(game.epic_price ?? 0);
-  if (platform === "Offline") return Number(game.offline_price ?? 0);
-  if (platform === "Online") return Number(game.online_price ?? 0);
-  if (platform === "Xbox") return Number(game.xbox_price ?? 0);
-  if (platform === "Nvidia GeForce") return Number(game.geforce_price ?? 0);
-  return Number(game.steam_price ?? 0);
-}
-
-function defaultPlatform(game: Game): Platform {
-  const available = availablePlatforms(game);
-
-  return available.reduce((best, platform) => {
-    const price = platformPrice(game, platform) || Number.POSITIVE_INFINITY;
-    const bestPrice = platformPrice(game, best) || Number.POSITIVE_INFINITY;
-    return price < bestPrice ? platform : best;
-  }, available[0] ?? "Steam");
-}
-
 export function availablePlatforms(game: Game): Platform[] {
-  if (game.available_platforms && game.available_platforms.length > 0) {
-    return game.available_platforms as Platform[];
-  }
-  const listed = (["Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce"] as Platform[]).filter(
-    (platform) => platformPrice(game, platform) > 0 || (platform === "Online" && Boolean(game.online_activation))
-  );
+  const custom = (game.available_platforms ?? []).filter(Boolean) as Platform[];
+  if (custom.length) return custom;
+  const legacy: Array<[Platform, unknown]> = [
+    ["Steam", game.steam_price],
+    ["Epic", game.epic_price],
+    ["Offline", game.offline_price],
+    ["Online", game.online_price],
+    ["Xbox", game.xbox_price],
+    ["Nvidia GeForce", game.geforce_price],
+  ];
+  const listed = legacy.filter(([, value]) => Number(value ?? 0) > 0).map(([platform]) => platform);
   if (listed.length) return listed;
   return ["Steam"];
 }
@@ -57,8 +43,6 @@ interface GameCardInnerProps {
   priority: boolean;
   onQuickView?: (game: Game) => void;
   add: (game: Game, platform: Platform) => void;
-  toggleWishlist: (id: number) => void;
-  saved: boolean;
   price: number;
   original: number;
   discount: number;
@@ -70,8 +54,6 @@ function GameCardInner({
   priority,
   onQuickView,
   add,
-  toggleWishlist,
-  saved,
   price,
   original,
   discount,
@@ -187,7 +169,7 @@ function GameCardInner({
                 return;
               }
               triggerFlyToCart(assetUrl(game.cover_image), e.currentTarget);
-              add(game, defaultPlatform(game));
+              add(game, platforms[0] ?? "Steam");
               toast.success(`${game.title} added to cart`);
             }}
             className={`grid h-8.5 w-8.5 shrink-0 place-items-center rounded-lg border transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer ${
@@ -215,18 +197,14 @@ export function GameCard({
   onQuickView?: (game: Game) => void;
 }) {
   const add = useCartStore((state) => state.add);
-  const toggleWishlist = useCartStore((state) => state.toggleWishlist);
-  const saved = useCartStore((state) => (state.wishlistIds || []).includes(game.id));
   const price = gamePrice(game);
   const original = Number(game.original_price ?? 0);
   const discount = original > price && price > 0 ? Math.round((1 - price / original) * 100) : 0;
   const platforms = availablePlatforms(game);
 
   const [isMobile, setIsMobile] = useState(true);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768 && !isHighEndDevice());
     };
@@ -240,8 +218,6 @@ export function GameCard({
     priority,
     onQuickView,
     add,
-    toggleWishlist,
-    saved: mounted && saved,
     price,
     original,
     discount,

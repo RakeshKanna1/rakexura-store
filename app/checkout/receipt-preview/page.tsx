@@ -12,13 +12,12 @@ function PreviewFocusModeWhatsAppPrinter({
   customerName,
   total,
   items,
-  whatsappUrl,
 }: {
   orderReference: string;
   customerName: string;
   total: number;
   items: Array<{ name: string; platform?: string; price: number; quantity?: number }>;
-  whatsappUrl: string;
+  whatsappUrl?: string;
 }) {
   const [secondsLeft, setSecondsLeft] = useState(12);
   const [isRedirecting, setIsRedirecting] = useState(false);

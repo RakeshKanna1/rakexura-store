@@ -10,10 +10,10 @@ import { CopyablePriceModal } from "./copyable-price-modal";
 import type { Game, Bundle, Platform } from "@/types/store";
 
 import { createClient } from "@/lib/supabase/client";
+import { OWNER_EMAIL } from "@/lib/config";
 
 const platforms: Array<"All" | Platform | "Pre-orders" | "Subscriptions"> = ["All", "Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce", "Pre-orders", "Subscriptions"];
 const sorts = ["Featured", "Price: Low to high", "Price: High to low", "Best sellers", "Latest"] as const;
-const OWNER_EMAIL = "12k21rakeshkannam@gmail.com";
 
 interface CustomSelectProps {
   value: string;
@@ -150,7 +150,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
       }
       
       const matchesGenre = selectedGenre === "All" || game.genres?.includes(selectedGenre);
-      const matchesBudget = budget === "All" || (budget === "Under Rs. 99" ? price <= 99 : budget === "Rs. 100-199" ? price >= 100 && price <= 199 : price >= 200);
+      const matchesBudget = budget === "All" || (budget === "Under ₹99" || budget === "Under Rs. 99" ? price <= 99 : budget === "₹100 - ₹199" || budget === "Rs. 100-199" ? price >= 100 && price <= 199 : price >= 200);
       return matchesText && matchesPlatform && matchesGenre && matchesBudget;
     });
     return result.sort((a, b) => {
@@ -232,7 +232,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
             <CustomSelect
               value={budget}
               onChange={(val) => setBudget(val)}
-              options={["All", "Under Rs. 99", "Rs. 100-199", "Rs. 200+"]}
+              options={["All", "Under ₹99", "₹100 - ₹199", "₹200+"]}
               className="w-48 max-w-[65%]"
             />
           </label>

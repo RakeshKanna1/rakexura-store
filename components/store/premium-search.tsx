@@ -69,9 +69,21 @@ export function PremiumSearch() {
     const value = query.trim();
     if (value.length < 2) { setResults([]); return; }
     
-    const filtered = allGames.filter((game) =>
-      matchesSearchQuery(game.title, value, game.tagline, game.description, game.genres)
-    );
+    // Check if query contains price filter e.g. "under 299", "under ₹299", "under rs 299"
+    const priceMatch = value.match(/under\s*(?:rs\.?|₹)?\s*(\d+)/i) || value.match(/(?:below|<)\s*(?:rs\.?|₹)?\s*(\d+)/i);
+    let filtered = allGames;
+
+    if (priceMatch) {
+      const maxPrice = Number(priceMatch[1]);
+      filtered = allGames.filter((game) => {
+        const p = lowestPrice(game);
+        return p > 0 && p <= maxPrice;
+      });
+    } else {
+      filtered = allGames.filter((game) =>
+        matchesSearchQuery(game.title, value, game.tagline, game.description, game.genres)
+      );
+    }
     setResults(filtered.slice(0, 6));
   }, [query, allGames]);
 
@@ -109,8 +121,8 @@ export function PremiumSearch() {
               }
             }}
             autoComplete="off"
-            placeholder={focused ? "Search games, genres, platforms" : ""}
-            className="w-full h-full border-0 bg-transparent text-white outline-none"
+            placeholder={focused ? "Search games, genres, platforms..." : ""}
+            className="w-full h-full border-0 bg-transparent text-white outline-none placeholder:text-[#5d6477]"
           />
           {!focused && !query && (
             <div className="absolute left-0 pointer-events-none text-[#767e90] text-sm flex items-center">
@@ -134,38 +146,50 @@ export function PremiumSearch() {
       </label>
       <AnimatePresence>
         {open && (
-          <motion.div initial={{ opacity: 0, y: -8, scale: .985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -5 }} className="absolute left-0 right-0 top-[calc(100%+9px)] z-[80] max-h-[72vh] overflow-y-auto rounded-md border border-white/10 bg-[#090c13]/98 p-2 shadow-[0_26px_80px_rgba(0,0,0,.65)] backdrop-blur-xl">
-            <p className="flex items-center gap-2 px-2 py-2 text-[10px] font-black uppercase tracking-wider text-[#777f91]">
-              {query.trim().length >= 2 ? <><Search size={13} /> Results</> : <><Clock3 size={13} /> Recently viewed and popular</>}
+          <motion.div initial={{ opacity: 0, y: -6, scale: .99 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4 }} className="absolute left-0 right-0 top-[calc(100%+8px)] z-[80] max-h-[62vh] overflow-y-auto rounded-lg border border-white/10 bg-[#090c13]/98 p-1.5 shadow-[0_20px_60px_rgba(0,0,0,.75)] backdrop-blur-xl custom-scrollbar">
+            <p className="flex items-center gap-2 px-2 py-1.5 text-[10px] font-black uppercase tracking-wider text-[#777f91]">
+              {query.trim().length >= 2 ? <><Search size={12} /> Results</> : <><Clock3 size={12} /> Recently viewed & popular</>}
             </p>
-            {loading && <p className="p-4 text-sm text-[#8f96a8]">Searching Rakexura...</p>}
+            {loading && <p className="p-3 text-xs text-[#8f96a8]">Searching Rakexura...</p>}
             {!loading && shown.map((game) => (
-              <article key={game.id} className="grid grid-cols-[48px_minmax(0,1fr)_40px] items-center gap-3 rounded-md p-2 transition hover:bg-white/[.055]">
-                <Link href={gameUrl(game)} onClick={() => remember(game)} className="relative h-14 overflow-hidden rounded-sm bg-black">
-                  <Image src={assetUrl(game.cover_image)} alt={`${game.title} cover`} fill className="object-cover" sizes="48px" />
+              <article key={game.id} className="grid grid-cols-[42px_minmax(0,1fr)_36px] items-center gap-2.5 rounded-md p-1.5 transition hover:bg-white/[.055]">
+                <Link href={gameUrl(game)} onClick={() => remember(game)} className="relative h-12 overflow-hidden rounded-sm bg-black border border-white/5">
+                  <Image src={assetUrl(game.cover_image)} alt={`${game.title} cover`} fill className="object-cover" sizes="42px" />
                 </Link>
                 <Link href={gameUrl(game)} onClick={() => remember(game)} className="min-w-0">
-                  <strong className="block truncate text-sm">{game.title}</strong>
-                  <span className="mt-1 block truncate text-xs text-[#9ba2b3]">{formatPrice(lowestPrice(game))} · {availablePlatforms(game).join(" / ") || "Check availability"}</span>
+                  <strong className="block truncate text-xs font-bold text-white hover:text-[#c4b5fd]">{game.title}</strong>
+                  <span className="mt-0.5 block truncate text-[11px] text-[#9ba2b3]">{formatPrice(lowestPrice(game))} · <span className="text-[#727a8c]">{availablePlatforms(game).join(" / ") || "Check availability"}</span></span>
                 </Link>
-                <button suppressHydrationWarning type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => quickAdd(game)} className="grid h-10 w-10 place-items-center rounded-md border border-[#8b5cf6]/30 text-[#c9bcff] transition hover:bg-[#8b5cf6] hover:text-white" aria-label={`Add ${game.title} to cart`}>
-                  <Plus size={17} />
+                <button suppressHydrationWarning type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => quickAdd(game)} className="grid h-8 w-8 place-items-center rounded-md border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#c9bcff] transition hover:bg-[#8b5cf6] hover:text-white" aria-label={`Add ${game.title} to cart`}>
+                  <Plus size={15} />
                 </button>
               </article>
             ))}
             {!loading && query.trim().length >= 2 && !shown.length && (
               <div className="p-5 text-center">
-                <Gamepad2 className="mx-auto text-[#9f7aea]" />
-                <strong className="mt-3 block text-sm">No matching game</strong>
-                <p className="mt-1 text-xs text-[#8f96a8]">Ask Rakexura to add it to the catalog.</p>
-                <Link href={`/requests?game=${encodeURIComponent(query.trim())}`} className="btn btn-secondary mt-4 text-xs">Request this game</Link>
+                <Gamepad2 className="mx-auto text-[#9f7aea]" size={24} />
+                <strong className="mt-2 block text-xs font-bold text-white">No matching games found</strong>
+                <p className="mt-1 text-[11px] text-[#8f96a8]">Ask Rakexura to add it to the catalog.</p>
+                <Link href={`/requests?game=${encodeURIComponent(query.trim())}`} className="btn btn-secondary mt-3 text-xs py-1.5">Request this game</Link>
               </div>
             )}
             {query.trim().length < 2 && (
-              <div className="mt-1 flex flex-wrap gap-2 border-t border-white/[.07] p-2 pt-3">
+              <div className="mt-1 flex items-center flex-wrap gap-2 border-t border-white/[.07] px-2 py-2">
                 <span className="flex items-center gap-1 text-[10px] font-black uppercase text-[#777f91]"><TrendingUp size={12} /> Explore</span>
                 {trendingTerms.map((term) => (
-                  <button suppressHydrationWarning key={term} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => setQuery(term)} className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-[#b6bdcc] hover:border-[#8b5cf6]/40">{term}</button>
+                  <button
+                    suppressHydrationWarning
+                    key={term}
+                    type="button"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
+                      setQuery(term);
+                      setOpen(true);
+                    }}
+                    className="rounded-full border border-white/10 bg-white/[0.02] px-3 py-1 text-xs text-[#b6bdcc] hover:border-[#8b5cf6]/40 hover:bg-[#8b5cf6]/10 hover:text-white transition-all cursor-pointer font-medium"
+                  >
+                    {term}
+                  </button>
                 ))}
               </div>
             )}

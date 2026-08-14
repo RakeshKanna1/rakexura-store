@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { sendEmail, buildAdminAlertEmailHtml } from "@/lib/email";
 import { createClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
+import { SITE_CONFIG, OWNER_EMAIL } from "@/lib/config";
 
 export const runtime = "nodejs";
 
@@ -73,8 +74,8 @@ export async function POST(request: Request) {
       `;
 
       // 1. Send email to owner with clean admin-focused HTML
-      const adminEmail = process.env.OWNER_EMAIL || "12k21rakeshkannam@gmail.com";
-      const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
+      const adminEmail = OWNER_EMAIL;
+      const siteUrl = SITE_CONFIG.siteUrl.replace(/\/$/, "");
       
       const adminHtml = buildAdminAlertEmailHtml({
         badgeText: "STORE ALERT",

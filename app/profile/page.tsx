@@ -4,8 +4,7 @@ import { Bell, Gamepad2, Heart, LifeBuoy, PackageSearch, Settings, ShieldCheck, 
 import { redirect } from "next/navigation";
 import { LogoutButton } from "@/components/account/logout-button";
 import { createClient } from "@/lib/supabase/server";
-
-const OWNER_EMAIL = "12k21rakeshkannam@gmail.com";
+import { OWNER_EMAIL } from "@/lib/config";
 const shortcuts = [
   ["/dashboard", "Dashboard", UserRound], ["/dashboard/orders", "My orders", PackageSearch],
   ["/dashboard/library", "My games", Gamepad2], ["/wishlist", "Wishlist", Heart],

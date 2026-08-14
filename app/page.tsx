@@ -55,7 +55,7 @@ export default async function Home() {
         <Reveal><GameShelf title="Gamer's choice" subtitle="Popular picks selected by Rakexura players" games={highlightGames.slice(0, 12)} /></Reveal>
         <Reveal><CategoryRail /></Reveal>
         <Reveal><FlashSaleBlock sales={sales} /></Reveal>
-        <Reveal><GameShelf title="Deals under Rs. 299" subtitle="Strong games without stretching your budget" games={budget} /></Reveal>
+        <Reveal><GameShelf title="Deals under ₹299" subtitle="Strong games without stretching your budget" games={budget} /></Reveal>
         {subscriptions.length > 0 && <Reveal><GameShelf title="Game Pass and subscriptions" subtitle="Memberships and gaming services" games={subscriptions} /></Reveal>}
         <Reveal><GameShelf title="Best sellers" subtitle="The titles players keep choosing" games={bestSellers.length ? bestSellers : games.slice(0, 12)} /></Reveal>
         <Reveal><BundleShelf bundles={bundles} /></Reveal>

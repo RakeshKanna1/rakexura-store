@@ -776,7 +776,8 @@ export async function saveGame(formData: FormData) {
   let { error } = await query;
 
   if (error && (error.message.includes("card_video_url") || error.code === "PGRST204")) {
-    const { card_video_url, ...fallbackPayload } = payload;
+    const fallbackPayload = { ...payload };
+    delete (fallbackPayload as Record<string, unknown>).card_video_url;
     query = rawId ? supabase.from("games").update(fallbackPayload).eq("id", Number(rawId)) : supabase.from("games").insert(fallbackPayload);
     const retryResult = await query;
     error = retryResult.error;

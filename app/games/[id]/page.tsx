@@ -294,17 +294,6 @@ export default async function GamePage({ params }: Props) {
     linear-gradient(0deg, rgba(3,5,11,0.98) 0%, rgba(3,5,11,0.6) 30%, transparent 60%)
   `;
 
-  let heroBorderClass = "border-white/[0.08]";
-  if (premiumTheme === "jungle") {
-    heroBorderClass = "border-emerald-500/30 shadow-[0_0_35px_rgba(16,185,129,0.15)]";
-  } else if (premiumTheme === "cyberpunk") {
-    heroBorderClass = "border-cyan-500/30 shadow-[0_0_35px_rgba(34,211,238,0.15)]";
-  } else if (premiumTheme === "crimson") {
-    heroBorderClass = "border-red-500/30 shadow-[0_0_35px_rgba(239,68,68,0.15)]";
-  } else if (premiumTheme === "royal") {
-    heroBorderClass = "border-[#d4af37]/30 shadow-[0_0_35px_rgba(212,175,55,0.15)]";
-  }
-
   let badgeClass = "";
   if (premiumTheme === "jungle") {
     badgeClass = "border-emerald-500/35 bg-emerald-500/10 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)]";
@@ -343,20 +332,15 @@ export default async function GamePage({ params }: Props) {
   }
 
   let featureItemClass = "border-white/[.07] bg-[#0d111c]";
-  let reqPanelClass = "border-transparent";
   if (game.is_premium) {
     if (premiumTheme === "jungle") {
       featureItemClass = "border-emerald-500/15 bg-[#03150c]/40";
-      reqPanelClass = "border-emerald-500/15 bg-[#03150c]/30";
     } else if (premiumTheme === "cyberpunk") {
       featureItemClass = "border-cyan-500/15 bg-[#030915]/40";
-      reqPanelClass = "border-cyan-500/15 bg-[#030915]/30";
     } else if (premiumTheme === "crimson") {
       featureItemClass = "border-red-500/15 bg-[#0d0404]/40";
-      reqPanelClass = "border-red-500/15 bg-[#0d0404]/30";
     } else {
       featureItemClass = "border-[#d4af37]/15 bg-[#16130b]/40";
-      reqPanelClass = "border-[#d4af37]/15 bg-[#16130b]/30";
     }
   }
 

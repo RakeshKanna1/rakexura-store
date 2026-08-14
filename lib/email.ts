@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 
 import { fetchWithTimeout } from "@/lib/security/request";
+import { OWNER_EMAIL } from "@/lib/config";
 
 type SendEmailInput = {
   to?: string | null;
@@ -758,7 +759,7 @@ export function buildReviewRequestEmailHtml(options: ReviewRequestEmailOptions =
 }
 
 export async function sendEmail({ to, subject, text, html }: SendEmailInput): Promise<EmailResult> {
-  const ownerEmail = (process.env.OWNER_EMAIL || "12k21rakeshkannam@gmail.com").toLowerCase().trim();
+  const ownerEmail = OWNER_EMAIL.toLowerCase().trim();
 
   if (!to) {
     return { ok: false, skipped: true, reason: "Email recipient is not configured" };

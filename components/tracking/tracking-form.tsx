@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { formatPrice } from "@/lib/utils";
 import { Confetti } from "@/components/common/confetti";
+import { WHATSAPP_NUMBER } from "@/lib/config";
 
 type TrackedOrder = { order_id: number; order_ref: string; status: string; total_price: number; created_at: string; items: Array<{ title: string; platform: string }>; customer_name: string; auth_required?: boolean; account_access?: string };
 const stages = ["Order received", "Payment verified", "Preparing delivery", "Delivered"];
@@ -64,8 +65,8 @@ export function TrackingForm() {
 
   async function copyOrder() { if (!result) return; await navigator.clipboard.writeText(result.order_ref); toast.success("Order reference copied"); }
   const active = result ? stageIndex(result.status) : 0;
-  const isRejected = result ? result.status.toLowerCase() === "rejected" : false;
-  const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695";
+  const isRejected = result?.status?.toLowerCase().includes("reject") || result?.status?.toLowerCase().includes("cancel");
+  const whatsapp = WHATSAPP_NUMBER;
 
   return (
     <div>

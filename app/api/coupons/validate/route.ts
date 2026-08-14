@@ -53,7 +53,7 @@ export async function POST(request: Request) {
         {
           success: false,
           error: {
-            message: "Coupons cannot be applied to a single game priced under Rs. 99.",
+            message: "Coupons cannot be applied to a single game priced under ₹99.",
             code: "PRICE_RESTRICTION"
           }
         },

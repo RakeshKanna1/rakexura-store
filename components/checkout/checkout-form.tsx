@@ -18,6 +18,7 @@ import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
 import type { Game } from "@/types/store";
 import { Confetti } from "@/components/common/confetti";
 import { DustDisintegration } from "@/components/common/dust-disintegration";
+import { WHATSAPP_NUMBER, SITE_CONFIG } from "@/lib/config";
 import { EmptyState } from "@/components/common/empty-state";
 import dynamic from "next/dynamic";
 
@@ -259,7 +260,7 @@ export function CheckoutForm() {
         if (totalItemCount === 1 && subtotal < 99) {
           setCoupon(null);
           setCouponCode("");
-          toast.error("Coupons cannot be applied to a single game priced under Rs. 99.");
+          toast.error("Coupons cannot be applied to a single game priced under ₹99.");
         }
       }
     }
@@ -805,8 +806,8 @@ export function CheckoutForm() {
               );
               const isFreebie = finalAmount === 0 && isRankCouponActive;
               const gameTitle = purchasedTitles || "Game";
-              const trackingLink = `${typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL ?? "https://rakexura-store.vercel.app")}/track-order?order=${orderReference}&phone=${postPurchasePhone}`;
-              const whatsappUrl = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695"}?text=` + 
+              const trackingLink = `${typeof window !== "undefined" ? window.location.origin : SITE_CONFIG.siteUrl}/track-order?order=${orderReference}&phone=${postPurchasePhone}`;
+              const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=` + 
                 encodeURIComponent(`NEW ORDER RECEIVED`) + `%0A%0A` +
                 encodeURIComponent(`Game: ${gameTitle} `) + `%0A` +
                 encodeURIComponent(`Order ID: ${orderReference} `) + `%0A` +

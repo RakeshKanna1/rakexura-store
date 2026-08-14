@@ -3,6 +3,7 @@ import { sendEmail, buildAdminAlertEmailHtml } from "@/lib/email";
 import { createClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 import { rateLimiter } from "@/lib/security/rate-limit";
+import { OWNER_EMAIL, SITE_CONFIG } from "@/lib/config";
 
 export const runtime = "nodejs";
 
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
     const rating = Number(body.rating ?? 5);
     const comment = String(body.comment ?? "").trim();
 
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
+    const siteUrl = SITE_CONFIG.siteUrl.replace(/\/$/, "");
     const subject = `New Review Submitted for ${gameTitle}`;
     const textContent = `
       Customer: ${user.email}
@@ -90,7 +91,7 @@ export async function POST(request: Request) {
     });
 
     // 1. Send email to owner
-    const adminEmail = process.env.OWNER_EMAIL || "12k21rakeshkannam@gmail.com";
+    const adminEmail = OWNER_EMAIL;
     await sendEmail({
       to: adminEmail,
       subject,

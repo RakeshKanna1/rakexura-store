@@ -38,8 +38,6 @@ export function ProductActions({ game }: { game: Game }) {
   const add = useCartStore((state) => state.add);
   const setStoreQuantity = useCartStore((state) => state.setQuantity);
   const setDrawerOpen = useCartStore((state) => state.setDrawerOpen);
-  const toggle = useCartStore((state) => state.toggleWishlist);
-  const saved = useCartStore((state) => state.wishlistIds.includes(game.id));
   const lines = useCartStore((state) => state.lines);
   const coupon = useCartStore((state) => state.coupon);
   const setCoupon = useCartStore((state) => state.setCoupon);
@@ -86,7 +84,7 @@ export function ProductActions({ game }: { game: Game }) {
       if (basePrice * quantity < 99) {
         setCoupon(null);
         setCouponCode("");
-        toast.error("Coupons cannot be applied to a single game priced under Rs. 99.");
+        toast.error("Coupons cannot be applied to a single game priced under ₹99.");
       }
     }
   }, [selected, coupon, game, quantity, setCoupon]);
@@ -98,7 +96,6 @@ export function ProductActions({ game }: { game: Game }) {
   const activeCoupon = mounted ? coupon : null;
   const couponSavings = activeCoupon && gameSubtotal >= activeCoupon.minimum_order ? Math.min(gameSubtotal, activeCoupon.discount_type === "percentage" ? gameSubtotal * activeCoupon.discount_value / 100 : activeCoupon.discount_value) : 0;
   const discountedPrice = Math.max(0, gameSubtotal - couponSavings);
-  const isSaved = mounted && saved;
 
   async function checkCoupon() {
     const normalized = couponCode.trim().toUpperCase();

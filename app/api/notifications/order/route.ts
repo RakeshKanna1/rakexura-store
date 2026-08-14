@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 import { sendWhatsAppText } from "@/lib/whatsapp";
 import { runBackgroundJob } from "@/lib/security/queue";
+import { OWNER_EMAIL } from "@/lib/config";
 
 export const runtime = "nodejs";
 
@@ -497,7 +498,7 @@ export async function POST(request: Request) {
 
     runBackgroundJob(async () => {
       // 1. Send notification email to the owner with Epic Games style HTML receipt
-      const ownerEmail = process.env.OWNER_EMAIL || process.env.NEXT_PUBLIC_OWNER_EMAIL || "12k21rakeshkannam@gmail.com";
+      const ownerEmail = OWNER_EMAIL;
       try {
         await sendEmail({
           to: ownerEmail,

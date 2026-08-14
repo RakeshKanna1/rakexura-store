@@ -1,7 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { Flame, Gamepad2, MessageCircle, ShoppingCart, Sparkles, Zap } from "lucide-react";
 import { getMarqueeMessages } from "@/lib/supabase/queries";
-import { ScrollVelocity } from "@/components/animations/scroll-velocity";
 
 const iconMap: Record<string, LucideIcon> = {
   cart: ShoppingCart,
@@ -12,52 +11,48 @@ const iconMap: Record<string, LucideIcon> = {
   zap: Zap,
 };
 
-const badgeMap: Record<string, string> = {
-  flame: "DEAL",
-  gamepad: "NEW",
-  zap: "FAST",
-  cart: "SAVE",
-  message: "LIVE",
-  spark: "HOT",
-};
-
 export async function OfferMarquee() {
   const messages = await getMarqueeMessages();
 
-  // Render a single joined row of items inside the parallax scroll track
-  const marqueeContent = (
-    <div className="flex items-center">
-      {messages.map((item, index) => {
-        const Icon = iconMap[item.icon_key] ?? Sparkles;
-        const badgeText = badgeMap[item.icon_key] || "INFO";
-        return (
-          <span key={`${item.id ?? index}-${index}`} className="flex shrink-0 items-center gap-3 px-8 text-xs font-black uppercase tracking-wide select-none">
-            <span className="rounded bg-gradient-to-r from-[#b89412]/20 to-[#e5c158]/20 border border-[#e5c158]/60 px-2.5 py-0.5 text-[9px] text-[#facc15] font-black tracking-widest shadow-[0_0_8px_rgba(250,204,21,0.2)]">
-              {badgeText}
-            </span>
-            <Icon size={13} className="text-[#facc15] filter drop-shadow-[0_0_5px_rgba(250,204,21,0.5)]" />
-            <span className="text-[#f3f4f6] font-bold tracking-wider text-[11px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-              {item.message}
-            </span>
-            <span className="ml-5 text-[#facc15] drop-shadow-[0_0_6px_rgba(250,204,21,0.5)] font-black text-sm">•</span>
-          </span>
-        );
-      })}
-    </div>
-  );
+  if (!messages || messages.length === 0) return null;
 
   return (
-    <aside className="offer-marquee overflow-hidden border-y border-[#facc15]/20 bg-[#060813] py-2.5 shadow-[0_4px_30px_rgba(250,204,21,0.06),inset_0_1px_0_rgba(250,204,21,0.15),inset_0_-1px_0_rgba(250,204,21,0.15)] backdrop-blur-md relative" aria-label="Current store offers">
-      {/* Subtle overlay for gold reflection effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#facc15]/5 to-transparent pointer-events-none" />
-      
-      <ScrollVelocity 
-        texts={[marqueeContent]} 
-        velocity={28} 
-        numCopies={4} 
-        stiffness={300}
-        damping={40}
-      />
+    <aside 
+      className="offer-marquee relative w-full overflow-hidden border-y border-[#facc15]/20 bg-[#08090f] py-2 select-none shadow-[0_2px_16px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(250,204,21,0.12)]" 
+      aria-label="Current store offers"
+    >
+      {/* Subtle, soft gold ambient center wash */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.04)_0%,transparent_70%)]" />
+
+      {/* Clean edge gradient fades */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[#08090f] to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[#08090f] to-transparent" />
+
+      <div className="offer-marquee-track relative z-1 flex items-center whitespace-nowrap">
+        {[0, 1].map((copyIndex) => (
+          <div key={copyIndex} className="flex shrink-0 items-center">
+            {messages.map((item, index) => {
+              const Icon = iconMap[item.icon_key] ?? Sparkles;
+              const isLive = item.icon_key === "message" || item.icon_key === "live";
+              return (
+                <span key={`${copyIndex}-${item.id ?? index}-${index}`} className="flex shrink-0 items-center gap-2.5 px-6 text-xs select-none">
+                  {isLive && (
+                    <span className="inline-flex items-center gap-1.5 rounded bg-[#facc15]/10 border border-[#facc15]/35 px-2 py-0.5 text-[9px] font-black text-[#facc15] tracking-widest">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#facc15] animate-pulse" />
+                      LIVE
+                    </span>
+                  )}
+                  <Icon size={13} className="text-[#facc15] shrink-0" />
+                  <span className="text-[#e2e8f0] font-bold text-[11px] tracking-wide uppercase">
+                    {item.message}
+                  </span>
+                  <span className="ml-5 text-[#facc15]/40 font-black text-sm select-none">•</span>
+                </span>
+              );
+            })}
+          </div>
+        ))}
+      </div>
     </aside>
   );
 }

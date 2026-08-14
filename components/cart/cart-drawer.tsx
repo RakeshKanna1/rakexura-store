@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
 import { Minus, Package, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { assetUrl, formatPrice, gameUrl } from "@/lib/utils";

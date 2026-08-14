@@ -36,8 +36,6 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
   }, [game]);
 
   const add = useCartStore((state) => state.add);
-  const toggle = useCartStore((state) => state.toggleWishlist);
-  const saved = useCartStore((state) => (state.wishlistIds || []).includes(game?.id ?? -1));
   const coupon = useCartStore((state) => state.coupon);
   const setCoupon = useCartStore((state) => state.setCoupon);
   const [couponCode, setCouponCode] = useState("");
@@ -50,7 +48,6 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
   }, [mounted, coupon]);
 
   const activeCoupon = mounted ? coupon : null;
-  const isSaved = mounted ? saved : false;
 
   const lowest = game ? lowestPrice(game) : 0;
   const couponSavings = activeCoupon && lowest >= activeCoupon.minimum_order ? Math.min(lowest, activeCoupon.discount_type === "percentage" ? lowest * activeCoupon.discount_value / 100 : activeCoupon.discount_value) : 0;

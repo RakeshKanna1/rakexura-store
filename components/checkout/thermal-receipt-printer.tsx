@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Volume2, VolumeX, Printer } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
@@ -28,7 +28,6 @@ interface ThermalReceiptPrinterProps {
 
 export function ThermalReceiptPrinter({
   orderReference,
-  customerName = "Customer",
   items,
   total,
   taxRate = 0,
@@ -73,7 +72,7 @@ export function ThermalReceiptPrinter({
   };
 
   // Play thermal motor sound
-  const playPrinterSound = (durationMs: number) => {
+  const playPrinterSound = useCallback((durationMs: number) => {
     if (!soundEnabled) return;
     initAudio();
     const ctx = audioCtxRef.current;
@@ -109,7 +108,7 @@ export function ThermalReceiptPrinter({
 
     whiteNoise.start(now);
     whiteNoise.stop(now + duration);
-  };
+  }, [soundEnabled]);
 
   const playTearSound = () => {
     if (!soundEnabled) return;
@@ -146,7 +145,7 @@ export function ThermalReceiptPrinter({
     noise.stop(now + duration);
   };
 
-  const triggerPrint = () => {
+  const triggerPrint = useCallback(() => {
     if (isPrinting) return;
     setIsTorn(false);
     setIsPrinting(true);
@@ -158,7 +157,7 @@ export function ThermalReceiptPrinter({
       setIsPrinting(false);
       setIsPrinted(true);
     }, duration);
-  };
+  }, [isPrinting, playPrinterSound]);
 
   const triggerTear = (dir: "right" | "left" = "right") => {
     if (!isPrinted || isPrinting || isTorn) return;
@@ -184,7 +183,7 @@ export function ThermalReceiptPrinter({
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [orderReference, autoPrint]);
+  }, [orderReference, autoPrint, triggerPrint]);
 
   return (
     <div className="w-full flex flex-col items-center select-none py-2 font-sans">
@@ -348,6 +347,7 @@ export function ThermalReceiptPrinter({
                       <div className="font-extrabold text-[11px] text-[#6d28d9] tracking-wider font-sans">RAKEXURA STORE</div>
                       <div className="text-[9px] text-[#6a7282] font-sans">CYBER ORDER RECEIPT</div>
                     </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/Assets/RakeLogo.png"
                       alt="Rakexura"

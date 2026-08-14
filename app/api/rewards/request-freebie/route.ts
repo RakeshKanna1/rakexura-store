@@ -4,6 +4,7 @@ import { sendEmail, buildAdminAlertEmailHtml } from "@/lib/email";
 import { sendPushNotification } from "@/lib/push";
 import { rateLimiter } from "@/lib/security/rate-limit";
 import { logError } from "@/lib/security/logger";
+import { OWNER_EMAIL, SITE_CONFIG } from "@/lib/config";
 
 export async function POST(request: Request) {
   try {
@@ -105,8 +106,8 @@ export async function POST(request: Request) {
     });
 
     // 3. Send email to Administrator
-    const adminEmail = process.env.OWNER_EMAIL || "12k21rakeshkannam@gmail.com";
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
+    const adminEmail = OWNER_EMAIL;
+    const siteUrl = SITE_CONFIG.siteUrl.replace(/\/$/, "");
     const subject = `Loyalty Freebie Request - ${userRank}`;
     const textContent = `
       User ID: ${user.id}

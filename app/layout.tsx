@@ -18,7 +18,7 @@ import { MobilePromptManager } from "@/components/layout/mobile-prompt-manager";
 import { VisitorTracker } from "@/components/common/visitor-tracker";
 import { FlyToCartAnimator } from "@/components/common/fly-to-cart-animator";
 import { WhatsAppFloat } from "@/components/common/whatsapp-float";
-import { Sparkles } from "lucide-react";
+import { Layers } from "lucide-react";
 import "./globals.css";
 
 const geist = Geist({
@@ -60,8 +60,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <Header />
             <div className="border-b border-white/[0.08] bg-[#07090e] py-2 text-center text-xs select-none">
               <div className="flex flex-wrap items-center justify-center gap-2 px-4">
-                <span className="font-black text-[#facc15] text-[11px] uppercase tracking-wider flex items-center gap-1">
-                  <Sparkles size={11} className="text-[#facc15] shrink-0" /> COMBO DEALS
+                <span className="font-black text-[#facc15] text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                  <Layers size={12} className="text-[#facc15] shrink-0" /> COMBO DEALS
                 </span>
                 <span className="text-[#8991a6] font-normal">•</span>
                 <span className="text-[#c3c9d8] font-medium">Save big on curated game collections!</span>

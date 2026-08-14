@@ -7,9 +7,9 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { LogoutButton } from "./logout-button";
+import { OWNER_EMAIL } from "@/lib/config";
 
 type Account = { email: string; name: string; role: string; avatarUrl?: string | null } | null;
-const OWNER_EMAIL = "12k21rakeshkannam@gmail.com";
 
 export function AccountMenu() {
   const pathname = usePathname();
