@@ -335,6 +335,8 @@ function TrackOrderContent() {
                 customerName={result.customer_name || "Rakexura Customer"}
                 total={Number(result.total_price || 0)}
                 date={result.created_at ? new Date(result.created_at).toLocaleDateString() : undefined}
+                isPaid={["delivered", "completed", "payment verified", "processing", "approved"].some((s) => (result.status || "").toLowerCase().includes(s))}
+                paymentStatus={result.status}
                 items={
                   result.items && result.items.length > 0
                     ? result.items.map((i) => ({
@@ -346,8 +348,8 @@ function TrackOrderContent() {
                     : [{ name: gamesText || "PC Game", price: Number(result.total_price || 0) }]
                 }
                 autoPrint={true}
-                statusHeading="Order Done"
-                statusSubtext="Your official order receipt is ready!"
+                statusHeading="Official Invoice"
+                statusSubtext="Your verified order receipt"
                 onTearComplete={() => setShowReceipt(false)}
               />
 

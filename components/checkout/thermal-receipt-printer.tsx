@@ -19,6 +19,10 @@ interface ThermalReceiptPrinterProps {
   total: number;
   taxRate?: number;
   date?: string;
+  couponCode?: string;
+  couponDiscount?: number;
+  isPaid?: boolean;
+  paymentStatus?: string;
   autoPrint?: boolean;
   statusHeading?: string;
   statusSubtext?: string;
@@ -32,6 +36,10 @@ export function ThermalReceiptPrinter({
   total,
   taxRate = 0,
   date,
+  couponCode,
+  couponDiscount = 0,
+  isPaid = false,
+  paymentStatus,
   autoPrint = true,
   statusHeading = "",
   statusSubtext = "",
@@ -46,6 +54,8 @@ export function ThermalReceiptPrinter({
   const [bladeFlash, setBladeFlash] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const hasAutoPrintedRef = useRef<string | null>(null);
+  const isPrintingRef = useRef(false);
 
   const formattedDate = date || new Date().toLocaleDateString("en-US", {
     day: "numeric",
@@ -56,7 +66,10 @@ export function ThermalReceiptPrinter({
   // Calculate subtotals
   const subtotal = items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
   const taxAmount = subtotal * (taxRate / 100);
-  const grandTotal = total > 0 ? total : subtotal + taxAmount;
+  const effectiveDiscount = couponDiscount > 0 ? couponDiscount : (subtotal + taxAmount > total && total >= 0 ? (subtotal + taxAmount) - total : 0);
+  const grandTotal = total >= 0 ? total : Math.max(0, subtotal + taxAmount - effectiveDiscount);
+
+  const isOrderPaid = isPaid || (paymentStatus && ["paid", "verified", "delivered", "completed"].includes(paymentStatus.toLowerCase()));
 
   // Initialize Web Audio API
   const initAudio = () => {
@@ -145,9 +158,6 @@ export function ThermalReceiptPrinter({
     noise.stop(now + duration);
   };
 
-  const hasAutoPrintedRef = useRef<string | null>(null);
-  const isPrintingRef = useRef(false);
-
   const triggerPrint = useCallback(() => {
     if (isPrintingRef.current) return;
     isPrintingRef.current = true;
@@ -182,6 +192,7 @@ export function ThermalReceiptPrinter({
     }, 550);
   };
 
+  // Only auto-print ONCE on initial mount for a given orderReference
   useEffect(() => {
     if (autoPrint && hasAutoPrintedRef.current !== orderReference) {
       hasAutoPrintedRef.current = orderReference;
@@ -226,14 +237,14 @@ export function ThermalReceiptPrinter({
         {/* Cutter Blade Flash Effect */}
         {bladeFlash && (
           <motion.div
-            initial={{ opacity: 0, scaleX: 0.1 }}
-            animate={{ opacity: [0, 1, 0], scaleX: 1 }}
-            transition={{ duration: 0.35 }}
-            className="absolute top-[29px] z-40 w-[236px] h-[2px] bg-[#00d68f] shadow-[0_0_14px_#00d68f]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 1, 0] }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-[28px] left-[12px] right-[12px] h-[3px] bg-[#facc15] shadow-[0_0_16px_#facc15] z-40 pointer-events-none rounded-full"
           />
         )}
 
-        {/* Machine Hood Bottom Lip */}
+        {/* Machine Lower Bezel Base */}
         <div className="w-[260px] h-[8px] -mt-[2px] rounded-b-md bg-[#0d111c] border border-white/10 border-t-0 shadow-md z-20" />
       </div>
 
@@ -347,6 +358,23 @@ export function ThermalReceiptPrinter({
                   }}
                 />
 
+                {/* Slanted Ink Stamp: PAID & VERIFIED or PENDING */}
+                {isOrderPaid ? (
+                  <div className="absolute right-2 top-14 z-30 pointer-events-none -rotate-12 select-none">
+                    <div className="border-2 border-dashed border-emerald-600/90 text-emerald-700 bg-emerald-500/[0.08] px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase text-center shadow-sm">
+                      PAID
+                      <div className="text-[6.5px] tracking-normal font-bold -mt-0.5 opacity-85">VERIFIED OFFICIAL</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="absolute right-2 top-14 z-30 pointer-events-none -rotate-12 select-none">
+                    <div className="border border-dashed border-amber-600/60 text-amber-700 bg-amber-500/[0.05] px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider uppercase text-center">
+                      PENDING
+                      <div className="text-[6px] tracking-tight font-semibold -mt-0.5 opacity-80">AWAITING PAYMENT</div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="p-3 text-[11px] leading-snug relative z-20 font-sans">
                   {/* Receipt Header with Official Logo Image */}
                   <div className="flex justify-between items-start mb-2 font-sans">
@@ -381,6 +409,7 @@ export function ThermalReceiptPrinter({
                         <span className="truncate max-w-[130px]">
                           {item.quantity && item.quantity > 1 ? `${item.quantity}X ` : "1X "}
                           {item.name}
+                          {item.platform ? ` (${item.platform})` : ""}
                         </span>
                         <span className="font-bold">{formatPrice(item.price * (item.quantity || 1))}</span>
                       </div>
@@ -395,13 +424,27 @@ export function ThermalReceiptPrinter({
                       <span>Subtotal</span>
                       <span>{formatPrice(subtotal)}</span>
                     </div>
-                    <div className="flex justify-between text-[#6a7282]">
-                      <span>Tax ({taxRate}%)</span>
-                      <span>{taxRate === 0 ? formatPrice(0) : formatPrice(taxAmount)}</span>
-                    </div>
+
+                    {/* Dynamic Coupon Code Discount Row */}
+                    {(couponCode || effectiveDiscount > 0) && (
+                      <div className="flex justify-between text-emerald-700 font-bold">
+                        <span>Coupon {couponCode ? `(${couponCode.toUpperCase()})` : "Discount"}</span>
+                        <span>-{formatPrice(effectiveDiscount)}</span>
+                      </div>
+                    )}
+
+                    {taxRate > 0 && (
+                      <div className="flex justify-between text-[#6a7282]">
+                        <span>Tax ({taxRate}%)</span>
+                        <span>{formatPrice(taxAmount)}</span>
+                      </div>
+                    )}
+
                     <div className="flex justify-between font-black text-[11px] pt-1 border-t border-[#05070f] text-[#05070f]">
                       <span>TOTAL</span>
-                      <span>{formatPrice(grandTotal)}</span>
+                      <span className={grandTotal === 0 ? "text-emerald-700 font-black" : ""}>
+                        {grandTotal === 0 ? "₹0 (FREE)" : formatPrice(grandTotal)}
+                      </span>
                     </div>
                   </div>
 

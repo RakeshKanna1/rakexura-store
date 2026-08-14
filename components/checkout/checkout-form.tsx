@@ -48,12 +48,16 @@ function FocusModeWhatsAppPrinter({
   total,
   items,
   whatsappUrl,
+  couponCode,
+  couponDiscount,
 }: {
   orderReference: string;
   customerName: string;
   total: number;
   items: Array<{ name: string; platform?: string; price: number; quantity?: number }>;
   whatsappUrl: string;
+  couponCode?: string;
+  couponDiscount?: number;
 }) {
   const [secondsLeft, setSecondsLeft] = useState(12);
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -133,6 +137,9 @@ function FocusModeWhatsAppPrinter({
         customerName={customerName}
         total={total}
         items={items}
+        couponCode={couponCode}
+        couponDiscount={couponDiscount}
+        isPaid={false}
         autoPrint={true}
         statusHeading=""
         statusSubtext=""
@@ -835,6 +842,8 @@ export function CheckoutForm() {
                   total={finalAmount}
                   items={receiptItems}
                   whatsappUrl={whatsappUrl}
+                  couponCode={coupon?.code}
+                  couponDiscount={discount}
                 />
               );
             })()
