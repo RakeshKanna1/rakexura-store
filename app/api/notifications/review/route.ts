@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, buildAdminAlertEmailHtml } from "@/lib/email";
 import { createClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 import { rateLimiter } from "@/lib/security/rate-limit";
@@ -47,6 +47,7 @@ export async function POST(request: Request) {
     const rating = Number(body.rating ?? 5);
     const comment = String(body.comment ?? "").trim();
 
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
     const subject = `New Review Submitted for ${gameTitle}`;
     const textContent = `
       Customer: ${user.email}
@@ -55,12 +56,46 @@ export async function POST(request: Request) {
       Comment: "${comment}"
     `;
 
+    const htmlContent = buildAdminAlertEmailHtml({
+      badgeText: "REVIEW ALERT",
+      title: "NEW REVIEW SUBMITTED",
+      subtitle: `A customer submitted a review for ${gameTitle}`,
+      fields: [
+        { label: "Game Title", value: gameTitle },
+        { label: "Rating", value: "★".repeat(Math.max(1, Math.min(5, rating))) + ` (${rating}/5)` },
+        {
+          label: "Customer",
+          value: user.email || "Customer",
+          isLink: Boolean(user.email),
+          linkHref: user.email ? `mailto:${user.email}` : undefined,
+        },
+        { label: "Comment", value: comment ? `"${comment}"` : "No written comment" },
+        {
+          label: "Submitted At",
+          value: new Date().toLocaleString("en-IN", {
+            timeZone: "Asia/Kolkata",
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        },
+      ],
+      actionButton: {
+        label: "Moderate Reviews",
+        url: `${siteUrl}/admin/reviews`,
+      },
+      footerNote: "Automated Admin Alert • Internal Confidential",
+    });
+
     // 1. Send email to owner
     const adminEmail = process.env.OWNER_EMAIL || "12k21rakeshkannam@gmail.com";
     await sendEmail({
       to: adminEmail,
       subject,
       text: textContent,
+      html: htmlContent,
     });
 
     // 2. Notify all admins in-app and via push

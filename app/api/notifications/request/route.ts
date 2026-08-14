@@ -1,6 +1,6 @@
 import { rateLimiter } from "@/lib/security/rate-limit";
 import { NextResponse } from "next/server";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, buildAdminAlertEmailHtml } from "@/lib/email";
 import { createClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 
@@ -45,6 +45,8 @@ export async function POST(request: Request) {
       );
     }
 
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
+    const subject = `New Game Request: ${gameName}`;
     const text = [
       "New Rakexura game request",
       "",
@@ -53,10 +55,43 @@ export async function POST(request: Request) {
       customerEmail ? `Customer email: ${customerEmail}` : "Customer email: signed-in customer",
     ].join("\n");
 
+    const html = buildAdminAlertEmailHtml({
+      badgeText: "GAME REQUEST",
+      title: "NEW GAME REQUEST",
+      subtitle: "A customer submitted a request to add a game to Rakexura Store",
+      fields: [
+        { label: "Game Title", value: gameName },
+        { label: "Platform", value: platform },
+        {
+          label: "Requested By",
+          value: customerEmail || "Signed-in Customer",
+          isLink: Boolean(customerEmail),
+          linkHref: customerEmail ? `mailto:${customerEmail}` : undefined,
+        },
+        {
+          label: "Time",
+          value: new Date().toLocaleString("en-IN", {
+            timeZone: "Asia/Kolkata",
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        },
+      ],
+      actionButton: {
+        label: "View Game Requests",
+        url: `${siteUrl}/admin/requests`,
+      },
+      footerNote: "Automated Admin Alert • Internal Confidential",
+    });
+
     const email = await sendEmail({
       to: process.env.OWNER_EMAIL ?? process.env.NEXT_PUBLIC_OWNER_EMAIL,
-      subject: `New game request: ${gameName}`,
+      subject,
       text,
+      html,
     });
 
     try {

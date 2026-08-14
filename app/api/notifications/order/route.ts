@@ -209,23 +209,23 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
                       <div style="font-size:11px;font-weight:900;color:#727272;letter-spacing:1.5px;text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid #e5e5e5;margin-bottom:16px;font-family:'Outfit',sans-serif;">
                         CUSTOMER INFORMATION:
                       </div>
-                      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="font-size:13px;color:#121212;font-family:'Plus Jakarta Sans',sans-serif;">
+                      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;width:100%;font-size:13px;color:#121212;font-family:'Plus Jakarta Sans',sans-serif;">
                         <tr>
-                          <td width="50%" style="padding:6px 0;vertical-align:top;">
+                          <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
                             <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">Customer Name:</strong>
                             <span style="color:#555555;">${customerName}</span>
                           </td>
-                          <td width="50%" style="padding:6px 0;vertical-align:top;">
+                          <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
                             <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">Customer Email:</strong>
-                            <a href="mailto:${customerEmail}" style="color:#0066cc;text-decoration:none;font-weight:700;">${customerEmail}</a>
+                            <a href="mailto:${customerEmail}" style="color:#0066cc;text-decoration:none;font-weight:700;word-break:break-all;">${customerEmail}</a>
                           </td>
                         </tr>
                         <tr>
-                          <td width="50%" style="padding:6px 0;vertical-align:top;">
+                          <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
                             <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">WhatsApp Phone:</strong>
                             <a href="https://wa.me/${customerWhatsApp.replace(/\D/g, "")}" style="color:#0066cc;text-decoration:none;font-weight:700;">${customerWhatsApp}</a>
                           </td>
-                          <td width="50%" style="padding:6px 0;vertical-align:top;">
+                          <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
                             <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">Order Date:</strong>
                             <span style="color:#555555;">${dateStr}</span>
                           </td>
@@ -365,23 +365,23 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
                     <div style="font-size:11px;font-weight:900;color:#727272;letter-spacing:1.5px;text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid #e5e5e5;margin-bottom:16px;font-family:'Outfit',sans-serif;">
                       YOUR ORDER INFORMATION:
                     </div>
-                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="font-size:13px;color:#121212;font-family:'Plus Jakarta Sans',sans-serif;">
+                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;width:100%;font-size:13px;color:#121212;font-family:'Plus Jakarta Sans',sans-serif;">
                       <tr>
-                        <td width="50%" style="padding:6px 0;vertical-align:top;">
+                        <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
                           <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">Order ID:</strong>
                           <span style="color:#555555;font-family:'Outfit',monospace;">${orderRef}</span>
                         </td>
-                        <td width="50%" style="padding:6px 0;vertical-align:top;">
+                        <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
                           <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">Bill To:</strong>
-                          <span style="color:#0066cc;">${customerEmail || customerWhatsApp || "Valued Customer"}</span>
+                          <span style="color:#0066cc;word-break:break-all;">${customerEmail || customerWhatsApp || "Valued Customer"}</span>
                         </td>
                       </tr>
                       <tr>
-                        <td width="50%" style="padding:6px 0;vertical-align:top;">
+                        <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
                           <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">Order Date:</strong>
                           <span style="color:#555555;">${dateStr}</span>
                         </td>
-                        <td width="50%" style="padding:6px 0;vertical-align:top;">
+                        <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
                           <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">Source:</strong>
                           <span style="color:#555555;">Rakexura Store</span>
                         </td>

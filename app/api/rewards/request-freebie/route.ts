@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, buildAdminAlertEmailHtml } from "@/lib/email";
 import { sendPushNotification } from "@/lib/push";
 import { rateLimiter } from "@/lib/security/rate-limit";
 import { logError } from "@/lib/security/logger";
@@ -106,6 +106,7 @@ export async function POST(request: Request) {
 
     // 3. Send email to Administrator
     const adminEmail = process.env.OWNER_EMAIL || "12k21rakeshkannam@gmail.com";
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
     const subject = `Loyalty Freebie Request - ${userRank}`;
     const textContent = `
       User ID: ${user.id}
@@ -115,10 +116,36 @@ export async function POST(request: Request) {
       Points: ${userPoints}
       Requested at: ${nowStr}
     `;
+
+    const htmlContent = buildAdminAlertEmailHtml({
+      badgeText: "LOYALTY REQUEST",
+      title: "LOYALTY FREEBIE REQUEST",
+      subtitle: `Customer unlocked ${userRank} and requested free game voucher`,
+      fields: [
+        { label: "Customer", value: profile?.display_name || "Customer" },
+        {
+          label: "Email",
+          value: user.email || "Unknown",
+          isLink: Boolean(user.email),
+          linkHref: user.email ? `mailto:${user.email}` : undefined,
+        },
+        { label: "Loyalty Tier", value: userRank },
+        { label: "Points", value: `${userPoints} pts` },
+        { label: "User ID", value: user.id, isMono: true },
+        { label: "Requested At", value: nowStr },
+      ],
+      actionButton: {
+        label: "Review Reward Requests",
+        url: `${siteUrl}/admin/requests`,
+      },
+      footerNote: "Automated Admin Alert • Internal Confidential",
+    });
+
     await sendEmail({
       to: adminEmail,
       subject,
       text: textContent,
+      html: htmlContent,
     });
 
     // 4. Push in-app notification
