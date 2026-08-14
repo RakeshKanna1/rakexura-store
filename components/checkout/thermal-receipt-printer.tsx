@@ -65,8 +65,12 @@ export function ThermalReceiptPrinter({
     year: "numeric",
   }).toUpperCase();
 
-  // Auto-detect gift status from order reference or explicit prop
-  const isOrderGift = isGift || orderReference.toUpperCase().includes("GIFT") || orderReference.toUpperCase().includes("GIVEAWAY");
+  // Auto-detect gift status from order reference, payment status, or explicit prop
+  const isOrderGift = Boolean(
+    isGift ||
+    (orderReference && (orderReference.toUpperCase().includes("GIFT") || orderReference.toUpperCase().includes("GIVEAWAY"))) ||
+    (paymentStatus && (paymentStatus.toUpperCase().includes("GIFT") || paymentStatus.toUpperCase().includes("GIVEAWAY")))
+  );
 
   // Calculate subtotals
   const subtotal = items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
@@ -365,24 +369,24 @@ export function ThermalReceiptPrinter({
 
                 {/* Slanted Ink Stamp: GIFTED or PAID & VERIFIED or PENDING */}
                 {isOrderGift ? (
-                  <div className="absolute right-2 top-14 z-30 pointer-events-none -rotate-12 select-none">
-                    <div className="border-2 border-dashed border-purple-600/90 text-purple-800 bg-purple-500/[0.08] px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase text-center shadow-sm">
+                  <div className="absolute right-2 top-12 z-30 pointer-events-none -rotate-12 select-none">
+                    <div className="border-2 border-dashed border-purple-700 text-purple-900 bg-purple-500/10 px-2 py-0.5 rounded text-[11px] font-black tracking-widest uppercase text-center shadow-sm">
                       GIFTED
-                      <div className="text-[6.5px] tracking-normal font-bold -mt-0.5 opacity-85">RAKEXURA OFFICIAL</div>
+                      <div className="text-[6.5px] tracking-normal font-bold -mt-0.5 text-purple-700">RAKEXURA OFFICIAL</div>
                     </div>
                   </div>
                 ) : isOrderPaid ? (
-                  <div className="absolute right-2 top-14 z-30 pointer-events-none -rotate-12 select-none">
-                    <div className="border-2 border-dashed border-emerald-600/90 text-emerald-700 bg-emerald-500/[0.08] px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase text-center shadow-sm">
+                  <div className="absolute right-2 top-12 z-30 pointer-events-none -rotate-12 select-none">
+                    <div className="border-2 border-dashed border-emerald-700 text-emerald-900 bg-emerald-500/10 px-2 py-0.5 rounded text-[11px] font-black tracking-widest uppercase text-center shadow-sm">
                       PAID
-                      <div className="text-[6.5px] tracking-normal font-bold -mt-0.5 opacity-85">VERIFIED OFFICIAL</div>
+                      <div className="text-[6.5px] tracking-normal font-bold -mt-0.5 text-emerald-700">VERIFIED OFFICIAL</div>
                     </div>
                   </div>
                 ) : (
-                  <div className="absolute right-2 top-14 z-30 pointer-events-none -rotate-12 select-none">
-                    <div className="border border-dashed border-amber-600/60 text-amber-700 bg-amber-500/[0.05] px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider uppercase text-center">
+                  <div className="absolute right-2 top-12 z-30 pointer-events-none -rotate-12 select-none">
+                    <div className="border border-dashed border-amber-600/60 text-amber-800 bg-amber-500/10 px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider uppercase text-center">
                       PENDING
-                      <div className="text-[6px] tracking-tight font-semibold -mt-0.5 opacity-80">AWAITING PAYMENT</div>
+                      <div className="text-[6px] tracking-tight font-semibold -mt-0.5 text-amber-700">AWAITING PAYMENT</div>
                     </div>
                   </div>
                 )}
