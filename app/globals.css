@@ -133,7 +133,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .horizontal-scroll::-webkit-scrollbar { display: none; }
 .horizontal-scroll > * { scroll-snap-align: start; }
 
-.hero-with-featured { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 20px; align-items: stretch; }
+.hero-with-featured { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 20px; align-items: stretch; width: 100%; max-width: 100%; }
+.hero-with-featured .swiper { width: 100% !important; max-width: 100% !important; height: 100% !important; position: relative; overflow: hidden !important; }
+.hero-with-featured .swiper-wrapper { display: flex !important; height: 100% !important; position: relative; }
+.hero-with-featured .swiper-slide { height: 100% !important; flex-shrink: 0; width: 100% !important; position: relative; overflow: hidden !important; }
+.hero-frame { position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 12px; }
 .featured-now { padding: 2px 0; }
 .featured-now-heading strong { position: relative; display: inline-flex; align-items: center; gap: 8px; }
 .featured-now-heading strong::after {
@@ -296,8 +300,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .section-head { align-items: center; margin-bottom: 18px; }
   .section-copy { font-size: .92rem; }
   .horizontal-scroll { grid-auto-columns: min(42vw, 170px); gap: 10px; }
-  .hero-with-featured { display: flex; flex-direction: column; gap: 14px; }
-  .featured-now { border: 0; border-radius: 0; background: transparent; padding: 0; }
+  .hero-with-featured { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 100%; overflow: hidden; }
+  .hero-with-featured .swiper { height: 420px !important; width: 100% !important; max-width: 100% !important; overflow: hidden !important; border-radius: 12px; }
+  .hero-with-featured .swiper-slide { height: 420px !important; width: 100% !important; overflow: hidden !important; }
+  .featured-now { border: 0; border-radius: 0; background: transparent; padding: 0; width: 100%; max-width: 100%; overflow: hidden; }
   .featured-now-list { display: grid; grid-auto-flow: column; grid-auto-columns: min(58vw, 190px); gap: 9px; overflow-x: auto; overflow-y: visible; max-height: none; overscroll-behavior-inline: contain; }
   .featured-now-item { min-height: 64px; border-color: rgba(255,255,255,.07); background: #0c0f16; padding: 7px; }
   .featured-now-item:hover, .featured-now-item.is-active { transform: none; animation: none; }
