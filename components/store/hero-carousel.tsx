@@ -72,8 +72,8 @@ export function HeroCarousel({ games }: { games: Game[] }) {
   };
 
   return (
-    <div className="hero-with-featured w-full max-w-full overflow-hidden">
-      <div className="min-w-0 w-full max-w-full relative overflow-hidden">
+    <div className="hero-with-featured">
+      <div className="min-w-0 relative">
           <>
             <Swiper
               modules={[Autoplay, Navigation]}
@@ -87,7 +87,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                 setActiveTrailerId(null);
               }}
               navigation={{ prevEl: ".hero-prev", nextEl: ".hero-next" }}
-              className="w-full max-w-full overflow-hidden rounded-xl h-[420px] md:h-[570px]"
+              className="overflow-hidden rounded-xl h-[420px] md:h-[570px]"
             >
               <button suppressHydrationWarning={true} onClick={handleCloseTrailer} className="hero-prev absolute left-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-black/55 backdrop-blur md:grid" aria-label="Previous spotlight"><ChevronLeft /></button>
               <button suppressHydrationWarning={true} onClick={handleCloseTrailer} className="hero-next absolute right-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-white/10 bg-black/55 backdrop-blur md:grid" aria-label="Next spotlight"><ChevronRight /></button>
@@ -97,7 +97,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                 const isDirectVideo = game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i);
 
                 return (
-                  <SwiperSlide key={game.id} className="w-full h-full relative overflow-hidden rounded-xl">
+                  <SwiperSlide key={game.id}>
                     <article className="hero-frame relative h-full w-full overflow-hidden rounded-xl">
                       {/* Active Banner Trailer Video Overlay */}
                       {isTrailerActive ? (
