@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { BarChart3, Boxes, ImageIcon, LifeBuoy, MessageSquareText, PackageCheck, Plus, Send, TicketPercent, Trophy, Users, ArrowUpRight, Layers, Flame, CalendarRange, Percent } from "lucide-react";
-import { AdminAccessDenied } from "@/components/admin/access-denied";
 import { AdminOnboarding } from "@/components/admin/admin-onboarding";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
@@ -27,10 +25,6 @@ const sections = [
 
 export default async function AdminPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/admin");
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (profile?.role !== "admin") return <AdminAccessDenied email={user.email} />;
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const [{ count: games }, { count: customers }, { count: pending }, { count: pendingReviews }, { count: pendingRequests }, { count: activeCoupons }, { count: openTickets }, { count: lowStock }, { data: deliveries }, { data: todayOrders }, { data: latestOrders }] = await Promise.all([
     supabase.from("games").select("id", { count: "exact", head: true }).eq("archived", false),

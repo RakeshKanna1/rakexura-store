@@ -1,6 +1,5 @@
 import { Award, Crown, Medal, Trophy, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { redirect } from "next/navigation";
 import { adjustRewardPoints } from "@/app/admin/actions";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,10 +20,6 @@ const tiers: Array<[string, string, LucideIcon]> = [
 
 export default async function AdminRewardsPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/admin/rewards");
-  const { data: owner } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (owner?.role !== "admin") redirect("/dashboard");
 
   const [{ data: rewards, error: rewardsError }, { data: profiles, error: profilesError }] = await Promise.all([
     supabase.from("user_rewards").select("user_id,points,level,updated_at").order("points", { ascending: false }),

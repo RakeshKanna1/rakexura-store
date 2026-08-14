@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { BroadcastComposer, type OrderOption } from "@/components/admin/broadcast-composer";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 
@@ -14,11 +13,6 @@ export default async function AdminMessagesPage({ searchParams }: { searchParams
   }
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/admin/messages");
-  const { data: owner } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (owner?.role !== "admin") redirect("/dashboard");
-
   const emailMap = new Map<string, string>();
 
   // 1. Try secure Postgres RPC function get_customer_emails

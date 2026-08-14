@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { redirect } from "next/navigation";
 import { toggleBundle, deleteBundle } from "@/app/admin/actions";
-import { AdminAccessDenied } from "@/components/admin/access-denied";
 import { BundleForm } from "@/components/admin/bundle-form";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
@@ -10,10 +8,6 @@ import { formatPrice } from "@/lib/utils";
 export default async function AdminBundlesPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
   const query = await searchParams;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/admin/bundles");
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (profile?.role !== "admin") return <AdminAccessDenied email={user.email} />;
   
   const [{ data: games }, { data: bundles }] = await Promise.all([
     supabase.from("games").select("id,title").eq("archived", false).order("title"),

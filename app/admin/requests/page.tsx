@@ -1,6 +1,4 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { AdminAccessDenied } from "@/components/admin/access-denied";
 import { RequestsClientView } from "@/components/admin/requests-client-view";
 
 export default async function AdminVoucherRequestsPage({
@@ -10,13 +8,8 @@ export default async function AdminVoucherRequestsPage({
 }) {
   const { tab = "games" } = await searchParams;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/admin/requests");
 
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (profile?.role !== "admin") return <AdminAccessDenied email={user.email} />;
-
-  // Pre-fetch both datasets in parallel on the server
+  // Pre-fetch datasets in parallel on the server
   const [{ data: gameRequests }, { data: tickets }, { data: profiles }, { data: rewards }] = await Promise.all([
     supabase.from("game_requests").select("id,game_name,platform,votes,status,created_at").order("created_at", { ascending: false }),
     supabase.from("support_tickets").select("id,user_id,subject,message,status,created_at").or("subject.eq.Request Diamond Code,subject.ilike.Loyalty Freebie Request%").order("created_at", { ascending: false }),

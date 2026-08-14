@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { ArrowLeft, HelpCircle } from "lucide-react";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { GameForm } from "@/components/admin/game-form";
 import { CouponForm } from "@/components/admin/coupon-form";
 import type { Game } from "@/types/store";
-import { AdminAccessDenied } from "@/components/admin/access-denied";
 import { MediaManager } from "@/components/admin/media-manager";
 import { SearchableTable } from "@/components/admin/searchable-table";
 import { FlashSaleForm } from "@/components/admin/flash-sale-form";
@@ -40,10 +39,6 @@ export default async function AdminSection({ params, searchParams }: { params: P
   if (!(section in sources)) notFound();
   const source = sources[section as keyof typeof sources];
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect(`/login?next=${encodeURIComponent(`/admin/${section}`)}`);
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (profile?.role !== "admin") return <AdminAccessDenied email={user.email} />;
   const dynamicClient = supabase as unknown as DynamicAdminClient;
   const { data } = await dynamicClient.from(source.table).select(source.select).order(source.order, { ascending: false }).limit(100);
   const rows = data ?? [];

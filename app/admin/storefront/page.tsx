@@ -1,5 +1,4 @@
 import { Megaphone, Tags } from "lucide-react";
-import { redirect } from "next/navigation";
 import { deleteMarqueeMessage, deleteStoreCategory, saveMarqueeMessage, saveStoreCategory, toggleMarqueeMessage, toggleStoreCategory } from "@/app/admin/actions";
 import { createClient } from "@/lib/supabase/server";
 
@@ -7,10 +6,6 @@ const input = "h-11 rounded-md border border-white/10 bg-black/25 px-3 text-sm o
 
 export default async function StorefrontAdminPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (profile?.role !== "admin") redirect("/admin");
 
   const [{ data: messages }, { data: categories }] = await Promise.all([
     supabase.from("marquee_messages").select("*").order("sort_order"),
