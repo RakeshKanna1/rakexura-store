@@ -145,19 +145,25 @@ export function ThermalReceiptPrinter({
     noise.stop(now + duration);
   };
 
+  const hasAutoPrintedRef = useRef<string | null>(null);
+  const isPrintingRef = useRef(false);
+
   const triggerPrint = useCallback(() => {
-    if (isPrinting) return;
+    if (isPrintingRef.current) return;
+    isPrintingRef.current = true;
     setIsTorn(false);
+    setIsPrinted(false);
     setIsPrinting(true);
 
     const duration = 2200;
     playPrinterSound(duration);
 
     setTimeout(() => {
+      isPrintingRef.current = false;
       setIsPrinting(false);
       setIsPrinted(true);
     }, duration);
-  }, [isPrinting, playPrinterSound]);
+  }, [playPrinterSound]);
 
   const triggerTear = (dir: "right" | "left" = "right") => {
     if (!isPrinted || isPrinting || isTorn) return;
@@ -177,7 +183,8 @@ export function ThermalReceiptPrinter({
   };
 
   useEffect(() => {
-    if (autoPrint) {
+    if (autoPrint && hasAutoPrintedRef.current !== orderReference) {
+      hasAutoPrintedRef.current = orderReference;
       const timer = setTimeout(() => {
         triggerPrint();
       }, 300);
@@ -433,15 +440,27 @@ export function ThermalReceiptPrinter({
           <h3 className="text-base font-extrabold text-white tracking-tight">{statusHeading}</h3>
           {statusSubtext && <p className="text-[11px] text-[#8991a6] -mt-1">{statusSubtext}</p>}
 
-          <button
-            suppressHydrationWarning
-            type="button"
-            onClick={() => triggerTear("right")}
-            disabled={isPrinting}
-            className="btn min-h-9 mt-1 bg-[#facc15] hover:bg-[#fbbf24] text-[#05070f] text-xs font-extrabold py-1.5 px-4 rounded-md shadow-[0_0_12px_rgba(250,204,21,0.2)] flex items-center gap-1.5 cursor-pointer transition active:scale-[0.97]"
-          >
-            <Printer size={13} /> {isPrinting ? "Printing..." : isPrinted ? "Re-Print Receipt" : "Print Receipt"}
-          </button>
+          <div className="flex items-center gap-2 mt-1">
+            <button
+              suppressHydrationWarning
+              type="button"
+              onClick={() => triggerPrint()}
+              disabled={isPrinting}
+              className="btn min-h-9 bg-[#facc15] hover:bg-[#fbbf24] text-[#05070f] text-xs font-extrabold py-1.5 px-4 rounded-md shadow-[0_0_12px_rgba(250,204,21,0.2)] flex items-center gap-1.5 cursor-pointer transition active:scale-[0.97] disabled:opacity-60"
+            >
+              <Printer size={13} /> {isPrinting ? "Printing..." : isPrinted ? "Re-Print Receipt" : "Print Receipt"}
+            </button>
+            {isPrinted && !isPrinting && (
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={() => triggerTear("right")}
+                className="btn min-h-9 bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-bold py-1.5 px-3 rounded-md border border-white/10 flex items-center gap-1.5 cursor-pointer transition active:scale-[0.97]"
+              >
+                Tear Receipt
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>
