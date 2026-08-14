@@ -37,8 +37,6 @@ const nextConfig: NextConfig = {
       "recharts",
       "date-fns",
       "sonner",
-      "clsx",
-      "tailwind-merge",
       "swiper",
       "zustand",
       "@tanstack/react-query",
