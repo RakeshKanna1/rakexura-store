@@ -142,6 +142,33 @@ export function ClickSpark({
     };
   }, []);
 
+  useEffect(() => {
+    if (children) return;
+
+    const onGlobalClick = (e: MouseEvent) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const x = e.clientX;
+      const y = e.clientY;
+
+      const now = performance.now();
+      const newSparks = Array.from({ length: sparkCount }, (_, i) => ({
+        x,
+        y,
+        angle: (2 * Math.PI * i) / sparkCount,
+        startTime: now
+      }));
+
+      sparksRef.current.push(...newSparks);
+      startAnimation();
+    };
+
+    window.addEventListener('click', onGlobalClick, { passive: true });
+    return () => {
+      window.removeEventListener('click', onGlobalClick);
+    };
+  }, [children, sparkCount, startAnimation]);
+
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -160,31 +187,50 @@ export function ClickSpark({
     startAnimation();
   };
 
-  return (
-    <div
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: '100%'
-      }}
-      onClick={handleClick}
-    >
-      <canvas
-        ref={canvasRef}
+  if (children) {
+    return (
+      <div
         style={{
-          width: '100vw',
-          height: '100vh',
-          display: 'block',
-          userSelect: 'none',
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          pointerEvents: 'none',
-          zIndex: 99999
+          position: 'relative',
+          width: '100%',
+          height: '100%'
         }}
-      />
-      {children}
-    </div>
+        onClick={handleClick}
+      >
+        <canvas
+          ref={canvasRef}
+          style={{
+            width: '100vw',
+            height: '100vh',
+            display: 'block',
+            userSelect: 'none',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            pointerEvents: 'none',
+            zIndex: 99999
+          }}
+        />
+        {children}
+      </div>
+    );
+  }
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        width: '100vw',
+        height: '100vh',
+        display: 'block',
+        userSelect: 'none',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        pointerEvents: 'none',
+        zIndex: 99999
+      }}
+    />
   );
 }
 

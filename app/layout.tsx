@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { preconnect } from "react-dom";
 import { Toaster } from "sonner";
 import Link from "next/link";
 import { Geist } from "next/font/google";
@@ -45,48 +44,47 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#05070f", colorScheme: "dark", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://cwvfgxdhearouclomjeq.supabase.co";
-  preconnect(supabaseUrl);
-
   return (
     <html lang="en" suppressHydrationWarning className={geist.variable}>
+      <head>
+        <link rel="preconnect" href="https://cwvfgxdhearouclomjeq.supabase.co" />
+        <link rel="dns-prefetch" href="https://cwvfgxdhearouclomjeq.supabase.co" />
+      </head>
       <body className={geist.className} suppressHydrationWarning>
-        <ClickSpark sparkColor="#facc15" sparkSize={10} sparkRadius={24} sparkCount={10} duration={450}>
-          <AppProviders>
-            <VisitorTracker />
-            <FlyToCartAnimator />
-            <MouseSpotlight />
-            <CartDrawer />
-            <Header />
-            <div className="border-b border-white/[0.08] bg-[#07090e] py-2 text-center text-xs select-none">
-              <div className="flex flex-wrap items-center justify-center gap-2 px-4">
-                <span className="font-black text-[#facc15] text-[11px] uppercase tracking-wider flex items-center gap-1.5">
-                  <Layers size={12} className="text-[#facc15] shrink-0" /> COMBO DEALS
-                </span>
-                <span className="text-[#8991a6] font-normal">•</span>
-                <span className="text-[#c3c9d8] font-medium">Save big on curated game collections!</span>
-                <Link 
-                  href="/bundles" 
-                  className="font-bold text-[#facc15] hover:underline transition-all ml-1 inline-flex items-center gap-1 group/link"
-                >
-                  <span>View Bundles</span>
-                  <span className="inline-block transition-transform duration-150 group-hover/link:translate-x-0.5">&rarr;</span>
-                </Link>
-              </div>
+        <AppProviders>
+          <ClickSpark sparkColor="#facc15" sparkSize={10} sparkRadius={24} sparkCount={10} duration={450} />
+          <VisitorTracker />
+          <FlyToCartAnimator />
+          <MouseSpotlight />
+          <CartDrawer />
+          <Header />
+          <div className="border-b border-white/[0.08] bg-[#07090e] py-2 text-center text-xs select-none">
+            <div className="flex flex-wrap items-center justify-center gap-2 px-4">
+              <span className="font-black text-[#facc15] text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                <Layers size={12} className="text-[#facc15] shrink-0" /> COMBO DEALS
+              </span>
+              <span className="text-[#8991a6] font-normal">•</span>
+              <span className="text-[#c3c9d8] font-medium">Save big on curated game collections!</span>
+              <Link 
+                href="/bundles" 
+                className="font-bold text-[#facc15] hover:underline transition-all ml-1 inline-flex items-center gap-1 group/link"
+              >
+                <span>View Bundles</span>
+                <span className="inline-block transition-transform duration-150 group-hover/link:translate-x-0.5">&rarr;</span>
+              </Link>
             </div>
-            <main><BackButton />{children}</main>
-            <Footer />
-            <WhatsAppOnboardingModal />
-            <WhatsAppFloat />
-            <MobileNav />
-            <MobilePromptManager />
-            <Toaster theme="dark" richColors position="top-center" />
-          </AppProviders>
-        </ClickSpark>
+          </div>
+          <main><BackButton />{children}</main>
+          <Footer />
+          <WhatsAppOnboardingModal />
+          <WhatsAppFloat />
+          <MobileNav />
+          <MobilePromptManager />
+          <Toaster theme="dark" richColors position="top-center" />
+        </AppProviders>
         <Analytics />
         <SpeedInsights />
       </body>
     </html>
   );
 }
-
