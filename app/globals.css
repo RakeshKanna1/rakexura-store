@@ -296,8 +296,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .section-head { align-items: center; margin-bottom: 18px; }
   .section-copy { font-size: .92rem; }
   .horizontal-scroll { grid-auto-columns: min(42vw, 170px); gap: 10px; }
-  .hero-with-featured { display: flex; flex-direction: column; gap: 14px; width: 100%; min-width: 0; }
-  .featured-now { border: 0; border-radius: 0; background: transparent; padding: 0; width: 100%; min-width: 0; }
+  .hero-with-featured { display: flex; flex-direction: column; gap: 14px; }
+  .featured-now { border: 0; border-radius: 0; background: transparent; padding: 0; }
   .featured-now-list { display: grid; grid-auto-flow: column; grid-auto-columns: min(58vw, 190px); gap: 9px; overflow-x: auto; overflow-y: visible; max-height: none; overscroll-behavior-inline: contain; }
   .featured-now-item { min-height: 64px; border-color: rgba(255,255,255,.07); background: #0c0f16; padding: 7px; }
   .featured-now-item:hover, .featured-now-item.is-active { transform: none; animation: none; }
