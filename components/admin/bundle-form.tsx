@@ -153,8 +153,15 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
               />
             </div>
 
-            {/* Scrollable Game List */}
-            <div className="mt-3 max-h-64 overflow-y-auto pr-1 space-y-1.5 custom-scrollbar">
+            {/* Scrollable Game List with Lenis Wheel Bypass */}
+            <div
+              data-lenis-prevent="true"
+              data-lenis-prevent-wheel="true"
+              data-lenis-prevent-touch="true"
+              onWheel={(e) => e.stopPropagation()}
+              className="mt-3 max-h-64 overflow-y-auto pr-1 space-y-1.5 custom-scrollbar"
+              style={{ touchAction: "pan-y" }}
+            >
               {filteredGames.length === 0 ? (
                 <div className="py-6 text-center text-xs text-[#8991a6]">
                   No games found matching &quot;{search}&quot;

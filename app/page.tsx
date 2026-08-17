@@ -46,7 +46,7 @@ export default async function Home() {
       {/* Dynamic Animated Sparkles, Shimmering Diamonds & Fireflies Canvas */}
       <FireflyCanvas />
 
-      <div className="shell pt-5 md:pt-8">
+      <div className="shell pt-2.5 sm:pt-5 md:pt-8">
         <HeroCarousel games={heroGames} />
         <LiveDeliveryTicker deliveries={deliveries} />
         <WhatsAppCommunity />

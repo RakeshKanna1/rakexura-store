@@ -308,8 +308,15 @@ export function FlashSaleForm({
               />
             </div>
 
-            {/* Game List */}
-            <div className="mt-4 max-h-[440px] overflow-y-auto overscroll-contain space-y-1.5 pr-1.5 rounded-md border border-white/10 bg-black/25 p-2">
+            {/* Game List with Native Wheel Scroll & Lenis Bypass */}
+            <div
+              data-lenis-prevent="true"
+              data-lenis-prevent-wheel="true"
+              data-lenis-prevent-touch="true"
+              onWheel={(e) => e.stopPropagation()}
+              className="mt-4 max-h-[440px] overflow-y-auto overscroll-contain space-y-1.5 pr-1.5 rounded-md border border-white/10 bg-black/25 p-2 custom-scrollbar"
+              style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch" }}
+            >
               {filteredGames.length === 0 ? (
                 <p className="py-6 text-center text-xs text-[#8991a8]">No games found matching your search.</p>
               ) : (
