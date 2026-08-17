@@ -20,46 +20,36 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <>
       <ChampagneFizz />
-      <div className="relative z-10 page-shell grid min-h-[calc(100vh-140px)] items-center gap-12 py-10 lg:grid-cols-2">
-        <section className="hidden lg:block space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#facc15]/20 bg-[#facc15]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#facc15]">
-            <ShieldCheck size={14} className="text-[#00d68f]" />
-            <span>Official Game Store</span>
+      <div className="relative z-10 page-shell grid min-h-[calc(100vh-140px)] items-center gap-10 py-10 lg:grid-cols-2">
+      <section className="hidden lg:block">
+        <Gamepad2 size={42} className="text-[#facc15]" />
+        <h1 className="mt-7 max-w-lg text-6xl font-black leading-[1.02]">
+          Your games, orders, and rewards in one place.
+        </h1>
+        <p className="mt-4 max-w-lg text-lg leading-8 text-[#a0a8c0]">
+          Sign in to sync your wishlist and cart, follow delivery, and open your game library.
+        </p>
+      </section>
+
+      <section className="mx-auto w-full max-w-lg">
+        <div className="mb-7 flex items-center gap-3">
+          <ShieldCheck className="text-[#00d68f]" />
+          <div>
+            <h2 className="m-0 text-2xl font-bold">Rakexura account</h2>
+            <p className="m-0 mt-1 text-sm text-[#8991a6]">Securely powered by Supabase Auth</p>
           </div>
-          <h1 className="max-w-lg text-5xl font-black leading-[1.08] tracking-tight text-white">
-            Your games, orders, and rewards in one place.
-          </h1>
-          <p className="max-w-md text-base leading-relaxed text-[#a0a8c0]">
-            Sign in to sync your wishlist, track instant game activations, and access member-only vault discounts.
-          </p>
+        </div>
 
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center gap-3 text-sm text-[#8991a6]">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold">✓</span>
-              <span>Instant digital license delivery to WhatsApp & Email</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm text-[#8991a6]">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold">✓</span>
-              <span>100% Genuine publisher authorized keys</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm text-[#8991a6]">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold">✓</span>
-              <span>24/7 dedicated customer support & order tracking</span>
-            </div>
-          </div>
-        </section>
+        {params.error && <p className="mb-4 rounded-md bg-red-500/10 p-3 text-sm text-red-300">{params.error}</p>}
+        {params.message && <p className="mb-4 rounded-md bg-emerald-500/10 p-3 text-sm text-emerald-300">{params.message}</p>}
 
-        <section className="mx-auto w-full max-w-md">
-          {params.error && <p className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs font-semibold text-red-300 text-center">{params.error}</p>}
-          {params.message && <p className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs font-semibold text-emerald-300 text-center">{params.message}</p>}
+        <AuthForm mode="login" next={next} />
 
-          <AuthForm mode="login" next={next} />
-
-          <p className="mt-5 text-center text-xs text-[#8991a6]">
-            New to Rakexura? <Link href="/register" className="font-bold text-white underline hover:text-[#facc15] transition-colors ml-1">Create an account</Link>
-          </p>
-        </section>
-      </div>
+        <p className="mt-6 text-center text-sm text-[#8991a6]">
+          New to Rakexura? <Link href="/register" className="text-white underline">Create an account</Link>
+        </p>
+      </section>
+    </div>
     </>
   );
 }
