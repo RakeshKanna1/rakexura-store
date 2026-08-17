@@ -62,8 +62,8 @@ export function ChampagneFizz() {
       size: number;
     };
 
-    let bubbles: Bubble[] = [];
-    let sparkles: Sparkle[] = [];
+    const bubbles: Bubble[] = [];
+    const sparkles: Sparkle[] = [];
     const MAX_BUBBLES = 800;
     const MAX_SPARKLES = 150;
 
