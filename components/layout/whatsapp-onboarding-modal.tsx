@@ -48,8 +48,8 @@ export function WhatsAppOnboardingModal() {
 
     async function checkUserOnboarding() {
       try {
-        const res = await supabase.auth.getUser().catch(() => null);
-        const user = res?.data?.user;
+        const { data: { session } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+        const user = session?.user;
 
         // Only prompt logged-in accounts
         if (!user) {
