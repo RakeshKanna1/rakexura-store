@@ -298,29 +298,21 @@ export default function OtpPreviewPage() {
       <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#facc15]/5 blur-[120px] pointer-events-none" />
       <div className="absolute -right-32 -bottom-32 h-96 w-96 rounded-full bg-[#25d366]/5 blur-[120px] pointer-events-none" />
 
-      {/* Top Header & Navigation */}
-      <div className="w-full max-w-xl flex items-center justify-between mb-8 z-10">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8991a6] hover:text-white transition-colors bg-white/[0.03] border border-white/10 px-3 py-1.5 rounded-lg"
-        >
-          <ArrowLeft size={14} />
-          <span>Back to Store</span>
-        </Link>
-        <div className="inline-flex items-center gap-1.5 text-xs text-[#facc15] font-bold bg-[#facc15]/10 border border-[#facc15]/20 px-3 py-1.5 rounded-lg">
-          <Sparkles size={13} />
-          <span>OTP Animation Live Preview</span>
-        </div>
-      </div>
+      {/* Minimal subtle back link */}
+      <Link
+        href="/"
+        className="absolute top-6 left-6 inline-flex items-center gap-1.5 text-xs font-bold text-[#8991a6] hover:text-white transition-colors bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 px-3 py-1.5 rounded-lg z-20"
+      >
+        <ArrowLeft size={13} />
+        <span>Store</span>
+      </Link>
 
-      {/* Main Card */}
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0d0f17]/90 p-6 sm:p-8 shadow-[0_24px_80px_rgba(0,0,0,0.85)] backdrop-blur-2xl relative z-10">
-        {/* The Animated OTP Component HTML/CSS */}
-        <div
-          className={`${styles["foc-root"]} ${isSuccess ? styles["foc-success"] : ""} ${
-            isShake ? styles["foc-shake"] : ""
-          }`}
-        >
+      {/* The Animated OTP Component */}
+      <div
+        className={`${styles["foc-root"]} ${isSuccess ? styles["foc-success"] : ""} ${
+          isShake ? styles["foc-shake"] : ""
+        } relative z-10`}
+      >
           <div className={styles["foc-head"]}>
             <span className={styles["foc-eyebrow"]}>Security check</span>
             <h2 className={styles["foc-title"]}>Enter your code</h2>
@@ -404,7 +396,6 @@ export default function OtpPreviewPage() {
             </p>
           </form>
         </div>
-      </div>
     </div>
   );
 }
