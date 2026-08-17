@@ -290,8 +290,8 @@ export default async function GamePage({ params }: Props) {
   } as CSSProperties;
 
   const heroBackground = `
-    linear-gradient(90deg, rgba(3,5,11,0.98) 0%, rgba(3,5,11,0.72) 44%, rgba(3,5,11,0.2) 75%, rgba(3,5,11,0.98) 100%),
-    linear-gradient(0deg, rgba(3,5,11,0.98) 0%, rgba(3,5,11,0.6) 30%, transparent 60%)
+    linear-gradient(90deg, rgba(3,5,11,0.92) 0%, rgba(3,5,11,0.6) 38%, rgba(3,5,11,0.1) 70%, transparent 100%),
+    linear-gradient(0deg, rgba(3,5,11,0.95) 0%, rgba(3,5,11,0.4) 30%, transparent 60%)
   `;
 
   let badgeClass = "";
@@ -407,11 +407,7 @@ export default async function GamePage({ params }: Props) {
       <img 
         src={bannerUrl} 
         alt={game.title} 
-        className="absolute inset-0 h-full w-full object-cover" 
-        style={{
-          maskImage: "linear-gradient(to right, black 65%, transparent 100%), linear-gradient(to bottom, black 65%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to right, black 65%, transparent 100%), linear-gradient(to bottom, black 65%, transparent 100%)",
-        }}
+        className="absolute inset-0 h-full w-full object-cover object-center" 
         loading="eager"
         decoding="sync"
         crossOrigin="anonymous"
