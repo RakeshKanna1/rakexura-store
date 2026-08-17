@@ -175,10 +175,11 @@ export interface MarqueeMessage {
 export const getMarqueeMessages = unstable_cache(
   async (): Promise<MarqueeMessage[]> => {
     const fallback = [
-      { icon_key: "flame", message: "GTA V from Rs. 130" },
-      { icon_key: "gamepad", message: "New games added weekly" },
-      { icon_key: "zap", message: "Fast assisted delivery" },
-      { icon_key: "cart", message: "Buy 3+ games and save 10% with RAKE10" },
+      { id: 1, icon_key: "cart", message: "BUY 3+ GAMES & SAVE 10% WITH RAKE10" },
+      { id: 2, icon_key: "gamepad", message: "ONIMUSHA AVAILABLE FOR PRE-ORDER" },
+      { id: 3, icon_key: "spark", message: "NEW GAMES ADDED" },
+      { id: 4, icon_key: "message", message: "JOIN THE RAKEXURA WHATSAPP COMMUNITY" },
+      { id: 5, icon_key: "flame", message: "PRE-ORDER NOW" },
     ];
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return fallback;
     const supabase = getStaticClient();

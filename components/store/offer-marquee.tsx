@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { Flame, Gamepad2, MessageCircle, ShoppingCart, Sparkles, Zap } from "lucide-react";
 import { getMarqueeMessages } from "@/lib/supabase/queries";
+import React from "react";
 
 const iconMap: Record<string, LucideIcon> = {
   cart: ShoppingCart,
@@ -11,43 +12,145 @@ const iconMap: Record<string, LucideIcon> = {
   zap: Zap,
 };
 
-export async function OfferMarquee() {
-  const messages = await getMarqueeMessages();
+// Curated 10/10 gaming announcements
+const defaultAnnouncements = [
+  { id: 1, icon_key: "flame", message: "PRE-ORDER NOW" },
+  { id: 2, icon_key: "cart", message: "BUY 3+ GAMES & SAVE 10% WITH RAKE10" },
+  { id: 3, icon_key: "message", message: "JOIN THE RAKEXURA WHATSAPP COMMUNITY" },
+  { id: 4, icon_key: "spark", message: "NEW GAMES ADDED" },
+  { id: 5, icon_key: "gamepad", message: "ONIMUSHA AVAILABLE FOR PRE-ORDER" },
+];
 
-  if (!messages || messages.length === 0) return null;
+/**
+ * Highlights key commercial tokens (RAKE10, 10%, PRE-ORDER, LIVE) in Rakexura gold,
+ * keeping the rest of the text in clean, crisp, highly legible off-white.
+ */
+function renderHighlightedMessage(message: string) {
+  // Regex to split by key highlight words
+  const parts = message.split(/(RAKE10|10%|PRE-ORDER|ONIMUSHA)/gi);
+
+  return parts.map((part, index) => {
+    const upper = part.toUpperCase();
+    if (upper === "RAKE10") {
+      return (
+        <span
+          key={index}
+          className="mx-0.5 inline-block rounded bg-[#facc15]/10 px-1 py-0.5 font-bold tracking-widest text-[#facc15] border border-[#facc15]/25"
+        >
+          RAKE10
+        </span>
+      );
+    }
+    if (upper === "10%") {
+      return (
+        <span key={index} className="font-bold text-[#facc15]">
+          10%
+        </span>
+      );
+    }
+    if (upper === "PRE-ORDER") {
+      return (
+        <span key={index} className="font-bold text-[#facc15] tracking-wider">
+          PRE-ORDER
+        </span>
+      );
+    }
+    if (upper === "ONIMUSHA") {
+      return (
+        <span key={index} className="font-bold text-white tracking-wider">
+          ONIMUSHA
+        </span>
+      );
+    }
+    return <React.Fragment key={index}>{part}</React.Fragment>;
+  });
+}
+
+export async function OfferMarquee() {
+  const fetchedMessages = await getMarqueeMessages();
+  const items = fetchedMessages && fetchedMessages.length > 0 ? fetchedMessages : defaultAnnouncements;
+
+  if (!items || items.length === 0) return null;
 
   return (
-    <aside 
-      className="offer-marquee relative w-full overflow-hidden border-y border-[#facc15]/20 bg-[#08090f] py-2 select-none shadow-[0_2px_16px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(250,204,21,0.12)]" 
-      aria-label="Current store offers"
+    <aside
+      className="offer-marquee relative flex h-8 sm:h-9 w-full items-center overflow-hidden border-y border-white/[0.06] bg-[#080806] select-none"
+      aria-label="Store announcements and offers"
     >
-      {/* Subtle, soft gold ambient center wash */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.04)_0%,transparent_70%)]" />
+      {/* Subtle, soft warm gold ambient center wash */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.025)_0%,transparent_75%)]"
+        aria-hidden="true"
+      />
 
-      {/* Clean edge gradient fades */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[#08090f] to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[#08090f] to-transparent" />
+      {/* Precision Left and Right Fade Masks */}
+      <div
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 sm:w-24 bg-gradient-to-r from-[#080806] via-[#080806]/85 to-transparent"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 sm:w-24 bg-gradient-to-l from-[#080806] via-[#080806]/85 to-transparent"
+        aria-hidden="true"
+      />
 
+      {/* Infinitely Looping Track */}
       <div className="offer-marquee-track relative z-1 flex items-center whitespace-nowrap">
         {[0, 1].map((copyIndex) => (
           <div key={copyIndex} className="flex shrink-0 items-center">
-            {messages.map((item, index) => {
+            {items.map((item, index) => {
               const Icon = iconMap[item.icon_key] ?? Sparkles;
-              const isLive = item.icon_key === "message" || item.icon_key === "live";
-              return (
-                <span key={`${copyIndex}-${item.id ?? index}-${index}`} className="flex shrink-0 items-center gap-2.5 px-6 text-xs select-none">
-                  {isLive && (
-                    <span className="inline-flex items-center gap-1.5 rounded bg-[#facc15]/10 border border-[#facc15]/35 px-2 py-0.5 text-[9px] font-black text-[#facc15] tracking-widest">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#facc15] animate-pulse" />
+              const isWhatsApp = item.icon_key === "message" || item.message.toUpperCase().includes("WHATSAPP");
+
+              const content = (
+                <span className="inline-flex items-center gap-2 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.05em] text-zinc-300 transition-colors duration-150">
+                  {/* Refined LIVE Badge with gently pulsing status dot */}
+                  {isWhatsApp && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#facc15]/10 border border-[#facc15]/25 px-2 py-0.5 text-[8.5px] font-bold text-[#facc15] tracking-widest shrink-0">
+                      <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#facc15] opacity-50" />
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#facc15]" />
+                      </span>
                       LIVE
                     </span>
                   )}
-                  <Icon size={13} className="text-[#facc15] shrink-0 drop-shadow-[0_0_6px_rgba(250,204,21,0.4)]" />
-                  <span className="text-[#facc15] font-black text-[11px] tracking-wider uppercase drop-shadow-[0_1px_4px_rgba(250,204,21,0.2)]">
-                    {item.message}
+
+                  {/* Static, sharp Icon */}
+                  <Icon size={12} className="text-[#facc15] shrink-0" aria-hidden="true" />
+
+                  {/* Clean announcement text with selective gold highlights */}
+                  <span className="text-zinc-200">
+                    {renderHighlightedMessage(item.message)}
                   </span>
-                  <span className="ml-5 text-[#facc15]/60 font-black text-sm select-none">•</span>
                 </span>
+              );
+
+              return (
+                <div
+                  key={`${copyIndex}-${item.id ?? index}-${index}`}
+                  className="flex shrink-0 items-center"
+                >
+                  {isWhatsApp ? (
+                    <a
+                      href="https://wa.me/918317416695?text=Hello%20Rakexura%20Gaming%20Community"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center cursor-pointer hover:brightness-125 transition-all duration-150"
+                      aria-label="Join the Rakexura WhatsApp Community"
+                    >
+                      {content}
+                    </a>
+                  ) : (
+                    content
+                  )}
+
+                  {/* Single, consistent clean bullet separator */}
+                  <span
+                    className="mx-6 sm:mx-8 md:mx-10 text-[#facc15]/30 font-black text-xs select-none shrink-0"
+                    aria-hidden="true"
+                  >
+                    •
+                  </span>
+                </div>
               );
             })}
           </div>
