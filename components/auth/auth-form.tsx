@@ -465,32 +465,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                     onComplete={(code) => handleVerifyOtp(code)}
                   />
 
-                  {/* Manual verify fallback button */}
-                  <button 
-                    type="button" 
-                    onClick={() => handleVerifyOtp()}
-                    disabled={otpLoading || otpCode.length < 6 || otpSuccess} 
-                    className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-xs sm:text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    {otpLoading ? (
-                      <>
-                        <Loader2 size={16} className="animate-spin text-black" />
-                        <span>Verifying Security Code...</span>
-                      </>
-                    ) : otpSuccess ? (
-                      <>
-                        <CheckCircle2 size={16} className="text-black" />
-                        <span>Verified! Logging in...</span>
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle2 size={16} />
-                        <span>Verify & Complete Registration</span>
-                      </>
-                    )}
-                  </button>
-
-                  <div className="flex justify-between items-center text-xs pt-1 border-t border-white/5">
+                  <div className="flex justify-between items-center text-xs pt-2 border-t border-white/5">
                     <button 
                       type="button" 
                       onClick={() => {
