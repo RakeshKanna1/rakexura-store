@@ -58,19 +58,22 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <MouseSpotlight />
           <CartDrawer />
           <Header />
-          <div className="border-b border-white/[0.08] bg-[#07090e] py-2 text-center text-xs select-none">
-            <div className="flex flex-wrap items-center justify-center gap-2 px-4">
-              <span className="font-black text-[#facc15] text-[11px] uppercase tracking-wider flex items-center gap-1.5">
-                <Layers size={12} className="text-[#facc15] shrink-0" /> COMBO DEALS
+          <div className="border-b border-white/[0.06] bg-[#07090e] py-1 sm:py-1.5 text-center select-none overflow-hidden">
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 text-[10.5px] sm:text-xs whitespace-nowrap">
+              <span className="font-black text-[#facc15] text-[10px] sm:text-[11px] uppercase tracking-wider flex items-center gap-1 shrink-0">
+                <Layers size={11} className="text-[#facc15] shrink-0" /> COMBO DEALS
               </span>
-              <span className="text-[#8991a6] font-normal">•</span>
-              <span className="text-[#c3c9d8] font-medium">Save big on curated game collections!</span>
+              <span className="text-white/20 text-[9px] select-none shrink-0">•</span>
+              <span className="text-[#c3c9d8] text-[10.5px] sm:text-xs">
+                <span className="sm:hidden">Save on collections</span>
+                <span className="hidden sm:inline">Save big on curated game collections!</span>
+              </span>
               <Link 
                 href="/bundles" 
-                className="font-bold text-[#facc15] hover:underline transition-all ml-1 inline-flex items-center gap-1 group/link"
+                className="font-bold text-[#facc15] hover:underline transition-all ml-0.5 inline-flex items-center gap-0.5 shrink-0"
               >
-                <span>View Bundles</span>
-                <span className="inline-block transition-transform duration-150 group-hover/link:translate-x-0.5">&rarr;</span>
+                <span className="sm:hidden">View &rarr;</span>
+                <span className="hidden sm:inline">View Bundles &rarr;</span>
               </Link>
             </div>
           </div>
