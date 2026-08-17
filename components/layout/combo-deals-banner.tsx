@@ -26,7 +26,7 @@ export function ComboDealsBanner() {
         <span className="font-black text-[#facc15] text-[11.5px] sm:text-xs uppercase tracking-wider flex items-center gap-1.5 shrink-0">
           <Layers size={13} className="text-[#facc15] shrink-0" /> COMBO DEALS
         </span>
-        <span className="text-white/30 text-[10px] select-none shrink-0">•</span>
+        <span className="text-white/30 text-[10px] select-none shrink-0">â€¢</span>
         <span className="text-zinc-200 font-medium text-[11.5px] sm:text-[13px]">
           <span className="sm:hidden">Save on collections</span>
           <span className="hidden sm:inline">Save big on curated game collections!</span>

@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
-import Link from "next/link";
 import { Geist } from "next/font/google";
 import { AppProviders } from "@/components/common/app-providers";
 import { Footer } from "@/components/layout/footer";

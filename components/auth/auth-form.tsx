@@ -7,7 +7,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Button } from "@/components/common/button";
 import { createClient } from "@/lib/supabase/client";
 
 const schema = z.object({ 
@@ -429,10 +428,18 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
       </div>
 
       {notice && (
-        <div className="mx-auto max-w-md rounded-md border border-[#00d68f]/20 bg-[#00d68f]/[.06] p-4">
+        <div className="mx-auto max-w-md rounded-md border border-[#00d68f]/20 bg-[#00d68f]/[.06] p-4 space-y-3">
           <div className="flex gap-3">
             <MailCheck className="shrink-0 text-[#70efbb]" />
             <p className="text-sm leading-6 text-[#b8d8cb]">{notice}</p>
+          </div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 pt-2 border-t border-white/10">
+            <button type="button" onClick={resend} disabled={emailAction !== null} className="btn btn-secondary text-xs h-9 cursor-pointer">
+              <RefreshCw size={14} className={emailAction === "resend" ? "animate-spin" : ""} /> {emailAction === "resend" ? "Sending..." : "Resend email"}
+            </button>
+            <button type="button" onClick={magicLink} disabled={emailAction !== null} className="btn btn-secondary text-xs h-9 cursor-pointer">
+              <MailCheck size={14} /> {emailAction === "magic" ? "Sending..." : "Use magic link"}
+            </button>
           </div>
         </div>
       )}
