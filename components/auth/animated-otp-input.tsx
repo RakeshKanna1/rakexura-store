@@ -184,6 +184,7 @@ export function AnimatedOtpInput({
                     pattern="[0-9]*"
                     maxLength={1}
                     value={digit}
+                    suppressHydrationWarning
                     disabled={isLoading || isSuccess}
                     onChange={(e) => handleChange(i, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(i, e)}

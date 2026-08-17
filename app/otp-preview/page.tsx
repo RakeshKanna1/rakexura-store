@@ -7,6 +7,7 @@ import styles from "@/components/auth/animated-otp.module.css";
 import { toast } from "sonner";
 
 export default function OtpPreviewPage() {
+  const [mounted, setMounted] = useState(false);
   const [autoDemo, setAutoDemo] = useState(true);
   const [userActive, setUserActive] = useState(false);
   const [statusText, setStatusText] = useState("Enter the 6-digit code");
@@ -120,8 +121,13 @@ export default function OtpPreviewPage() {
     });
   };
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Main animation frame loop
   useEffect(() => {
+    if (!mounted) return;
     buildScript();
     prevNowRef.current = performance.now();
 
@@ -372,6 +378,7 @@ export default function OtpPreviewPage() {
                         pattern="[0-9]*"
                         maxLength={1}
                         value={digit}
+                        suppressHydrationWarning
                         onPointerDown={() => goUser(true)}
                         onFocus={() => {
                           goUser(true);
@@ -423,6 +430,7 @@ export default function OtpPreviewPage() {
           </span>
           <div className="flex items-center gap-2">
             <button
+              suppressHydrationWarning
               onClick={() => setAutoDemo(!autoDemo)}
               className={`inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-semibold transition ${
                 autoDemo
@@ -434,6 +442,7 @@ export default function OtpPreviewPage() {
               <span>{autoDemo ? "Self-Demo: Active" : "Self-Demo: Paused"}</span>
             </button>
             <button
+              suppressHydrationWarning
               onClick={resetAll}
               className="p-1 text-[#8991a6] hover:text-white hover:bg-white/10 rounded transition"
               title="Reset Animation"
@@ -445,6 +454,7 @@ export default function OtpPreviewPage() {
 
         <div className="grid grid-cols-2 gap-2 pt-1">
           <button
+            suppressHydrationWarning
             onClick={() => fillTestCode(CODE_OK)}
             className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-[#25d366]/10 hover:bg-[#25d366]/20 text-[#25d366] border border-[#25d366]/30 font-bold transition cursor-pointer"
           >
@@ -452,6 +462,7 @@ export default function OtpPreviewPage() {
             <span>Test Success ({CODE_OK})</span>
           </button>
           <button
+            suppressHydrationWarning
             onClick={() => fillTestCode(CODE_NO)}
             className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-[#ff636e]/10 hover:bg-[#ff636e]/20 text-[#ff636e] border border-[#ff636e]/30 font-bold transition cursor-pointer"
           >
@@ -463,6 +474,7 @@ export default function OtpPreviewPage() {
         <div className="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] text-[#727a90]">
           <span>Interactive state: <strong className="text-white">{userActive ? "User typing" : "Auto loop"}</strong></span>
           <button
+            suppressHydrationWarning
             onClick={() => {
               navigator.clipboard.writeText("204815");
               toast.success("Copied 204815! Press Ctrl+V on any box to test paste.");
