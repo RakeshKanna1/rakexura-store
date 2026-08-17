@@ -376,7 +376,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                     required
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="you@example.com or GamerTag"
+                    placeholder="Enter email or Gamer Tag"
                     autoComplete="username email"
                     className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.03] pl-3.5 pr-10 text-sm text-white placeholder-[#586074] transition-all duration-200 focus:border-[#facc15]/70 focus:bg-black/50 focus:ring-2 focus:ring-[#facc15]/15 focus:outline-none"
                   />
@@ -500,7 +500,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@example.com"
+                      placeholder="Enter your email"
                       autoComplete="email"
                       className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 text-sm text-white placeholder-[#586074] transition-all duration-200 focus:border-[#facc15]/70 focus:bg-black/50 focus:ring-2 focus:ring-[#facc15]/15 focus:outline-none" 
                     />
