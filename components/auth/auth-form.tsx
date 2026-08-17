@@ -1,6 +1,6 @@
 "use client";
 
-import { Gamepad2, MailCheck, RefreshCw, ShieldCheck, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Gamepad2, MailCheck, RefreshCw, ShieldCheck, ArrowRight, Eye, EyeOff, Loader2, ChevronLeft, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -425,25 +425,39 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                   <button 
                     type="submit" 
                     disabled={otpLoading} 
-                    className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-xs sm:text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                    className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-xs sm:text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-wait disabled:bg-[#facc15]/80 cursor-pointer flex items-center justify-center gap-2"
                   >
-                    {otpLoading ? "Verifying..." : "Verify & Complete Registration"}
+                    {otpLoading ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin text-black" />
+                        <span>Verifying Security Code...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 size={16} />
+                        <span>Verify & Complete Registration</span>
+                      </>
+                    )}
                   </button>
 
-                  <div className="flex justify-between items-center text-xs pt-1">
+                  <div className="flex justify-between items-center text-xs pt-2">
                     <button 
                       type="button" 
                       onClick={() => setOtpSent(false)} 
-                      className="text-[#8991a6] hover:text-white underline cursor-pointer"
+                      disabled={otpLoading}
+                      className="text-xs font-semibold text-[#8991a6] hover:text-white transition-colors cursor-pointer flex items-center gap-1 py-1 px-1.5 rounded hover:bg-white/5 disabled:opacity-50"
                     >
-                      ← Change Details
+                      <ChevronLeft size={14} />
+                      <span>Change Details</span>
                     </button>
                     <button 
                       type="button" 
                       onClick={handleRegisterStep1} 
-                      className="text-[#8991a6] hover:text-white underline cursor-pointer"
+                      disabled={otpLoading}
+                      className="text-xs font-semibold text-[#8991a6] hover:text-[#facc15] transition-colors cursor-pointer flex items-center gap-1.5 py-1 px-1.5 rounded hover:bg-[#facc15]/10 disabled:opacity-50"
                     >
-                      Resend Code
+                      <RefreshCw size={13} className={otpLoading ? "animate-spin" : ""} />
+                      <span>Resend Code</span>
                     </button>
                   </div>
                 </form>

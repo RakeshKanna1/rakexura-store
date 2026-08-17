@@ -41,7 +41,7 @@ export default async function RegisterPage() {
           <AuthForm mode="register" />
 
           <p className="mt-6 text-center text-sm text-[#8991a6]">
-            Already registered? <Link href="/login" className="text-white underline">Sign in</Link>
+            Already registered? <Link href="/login" className="text-white font-bold underline hover:text-[#facc15] transition-colors">Sign in</Link>
           </p>
         </section>
       </div>
