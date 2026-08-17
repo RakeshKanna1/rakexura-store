@@ -1,6 +1,6 @@
 "use client";
 
-import { Gamepad2, MailCheck, RefreshCw, ShieldCheck, ArrowRight, Eye, EyeOff, Loader2, ChevronLeft, CheckCircle2, MessageSquare, User } from "lucide-react";
+import { Gamepad2, MailCheck, RefreshCw, ShieldCheck, ArrowRight, Eye, EyeOff, ChevronLeft, MessageSquare, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
