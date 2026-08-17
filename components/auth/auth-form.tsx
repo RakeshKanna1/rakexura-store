@@ -322,10 +322,10 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
   }
 
   return (
-    <div className="space-y-4">
-      <div className="glass mx-auto max-w-md overflow-hidden rounded-xl border border-white/10 bg-[#08090c]/90 p-6 md:p-8 backdrop-blur-xl shadow-2xl">
+    <div className="space-y-4" suppressHydrationWarning>
+      <div className="glass mx-auto max-w-md overflow-hidden rounded-xl border border-white/10 bg-[#08090c]/90 p-6 md:p-8 backdrop-blur-xl shadow-2xl" suppressHydrationWarning>
         {mode === "login" ? (
-          <div className="space-y-5">
+          <div className="space-y-5" suppressHydrationWarning>
             {/* 1-Click Fast Social Logins */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <button
@@ -363,13 +363,14 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
             </div>
 
             {/* Email / Username + Password Form */}
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-4" suppressHydrationWarning>
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
                   Email or Gamer Tag
                 </label>
                 <div className="relative group">
                   <input
+                    suppressHydrationWarning
                     type="text"
                     required
                     value={loginEmail}
@@ -390,6 +391,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                 </label>
                 <div className="relative group">
                   <input
+                    suppressHydrationWarning
                     type={showLoginPassword ? "text" : "password"}
                     required
                     value={loginPassword}
@@ -399,6 +401,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                     className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.03] pl-3.5 pr-10 text-sm text-white placeholder-[#586074] transition-all duration-200 focus:border-[#facc15]/70 focus:bg-black/50 focus:ring-2 focus:ring-[#facc15]/15 focus:outline-none"
                   />
                   <button
+                    suppressHydrationWarning
                     type="button"
                     onClick={() => setShowLoginPassword(!showLoginPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#727a90] hover:text-white transition-colors cursor-pointer p-1"
@@ -410,6 +413,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
               </div>
 
               <button
+                suppressHydrationWarning
                 type="submit"
                 disabled={loginLoading}
                 className="w-full rounded-xl bg-gradient-to-r from-[#facc15] to-[#eab308] hover:from-[#ffe45c] hover:to-[#facc15] h-11 font-black text-black text-xs sm:text-sm tracking-wide transition-all shadow-[0_0_20px_rgba(250,204,21,0.2)] hover:shadow-[0_0_28px_rgba(250,204,21,0.35)] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-2 active:scale-[0.99]"
@@ -429,7 +433,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
             </form>
           </div>
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-5" suppressHydrationWarning>
             {/* 1-Click Social Sign-Up */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <button
@@ -469,12 +473,13 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
             {/* Email + Password + OTP Verification Flow */}
             <div className="space-y-4">
               {!otpSent ? (
-                <form onSubmit={handleRegisterStep1} className="space-y-3.5">
+                <form onSubmit={handleRegisterStep1} className="space-y-3.5" suppressHydrationWarning>
                   <div>
                     <label className="block text-[11px] font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
                       Display Name / Gamer Tag
                     </label>
                     <input 
+                      suppressHydrationWarning
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="e.g. ShadowHunter"
@@ -489,6 +494,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                       Email Address
                     </label>
                     <input 
+                      suppressHydrationWarning
                       type="email"
                       required
                       value={email}
@@ -505,6 +511,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                     </label>
                     <div className="relative group">
                       <input 
+                        suppressHydrationWarning
                         type="tel"
                         required
                         value={whatsapp}
@@ -528,6 +535,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                     </label>
                     <div className="relative group">
                       <input 
+                        suppressHydrationWarning
                         type={showPassword ? "text" : "password"}
                         required
                         minLength={8}
@@ -538,6 +546,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                         className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.03] pl-3.5 pr-10 text-sm text-white placeholder-[#586074] transition-all duration-200 focus:border-[#facc15]/70 focus:bg-black/50 focus:ring-2 focus:ring-[#facc15]/15 focus:outline-none" 
                       />
                       <button
+                        suppressHydrationWarning
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#727a90] hover:text-white transition-colors cursor-pointer p-1"
@@ -554,6 +563,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                     </label>
                     <div className="relative group">
                       <input 
+                        suppressHydrationWarning
                         type={showConfirmPassword ? "text" : "password"}
                         required
                         minLength={8}
@@ -570,6 +580,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                         }`}
                       />
                       <button
+                        suppressHydrationWarning
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#727a90] hover:text-white transition-colors cursor-pointer p-1"
@@ -595,6 +606,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                   </p>
 
                   <button 
+                    suppressHydrationWarning
                     type="submit" 
                     disabled={otpLoading} 
                     className="w-full rounded-xl bg-gradient-to-r from-[#facc15] to-[#eab308] hover:from-[#ffe45c] hover:to-[#facc15] h-11 font-black text-black text-xs sm:text-sm tracking-wide transition-all shadow-[0_0_20px_rgba(250,204,21,0.2)] hover:shadow-[0_0_28px_rgba(250,204,21,0.35)] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 mt-2 active:scale-[0.99]"
