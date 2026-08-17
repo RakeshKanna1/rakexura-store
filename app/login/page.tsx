@@ -31,12 +31,14 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         </p>
       </section>
 
-      <section className="mx-auto w-full max-w-lg">
+      <section className="mx-auto w-full max-w-md">
         <div className="mb-7 flex items-center gap-3">
-          <ShieldCheck className="text-[#00d68f]" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05]">
+            <ShieldCheck className="text-[#00d68f]" size={22} />
+          </div>
           <div>
-            <h2 className="m-0 text-2xl font-bold">Rakexura account</h2>
-            <p className="m-0 mt-1 text-sm text-[#8991a6]">Securely powered by Supabase Auth</p>
+            <h2 className="m-0 text-2xl font-black text-white tracking-tight">Rakexura Account</h2>
+            <p className="m-0 mt-0.5 text-xs text-[#a0a8c0]">Securely powered by Supabase Auth</p>
           </div>
         </div>
 
@@ -45,8 +47,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
         <AuthForm mode="login" next={next} />
 
-        <p className="mt-6 text-center text-sm text-[#8991a6]">
-          New to Rakexura? <Link href="/register" className="text-white underline">Create an account</Link>
+        <p className="mt-6 text-center text-sm text-[#a0a8c0]">
+          New to Rakexura? <Link href="/register" className="font-bold text-[#facc15] hover:text-[#ffe45c] hover:underline transition-colors ml-1">Create an account</Link>
         </p>
       </section>
     </div>

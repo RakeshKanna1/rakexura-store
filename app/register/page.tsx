@@ -29,19 +29,21 @@ export default async function RegisterPage() {
           </p>
         </section>
 
-        <section className="mx-auto w-full max-w-lg">
+        <section className="mx-auto w-full max-w-md">
           <div className="mb-7 flex items-center gap-3">
-            <ShieldCheck className="text-[#00d68f]" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05]">
+              <ShieldCheck className="text-[#00d68f]" size={22} />
+            </div>
             <div>
-              <h2 className="m-0 text-2xl font-bold">Create your account</h2>
-              <p className="m-0 mt-1 text-sm text-[#8991a6]">Secure account setup</p>
+              <h2 className="m-0 text-2xl font-black text-white tracking-tight">Create Your Account</h2>
+              <p className="m-0 mt-0.5 text-xs text-[#a0a8c0]">Secure instant account setup</p>
             </div>
           </div>
 
           <AuthForm mode="register" />
 
-          <p className="mt-6 text-center text-sm text-[#8991a6]">
-            Already registered? <Link href="/login" className="text-white font-bold underline hover:text-[#facc15] transition-colors">Sign in</Link>
+          <p className="mt-6 text-center text-sm text-[#a0a8c0]">
+            Already registered? <Link href="/login" className="font-bold text-[#facc15] hover:text-[#ffe45c] hover:underline transition-colors ml-1">Sign in</Link>
           </p>
         </section>
       </div>
