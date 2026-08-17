@@ -99,8 +99,10 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
     <AnimatePresence>
       {game && (
         <motion.div
-          data-lenis-prevent
-          className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md overflow-hidden"
+          data-lenis-prevent="true"
+          data-lenis-prevent-wheel="true"
+          data-lenis-prevent-touch="true"
+          className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/85 p-3 sm:p-4 backdrop-blur-md overflow-y-auto"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -116,27 +118,28 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 15, scale: 0.96 }}
             transition={{ type: "spring", damping: 28, stiffness: 260 }}
-            className="premium-panel relative my-auto grid max-h-[88vh] w-full max-w-4xl overflow-y-auto rounded-xl border border-white/10 shadow-[0_25px_80px_rgba(0,0,0,0.85)] transition-all duration-300 md:grid-cols-[42%_1fr]"
+            className="premium-panel relative my-auto grid max-h-[92vh] sm:max-h-[88vh] w-full max-w-4xl overflow-y-auto rounded-xl border border-white/10 shadow-[0_25px_80px_rgba(0,0,0,0.85)] transition-all duration-300 md:grid-cols-[40%_1fr] custom-scrollbar overscroll-contain"
           >
             <button
               onClick={onClose}
-              className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-black/65 backdrop-blur hover:scale-110 hover:bg-black/85 active:scale-95 transition-all duration-200"
+              className="absolute right-3 top-3 z-20 grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-full bg-black/75 border border-white/15 backdrop-blur hover:scale-110 hover:bg-black/90 active:scale-95 transition-all duration-200 text-white"
               aria-label="Close quick view"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
-            <div className="relative min-h-[260px] md:min-h-[440px]">
+            <div className="relative h-44 sm:h-56 md:h-full md:min-h-[440px] shrink-0 overflow-hidden bg-black/40">
               <Image
                 src={assetUrl(game.cover_image)}
                 alt={game.title}
                 fill
+                sizes="(max-width: 768px) 100vw, 400px"
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="flex flex-col justify-center p-5 md:p-7">
+            <div className="flex flex-col justify-center p-4 sm:p-5 md:p-7 min-w-0">
               <p className="eyebrow">Quick view</p>
-              <h2 className="mt-2 text-2xl font-black md:text-3xl">{game.title}</h2>
-              <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-[#a0a8c0]">{game.description || game.tagline}</p>
+              <h2 className="mt-1 sm:mt-2 text-xl sm:text-2xl font-black md:text-3xl truncate">{game.title}</h2>
+              <p className="mt-1 sm:mt-2 line-clamp-2 text-xs leading-relaxed text-[#a0a8c0]">{game.description || game.tagline}</p>
               <div className="mt-3.5 flex flex-wrap gap-1.5">
                 {availablePlatforms(game).map((platform) => (
                   <span key={platform} className="inline-flex items-center gap-1.5 rounded border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-bold">
@@ -236,7 +239,7 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
                 >
                   <ShoppingBag size={16} /> Add to cart
                 </button>
-                <WishlistButton gameId={game.id} size={18} variant="details" />
+                <WishlistButton gameId={game.id} size={18} variant="details" className="h-10 w-10 shrink-0 aspect-square min-h-0 min-w-0" />
               </div>
               <Link href={gameUrl(game)} className="mt-2.5 text-center text-xs font-semibold text-[#f6dc73] hover:underline">
                 Open full game page
