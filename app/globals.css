@@ -336,10 +336,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   body::after { opacity: .22; animation: none; background-size: 120px 120px, 190px 190px, 100% 100%; }
   .hero-frame { box-shadow: 0 22px 60px rgba(0, 0, 0, .34); }
   .hero-frame::after { display: none; }
-  .hero-media { animation: none; transform: none; }
   .spotlight-card::after { display: none; }
-  button, a, input, select { min-height: 44px; }
-  .btn { min-height: 48px; }
+  .btn { min-height: 44px; }
   table { font-size: .78rem; }
 }
 
