@@ -2,14 +2,27 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { BadgeCheck, Clock3, Mail, MessageCircle, ShieldCheck } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
 export function Footer() {
+  const pathname = usePathname();
   const [email, setEmail] = useState("");
   const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695";
+
+  // Hide footer on focused auth and checkout pages
+  if (
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/auth")
+  ) {
+    return null;
+  }
 
   async function subscribe(event: FormEvent) {
     event.preventDefault();
