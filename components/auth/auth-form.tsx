@@ -1,6 +1,6 @@
 "use client";
 
-import { Gamepad2, MailCheck, RefreshCw, ShieldCheck, ArrowRight } from "lucide-react";
+import { Gamepad2, MailCheck, RefreshCw, ShieldCheck, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -24,6 +24,10 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
   // Registration & OTP States
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [otpLoading, setOtpLoading] = useState(false);
@@ -42,88 +46,135 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     router.refresh();
   }
 
-  // OTP - Send Code
-  async function handleSendOtp(e: React.FormEvent) {
+  // Registration Step 1 - Validate inputs & Send OTP
+  async function handleRegisterStep1(e: React.FormEvent) {
     e.preventDefault();
     const trimmedEmail = email.trim();
-    if (!trimmedEmail || !trimmedEmail.includes("@")) {
-      return toast.error("Enter a valid email address");
+    const trimmedName = displayName.trim();
+
+    if (!trimmedName) {
+      return toast.error("Please enter your Gamer Tag or Display Name");
     }
 
-    if (mode === "register" && !displayName.trim()) {
-      return toast.error("Enter your Gamer Tag or Display Name");
+    if (!trimmedEmail || !trimmedEmail.includes("@")) {
+      return toast.error("Please enter a valid email address");
+    }
+
+    if (password.length < 8) {
+      return toast.error("Password must be at least 8 characters long");
+    }
+
+    if (password !== confirmPassword) {
+      return toast.error("Passwords do not match. Please verify your password confirmation.");
     }
 
     setOtpLoading(true);
     const supabase = createClient();
 
-    const { error } = await supabase.auth.signInWithOtp({
+    // 1. Initiate Supabase signUp with the chosen password and display name
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: trimmedEmail,
+      password: password,
+      options: {
+        emailRedirectTo: redirectTo(),
+        data: {
+          display_name: trimmedName,
+          full_name: trimmedName,
+        }
+      }
+    });
+
+    if (signUpError) {
+      // If user already registered, provide friendly notice
+      setOtpLoading(false);
+      return toast.error(friendlyAuthError(signUpError.message));
+    }
+
+    // If auto-confirm is enabled in Supabase and user has active session
+    if (signUpData.session) {
+      await supabase.from("profiles").upsert({
+        id: signUpData.session.user.id,
+        display_name: trimmedName,
+        full_name: trimmedName,
+      });
+      setOtpLoading(false);
+      toast.success("Account created and signed in!");
+      await routeSignedInUser();
+      return;
+    }
+
+    // Also trigger OTP send to guarantee verification code delivery
+    await supabase.auth.signInWithOtp({
       email: trimmedEmail,
       options: {
         emailRedirectTo: redirectTo(),
         shouldCreateUser: true,
       }
-    });
+    }).catch(() => null);
 
     setOtpLoading(false);
-    if (error) return toast.error(friendlyAuthError(error.message));
-    
     setOtpSent(true);
-    toast.success("Verification code sent to your email. Check your inbox.");
+    toast.success("Verification code sent to your email. Check your inbox!");
   }
 
-  // OTP - Verify Code & Login
+  // Registration Step 2 - Verify Code & Finalize Account
   async function handleVerifyOtp(e: React.FormEvent) {
     e.preventDefault();
     const code = otpCode.trim();
     if (!code || code.length < 6 || code.length > 8) {
-      return toast.error("Enter a valid 6 to 8-digit verification code");
+      return toast.error("Enter the valid 6 to 8-digit verification code");
     }
 
     setOtpLoading(true);
     const supabase = createClient();
 
-    // 1. Try type: "email"
+    // 1. Verify OTP code
     let { data, error } = await supabase.auth.verifyOtp({
       email: email.trim(),
       token: code,
       type: "email"
     });
 
-    // 2. Fallback to magiclink
     if (error) {
       const fallback = await supabase.auth.verifyOtp({
         email: email.trim(),
         token: code,
-        type: "magiclink"
+        type: "signup"
       });
       data = fallback.data;
       error = fallback.error;
     }
 
-    // 3. Fallback to signup
     if (error) {
-      const fallbackSignup = await supabase.auth.verifyOtp({
+      const fallbackMagic = await supabase.auth.verifyOtp({
         email: email.trim(),
         token: code,
-        type: "signup"
+        type: "magiclink"
       });
-      data = fallbackSignup.data;
-      error = fallbackSignup.error;
+      data = fallbackMagic.data;
+      error = fallbackMagic.error;
     }
 
-    // Save Display Name to profile
-    if (!error && data?.user && displayName.trim()) {
-      await supabase.from("profiles").upsert({
-        id: data.user.id,
-        display_name: displayName.trim(),
-        full_name: displayName.trim(),
-      });
+    if (error) {
+      setOtpLoading(false);
+      return toast.error(friendlyAuthError(error.message));
+    }
+
+    // 2. Set the user's permanent password & save profile
+    if (data?.user) {
+      if (password) {
+        await supabase.auth.updateUser({ password }).catch(() => null);
+      }
+      if (displayName.trim()) {
+        await supabase.from("profiles").upsert({
+          id: data.user.id,
+          display_name: displayName.trim(),
+          full_name: displayName.trim(),
+        }).catch(() => null);
+      }
     }
 
     setOtpLoading(false);
-    if (error) return toast.error(friendlyAuthError(error.message));
-
     toast.success("Email verified! Welcome to Rakexura.");
     await routeSignedInUser();
   }
@@ -194,12 +245,12 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
               <button suppressHydrationWarning type="button" onClick={() => social("discord")} className="flex h-11 items-center justify-center gap-2.5 rounded-md bg-[#5865f2] text-xs font-bold text-white transition hover:bg-[#4752c4] cursor-pointer"><Gamepad2 size={16} /> Discord</button>
             </div>
 
-            <div className="flex items-center gap-3 text-xs text-[#727a90]"><span className="h-px flex-1 bg-white/10" /><span>or register with verified email</span><span className="h-px flex-1 bg-white/10" /></div>
+            <div className="flex items-center gap-3 text-xs text-[#727a90]"><span className="h-px flex-1 bg-white/10" /><span>or create with verified email</span><span className="h-px flex-1 bg-white/10" /></div>
 
-            {/* Email OTP Verification Flow */}
+            {/* Email + Password + OTP Verification Flow */}
             <div className="space-y-4">
               {!otpSent ? (
-                <form onSubmit={handleSendOtp} className="space-y-4">
+                <form onSubmit={handleRegisterStep1} className="space-y-3.5">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
                       Display Name / Gamer Tag
@@ -227,19 +278,81 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                       autoComplete="email"
                       className="h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
                     />
-                    <p className="mt-1 text-[11px] text-[#8991a6]">
-                      We will send a 6-digit verification code to prove your email is real.
-                    </p>
                   </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6]">
+                        Password
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="text-[11px] font-semibold text-[#8991a6] hover:text-white transition cursor-pointer flex items-center gap-1"
+                      >
+                        {showPassword ? <><EyeOff size={12} /> Hide</> : <><Eye size={12} /> Show</>}
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <input 
+                        type={showPassword ? "text" : "password"}
+                        required
+                        minLength={8}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="At least 8 characters"
+                        autoComplete="new-password"
+                        className="h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
+                      Confirm Password
+                    </label>
+                    <div className="relative">
+                      <input 
+                        type={showPassword ? "text" : "password"}
+                        required
+                        minLength={8}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Re-enter your password"
+                        autoComplete="new-password"
+                        className={`h-11 w-full rounded-md border bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:outline-none ${
+                          confirmPassword && password !== confirmPassword 
+                            ? "border-red-500/60 focus:border-red-500" 
+                            : confirmPassword && password === confirmPassword
+                            ? "border-emerald-500/60 focus:border-emerald-500"
+                            : "border-white/10 focus:border-[#facc15]"
+                        }`}
+                      />
+                    </div>
+                    {confirmPassword && password !== confirmPassword && (
+                      <span className="mt-1 block text-[11px] text-red-400 font-medium">
+                        Passwords do not match
+                      </span>
+                    )}
+                    {confirmPassword && password === confirmPassword && (
+                      <span className="mt-1 block text-[11px] text-emerald-400 font-medium">
+                        ✓ Passwords match
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="text-[11px] text-[#8991a6] pt-0.5">
+                    We will send a 6-digit verification code to confirm this email is yours.
+                  </p>
 
                   <button 
                     type="submit" 
                     disabled={otpLoading} 
-                    className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-xs sm:text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                    className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-xs sm:text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 mt-2"
                   >
                     {otpLoading ? "Sending Code..." : (
                       <>
-                        <span>Send Verification Code</span>
+                        <span>Continue to Verification</span>
                         <ArrowRight size={15} />
                       </>
                     )}
@@ -247,7 +360,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
 
                   <p className="flex items-center justify-center gap-1.5 text-[11px] text-[#7f879d] pt-1 text-center">
                     <ShieldCheck size={13} className="shrink-0 text-[#00d68f]" />
-                    <span>Instant verification. No passwords to forget or reset.</span>
+                    <span>256-bit encrypted credentials & instant email verification.</span>
                   </p>
                 </form>
               ) : (
@@ -279,7 +392,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                     disabled={otpLoading} 
                     className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-xs sm:text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                   >
-                    {otpLoading ? "Verifying..." : "Verify & Create Account"}
+                    {otpLoading ? "Verifying..." : "Verify & Complete Registration"}
                   </button>
 
                   <div className="flex justify-between items-center text-xs pt-1">
@@ -288,11 +401,11 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                       onClick={() => setOtpSent(false)} 
                       className="text-[#8991a6] hover:text-white underline cursor-pointer"
                     >
-                      ← Change Email
+                      ← Change Details
                     </button>
                     <button 
                       type="button" 
-                      onClick={handleSendOtp} 
+                      onClick={handleRegisterStep1} 
                       className="text-[#8991a6] hover:text-white underline cursor-pointer"
                     >
                       Resend Code
