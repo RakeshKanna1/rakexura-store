@@ -77,6 +77,21 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
   const [loginOtpError, setLoginOtpError] = useState("");
   const [loginOtpSuccess, setLoginOtpSuccess] = useState(false);
 
+  // Forgot Password / Password Reset States
+  const [forgotPasswordView, setForgotPasswordView] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotResolvedEmail, setForgotResolvedEmail] = useState("");
+  const [forgotOtpSent, setForgotOtpSent] = useState(false);
+  const [forgotOtpCode, setForgotOtpCode] = useState("");
+  const [forgotOtpLoading, setForgotOtpLoading] = useState(false);
+  const [forgotOtpError, setForgotOtpError] = useState("");
+  const [forgotOtpVerified, setForgotOtpVerified] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+
   const redirectTo = () => `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
 
   async function routeSignedInUser() {
@@ -86,6 +101,122 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     const destination = next.startsWith("/") ? next : profile?.role === "admin" ? "/admin" : "/dashboard";
     router.replace(destination === "/dashboard" && profile?.role === "admin" ? "/admin" : destination);
     router.refresh();
+  }
+
+  // Send Forgot Password OTP
+  async function handleSendForgotOtp(e?: React.FormEvent) {
+    e?.preventDefault();
+    const identifier = forgotEmail.trim();
+    if (!identifier) {
+      return toast.error("Please enter your email or Gamer Tag first");
+    }
+
+    setForgotOtpLoading(true);
+    setForgotOtpError("");
+    const supabase = createClient();
+    let targetEmail = identifier;
+
+    if (!identifier.includes("@")) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email")
+        .or(`display_name.ilike.${identifier},full_name.ilike.${identifier}`)
+        .limit(1)
+        .maybeSingle();
+
+      if (!profile || !profile.email) {
+        setForgotOtpLoading(false);
+        return toast.error("No account found with this Gamer Tag. Please check spelling or enter your email.");
+      }
+      targetEmail = profile.email;
+    }
+
+    const cleanEmail = targetEmail.toLowerCase().trim();
+    setForgotResolvedEmail(cleanEmail);
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email: cleanEmail,
+      options: {
+        emailRedirectTo: redirectTo(),
+        shouldCreateUser: false,
+      }
+    });
+
+    if (error) {
+      setForgotOtpLoading(false);
+      return toast.error(friendlyAuthError(error));
+    }
+
+    setForgotOtpLoading(false);
+    setForgotOtpSent(true);
+    toast.success("6-digit password reset code sent to your email!");
+  }
+
+  // Verify Forgot Password OTP
+  async function handleVerifyForgotOtp(codeToVerify?: string) {
+    const code = (codeToVerify || forgotOtpCode).trim();
+    if (!code || code.length < 6) {
+      return toast.error("Enter the valid 6-digit verification code");
+    }
+
+    setForgotOtpLoading(true);
+    setForgotOtpError("");
+    const supabase = createClient();
+
+    let { error } = await supabase.auth.verifyOtp({
+      email: forgotResolvedEmail,
+      token: code,
+      type: "email"
+    });
+
+    if (error) {
+      const fallbackMagic = await supabase.auth.verifyOtp({
+        email: forgotResolvedEmail,
+        token: code,
+        type: "magiclink"
+      });
+      error = fallbackMagic.error;
+    }
+
+    if (error) {
+      setForgotOtpLoading(false);
+      const friendlyMsg = friendlyAuthError(error);
+      setForgotOtpError(friendlyMsg);
+      return toast.error(friendlyMsg);
+    }
+
+    setForgotOtpVerified(true);
+    setForgotOtpLoading(false);
+    toast.success("Identity verified! Set your new password below.");
+  }
+
+  // Save New Password
+  async function handleSaveNewPassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (newPassword.length < 8) {
+      return toast.error("Password must be at least 8 characters long");
+    }
+    if (newPassword !== confirmNewPassword) {
+      return toast.error("Passwords do not match. Please verify confirmation.");
+    }
+
+    setResetLoading(true);
+    const supabase = createClient();
+
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (error) {
+      setResetLoading(false);
+      return toast.error(friendlyAuthError(error));
+    }
+
+    setResetLoading(false);
+    toast.success("Password updated successfully! Welcome back.");
+    setTimeout(() => {
+      routeSignedInUser();
+    }, 700);
   }
 
   // Sign In Handler (Password)
@@ -478,7 +609,215 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
 
         {mode === "login" ? (
           <div className="relative space-y-5" suppressHydrationWarning>
-            {!loginOtpSent ? (
+            {forgotPasswordView ? (
+              /* Forgot Password / Reset Password Flow */
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setForgotPasswordView(false);
+                        setForgotOtpSent(false);
+                        setForgotOtpVerified(false);
+                        setForgotOtpError("");
+                      }}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[#a0a8c0] hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                      aria-label="Back to Sign In"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <div>
+                      <h3 className="text-sm font-black text-white tracking-tight">
+                        {forgotOtpVerified ? "Set New Password" : "Reset Password"}
+                      </h3>
+                      <p className="text-[11px] text-[#a0a8c0]">
+                        {forgotOtpVerified 
+                          ? "Create a strong new password for your account."
+                          : "Verify your email to create a new password."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {!forgotOtpSent ? (
+                  /* Step 1: Enter Email or Gamer Tag */
+                  <form onSubmit={handleSendForgotOtp} className="space-y-4">
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-[#b8bfd6] mb-1.5">
+                        Registered Email or Gamer Tag
+                      </label>
+                      <div className="relative group">
+                        <input
+                          suppressHydrationWarning
+                          type="text"
+                          required
+                          value={forgotEmail}
+                          onChange={(e) => setForgotEmail(e.target.value)}
+                          placeholder="Enter your email or Gamer Tag"
+                          autoComplete="username email"
+                          className="h-10.5 w-full rounded-xl border border-white/15 bg-black/40 hover:bg-black/60 backdrop-blur-md pl-3.5 pr-10 text-xs text-white placeholder-[#727a90] placeholder:text-xs transition-all duration-200 focus:border-white/40 focus:bg-black/80 focus:ring-2 focus:ring-white/10 focus:outline-none"
+                        />
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#727a90] group-focus-within:text-white transition-colors pointer-events-none">
+                          <User size={14} />
+                        </div>
+                      </div>
+                      <span className="mt-1 block text-[11px] text-[#a0a8c0]">
+                        We will send a 6-digit password reset verification code to your email.
+                      </span>
+                    </div>
+
+                    <button
+                      suppressHydrationWarning
+                      type="submit"
+                      disabled={forgotOtpLoading}
+                      className="w-full rounded-xl bg-gradient-to-r from-[#facc15] to-[#eab308] hover:from-[#ffe45c] hover:to-[#facc15] text-black h-11 font-black text-sm tracking-wide transition-all shadow-[0_0_24px_rgba(250,204,21,0.3)] hover:shadow-[0_0_35px_rgba(250,204,21,0.5)] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-2 active:scale-[0.99]"
+                    >
+                      {forgotOtpLoading ? "Sending Code..." : (
+                        <>
+                          <span>Send 6-Digit Reset Code</span>
+                          <ArrowRight size={15} />
+                        </>
+                      )}
+                    </button>
+                  </form>
+                ) : !forgotOtpVerified ? (
+                  /* Step 2: Verify 6-digit OTP */
+                  <div className="space-y-5">
+                    <AnimatedOtpInput
+                      length={6}
+                      email={forgotResolvedEmail || forgotEmail}
+                      name={forgotEmail}
+                      isLoading={forgotOtpLoading}
+                      isError={Boolean(forgotOtpError)}
+                      isSuccess={forgotOtpVerified}
+                      errorMessage={forgotOtpError}
+                      onCodeChange={(code) => {
+                        setForgotOtpCode(code);
+                        if (forgotOtpError) setForgotOtpError("");
+                      }}
+                      onComplete={(code) => handleVerifyForgotOtp(code)}
+                    />
+
+                    <div className="flex justify-between items-center text-xs pt-2 border-t border-white/5">
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setForgotOtpSent(false);
+                          setForgotOtpError("");
+                        }} 
+                        disabled={forgotOtpLoading}
+                        className="text-xs font-semibold text-[#8991a6] hover:text-white transition-colors cursor-pointer flex items-center gap-1 py-1 px-1.5 rounded hover:bg-white/5 disabled:opacity-50"
+                      >
+                        <ChevronLeft size={14} />
+                        <span>Change Email</span>
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setForgotOtpError("");
+                          handleSendForgotOtp();
+                        }} 
+                        disabled={forgotOtpLoading}
+                        className="text-xs font-semibold text-[#8991a6] hover:text-[#facc15] transition-colors cursor-pointer flex items-center gap-1.5 py-1 px-1.5 rounded hover:bg-[#facc15]/10 disabled:opacity-50"
+                      >
+                        <RefreshCw size={13} className={forgotOtpLoading ? "animate-spin" : ""} />
+                        <span>Resend Code</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Step 3: Enter and confirm new password */
+                  <form onSubmit={handleSaveNewPassword} className="space-y-4">
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-[#b8bfd6] mb-1.5">
+                        New Password
+                      </label>
+                      <div className="relative group">
+                        <input
+                          suppressHydrationWarning
+                          type={showNewPassword ? "text" : "password"}
+                          required
+                          minLength={8}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="At least 8 characters"
+                          autoComplete="new-password"
+                          className="h-10.5 w-full rounded-xl border border-white/15 bg-black/40 hover:bg-black/60 backdrop-blur-md pl-3.5 pr-10 text-xs text-white placeholder-[#727a90] placeholder:text-xs tracking-wider transition-all duration-200 focus:border-white/40 focus:bg-black/80 focus:ring-2 focus:ring-white/10 focus:outline-none"
+                        />
+                        <button
+                          suppressHydrationWarning
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#727a90] hover:text-white transition-colors cursor-pointer p-1"
+                          aria-label={showNewPassword ? "Hide password" : "Show password"}
+                        >
+                          {showNewPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-[#b8bfd6] mb-1.5">
+                        Confirm New Password
+                      </label>
+                      <div className="relative group">
+                        <input
+                          suppressHydrationWarning
+                          type={showConfirmNewPassword ? "text" : "password"}
+                          required
+                          minLength={8}
+                          value={confirmNewPassword}
+                          onChange={(e) => setConfirmNewPassword(e.target.value)}
+                          placeholder="Re-enter your new password"
+                          autoComplete="new-password"
+                          className={`h-10.5 w-full rounded-xl border bg-black/40 hover:bg-black/60 backdrop-blur-md pl-3.5 pr-10 text-xs text-white placeholder-[#727a90] placeholder:text-xs tracking-wider transition-all duration-200 focus:outline-none ${
+                            confirmNewPassword && newPassword !== confirmNewPassword
+                              ? "border-red-500/60 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 focus:bg-black/80"
+                              : confirmNewPassword && newPassword === confirmNewPassword
+                              ? "border-emerald-500/60 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:bg-black/80"
+                              : "border-white/10 focus:border-white/40 focus:bg-black/80 focus:ring-2 focus:ring-white/10"
+                          }`}
+                        />
+                        <button
+                          suppressHydrationWarning
+                          type="button"
+                          onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#727a90] hover:text-white transition-colors cursor-pointer p-1"
+                          aria-label={showConfirmNewPassword ? "Hide password" : "Show password"}
+                        >
+                          {showConfirmNewPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                        </button>
+                      </div>
+                      {confirmNewPassword && newPassword !== confirmNewPassword && (
+                        <span className="mt-1 block text-[11px] text-red-400 font-medium">
+                          Passwords do not match
+                        </span>
+                      )}
+                      {confirmNewPassword && newPassword === confirmNewPassword && (
+                        <span className="mt-1 block text-[11px] text-emerald-400 font-medium">
+                          ✓ Passwords match
+                        </span>
+                      )}
+                    </div>
+
+                    <button
+                      suppressHydrationWarning
+                      type="submit"
+                      disabled={resetLoading}
+                      className="w-full rounded-xl bg-gradient-to-r from-[#facc15] to-[#eab308] hover:from-[#ffe45c] hover:to-[#facc15] text-black h-11 font-black text-sm tracking-wide transition-all shadow-[0_0_24px_rgba(250,204,21,0.3)] hover:shadow-[0_0_35px_rgba(250,204,21,0.5)] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-2 active:scale-[0.99]"
+                    >
+                      {resetLoading ? "Updating Password..." : (
+                        <>
+                          <span>Update Password & Sign In</span>
+                          <ArrowRight size={15} />
+                        </>
+                      )}
+                    </button>
+                  </form>
+                )}
+              </div>
+            ) : !loginOtpSent ? (
               <>
                 {/* 1-Click Social Sign-In */}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -610,10 +949,24 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                     <div className="flex items-center justify-between text-xs pt-1">
                       <button
                         type="button"
-                        onClick={() => setLoginWithOtp(true)}
-                        className="text-[11px] text-[#a0a8c0] hover:text-[#facc15] transition-colors cursor-pointer"
+                        onClick={() => {
+                          setForgotPasswordView(true);
+                          setForgotEmail(loginEmail);
+                          setForgotOtpSent(false);
+                          setForgotOtpVerified(false);
+                          setForgotOtpError("");
+                        }}
+                        className="text-[11px] font-semibold text-[#a0a8c0] hover:text-[#facc15] transition-colors cursor-pointer"
                       >
-                        Forgot password? Sign in with OTP
+                        Forgot password?
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setLoginWithOtp(true)}
+                        className="text-[11px] font-semibold text-[#a0a8c0] hover:text-[#facc15] transition-colors cursor-pointer flex items-center gap-1"
+                      >
+                        <span>Sign in with OTP</span>
+                        <ArrowRight size={11} />
                       </button>
                     </div>
 
