@@ -168,7 +168,7 @@ export default function OtpPreviewPage() {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       if (wrongTimerRef.current) clearTimeout(wrongTimerRef.current);
     };
-  }, [autoDemo, userActive]);
+  }, [autoDemo, userActive, mounted]);
 
   // Real user interaction helpers
   const goUser = (reset = false) => {
