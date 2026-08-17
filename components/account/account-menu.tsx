@@ -77,7 +77,7 @@ export function AccountMenu() {
     };
   }, [open]);
 
-  if (!ready || !account) return <Link href="/login" className="btn btn-secondary btn-icon" aria-label="Sign in to your account"><UserRound size={19} /></Link>;
+  if (!ready || !account) return <Link href="/login" className="btn btn-secondary relative h-11 min-h-11 px-3" aria-label="Sign in to your account"><UserRound size={19} /></Link>;
 
   const links = [["/dashboard", "Dashboard", LayoutDashboard], ["/dashboard/orders", "My orders", PackageSearch], ["/dashboard/library", "My games", Gamepad2], ["/wishlist", "Wishlist", Heart], ["/dashboard/notifications", "Notifications", Bell], ["/dashboard/settings", "Account settings", Settings]] as const;
   const owner = account.email.toLowerCase() === OWNER_EMAIL;
