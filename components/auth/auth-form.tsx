@@ -6,13 +6,37 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
-function friendlyAuthError(message: string) {
+function friendlyAuthError(err: unknown): string {
+  if (!err) return "An unexpected error occurred. Please try again.";
+  
+  let message = "";
+  if (typeof err === "string") {
+    message = err;
+  } else if (typeof err === "object" && err !== null) {
+    const obj = err as Record<string, unknown>;
+    message = String(obj.message || obj.error_description || obj.msg || obj.error || "");
+    if (!message && Object.keys(obj).length > 0) {
+      try {
+        message = JSON.stringify(obj);
+      } catch {
+        message = "";
+      }
+    }
+  }
+
+  if (!message || message === "{}" || message === "[]") {
+    return "Unable to send verification email. Please check your SMTP settings in Supabase or try again in a few moments.";
+  }
+
   const value = message.toLowerCase();
+  if (value.includes("smtp") || value.includes("confirmation mail") || value.includes("535") || value.includes("501") || value.includes("relay access denied") || value.includes("authentication failed")) {
+    return "Could not send verification email via Brevo. Please check that your sender email is verified in your Brevo account.";
+  }
   if (value.includes("provider is not enabled") || value.includes("unsupported provider")) return "This sign-in provider must be enabled in Supabase Authentication first.";
   if (value.includes("invalid login")) return "Email or password is incorrect.";
   if (value.includes("email not confirmed")) return "Confirm your email before signing in. You can resend the email below.";
-  if (value.includes("already registered")) return "This email already has an account. Try signing in or use a magic link.";
-  if (value.includes("rate limit")) return "Too many attempts. Wait a few minutes and try again.";
+  if (value.includes("already registered") || value.includes("user already exists")) return "This email already has an account. Please sign in instead.";
+  if (value.includes("rate limit") || value.includes("too many requests") || value.includes("security purposes")) return "Too many attempts. Please wait a few minutes and try again.";
   if (value.includes("password")) return "Use a password with at least 8 characters.";
   if (value.includes("otp") || value.includes("token")) return "Invalid or expired verification code. Please check your email and try again.";
   return message;
@@ -91,7 +115,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     if (signUpError) {
       // If user already registered, provide friendly notice
       setOtpLoading(false);
-      return toast.error(friendlyAuthError(signUpError.message));
+      return toast.error(friendlyAuthError(signUpError));
     }
 
     // If auto-confirm is enabled in Supabase and user has active session
@@ -161,7 +185,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
 
     if (error) {
       setOtpLoading(false);
-      return toast.error(friendlyAuthError(error.message));
+      return toast.error(friendlyAuthError(error));
     }
 
     // 2. Set the user's permanent password & save profile
@@ -192,7 +216,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
       options: { emailRedirectTo: redirectTo() } 
     }); 
     setEmailAction(null); 
-    if (error) return toast.error(friendlyAuthError(error.message)); 
+    if (error) return toast.error(friendlyAuthError(error)); 
     toast.success("Verification email resent. Check inbox and spam."); 
   }
 
@@ -207,7 +231,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
       } 
     }); 
     setEmailAction(null); 
-    if (error) return toast.error(friendlyAuthError(error.message)); 
+    if (error) return toast.error(friendlyAuthError(error)); 
     setNotice("Magic link sent. Check your email inbox and spam folder."); 
   }
 
@@ -216,7 +240,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
       provider, 
       options: { redirectTo: redirectTo() } 
     }); 
-    if (error) toast.error(friendlyAuthError(error.message)); 
+    if (error) toast.error(friendlyAuthError(error)); 
   }
 
   return (
