@@ -18,30 +18,40 @@ export default async function RegisterPage() {
   return (
     <>
       <ChampagneFizz />
-      <div className="relative z-10 page-shell grid min-h-[calc(100vh-140px)] items-center gap-10 py-10 lg:grid-cols-2">
-        <section className="hidden lg:block">
-          <Gamepad2 size={42} className="text-[#facc15]" />
-          <h1 className="mt-7 max-w-lg text-6xl font-black leading-[1.02]">
+      <div className="relative z-10 page-shell grid min-h-[calc(100vh-140px)] items-center gap-12 py-10 lg:grid-cols-2">
+        <section className="hidden lg:block space-y-6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#facc15]/20 bg-[#facc15]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#facc15]">
+            <ShieldCheck size={14} className="text-[#00d68f]" />
+            <span>Join Rakexura</span>
+          </div>
+          <h1 className="max-w-lg text-5xl font-black leading-[1.08] tracking-tight text-white">
             Join the next generation of PC gaming.
           </h1>
-          <p className="mt-4 max-w-lg text-lg leading-8 text-[#a0a8c0]">
-            Create your free account to unlock member discounts, track instant keys, and save your wishlist.
+          <p className="max-w-md text-base leading-relaxed text-[#a0a8c0]">
+            Create your free account to unlock member discounts, track instant keys, and build your permanent library.
           </p>
-        </section>
 
-        <section className="mx-auto w-full max-w-lg">
-          <div className="mb-7 flex items-center gap-3">
-            <ShieldCheck className="text-[#00d68f]" />
-            <div>
-              <h2 className="m-0 text-2xl font-bold">Create your account</h2>
-              <p className="m-0 mt-1 text-sm text-[#8991a6]">Secure account setup</p>
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center gap-3 text-sm text-[#8991a6]">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold">✓</span>
+              <span>1-Click registration with Google & Discord</span>
+            </div>
+            <div className="flex items-center gap-3 text-sm text-[#8991a6]">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold">✓</span>
+              <span>Free member rewards, giveaways, and cashback points</span>
+            </div>
+            <div className="flex items-center gap-3 text-sm text-[#8991a6]">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold">✓</span>
+              <span>Instant order updates directly to your WhatsApp</span>
             </div>
           </div>
+        </section>
 
+        <section className="mx-auto w-full max-w-md">
           <AuthForm mode="register" />
 
-          <p className="mt-6 text-center text-sm text-[#8991a6]">
-            Already registered? <Link href="/login" className="text-white font-bold underline hover:text-[#facc15] transition-colors">Sign in</Link>
+          <p className="mt-5 text-center text-xs text-[#8991a6]">
+            Already registered? <Link href="/login" className="font-bold text-white underline hover:text-[#facc15] transition-colors ml-1">Sign in</Link>
           </p>
         </section>
       </div>
