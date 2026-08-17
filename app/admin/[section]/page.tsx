@@ -84,9 +84,9 @@ export default async function AdminSection({ params, searchParams }: { params: P
   }
 
   let editingFlashSale = null;
-  let gamesList: Array<{ id: number; title: string }> = [];
+  let gamesList: Array<{ id: number; title: string; original_price?: number | null; sale_price?: number | null; cover_image?: string | null }> = [];
   if (section === "flash-sales") {
-    const { data: dbGames } = await supabase.from("games").select("id,title").eq("archived", false).order("title");
+    const { data: dbGames } = await supabase.from("games").select("id,title,original_price,sale_price,cover_image").eq("archived", false).order("title");
     gamesList = dbGames || [];
     if (query.edit && /^\d+$/.test(query.edit)) {
       const { data: flashSale } = await supabase.from("flash_sales").select("id,game_id,sale_price,starts_at,ends_at,active").eq("id", Number(query.edit)).maybeSingle();

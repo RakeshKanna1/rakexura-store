@@ -1597,6 +1597,123 @@ export async function saveFlashSale(formData: FormData) {
   redirect("/admin/flash-sales");
 }
 
+export async function saveBulkFlashSale(formData: FormData) {
+  await writeAuditLog("SAVE_BULK_FLASH_SALE", "flash_sales", formData);
+  const supabase = await getAdminClient();
+
+  const gameIdsRaw = formData.getAll("game_ids");
+  const gameIds = gameIdsRaw.map(Number).filter((id) => !isNaN(id) && id > 0);
+  if (gameIds.length === 0) throw new Error("Please select at least 1 game for the bulk sale");
+
+  const discountType = String(formData.get("discount_type") ?? "percentage");
+  const discountValue = Number(formData.get("discount_value") ?? 0);
+  const starts_at = String(formData.get("starts_at") ?? "");
+  const ends_at = String(formData.get("ends_at") ?? "");
+  const active = formData.get("active") === "on" || formData.get("active") === "true";
+  const updateCatalog = formData.get("update_catalog") === "on" || formData.get("update_catalog") === "true";
+
+  if (isNaN(discountValue) || discountValue < 0) throw new Error("Enter a valid discount value");
+  if (!starts_at || !ends_at) throw new Error("Starts at and Ends at times are required");
+
+  const startsIso = new Date(starts_at).toISOString();
+  const endsIso = new Date(ends_at).toISOString();
+
+  // 1. Fetch current prices for selected games
+  const { data: dbGames, error: fetchErr } = await supabase
+    .from("games")
+    .select("id, title, original_price, sale_price")
+    .in("id", gameIds);
+
+  if (fetchErr || !dbGames?.length) throw new Error("Failed to load selected games");
+
+  const flashSalePayloads = [];
+  const gameUpdatePromises = [];
+
+  for (const game of dbGames) {
+    const origPrice = Number(game.original_price ?? game.sale_price ?? 0);
+    let calculatedSalePrice = origPrice;
+
+    if (discountType === "percentage") {
+      calculatedSalePrice = Math.max(1, Math.round(origPrice * (1 - discountValue / 100)));
+    } else if (discountType === "flat") {
+      calculatedSalePrice = Math.max(1, Math.round(origPrice - discountValue));
+    } else if (discountType === "fixed") {
+      calculatedSalePrice = Math.max(1, Math.round(discountValue));
+    }
+
+    flashSalePayloads.push({
+      game_id: game.id,
+      sale_price: calculatedSalePrice,
+      starts_at: startsIso,
+      ends_at: endsIso,
+      active,
+    });
+
+    if (updateCatalog) {
+      gameUpdatePromises.push(
+        supabase
+          .from("games")
+          .update({
+            sale_price: calculatedSalePrice,
+            offer_enabled: true,
+            offer_end_date: endsIso,
+            featured_deal: true,
+          })
+          .eq("id", game.id)
+      );
+    }
+  }
+
+  // 2. Insert into flash_sales
+  const { error: insertErr } = await supabase.from("flash_sales").insert(flashSalePayloads);
+  if (insertErr) throw new Error(insertErr.message);
+
+  // 3. Update game catalog if requested
+  if (gameUpdatePromises.length > 0) {
+    await Promise.allSettled(gameUpdatePromises);
+  }
+
+  // 4. Send Promotion Notification
+  if (active) {
+    try {
+      const title = "🔥 Massive Multi-Game Flash Sale!";
+      const discountLabel = discountType === "percentage" 
+        ? `${discountValue}% OFF` 
+        : discountType === "flat" 
+        ? `Rs. ${discountValue} OFF` 
+        : `Special Deals from Rs. ${discountValue}`;
+      const message = `${dbGames.length} games are now on sale with ${discountLabel}! Check them out before the timer ends.`;
+      const link = "/#flash-sale";
+
+      const { data: profiles } = await supabase.from("profiles").select("id");
+      if (profiles && profiles.length > 0) {
+        await supabase.from("notifications").insert(
+          profiles.map(({ id }) => ({
+            user_id: id,
+            title,
+            message,
+            type: "promotion",
+            link
+          }))
+        );
+
+        Promise.allSettled(
+          profiles.map(({ id }) => sendPushNotification(id, title, message, link))
+        ).catch((err) => console.error("Push delivery error:", err));
+      }
+    } catch (err) {
+      console.error("Failed to send bulk flash sale push updates:", err);
+    }
+  }
+
+  revalidatePath("/admin/flash-sales");
+  revalidatePath("/admin/games");
+  revalidatePath("/");
+  revalidateTag("games");
+  revalidateTag("offers");
+  redirect("/admin/flash-sales");
+}
+
 export async function toggleFlashSale(formData: FormData) {
   await writeAuditLog("TOGGLE_FLASH_SALE", "flash_sales", formData);
   const supabase = await getAdminClient();
