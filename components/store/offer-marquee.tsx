@@ -74,7 +74,7 @@ export async function OfferMarquee() {
 
   return (
     <aside
-      className="offer-marquee relative flex h-9 sm:h-10 w-full items-center overflow-hidden border-b border-[#facc15]/15 bg-[#0e0c06] select-none shadow-[inset_0_1px_12px_rgba(250,204,21,0.06)]"
+      className="offer-marquee relative flex h-9.5 sm:h-10.5 md:h-11 w-full items-center overflow-hidden border-b border-[#facc15]/15 bg-[#0e0c06] select-none shadow-[inset_0_1px_12px_rgba(250,204,21,0.06)]"
       aria-label="Store announcements and offers"
     >
       {/* Subtle warm gold ambient center wash */}
@@ -102,7 +102,7 @@ export async function OfferMarquee() {
               const isWhatsApp = item.icon_key === "message" || item.message.toUpperCase().includes("WHATSAPP");
 
               const content = (
-                <span className="inline-flex items-center gap-2 sm:gap-2.5 text-[11.5px] sm:text-xs md:text-[12.5px] font-bold uppercase tracking-[0.05em] text-zinc-200 transition-colors duration-150">
+                <span className="inline-flex items-center gap-2 sm:gap-2.5 text-[12px] sm:text-[12.5px] md:text-[13px] font-bold uppercase tracking-[0.05em] text-zinc-200 transition-colors duration-150">
                   {/* Refined LIVE Badge with gently pulsing gold dot */}
                   {isWhatsApp && (
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-[#facc15]/15 border border-[#facc15]/40 px-2 py-0.5 text-[9px] font-black text-[#facc15] tracking-widest shadow-[0_0_8px_rgba(250,204,21,0.2)] shrink-0">
@@ -115,7 +115,7 @@ export async function OfferMarquee() {
                   )}
 
                   {/* Static, sharp Icon with subtle gold luster */}
-                  <Icon size={13} className="text-[#facc15] filter drop-shadow-[0_0_6px_rgba(250,204,21,0.4)] shrink-0" aria-hidden="true" />
+                  <Icon size={14} className="text-[#facc15] filter drop-shadow-[0_0_6px_rgba(250,204,21,0.4)] shrink-0" aria-hidden="true" />
 
                   {/* Clean announcement text with selective gold highlights */}
                   <span className="text-zinc-100 font-bold">
