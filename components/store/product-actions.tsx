@@ -77,14 +77,28 @@ export function ProductActions({ game }: { game: Game }) {
     }
   }, [coupon, quantity, lines, game.id, setCoupon]);
 
-  // Dynamic validation check for general coupon game price constraints
+  // Dynamic validation check for general coupon game price constraints and scope
   useEffect(() => {
-    if (coupon && !isDiamondOrPlatinumCoupon(coupon.code)) {
-      const basePrice = price(game, selected);
-      if (basePrice * quantity < 99) {
+    if (coupon) {
+      if (coupon.applicable_to === "subscription" && !game.is_subscription) {
         setCoupon(null);
         setCouponCode("");
-        toast.error("Coupons cannot be applied to a single game priced under ₹99.");
+        toast.error("Coupon removed: This code is valid only for subscriptions.");
+        return;
+      }
+      if (coupon.applicable_to === "normal" && game.is_subscription) {
+        setCoupon(null);
+        setCouponCode("");
+        toast.error("Coupon removed: This code is valid only for standard games.");
+        return;
+      }
+      if (!isDiamondOrPlatinumCoupon(coupon.code)) {
+        const basePrice = price(game, selected);
+        if (basePrice * quantity < 99) {
+          setCoupon(null);
+          setCouponCode("");
+          toast.error("Coupons cannot be applied to a single game priced under ₹99.");
+        }
       }
     }
   }, [selected, coupon, game, quantity, setCoupon]);
@@ -114,7 +128,8 @@ export function ProductActions({ game }: { game: Game }) {
           gamePrice: basePrice,
           subtotal: gameSubtotal,
           quantity: quantity,
-          cartItemsCount: activeCount
+          cartItemsCount: activeCount,
+          isSubscription: Boolean(game.is_subscription)
         })
       });
 
@@ -127,7 +142,8 @@ export function ProductActions({ game }: { game: Game }) {
           code: resData.data.code,
           discount_type: resData.data.discount_type,
           discount_value: resData.data.discount_value,
-          minimum_order: resData.data.minimum_order
+          minimum_order: resData.data.minimum_order,
+          applicable_to: resData.data.applicable_to || "both"
         });
         setCelebrate(true);
         toast.success("Coupon applied");
@@ -148,21 +164,21 @@ export function ProductActions({ game }: { game: Game }) {
         <OfferCountdown end={game.offer_end_date} />
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-[#8991a8]">Choose platform</span>
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <div className="mt-2.5 flex flex-wrap gap-2">
             {platforms.map((platform) => (
               <button
                 key={platform}
                 type="button"
                 suppressHydrationWarning
                 onClick={() => setSelected(platform)}
-                className={`inline-flex items-center justify-center gap-2 rounded-md border px-3 py-3 text-sm font-semibold transition ${
+                className={`inline-flex h-10 min-h-[40px] items-center justify-center gap-2 rounded-md border px-3.5 py-2 text-xs font-bold transition whitespace-nowrap ${
                   selected === platform
-                    ? "border-white bg-white text-black"
+                    ? "border-white bg-white text-black shadow-sm"
                     : "border-white/10 bg-black/20 text-[#bbc1d1] hover:border-white/25"
                 }`}
               >
                 <PlatformIcon platform={platform} active={selected === platform} className={`h-4 w-4 shrink-0 ${selected === platform ? "text-black" : "text-[#bbc1d1]"}`} />
-                <span>
+                <span className="whitespace-nowrap">
                   {game.is_subscription && game.duration
                     ? `${platform} (${game.duration})`
                     : platform}

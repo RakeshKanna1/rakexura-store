@@ -15,12 +15,15 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       const reason = event.reason;
+      const msg = typeof reason === "string" ? reason : reason?.message || "";
       if (
         !reason ||
         reason instanceof Event ||
         (typeof reason === "object" && (reason?.constructor?.name === "Event" || reason?.constructor?.name === "ErrorEvent")) ||
         String(reason) === "[object Event]" ||
-        String(reason?.message).includes("[object Event]")
+        msg.includes("[object Event]") ||
+        msg === "Failed to fetch" ||
+        msg.includes("Failed to fetch")
       ) {
         event.preventDefault();
         event.stopImmediatePropagation?.();

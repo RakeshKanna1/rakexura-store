@@ -255,13 +255,23 @@ export function CheckoutForm() {
   // Dynamic validation check for general coupon game price constraints
   useEffect(() => {
     if (coupon) {
-      const hasDiscountableItems = lines.some(line => line && line.game && !line.game.is_subscription) || bundleLines.length > 0;
-      if (!hasDiscountableItems) {
+      const hasSubItems = lines.some(line => line && line.game && line.game.is_subscription);
+      const hasNormalItems = lines.some(line => line && line.game && !line.game.is_subscription) || bundleLines.length > 0;
+      
+      if (coupon.applicable_to === "subscription" && !hasSubItems) {
         setCoupon(null);
         setCouponCode("");
-        toast.error("Coupon removed: Coupons cannot be applied to subscriptions.");
+        toast.error("Coupon removed: This coupon is only valid for subscriptions.");
         return;
       }
+      
+      if (coupon.applicable_to === "normal" && !hasNormalItems) {
+        setCoupon(null);
+        setCouponCode("");
+        toast.error("Coupon removed: This coupon is only valid for standard game purchases.");
+        return;
+      }
+
       if (!isDiamondOrPlatinumCoupon(coupon.code) && coupon.code !== "RAKETHREE") {
         const totalItemCount = lines.reduce((sum, l) => sum + (l?.quantity || 1), 0) + bundleLines.reduce((sum, b) => sum + (b?.quantity || 1), 0);
         if (totalItemCount === 1 && subtotal < 99) {
@@ -295,11 +305,23 @@ export function CheckoutForm() {
     return sum + getCheckoutLinePrice(line.game, platform) * (line.quantity || 1);
   }, 0) + bundleTotal;
 
+  const subscriptionSubtotal = lines.reduce((sum, line) => {
+    if (!line || !line.game || !line.game.is_subscription) return sum;
+    const platform = line.platform || "Steam";
+    return sum + getCheckoutLinePrice(line.game, platform) * (line.quantity || 1);
+  }, 0);
+
+  const discountableBase = coupon?.applicable_to === "subscription"
+    ? subscriptionSubtotal
+    : coupon?.applicable_to === "normal"
+    ? nonSubscriptionSubtotal
+    : subtotal;
+
   const couponDiscount = couponEligible
     ? Math.min(
-        nonSubscriptionSubtotal,
+        discountableBase,
         coupon.discount_type === "percentage"
-          ? (nonSubscriptionSubtotal * coupon.discount_value) / 100
+          ? (discountableBase * coupon.discount_value) / 100
           : coupon.discount_value
       )
     : 0;
@@ -409,30 +431,22 @@ export function CheckoutForm() {
     if (!normalized) return toast.error("Enter a coupon code");
     setCheckingCoupon(true);
 
-    // Verify that the cart contains non-subscription items to discount
-    const hasDiscountableItems = lines.some(line => line && line.game && !line.game.is_subscription) || bundleLines.length > 0;
-    if (!hasDiscountableItems) {
-      setCoupon(null);
-      setCheckingCoupon(false);
-      return toast.error("Coupons cannot be applied to subscriptions.");
-    }
+    const hasSubItems = lines.some(line => line && line.game && line.game.is_subscription);
+    const hasNormalItems = lines.some(line => line && line.game && !line.game.is_subscription) || bundleLines.length > 0;
 
-    // Determine the lowest price of any discountable item in the cart
+    // Determine the lowest price of any item in the cart
     let lowestPricedItem = 999999;
-    let discountableCount = 0;
     lines.forEach(line => {
-      if (line && line.game && !line.game.is_subscription) {
+      if (line && line.game) {
         const platform = line.platform || "Steam";
         const val = getCheckoutLinePrice(line.game, platform);
         if (val < lowestPricedItem) lowestPricedItem = val;
-        discountableCount += (line.quantity || 1);
       }
     });
     bundleLines.forEach(line => {
       if (line && line.bundle) {
         const val = Number(line.bundle.bundle_price || 0);
         if (val < lowestPricedItem) lowestPricedItem = val;
-        discountableCount += (line.quantity || 1);
       }
     });
 
@@ -445,7 +459,9 @@ export function CheckoutForm() {
           gamePrice: lowestPricedItem === 999999 ? undefined : lowestPricedItem,
           subtotal: subtotal,
           quantity: quantity,
-          cartItemsCount: discountableCount
+          cartItemsCount: quantity,
+          hasSubscription: hasSubItems,
+          hasNormal: hasNormalItems
         })
       });
 
@@ -472,7 +488,8 @@ export function CheckoutForm() {
           code: resData.data.code,
           discount_type: resData.data.discount_type,
           discount_value: resData.data.discount_value,
-          minimum_order: resData.data.minimum_order
+          minimum_order: resData.data.minimum_order,
+          applicable_to: resData.data.applicable_to || "both"
         });
         setCelebrate(true);
         toast.dismiss();

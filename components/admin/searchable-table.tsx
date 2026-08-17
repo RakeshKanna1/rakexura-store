@@ -18,6 +18,7 @@ function SubmitButton({ children, tone = "neutral" }: { children: React.ReactNod
   return (
     <button
       type="submit"
+      suppressHydrationWarning
       disabled={pending}
       className={`rounded border bg-black/20 px-3 py-2 text-xs font-bold transition cursor-pointer disabled:opacity-40 flex items-center gap-1.5 ${color}`}
     >
@@ -52,6 +53,7 @@ function CopyCouponBadge({ code, discountType, discountValue, minimumOrder }: { 
   return (
     <button
       type="button"
+      suppressHydrationWarning
       onClick={handleCopy}
       title="Click to copy promo offer message for WhatsApp/Telegram"
       className="inline-flex items-center gap-1 rounded border border-[#8b5cf6]/40 bg-[#8b5cf6]/20 px-2 py-1 text-[11px] font-bold text-[#c4b5fd] transition hover:bg-[#8b5cf6]/40 hover:text-white cursor-pointer shrink-0"
@@ -79,6 +81,7 @@ function CopyIdBadge({ id }: { id: string }) {
   return (
     <button
       type="button"
+      suppressHydrationWarning
       onClick={handleCopy}
       title={`Click to copy full ID: ${id}`}
       className="inline-flex items-center gap-1.5 rounded border border-white/10 bg-black/40 px-2 py-1 text-xs font-mono font-bold text-[#a3aed0] hover:text-white hover:border-[#8b5cf6]/50 transition cursor-pointer shrink-0"
@@ -236,7 +239,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
             <tr>
               {headers.map((header) => (
                 <th key={header} className="p-4 capitalize">
-                  {header === "usage_limit" ? "Global Limit" : header === "per_user_limit" ? "Limit Per User" : header === "used_count" ? "Times Used" : header === "created_at" ? "Created At (12h)" : header.replaceAll("_", " ")}
+                  {header === "usage_limit" ? "Global Limit" : header === "per_user_limit" ? "Limit Per User" : header === "used_count" ? "Times Used" : header === "created_at" ? "Created At (12h)" : header === "applicable_to" ? "Scope / Target" : header.replaceAll("_", " ")}
                 </th>
               ))}
               {hasActions && <th className="p-4">Actions</th>}
@@ -247,6 +250,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
               <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
                 {headers.map((header) => {
                   const isCodeColumn = section === "coupons" && header === "code";
+                  const isApplicableToColumn = section === "coupons" && header === "applicable_to";
                   const val = row[header];
                   const lowerHeader = header.toLowerCase();
                   const isIdColumn = (lowerHeader === "id" || lowerHeader.endsWith("_id") || lowerHeader === "visitor_id") && typeof val === "string" && val.length > 10;
@@ -265,6 +269,20 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                             minimumOrder={Number(row.minimum_order || 0)}
                           />
                         </div>
+                      ) : isApplicableToColumn ? (
+                        val === "subscription" ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                            Subscriptions Only
+                          </span>
+                        ) : val === "normal" ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                            Normal Games Only
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                            All Items (Both)
+                          </span>
+                        )
                       ) : isIdColumn ? (
                         <CopyIdBadge id={String(val)} />
                       ) : (

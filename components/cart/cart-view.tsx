@@ -52,8 +52,30 @@ export function CartView() {
   const subtotal = lines.reduce((sum, line) => sum + linePrice(line) * line.quantity, 0) + bundles.reduce((sum, line) => sum + Number(line.bundle.bundle_price) * line.quantity, 0);
   const catalogSavings = lines.reduce((sum, line) => sum + Math.max(0, Number(line.game.original_price ?? linePrice(line)) - linePrice(line)) * line.quantity, 0) + bundles.reduce((sum, line) => sum + Math.max(0, Number(line.bundle.original_price) - Number(line.bundle.bundle_price)) * line.quantity, 0);
   const quantity = lines.reduce((sum, line) => sum + line.quantity, 0) + bundles.reduce((sum, line) => sum + line.quantity, 0);
-  const couponEligible = coupon && subtotal >= coupon.minimum_order && (coupon.code !== "RAKE10" || quantity >= 3);
-  const couponSavings = couponEligible ? Math.min(subtotal, coupon.discount_type === "percentage" ? subtotal * coupon.discount_value / 100 : coupon.discount_value) : 0;
+
+  const hasSubItems = lines.some(line => line && line.game && line.game.is_subscription);
+  const hasNormalItems = lines.some(line => line && line.game && !line.game.is_subscription) || bundles.length > 0;
+
+  const nonSubscriptionSubtotal = lines.reduce((sum, line) => {
+    if (!line || !line.game || line.game.is_subscription) return sum;
+    return sum + linePrice(line) * line.quantity;
+  }, 0) + bundles.reduce((sum, line) => sum + Number(line.bundle.bundle_price) * line.quantity, 0);
+
+  const subscriptionSubtotal = lines.reduce((sum, line) => {
+    if (!line || !line.game || !line.game.is_subscription) return sum;
+    return sum + linePrice(line) * line.quantity;
+  }, 0);
+
+  const discountableBase = coupon?.applicable_to === "subscription"
+    ? subscriptionSubtotal
+    : coupon?.applicable_to === "normal"
+    ? nonSubscriptionSubtotal
+    : subtotal;
+
+  const couponEligible = coupon && subtotal >= coupon.minimum_order && (coupon.code !== "RAKE10" || quantity >= 3) && (coupon.code !== "RAKETHREE" || quantity >= 3) && (
+    coupon.applicable_to === "subscription" ? hasSubItems : coupon.applicable_to === "normal" ? hasNormalItems : true
+  );
+  const couponSavings = couponEligible ? Math.min(discountableBase, coupon.discount_type === "percentage" ? discountableBase * coupon.discount_value / 100 : coupon.discount_value) : 0;
   const total = Math.max(0, subtotal - couponSavings);
   const gamesNeeded = Math.max(0, 3 - quantity);
 
@@ -76,7 +98,7 @@ export function CartView() {
         setChecking(false);
         return toast.error("Diamond loyalty freebies require Diamond rank (3,000+ points).");
       }
-      setCoupon({ code: "DIAMONDFREE", discount_type: "percentage", discount_value: 100, minimum_order: 0 });
+      setCoupon({ code: "DIAMONDFREE", discount_type: "percentage", discount_value: 100, minimum_order: 0, applicable_to: "both" });
       setChecking(false);
       return toast.success("Diamond rank freebie applied! Total is Rs. 0.");
     }
@@ -106,9 +128,26 @@ export function CartView() {
       return toast.error("This code requires a minimum selection of 3 games to unlock your 10% discount.");
     }
 
-    const { data, error } = await supabase.from("coupons").select("id,code,discount_type,discount_value,minimum_order,starts_at,expires_at,active,usage_limit,per_user_limit").eq("code", normalized).eq("active", true).maybeSingle();
+    let { data, error } = await supabase.from("coupons").select("id,code,discount_type,discount_value,minimum_order,starts_at,expires_at,active,usage_limit,per_user_limit,applicable_to").eq("code", normalized).eq("active", true).maybeSingle();
+    
+    if (error && (error.message.includes("applicable_to") || error.code === "PGRST204")) {
+      const fallbackQuery = await supabase.from("coupons").select("id,code,discount_type,discount_value,minimum_order,starts_at,expires_at,active,usage_limit,per_user_limit").eq("code", normalized).eq("active", true).maybeSingle();
+      data = fallbackQuery.data ? { ...fallbackQuery.data, applicable_to: "both" } : null;
+      error = fallbackQuery.error;
+    }
+
     setChecking(false);
     if (error || !data || (data.expires_at && new Date(data.expires_at) <= new Date()) || (data.starts_at && new Date(data.starts_at) > new Date())) { setCoupon(null); return toast.error("This coupon is not active"); }
+
+    const couponScope = data.applicable_to || "both";
+    if (couponScope === "subscription" && !hasSubItems) {
+      setCoupon(null);
+      return toast.error("This coupon code is valid only for subscription plans.");
+    }
+    if (couponScope === "normal" && !hasNormalItems) {
+      setCoupon(null);
+      return toast.error("This coupon code is valid only for standard game purchases, not subscriptions.");
+    }
 
     if (data.usage_limit !== null) {
       const { count: globalUses } = await supabase
@@ -136,7 +175,13 @@ export function CartView() {
     }
 
     if (subtotal < Number(data.minimum_order ?? 0)) return toast.error(`Minimum order is ${formatPrice(Number(data.minimum_order))}`);
-    setCoupon({ code: data.code, discount_type: data.discount_type, discount_value: Number(data.discount_value), minimum_order: Number(data.minimum_order ?? 0) });
+    setCoupon({ 
+      code: data.code, 
+      discount_type: data.discount_type as "percentage" | "flat", 
+      discount_value: Number(data.discount_value), 
+      minimum_order: Number(data.minimum_order ?? 0),
+      applicable_to: couponScope as "both" | "subscription" | "normal"
+    });
     toast.success("Coupon applied");
   }
 

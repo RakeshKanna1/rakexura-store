@@ -66,7 +66,8 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
           code: normalized,
           gamePrice: lowest,
           subtotal: lowest,
-          quantity: 1
+          quantity: 1,
+          isSubscription: Boolean(game?.is_subscription)
         })
       });
 
@@ -79,7 +80,8 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
           code: resData.data.code,
           discount_type: resData.data.discount_type,
           discount_value: resData.data.discount_value,
-          minimum_order: resData.data.minimum_order
+          minimum_order: resData.data.minimum_order,
+          applicable_to: resData.data.applicable_to || "both"
         });
         setCelebrate(true);
         toast.success("Coupon applied");

@@ -693,6 +693,11 @@ export async function deleteCoupon(formData: FormData) {
   writeAuditLogAsync("DELETE_COUPON", "coupons", formData);
   const supabase = await getAdminClient();
   const id = idFrom(formData);
+  try {
+    await supabase.from("coupon_usage").delete().eq("coupon_id", id);
+  } catch {
+    // Ignore if coupon_usage table or row does not exist
+  }
   const { error } = await supabase.from("coupons").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/coupons");
@@ -800,8 +805,12 @@ export async function saveCoupon(formData: FormData) {
   const code = String(formData.get("code") ?? "").trim().toUpperCase();
   const discountType = String(formData.get("discount_type") ?? "percentage");
   const discountValue = optionalNumber(formData.get("discount_value"));
+  const rawScope = String(formData.get("applicable_to") ?? "both").trim().toLowerCase();
+  const applicableTo = ["both", "subscription", "normal"].includes(rawScope) ? rawScope : "both";
+
   if (!/^[A-Z0-9_-]{3,24}$/.test(code) || !discountValue || discountValue <= 0) throw new Error("Enter a valid coupon code and discount");
   if (!["percentage", "flat"].includes(discountType)) throw new Error("Invalid discount type");
+  
   const payload = { 
     code, 
     discount_type: discountType, 
@@ -809,11 +818,21 @@ export async function saveCoupon(formData: FormData) {
     minimum_order: optionalNumber(formData.get("minimum_order")) ?? 0, 
     usage_limit: optionalNumber(formData.get("usage_limit")), 
     per_user_limit: optionalNumber(formData.get("per_user_limit")) ?? 1,
-    expires_at: String(formData.get("expires_at") ?? "") || null 
+    expires_at: String(formData.get("expires_at") ?? "") || null,
+    applicable_to: applicableTo
   };
   const rawId = String(formData.get("id") ?? "");
-  const query = rawId ? supabase.from("coupons").update(payload).eq("id", Number(rawId)) : supabase.from("coupons").insert({ ...payload, active: true });
-  const { error } = await query;
+  let query = rawId ? supabase.from("coupons").update(payload).eq("id", Number(rawId)) : supabase.from("coupons").insert({ ...payload, active: true });
+  let { error } = await query;
+
+  if (error && (error.message.includes("applicable_to") || error.code === "PGRST204")) {
+    const fallbackPayload = { ...payload };
+    delete (fallbackPayload as Record<string, unknown>).applicable_to;
+    query = rawId ? supabase.from("coupons").update(fallbackPayload).eq("id", Number(rawId)) : supabase.from("coupons").insert({ ...fallbackPayload, active: true });
+    const retryResult = await query;
+    error = retryResult.error;
+  }
+
   if (error) throw new Error(error.message);
   revalidatePath("/admin/coupons");
   redirect("/admin/coupons");

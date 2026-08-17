@@ -42,11 +42,11 @@ export async function OfferMarquee() {
                       LIVE
                     </span>
                   )}
-                  <Icon size={13} className="text-[#facc15] shrink-0" />
-                  <span className="text-[#e2e8f0] font-bold text-[11px] tracking-wide uppercase">
+                  <Icon size={13} className="text-[#facc15] shrink-0 drop-shadow-[0_0_6px_rgba(250,204,21,0.4)]" />
+                  <span className="text-[#facc15] font-black text-[11px] tracking-wider uppercase drop-shadow-[0_1px_4px_rgba(250,204,21,0.2)]">
                     {item.message}
                   </span>
-                  <span className="ml-5 text-[#facc15]/40 font-black text-sm select-none">•</span>
+                  <span className="ml-5 text-[#facc15]/60 font-black text-sm select-none">•</span>
                 </span>
               );
             })}

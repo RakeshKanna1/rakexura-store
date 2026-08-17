@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { code, gamePrice, subtotal, quantity, cartItemsCount } = await request.json().catch(() => ({}));
+    const { code, gamePrice, subtotal, quantity, cartItemsCount, hasSubscription, hasNormal, isSubscription } = await request.json().catch(() => ({}));
     if (!code) {
       return NextResponse.json(
         {
@@ -82,14 +82,45 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser();
 
     // 3. Database query for coupons
-    const { data: coupon, error } = await supabase
+    let { data: coupon, error } = await supabase
       .from("coupons")
-      .select("id,code,discount_type,discount_value,minimum_order,starts_at,expires_at,active,usage_limit,per_user_limit")
+      .select("id,code,discount_type,discount_value,minimum_order,starts_at,expires_at,active,usage_limit,per_user_limit,applicable_to")
       .eq("code", normalized)
       .eq("active", true)
       .maybeSingle();
 
-    if (error || !coupon || (coupon.expires_at && new Date(coupon.expires_at) <= new Date()) || (coupon.starts_at && new Date(coupon.starts_at) > new Date())) {
+    if (error && (error.message.includes("applicable_to") || error.code === "PGRST204")) {
+      const fallbackQuery = await supabase
+        .from("coupons")
+        .select("id,code,discount_type,discount_value,minimum_order,starts_at,expires_at,active,usage_limit,per_user_limit")
+        .eq("code", normalized)
+        .eq("active", true)
+        .maybeSingle();
+      coupon = fallbackQuery.data ? { ...fallbackQuery.data, applicable_to: "both" } : null;
+      error = fallbackQuery.error;
+    }
+
+    // If the coupon has expired, automatically delete it from database
+    if (coupon && coupon.expires_at && new Date(coupon.expires_at) <= new Date()) {
+      try {
+        await supabase.from("coupon_usage").delete().eq("coupon_id", coupon.id);
+        await supabase.from("coupons").delete().eq("id", coupon.id);
+      } catch {
+        // Ignore error during cleanup
+      }
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "This coupon offer has expired and has been automatically removed.",
+            code: "COUPON_EXPIRED"
+          }
+        },
+        { status: 400 }
+      );
+    }
+
+    if (error || !coupon || (coupon.starts_at && new Date(coupon.starts_at) > new Date())) {
       return NextResponse.json(
         {
           success: false,
@@ -100,6 +131,38 @@ export async function POST(request: Request) {
         },
         { status: 400 }
       );
+    }
+
+    // 3b. Validate Applicable Scope (Subscription vs Normal vs Both)
+    const applicableTo = (coupon as unknown as { applicable_to?: string })?.applicable_to || "both";
+    if (applicableTo === "subscription") {
+      const hasAnySub = isSubscription !== undefined ? Boolean(isSubscription) : Boolean(hasSubscription);
+      if (!hasAnySub) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              message: "This coupon code is valid only for subscription plans.",
+              code: "SCOPE_SUBSCRIPTION_ONLY"
+            }
+          },
+          { status: 400 }
+        );
+      }
+    } else if (applicableTo === "normal") {
+      const isSub = isSubscription !== undefined ? Boolean(isSubscription) : (Boolean(hasSubscription) && !Boolean(hasNormal));
+      if (isSub) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              message: "This coupon code is valid only for standard game purchases, not subscriptions.",
+              code: "SCOPE_NORMAL_ONLY"
+            }
+          },
+          { status: 400 }
+        );
+      }
     }
 
     // 4. Milestone / Loyalty points check
@@ -250,7 +313,8 @@ export async function POST(request: Request) {
         code: coupon.code,
         discount_type: coupon.discount_type,
         discount_value: Number(coupon.discount_value),
-        minimum_order: Number(coupon.minimum_order ?? 0)
+        minimum_order: Number(coupon.minimum_order ?? 0),
+        applicable_to: applicableTo
       }
     });
   } catch (err) {

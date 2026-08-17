@@ -48,15 +48,25 @@ export async function POST(request: Request) {
         }
       }
 
-      // Query historical order schema via coupon_usage
-      if (user) {
-        const { data: couponData } = await supabase
-          .from("coupons")
-          .select("id")
-          .eq("code", normalized)
-          .maybeSingle();
+      // Query historical order schema via coupon_usage and check expiry
+      const { data: couponData } = await supabase
+        .from("coupons")
+        .select("id, expires_at")
+        .eq("code", normalized)
+        .maybeSingle();
 
-        if (couponData) {
+      if (couponData) {
+        if (couponData.expires_at && new Date(couponData.expires_at) <= new Date()) {
+          try {
+            await supabase.from("coupon_usage").delete().eq("coupon_id", couponData.id);
+            await supabase.from("coupons").delete().eq("id", couponData.id);
+          } catch {
+            // Ignore error during cleanup
+          }
+          return NextResponse.json({ error: "This coupon offer has ended and is no longer available." }, { status: 400 });
+        }
+
+        if (user) {
           const { count } = await supabase
             .from("coupon_usage")
             .select("id", { count: "exact", head: true })

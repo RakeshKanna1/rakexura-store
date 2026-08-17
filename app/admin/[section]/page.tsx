@@ -13,13 +13,14 @@ import { CampaignGameForm } from "@/components/admin/campaign-game-form";
 import { VisitorAnalytics } from "@/components/admin/visitor-analytics";
 
 import { SmartOrdersManager, type OrderRow } from "@/components/admin/smart-orders-manager";
+import { purgeExpiredCoupons } from "@/lib/supabase/coupons";
 
 const sources = {
   games: { title: "Game management", table: "games", select: "id,title,steam_price,epic_price,offline_price,online_price,xbox_price,geforce_price,is_subscription,online_activation,duration,archived", order: "id" },
   orders: { title: "Customer orders", table: "orders", select: "id,order_reference,customer_name,customer_whatsapp,order_status,total_price,cart_items,screenshot_url,created_at,account_access", order: "created_at" },
   customers: { title: "Customer list", table: "profiles", select: "id,display_name,whatsapp,role,created_at", order: "created_at" },
   reviews: { title: "Review moderation", table: "reviews", select: "id,customer_name,rating,message,media_urls,verified_purchase,approved,created_at", order: "created_at" },
-  coupons: { title: "Coupon management", table: "coupons", select: "id,code,discount_type,discount_value,usage_limit,per_user_limit,expires_at,active", order: "id" },
+  coupons: { title: "Coupon management", table: "coupons", select: "id,code,discount_type,discount_value,minimum_order,usage_limit,per_user_limit,expires_at,active", order: "id" },
   support: { title: "Support conversations", table: "support_tickets", select: "id,subject,status,user_id,created_at,updated_at", order: "updated_at" },
   requests: { title: "Game requests", table: "game_requests", select: "id,game_name,platform,votes,status,created_at", order: "created_at" },
   media: { title: "Media manager", table: "customer_proofs", select: "id,image_url,caption,proof_type,approved,created_at", order: "created_at" },
@@ -39,6 +40,11 @@ export default async function AdminSection({ params, searchParams }: { params: P
   if (!(section in sources)) notFound();
   const source = sources[section as keyof typeof sources];
   const supabase = await createClient();
+
+  if (section === "coupons") {
+    await purgeExpiredCoupons(supabase);
+  }
+
   const dynamicClient = supabase as unknown as DynamicAdminClient;
   const { data } = await dynamicClient.from(source.table).select(source.select).order(source.order, { ascending: false }).limit(100);
   const rows = data ?? [];
@@ -62,7 +68,7 @@ export default async function AdminSection({ params, searchParams }: { params: P
   }
   const query = await searchParams;
   let editingGame: Game | null = null;
-  let editingCoupon: { id: number; code: string; discount_type: string; discount_value: number; minimum_order: number | null; usage_limit: number | null; per_user_limit: number | null; expires_at: string | null } | null = null;
+  let editingCoupon: { id: number; code: string; discount_type: string; discount_value: number; minimum_order: number | null; usage_limit: number | null; per_user_limit: number | null; expires_at: string | null; applicable_to?: string | null } | null = null;
   let genres: string[] = [];
   if (section === "games") {
     const { data: categoryRows } = await supabase.from("store_categories").select("name").eq("active", true).order("sort_order");
@@ -73,7 +79,7 @@ export default async function AdminSection({ params, searchParams }: { params: P
     }
   }
   if (section === "coupons" && query.edit && /^\d+$/.test(query.edit)) {
-    const { data: coupon } = await supabase.from("coupons").select("id,code,discount_type,discount_value,minimum_order,usage_limit,per_user_limit,expires_at").eq("id", Number(query.edit)).maybeSingle();
+    const { data: coupon } = await supabase.from("coupons").select("id,code,discount_type,discount_value,minimum_order,usage_limit,per_user_limit,expires_at,applicable_to").eq("id", Number(query.edit)).maybeSingle();
     editingCoupon = coupon;
   }
 

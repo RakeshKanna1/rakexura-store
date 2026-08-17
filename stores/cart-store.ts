@@ -8,7 +8,13 @@ type CartState = {
   lines: CartLine[];
   bundleLines: BundleCartLine[];
   wishlistIds: number[];
-  coupon: { code: string; discount_type: "percentage" | "flat"; discount_value: number; minimum_order: number } | null;
+  coupon: { 
+    code: string; 
+    discount_type: "percentage" | "flat"; 
+    discount_value: number; 
+    minimum_order: number; 
+    applicable_to?: "both" | "subscription" | "normal";
+  } | null;
   drawerOpen: boolean;
   add: (game: Game, platform: Platform) => void;
   addBundle: (bundle: Bundle) => void;
