@@ -50,8 +50,8 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
   const [displayName, setDisplayName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
@@ -380,7 +380,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                     </label>
                     <div className="relative">
                       <input 
-                        type={showPassword ? "text" : "password"}
+                        type={showConfirmPassword ? "text" : "password"}
                         required
                         minLength={8}
                         value={confirmPassword}
@@ -397,11 +397,11 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                       />
                       <button
                         type="button"
-                        onClick={() => setShowPassword(!showPassword)}
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors cursor-pointer p-1"
-                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                       >
-                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                     </div>
                     {confirmPassword && password !== confirmPassword && (
