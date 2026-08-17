@@ -598,7 +598,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                         </div>
                       </div>
                       <span className="mt-1 block text-[11px] text-[#a0a8c0]">
-                        We'll send a 6-digit verification code to your email for instant passwordless login.
+                        We will send a 6-digit verification code to your email for instant passwordless login.
                       </span>
                     </div>
 
