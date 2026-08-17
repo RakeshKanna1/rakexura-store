@@ -74,28 +74,22 @@ export async function OfferMarquee() {
 
   return (
     <aside
-      className="offer-marquee relative flex h-9 sm:h-9.5 md:h-10 w-full items-center overflow-hidden border-y border-white/[0.07] bg-[#120f06] select-none mt-2.5 sm:mt-3 shadow-[inset_0_1px_16px_rgba(250,204,21,0.12),inset_0_-1px_12px_rgba(250,204,21,0.06)]"
+      className="offer-marquee relative flex h-9 sm:h-9.5 md:h-10 w-full items-center overflow-hidden border-y border-white/[0.08] bg-[#080806] select-none mt-2.5 sm:mt-3"
       aria-label="Store announcements and offers"
     >
-      {/* Rich Internal Warm Gold Ambient Glow & Shimmer Wash */}
+      {/* Subtle, soft warm gold ambient center wash */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(250,204,21,0.14)_0%,rgba(250,204,21,0.04)_55%,transparent_85%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.03)_0%,transparent_75%)]"
         aria-hidden="true"
       />
 
-      {/* Internal Gold Horizon Light Beam */}
+      {/* Precision Left and Right Fade Masks */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-[60%] bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.09)_0%,transparent_70%)]"
-        aria-hidden="true"
-      />
-
-      {/* Precision Left and Right Fade Masks matching gold background */}
-      <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 sm:w-28 bg-gradient-to-r from-[#120f06] via-[#120f06]/95 to-transparent"
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 sm:w-28 bg-gradient-to-r from-[#080806] via-[#080806]/90 to-transparent"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 sm:w-28 bg-gradient-to-l from-[#120f06] via-[#120f06]/95 to-transparent"
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 sm:w-28 bg-gradient-to-l from-[#080806] via-[#080806]/90 to-transparent"
         aria-hidden="true"
       />
 
