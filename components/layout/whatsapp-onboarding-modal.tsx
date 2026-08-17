@@ -255,41 +255,41 @@ export function WhatsAppOnboardingModal() {
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#05070f]/95 p-6 shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-xl md:p-8 relative">
-        {/* Glow Effects */}
-        <div className="absolute -left-16 -top-16 h-36 w-36 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute -right-16 -bottom-16 h-36 w-36 rounded-full bg-violet-600/10 blur-3xl pointer-events-none" />
+      <div className="w-full max-w-md rounded-xl border border-white/10 bg-[#08090c] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.9)] backdrop-blur-xl md:p-8 relative">
+        {/* Subtle Ambient Accent */}
+        <div className="absolute -left-12 -top-12 h-32 w-32 rounded-full bg-[#facc15]/5 blur-3xl pointer-events-none" />
+        <div className="absolute -right-12 -bottom-12 h-32 w-32 rounded-full bg-[#8b5cf6]/5 blur-3xl pointer-events-none" />
 
         {/* Close/Skip Button top-right */}
         <button
           onClick={handleSkipOrAcknowledge}
-          className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-full bg-white/[0.05] text-[#8991a6] hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+          className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-md bg-white/[0.04] text-[#8991a6] hover:bg-white/10 hover:text-white transition-colors cursor-pointer border border-white/5"
           aria-label="Skip onboarding"
         >
-          <X size={16} />
+          <X size={15} />
         </button>
 
         {/* Step Indicators */}
         <div className="flex items-center justify-center gap-2 mb-6">
-          <span className={`h-1.5 w-10 rounded-full transition-all duration-300 ${step === 1 ? "bg-[#facc15]" : "bg-white/20"}`} />
-          <span className={`h-1.5 w-10 rounded-full transition-all duration-300 ${step === 2 ? "bg-[#facc15]" : "bg-white/20"}`} />
+          <span className={`h-1 w-8 rounded-full transition-all duration-300 ${step === 1 ? "bg-[#facc15]" : "bg-white/15"}`} />
+          <span className={`h-1 w-8 rounded-full transition-all duration-300 ${step === 2 ? "bg-[#facc15]" : "bg-white/15"}`} />
         </div>
 
         {step === 1 ? (
           <div>
-            <div className="flex justify-center mb-4 text-[#facc15]">
-              <MessageCircle size={40} className="animate-pulse" />
+            <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-lg border border-[#facc15]/20 bg-[#facc15]/10 text-[#facc15]">
+              <MessageCircle size={22} />
             </div>
-            <h2 className="text-2xl font-black text-white text-center bg-gradient-to-r from-white via-amber-200 to-[#facc15] bg-clip-text text-transparent flex items-center justify-center gap-2">
-              <MessageCircle className="w-6 h-6 text-[#facc15]" /> Link Your WhatsApp
+            <h2 className="text-xl font-black text-white text-center tracking-tight">
+              Link Your WhatsApp
             </h2>
-            <p className="mt-4 text-xs text-[#9ea6b9] text-center leading-relaxed">
+            <p className="mt-2 text-xs text-[#8991a6] text-center leading-relaxed">
               To ensure instant delivery of your game activation details, please link your active WhatsApp number before continuing.
             </p>
 
             <form onSubmit={handleWhatsappSubmit} className="mt-6 space-y-4">
               <div>
-                <label htmlFor="whatsapp-phone" className="block text-xs font-bold uppercase tracking-wider text-[#facc15]">
+                <label htmlFor="whatsapp-phone" className="block text-[11px] font-black uppercase tracking-wider text-[#8991a6]">
                   WhatsApp Number
                 </label>
                 <input
@@ -300,20 +300,21 @@ export function WhatsAppOnboardingModal() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="e.g., +91 98765 43210"
-                  className="mt-2 w-full rounded-xl border border-[#facc15]/50 bg-black/45 px-4 py-3 text-sm text-white placeholder-white/30 focus:border-[#facc15] focus:ring-2 focus:ring-[#facc15]/30 focus:outline-none transition-all shadow-[0_0_15px_rgba(250,204,21,0.1)]"
+                  className="mt-2 h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 py-3 font-black text-black transition shadow-lg shadow-amber-500/20 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-1.5 text-sm cursor-pointer"
+                className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-1.5 text-xs sm:text-sm cursor-pointer"
               >
                 {isLoading ? (
-                  <Loader2 size={18} className="animate-spin" />
+                  <Loader2 size={16} className="animate-spin" />
                 ) : (
                   <>
-                    Continue <ArrowRight size={16} />
+                    <span>Continue</span>
+                    <ArrowRight size={15} />
                   </>
                 )}
               </button>
@@ -321,7 +322,7 @@ export function WhatsAppOnboardingModal() {
               <button
                 type="button"
                 onClick={handleSkipOrAcknowledge}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.02] py-2.5 text-xs font-semibold text-[#8991a6] hover:bg-white/5 hover:text-white transition cursor-pointer"
+                className="w-full rounded-md border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] h-10 text-xs font-bold text-[#8991a6] hover:text-white transition cursor-pointer"
               >
                 Configure Later / Skip
               </button>
@@ -329,27 +330,27 @@ export function WhatsAppOnboardingModal() {
           </div>
         ) : (
           <div>
-            <div className="flex justify-center mb-4 text-[#facc15]">
-              <Bell size={40} className="animate-bounce" />
+            <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-lg border border-[#facc15]/20 bg-[#facc15]/10 text-[#facc15]">
+              <Bell size={22} />
             </div>
-            <h2 className="text-2xl font-black text-white text-center bg-gradient-to-r from-white via-amber-200 to-[#facc15] bg-clip-text text-transparent flex items-center justify-center gap-2">
-              <Bell className="w-6 h-6 text-[#facc15]" /> Enable Notifications
+            <h2 className="text-xl font-black text-white text-center tracking-tight">
+              Enable Device Notifications
             </h2>
-            <p className="mt-4 text-xs text-[#9ea6b9] text-center leading-relaxed">
+            <p className="mt-2 text-xs text-[#8991a6] text-center leading-relaxed">
               Get real-time updates directly on your device lock screen when your orders are processed and ready for activation.
             </p>
 
             <div className="mt-6 space-y-3">
               {notifPermission === "granted" ? (
-                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
+                <div className="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
                   <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold text-sm">
-                    <CheckCircle2 size={18} /> Device Notifications Active
+                    <CheckCircle2 size={16} /> Device Notifications Active
                   </div>
                   <p className="mt-1 text-xs text-emerald-200/80">You are configured to receive instant order status alerts.</p>
                   <button
                     type="button"
                     onClick={handleSkipOrAcknowledge}
-                    className="mt-4 w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-black text-black hover:bg-emerald-400 transition cursor-pointer"
+                    className="mt-4 w-full rounded-md bg-emerald-500 hover:bg-emerald-400 h-10 text-xs font-black text-black transition cursor-pointer"
                   >
                     Done / Finish
                   </button>
@@ -360,13 +361,13 @@ export function WhatsAppOnboardingModal() {
                     type="button"
                     onClick={handleEnableNotifications}
                     disabled={isLoading}
-                    className="w-full rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 py-3 font-black text-black shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 text-sm cursor-pointer"
+                    className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black shadow-md shadow-[#facc15]/10 transition flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer"
                   >
                     {isLoading ? (
-                      <Loader2 size={18} className="animate-spin" />
+                      <Loader2 size={16} className="animate-spin" />
                     ) : (
                       <>
-                        <Bell size={16} /> Enable Device Notifications
+                        <Bell size={15} /> <span>Enable Device Notifications</span>
                       </>
                     )}
                   </button>
@@ -374,7 +375,7 @@ export function WhatsAppOnboardingModal() {
                   <button
                     type="button"
                     onClick={handleSkipOrAcknowledge}
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.02] py-3 text-xs font-semibold text-[#8991a6] hover:bg-white/5 hover:text-white transition cursor-pointer"
+                    className="w-full rounded-md border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] h-10 text-xs font-bold text-[#8991a6] hover:text-white transition cursor-pointer"
                   >
                     Configure Later / Skip
                   </button>
