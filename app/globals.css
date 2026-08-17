@@ -328,9 +328,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .game-detail-hero { min-height: 500px; border-radius: 20px; box-shadow: 0 22px 68px rgba(0,0,0,.42), 0 0 28px var(--game-accent-soft); }
   .game-detail-hero > .relative { min-height: 500px; padding: 28px 22px !important; }
   .game-detail-hero h1 { font-size: clamp(2.55rem, 13vw, 4.2rem) !important; }
-  .game-detail-layout { display: block; margin-top: 22px; }
-  .game-detail-main { margin-top: 24px; }
-  .game-detail-buy { margin-top: 18px; }
+  .game-detail-layout { display: flex; flex-direction: column; margin-top: 20px; }
+  .game-detail-buy { order: 1; margin-top: 0; }
+  .game-detail-main { order: 2; margin-top: 24px; }
   body { padding-bottom: 72px; }
   body::before { opacity: .55; animation: none; }
   body::after { opacity: .22; animation: none; background-size: 120px 120px, 190px 190px, 100% 100%; }

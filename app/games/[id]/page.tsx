@@ -461,8 +461,86 @@ export default async function GamePage({ params }: Props) {
       </section>
     )}
 
-    <div className="game-detail-layout mt-8 grid gap-8 lg:grid-cols-[1fr_390px]">
-      <div className="game-detail-main space-y-12">
+    <div className="game-detail-layout mt-6 sm:mt-8 grid gap-8 lg:grid-cols-[1fr_390px]">
+      {/* ⚡ Price & Purchase Box (Order 1 on mobile for instant visibility, Order 2 on desktop sticky sidebar) */}
+      <aside className="game-detail-buy order-1 lg:order-2 lg:sticky lg:top-24 lg:self-start space-y-4">
+        <ProductActions game={game} />
+        
+        {/* Bundle Matrix - Deferred */}
+        <Suspense fallback={<div className="h-48 w-full skeleton rounded-md" />}>
+          <BundleMatrixSection currentGame={game} />
+        </Suspense>
+
+        <div className="mt-3 grid gap-2">
+          {trust.map(({ icon: Icon, title, text }) => (
+            <div key={title} className="flex gap-3 rounded-md border border-white/[0.06] bg-white/[0.025] p-4">
+              <Icon size={18} className="mt-0.5 shrink-0" style={{ color: accent }} />
+              <div>
+                <strong className="block text-xs">{title}</strong>
+                <span className="mt-1 block text-[11px] leading-4 text-[#7f879d]">{text}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Premium Game Details Metadata Panel */}
+        {(game.release_date || game.developer || game.publisher) && (
+          <div className="mt-3 rounded-md border border-white/[0.06] bg-white/[0.015] p-4 space-y-3.5">
+            <h3 className="text-xs font-black uppercase tracking-wider text-[#8991a6] border-b border-white/[0.06] pb-2">
+              Game Information
+            </h3>
+            <div className="space-y-2.5 text-xs">
+              {game.release_date && (
+                <div className="flex justify-between items-center gap-4">
+                  <span className="text-[#7f879d]">Release Date</span>
+                  <span className="font-semibold text-white">
+                    {(() => {
+                      try {
+                        const date = new Date(game.release_date);
+                        if (isNaN(date.getTime())) return game.release_date;
+                        return date.toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        });
+                      } catch {
+                        return game.release_date;
+                      }
+                    })()}
+                  </span>
+                </div>
+              )}
+              {game.developer && (
+                <div className="flex justify-between items-center gap-4">
+                  <span className="text-[#7f879d]">Developer</span>
+                  <span className="font-semibold text-white truncate max-w-[65%] text-right" title={game.developer}>
+                    {game.developer}
+                  </span>
+                </div>
+              )}
+              {game.publisher && (
+                <div className="flex justify-between items-center gap-4">
+                  <span className="text-[#7f879d]">Publisher</span>
+                  <span className="font-semibold text-white truncate max-w-[65%] text-right" title={game.publisher}>
+                    {game.publisher}
+                  </span>
+                </div>
+              )}
+              {typeof game.activation_slots === "number" && (
+                <div className="flex justify-between items-center gap-4">
+                  <span className="text-[#7f879d]">Activation Slots</span>
+                  <span className="font-semibold text-[#ffca55]">
+                    {game.activation_slots > 0 ? `${game.activation_slots} available` : "Out of slots"}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </aside>
+
+      {/* 📖 Main Game Details & Media (Order 2 on mobile, Order 1 on desktop) */}
+      <div className="game-detail-main space-y-12 order-2 lg:order-1 min-w-0">
         <section className={panelClass}>
           <p className="eyebrow mb-3" style={{ color: accent }}>{game.is_premium ? "★ PREMIUM DESCRIPTION ★" : "About this game"}</p>
           <h2 className="section-title">{game.is_premium ? "Exclusive presentation" : "Enter the experience"}</h2>
@@ -571,81 +649,6 @@ export default async function GamePage({ params }: Props) {
           <ReviewsSection gameId={game.id} />
         </Suspense>
       </div>
-      <aside className="game-detail-buy lg:sticky lg:top-24 lg:self-start">
-        <ProductActions game={game} />
-        
-        {/* Bundle Matrix - Deferred */}
-        <Suspense fallback={<div className="h-48 w-full skeleton rounded-md" />}>
-          <BundleMatrixSection currentGame={game} />
-        </Suspense>
-
-        <div className="mt-3 grid gap-2">
-          {trust.map(({ icon: Icon, title, text }) => (
-            <div key={title} className="flex gap-3 rounded-md border border-white/[0.06] bg-white/[0.025] p-4">
-              <Icon size={18} className="mt-0.5 shrink-0" style={{ color: accent }} />
-              <div>
-                <strong className="block text-xs">{title}</strong>
-                <span className="mt-1 block text-[11px] leading-4 text-[#7f879d]">{text}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Premium Game Details Metadata Panel */}
-        {(game.release_date || game.developer || game.publisher) && (
-          <div className="mt-3 rounded-md border border-white/[0.06] bg-white/[0.015] p-4 space-y-3.5">
-            <h3 className="text-xs font-black uppercase tracking-wider text-[#8991a6] border-b border-white/[0.06] pb-2">
-              Game Information
-            </h3>
-            <div className="space-y-2.5 text-xs">
-              {game.release_date && (
-                <div className="flex justify-between items-center gap-4">
-                  <span className="text-[#7f879d]">Release Date</span>
-                  <span className="font-semibold text-white">
-                    {(() => {
-                      try {
-                        const date = new Date(game.release_date);
-                        if (isNaN(date.getTime())) return game.release_date;
-                        return date.toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        });
-                      } catch {
-                        return game.release_date;
-                      }
-                    })()}
-                  </span>
-                </div>
-              )}
-              {game.developer && (
-                <div className="flex justify-between items-center gap-4">
-                  <span className="text-[#7f879d]">Developer</span>
-                  <span className="font-semibold text-white truncate max-w-[65%] text-right" title={game.developer}>
-                    {game.developer}
-                  </span>
-                </div>
-              )}
-              {game.publisher && (
-                <div className="flex justify-between items-center gap-4">
-                  <span className="text-[#7f879d]">Publisher</span>
-                  <span className="font-semibold text-white truncate max-w-[65%] text-right" title={game.publisher}>
-                    {game.publisher}
-                  </span>
-                </div>
-              )}
-              {typeof game.activation_slots === "number" && (
-                <div className="flex justify-between items-center gap-4">
-                  <span className="text-[#7f879d]">Activation Slots</span>
-                  <span className="font-semibold text-[#ffca55]">
-                    {game.activation_slots > 0 ? `${game.activation_slots} available` : "Out of slots"}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </aside>
     </div>
 
     {/* Recommendations - Deferred */}
