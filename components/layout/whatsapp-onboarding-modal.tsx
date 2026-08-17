@@ -65,16 +65,17 @@ export function WhatsAppOnboardingModal() {
         setUserId(user.id);
         const { data: profile } = await supabase
           .from("profiles")
-          .select("whatsapp")
+          .select("whatsapp, phone")
           .eq("id", user.id)
           .maybeSingle();
 
-        const existingPhone = profile?.whatsapp || "";
+        const localPhone = typeof window !== "undefined" ? localStorage.getItem("guest_whatsapp_phone") || "" : "";
+        const existingPhone = (profile?.whatsapp || profile?.phone || localPhone || "").trim();
         if (existingPhone) {
           setPhone(existingPhone);
         }
 
-        const hasWhatsapp = existingPhone.trim() !== "";
+        const hasWhatsapp = existingPhone !== "";
         const isNotificationSupported = typeof window !== "undefined" && "Notification" in window;
         const needsNotifications = isNotificationSupported && Notification.permission === "default";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Gamepad2, MailCheck, RefreshCw, ShieldCheck, ArrowRight, Eye, EyeOff, Loader2, ChevronLeft, CheckCircle2 } from "lucide-react";
+import { Gamepad2, MailCheck, RefreshCw, ShieldCheck, ArrowRight, Eye, EyeOff, Loader2, ChevronLeft, CheckCircle2, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -48,6 +48,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
   // Registration & OTP States
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -75,6 +76,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     e.preventDefault();
     const trimmedEmail = email.trim().toLowerCase();
     const trimmedName = displayName.trim();
+    const cleanPhone = whatsapp.replace(/\D/g, "");
 
     if (!trimmedName) {
       return toast.error("Please enter your Gamer Tag or Display Name");
@@ -88,6 +90,10 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
       return toast.error("Only valid @gmail.com email addresses are supported for verification");
     }
 
+    if (!cleanPhone || cleanPhone.length < 10) {
+      return toast.error("Please enter a valid 10-digit WhatsApp number");
+    }
+
     if (password.length < 8) {
       return toast.error("Password must be at least 8 characters long");
     }
@@ -99,7 +105,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     setOtpLoading(true);
     const supabase = createClient();
 
-    // 1. Initiate Supabase signUp with the chosen password and display name
+    // 1. Initiate Supabase signUp with the chosen password, display name, and WhatsApp phone
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: trimmedEmail,
       password: password,
@@ -108,6 +114,8 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
         data: {
           display_name: trimmedName,
           full_name: trimmedName,
+          whatsapp: cleanPhone,
+          phone: cleanPhone,
         }
       }
     });
@@ -118,13 +126,21 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
       return toast.error(friendlyAuthError(signUpError));
     }
 
+    // Save WhatsApp number locally
+    if (typeof window !== "undefined") {
+      localStorage.setItem("guest_whatsapp_phone", cleanPhone);
+      window.dispatchEvent(new CustomEvent("profile-updated", { detail: { whatsapp: cleanPhone } }));
+    }
+
     // If auto-confirm is enabled in Supabase and user has active session
     if (signUpData.session) {
       await supabase.from("profiles").upsert({
         id: signUpData.session.user.id,
         display_name: trimmedName,
         full_name: trimmedName,
-      });
+        whatsapp: cleanPhone,
+        phone: cleanPhone,
+      }).catch(() => null);
       setOtpLoading(false);
       toast.success("Account created and signed in!");
       await routeSignedInUser();
@@ -193,13 +209,14 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
       if (password) {
         await supabase.auth.updateUser({ password }).catch(() => null);
       }
-      if (displayName.trim()) {
-        await supabase.from("profiles").upsert({
-          id: data.user.id,
-          display_name: displayName.trim(),
-          full_name: displayName.trim(),
-        }).catch(() => null);
-      }
+      const cleanPhone = whatsapp.replace(/\D/g, "");
+      await supabase.from("profiles").upsert({
+        id: data.user.id,
+        display_name: displayName.trim() || undefined,
+        full_name: displayName.trim() || undefined,
+        whatsapp: cleanPhone || undefined,
+        phone: cleanPhone || undefined,
+      }).catch(() => null);
     }
 
     setOtpLoading(false);
@@ -306,6 +323,29 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                       autoComplete="email"
                       className="h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
+                      WhatsApp Number
+                    </label>
+                    <div className="relative">
+                      <input 
+                        type="tel"
+                        required
+                        value={whatsapp}
+                        onChange={(e) => setWhatsapp(e.target.value)}
+                        placeholder="e.g. +91 98765 43210"
+                        autoComplete="tel"
+                        className="h-11 w-full rounded-md border border-white/10 bg-black/40 pl-3.5 pr-10 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#25d366] focus:outline-none" 
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#25d366] pointer-events-none">
+                        <MessageSquare size={16} />
+                      </div>
+                    </div>
+                    <span className="mt-1 block text-[11px] text-[#8991a6]">
+                      Used for instant game activation delivery & order tracking.
+                    </span>
                   </div>
 
                   <div>
