@@ -39,7 +39,7 @@ export function WhatsAppFloat() {
         transition: { rotate: { duration: 0.4 } },
       }}
       whileTap={{ scale: 0.92 }}
-      className="group fixed bottom-[78px] right-4 z-40 grid h-12 w-12 place-items-center rounded-full bg-[#25d366] text-black shadow-[0_10px_32px_rgba(37,211,102,0.45)] hover:shadow-[0_0_32px_rgba(37,211,102,0.7)] md:bottom-5 md:right-5 border border-emerald-300/50 backdrop-blur-sm"
+      className="group fixed bottom-[92px] right-3.5 z-40 grid h-11 w-11 sm:h-12 sm:w-12 place-items-center rounded-full bg-[#25d366] text-black shadow-[0_10px_32px_rgba(37,211,102,0.45)] hover:shadow-[0_0_32px_rgba(37,211,102,0.7)] sm:bottom-5 sm:right-5 border border-emerald-300/50 backdrop-blur-sm"
       aria-label="Chat with Rakexura on WhatsApp"
     >
       {/* Soft Radar Pulse Ring */}
