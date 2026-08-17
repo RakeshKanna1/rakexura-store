@@ -271,13 +271,13 @@ export function WhatsAppOnboardingModal() {
 
         {/* Step Indicators */}
         <div className="flex items-center justify-center gap-2 mb-6">
-          <span className={`h-1 w-8 rounded-full transition-all duration-300 ${step === 1 ? "bg-[#facc15]" : "bg-white/15"}`} />
+          <span className={`h-1 w-8 rounded-full transition-all duration-300 ${step === 1 ? "bg-[#25d366]" : "bg-white/15"}`} />
           <span className={`h-1 w-8 rounded-full transition-all duration-300 ${step === 2 ? "bg-[#facc15]" : "bg-white/15"}`} />
         </div>
 
         {step === 1 ? (
           <div>
-            <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-lg border border-[#facc15]/20 bg-[#facc15]/10 text-[#facc15]">
+            <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-lg border border-[#25d366]/30 bg-[#25d366]/10 text-[#25d366]">
               <MessageCircle size={22} />
             </div>
             <h2 className="text-xl font-black text-white text-center tracking-tight">
@@ -289,7 +289,7 @@ export function WhatsAppOnboardingModal() {
 
             <form onSubmit={handleWhatsappSubmit} className="mt-6 space-y-4">
               <div>
-                <label htmlFor="whatsapp-phone" className="block text-[11px] font-black uppercase tracking-wider text-[#8991a6]">
+                <label htmlFor="whatsapp-phone" className="block text-[11px] font-black uppercase tracking-wider text-[#25d366]">
                   WhatsApp Number
                 </label>
                 <input
@@ -300,14 +300,14 @@ export function WhatsAppOnboardingModal() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="e.g., +91 98765 43210"
-                  className="mt-2 h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none"
+                  className="mt-2 h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#25d366] focus:outline-none"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-1.5 text-xs sm:text-sm cursor-pointer"
+                className="w-full rounded-md bg-[#25d366] hover:bg-[#20ba5a] h-11 font-black text-black transition shadow-md shadow-[#25d366]/15 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-1.5 text-xs sm:text-sm cursor-pointer"
               >
                 {isLoading ? (
                   <Loader2 size={16} className="animate-spin" />
