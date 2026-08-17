@@ -74,22 +74,22 @@ export async function OfferMarquee() {
 
   return (
     <aside
-      className="offer-marquee relative flex h-8 sm:h-9 w-full items-center overflow-hidden border-y border-white/[0.06] bg-[#080806] select-none"
+      className="offer-marquee relative flex h-9 sm:h-10 w-full items-center overflow-hidden border-y border-white/[0.08] bg-[#080806] select-none"
       aria-label="Store announcements and offers"
     >
       {/* Subtle, soft warm gold ambient center wash */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.025)_0%,transparent_75%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.03)_0%,transparent_75%)]"
         aria-hidden="true"
       />
 
       {/* Precision Left and Right Fade Masks */}
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 sm:w-24 bg-gradient-to-r from-[#080806] via-[#080806]/85 to-transparent"
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 sm:w-28 bg-gradient-to-r from-[#080806] via-[#080806]/90 to-transparent"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 sm:w-24 bg-gradient-to-l from-[#080806] via-[#080806]/85 to-transparent"
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 sm:w-28 bg-gradient-to-l from-[#080806] via-[#080806]/90 to-transparent"
         aria-hidden="true"
       />
 
@@ -102,12 +102,12 @@ export async function OfferMarquee() {
               const isWhatsApp = item.icon_key === "message" || item.message.toUpperCase().includes("WHATSAPP");
 
               const content = (
-                <span className="inline-flex items-center gap-2 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.05em] text-zinc-300 transition-colors duration-150">
+                <span className="inline-flex items-center gap-2 sm:gap-2.5 text-[11px] sm:text-xs md:text-[12.5px] font-bold uppercase tracking-[0.05em] text-zinc-200 transition-colors duration-150">
                   {/* Refined LIVE Badge with gently pulsing status dot */}
                   {isWhatsApp && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#facc15]/10 border border-[#facc15]/25 px-2 py-0.5 text-[8.5px] font-bold text-[#facc15] tracking-widest shrink-0">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 text-[9px] font-black text-[#facc15] tracking-widest shrink-0">
                       <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#facc15] opacity-50" />
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#facc15] opacity-60" />
                         <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#facc15]" />
                       </span>
                       LIVE
@@ -115,10 +115,10 @@ export async function OfferMarquee() {
                   )}
 
                   {/* Static, sharp Icon */}
-                  <Icon size={12} className="text-[#facc15] shrink-0" aria-hidden="true" />
+                  <Icon size={13} className="text-[#facc15] shrink-0" aria-hidden="true" />
 
                   {/* Clean announcement text with selective gold highlights */}
-                  <span className="text-zinc-200">
+                  <span className="text-zinc-100">
                     {renderHighlightedMessage(item.message)}
                   </span>
                 </span>
@@ -145,7 +145,7 @@ export async function OfferMarquee() {
 
                   {/* Single, consistent clean bullet separator */}
                   <span
-                    className="mx-6 sm:mx-8 md:mx-10 text-[#facc15]/30 font-black text-xs select-none shrink-0"
+                    className="mx-6 sm:mx-8 md:mx-10 text-[#facc15]/30 font-black text-sm select-none shrink-0"
                     aria-hidden="true"
                   >
                     •
