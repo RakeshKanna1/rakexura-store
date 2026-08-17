@@ -179,12 +179,20 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                             </p>
                             <div className="mt-3.5 sm:mt-6 flex items-center gap-2 sm:gap-3 overflow-x-auto hide-scrollbar whitespace-nowrap">
                               {game.preorder ? (
-                                <Link href={gameUrl(game)} className="magnetic-button inline-flex h-10 sm:min-h-12 items-center gap-1.5 sm:gap-2 rounded-md bg-[#facc15] px-4 sm:px-6 text-xs sm:text-sm font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] shrink-0">
-                                  Pre-order <ArrowRight size={15} className="shrink-0" />
+                                <Link 
+                                  href={gameUrl(game)} 
+                                  className="magnetic-button inline-flex h-10 sm:min-h-12 items-center gap-1.5 sm:gap-2 rounded-md bg-[#facc15] px-4 sm:px-6 text-xs sm:text-sm font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] shrink-0 tracking-tight"
+                                >
+                                  <span>Pre-order</span>
+                                  <ArrowRight size={15} className="shrink-0" />
                                 </Link>
                               ) : (
-                                <Link href={gameUrl(game)} className="magnetic-button inline-flex h-10 sm:min-h-12 items-center gap-1.5 sm:gap-2 rounded-md bg-[#facc15] px-4 sm:px-6 text-xs sm:text-sm font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] shrink-0">
-                                  View game <ArrowRight size={15} className="shrink-0" />
+                                <Link 
+                                  href={gameUrl(game)} 
+                                  className="magnetic-button inline-flex h-10 sm:min-h-12 items-center gap-1.5 sm:gap-2 rounded-md bg-[#facc15] px-4 sm:px-6 text-xs sm:text-sm font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] shrink-0 tracking-tight"
+                                >
+                                  <span>View game</span>
+                                  <ArrowRight size={15} className="shrink-0" />
                                 </Link>
                               )}
                               {game.trailer_url ? (
@@ -192,20 +200,22 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                                   suppressHydrationWarning={true}
                                   type="button"
                                   onClick={(e) => handlePlayTrailer(game, e)}
-                                  className="inline-flex h-10 sm:min-h-12 items-center gap-1.5 sm:gap-2 rounded-md border border-white/15 bg-black/65 px-3.5 sm:px-5 text-xs sm:text-sm font-black backdrop-blur hover:bg-black/85 hover:border-[#facc15]/50 transition-all cursor-pointer text-white shrink-0"
+                                  className="inline-flex h-10 sm:min-h-12 items-center gap-1.5 sm:gap-2 rounded-md border border-white/15 bg-black/65 px-3.5 sm:px-5 text-xs sm:text-sm font-black backdrop-blur hover:bg-black/85 hover:border-[#facc15]/50 transition-all cursor-pointer text-white shrink-0 tracking-tight"
                                 >
-                                  <Play size={14} fill="currentColor" className="text-[#facc15] shrink-0" /> Trailer
+                                  <Play size={14} fill="currentColor" className="text-[#facc15] shrink-0" />
+                                  <span>Trailer</span>
                                 </button>
                               ) : (
                                 <Link
                                   href={gameUrl(game)}
-                                  className="inline-flex h-10 sm:min-h-12 items-center gap-1.5 sm:gap-2 rounded-md border border-white/15 bg-black/65 px-3.5 sm:px-5 text-xs sm:text-sm font-black backdrop-blur hover:bg-black/85 transition-all text-white shrink-0"
+                                  className="inline-flex h-10 sm:min-h-12 items-center gap-1.5 sm:gap-2 rounded-md border border-white/15 bg-black/65 px-3.5 sm:px-5 text-xs sm:text-sm font-black backdrop-blur hover:bg-black/85 transition-all text-white shrink-0 tracking-tight"
                                 >
-                                  <Play size={14} fill="currentColor" className="shrink-0" /> Trailer
+                                  <Play size={14} fill="currentColor" className="shrink-0" />
+                                  <span>Trailer</span>
                                 </Link>
                               )}
-                              <span className="inline-flex h-10 sm:min-h-12 items-center rounded-md border border-white/10 bg-black/65 px-3.5 sm:px-5 text-xs sm:text-sm font-black text-[#facc15] backdrop-blur shrink-0">
-                                From {formatPrice(lowestPrice(game))}
+                              <span className="inline-flex h-10 sm:min-h-12 items-center rounded-md border border-white/10 bg-black/65 px-3.5 sm:px-5 text-xs sm:text-sm font-black text-[#facc15] backdrop-blur shrink-0 tracking-tight">
+                                <span>From {formatPrice(lowestPrice(game))}</span>
                               </span>
                             </div>
                           </motion.div>
