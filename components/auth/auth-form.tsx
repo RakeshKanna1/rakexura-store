@@ -271,20 +271,17 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
 
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
-                      Email Address (@gmail.com)
+                      Email Address
                     </label>
                     <input 
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@gmail.com"
+                      placeholder="you@example.com"
                       autoComplete="email"
                       className="h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
                     />
-                    <p className="mt-1 text-[11px] text-[#8991a6]">
-                      Must be a valid <strong>@gmail.com</strong> address to receive your 6-digit OTP.
-                    </p>
                   </div>
 
                   <div>
