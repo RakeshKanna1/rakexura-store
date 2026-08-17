@@ -2,13 +2,12 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Play, Pause, RotateCcw, CheckCircle2, AlertCircle, Copy, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import styles from "@/components/auth/animated-otp.module.css";
 import { toast } from "sonner";
 
 export default function OtpPreviewPage() {
   const [mounted, setMounted] = useState(false);
-  const [autoDemo, setAutoDemo] = useState(true);
   const [userActive, setUserActive] = useState(false);
   const [statusText, setStatusText] = useState("Enter the 6-digit code");
   const [statusType, setStatusType] = useState<"" | "ok" | "err">("");
@@ -139,12 +138,12 @@ export default function OtpPreviewPage() {
       prevNowRef.current = p;
 
       if (userActive) {
-        if (autoDemo && p - lastInteractRef.current > RESUME_MS) {
+        if (p - lastInteractRef.current > RESUME_MS) {
           setUserActive(false);
           cycleRef.current++;
           buildScript();
         }
-      } else if (autoDemo) {
+      } else {
         timelineRef.current += dt;
         while (sIdxRef.current < scriptRef.current.length && scriptRef.current[sIdxRef.current].t <= timelineRef.current) {
           const step = scriptRef.current[sIdxRef.current++];
@@ -168,7 +167,7 @@ export default function OtpPreviewPage() {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       if (wrongTimerRef.current) clearTimeout(wrongTimerRef.current);
     };
-  }, [autoDemo, userActive, mounted]);
+  }, [userActive, mounted]);
 
   // Real user interaction helpers
   const goUser = (reset = false) => {
@@ -293,21 +292,6 @@ export default function OtpPreviewPage() {
     }
   };
 
-  const fillTestCode = (code: string) => {
-    goUser(true);
-    const split = code.split("");
-    setDigits(split);
-    inputsRef.current[5]?.focus();
-    handleVerify(code);
-  };
-
-  const resetAll = () => {
-    setUserActive(false);
-    cycleRef.current = 0;
-    buildScript();
-    toast.info("Demo animation reset to beginning");
-  };
-
   return (
     <div className="min-h-screen bg-[#07080b] text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
       {/* Ambient background glows */}
@@ -419,71 +403,6 @@ export default function OtpPreviewPage() {
               Tip: <strong className="text-white font-mono">204815</strong> verifies, any other code fails. Paste fills every box.
             </p>
           </form>
-        </div>
-      </div>
-
-      {/* Interactive Control Dashboard */}
-      <div className="w-full max-w-md mt-6 rounded-xl border border-white/5 bg-white/[0.02] p-4 text-xs space-y-3 z-10">
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-[#8991a6] uppercase tracking-wider text-[10px]">
-            Preview Controls
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              suppressHydrationWarning
-              onClick={() => setAutoDemo(!autoDemo)}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-semibold transition ${
-                autoDemo
-                  ? "bg-[#25d366]/15 text-[#25d366] border border-[#25d366]/30"
-                  : "bg-white/5 text-[#8991a6] border border-white/10"
-              }`}
-            >
-              {autoDemo ? <Play size={11} /> : <Pause size={11} />}
-              <span>{autoDemo ? "Self-Demo: Active" : "Self-Demo: Paused"}</span>
-            </button>
-            <button
-              suppressHydrationWarning
-              onClick={resetAll}
-              className="p-1 text-[#8991a6] hover:text-white hover:bg-white/10 rounded transition"
-              title="Reset Animation"
-            >
-              <RotateCcw size={13} />
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 pt-1">
-          <button
-            suppressHydrationWarning
-            onClick={() => fillTestCode(CODE_OK)}
-            className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-[#25d366]/10 hover:bg-[#25d366]/20 text-[#25d366] border border-[#25d366]/30 font-bold transition cursor-pointer"
-          >
-            <CheckCircle2 size={14} />
-            <span>Test Success ({CODE_OK})</span>
-          </button>
-          <button
-            suppressHydrationWarning
-            onClick={() => fillTestCode(CODE_NO)}
-            className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-[#ff636e]/10 hover:bg-[#ff636e]/20 text-[#ff636e] border border-[#ff636e]/30 font-bold transition cursor-pointer"
-          >
-            <AlertCircle size={14} />
-            <span>Test Error Shake ({CODE_NO})</span>
-          </button>
-        </div>
-
-        <div className="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] text-[#727a90]">
-          <span>Interactive state: <strong className="text-white">{userActive ? "User typing" : "Auto loop"}</strong></span>
-          <button
-            suppressHydrationWarning
-            onClick={() => {
-              navigator.clipboard.writeText("204815");
-              toast.success("Copied 204815! Press Ctrl+V on any box to test paste.");
-            }}
-            className="inline-flex items-center gap-1 text-[#facc15] hover:underline cursor-pointer"
-          >
-            <Copy size={11} />
-            <span>Copy 204815</span>
-          </button>
         </div>
       </div>
     </div>

@@ -1,18 +1,24 @@
 .foc-root {
-  --foc-blue: 74, 157, 253;
-  --foc-green: 74, 214, 142;
-  --foc-red: 255, 99, 110;
-  --foc-fg: 238, 242, 249;
+  --foc-gold: 250, 204, 21;
+  --foc-blue: 250, 204, 21;
+  --foc-purple: 139, 92, 246;
+  --foc-green: 37, 211, 102;
+  --foc-red: 255, 71, 87;
+  --foc-fg: 243, 244, 246;
   --foc-ease: cubic-bezier(0.2, 0.85, 0.25, 1);
   box-sizing: border-box;
   font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
-  color: rgba(var(--foc-fg), 0.92);
+  color: rgba(var(--foc-fg), 0.95);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 22px;
-  width: min(400px, 92vw);
-  padding: 8px;
+  width: min(420px, 92vw);
+  padding: 24px 20px;
+  background: radial-gradient(circle at top, rgba(250, 204, 21, 0.06), transparent 70%), #0d0b1a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -30,24 +36,25 @@
 }
 .foc-eyebrow {
   font-size: 11px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  font-weight: 650;
-  color: rgba(var(--foc-fg), 0.5);
+  font-weight: 750;
+  color: #facc15;
+  text-shadow: 0 0 12px rgba(250, 204, 21, 0.35);
 }
 .foc-title {
   margin: 0;
-  font-size: 19px;
-  font-weight: 640;
-  letter-spacing: -0.012em;
-  color: rgba(var(--foc-fg), 0.96);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: #ffffff;
 }
 .foc-sub {
   margin: 0;
-  max-width: 284px;
+  max-width: 300px;
   font-size: 13px;
   line-height: 1.45;
-  color: rgba(var(--foc-fg), 0.6);
+  color: #8f96a8;
 }
 
 /* form */
@@ -55,7 +62,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
+  width: 100%;
   margin: 0;
 }
 
@@ -69,10 +77,10 @@
   padding: 8px 4px;
 }
 .foc-divider {
-  width: 12px;
+  width: 10px;
   height: 2px;
   border-radius: 2px;
-  background: rgba(var(--foc-fg), 0.2);
+  background: rgba(250, 204, 21, 0.35);
   flex: 0 0 auto;
 }
 
@@ -82,10 +90,10 @@
   width: 50px;
   height: 62px;
   flex: 0 0 auto;
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.018));
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 7px 18px rgba(0, 0, 0, 0.3);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 7px 18px rgba(0, 0, 0, 0.35);
   transition:
     border-color 0.28s var(--foc-ease),
     transform 0.34s var(--foc-ease),
@@ -107,17 +115,17 @@
   text-align: center;
   font-family: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
   font-size: 26px;
-  font-weight: 600;
-  color: rgba(var(--foc-fg), 0.96);
-  caret-color: rgb(var(--foc-blue));
-  border-radius: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  caret-color: #facc15;
+  border-radius: 14px;
   transition: color 0.22s var(--foc-ease);
 }
 .foc-input::selection {
-  background: rgba(var(--foc-blue), 0.35);
+  background: rgba(250, 204, 21, 0.35);
 }
 
-/* custom caret (idle demo only, real caret takes over on focus) */
+/* custom caret */
 .foc-caret {
   position: absolute;
   left: 50%;
@@ -126,7 +134,8 @@
   height: 26px;
   margin: -13px 0 0 -1px;
   border-radius: 2px;
-  background: rgb(var(--foc-blue));
+  background: #facc15;
+  box-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
   opacity: 0;
   z-index: 1;
   pointer-events: none;
@@ -138,26 +147,26 @@
 
 /* filled */
 .foc-box--filled {
-  border-color: rgba(255, 255, 255, 0.17);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.028));
+  border-color: rgba(250, 204, 21, 0.3);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(250, 204, 21, 0.02));
 }
 
 /* active + real focus */
 .foc-box--active,
 .foc-box:focus-within {
-  border-color: rgba(var(--foc-blue), 0.78);
+  border-color: rgba(250, 204, 21, 0.85);
   transform: translateY(-2px);
-  background: linear-gradient(180deg, rgba(var(--foc-blue), 0.15), rgba(var(--foc-blue), 0.03));
+  background: linear-gradient(180deg, rgba(250, 204, 21, 0.12), rgba(250, 204, 21, 0.02));
   box-shadow:
-    0 0 0 1px rgba(var(--foc-blue), 0.45),
-    0 0 24px rgba(var(--foc-blue), 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    0 0 0 1px rgba(250, 204, 21, 0.45),
+    0 0 24px rgba(250, 204, 21, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 .foc-box:has(.foc-input:focus-visible) {
   box-shadow:
-    0 0 0 2px rgba(var(--foc-blue), 0.95),
-    0 0 28px rgba(var(--foc-blue), 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    0 0 0 2px rgba(250, 204, 21, 0.95),
+    0 0 28px rgba(250, 204, 21, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 /* check */
@@ -185,9 +194,9 @@
 
 /* success state */
 .foc-success .foc-box {
-  border-color: rgba(var(--foc-green), 0.52);
-  background: linear-gradient(180deg, rgba(var(--foc-green), 0.13), rgba(var(--foc-green), 0.03));
-  box-shadow: 0 0 0 1px rgba(var(--foc-green), 0.28), 0 8px 20px rgba(0, 0, 0, 0.3);
+  border-color: rgba(var(--foc-green), 0.6);
+  background: linear-gradient(180deg, rgba(var(--foc-green), 0.16), rgba(var(--foc-green), 0.04));
+  box-shadow: 0 0 0 1px rgba(var(--foc-green), 0.35), 0 8px 22px rgba(0, 0, 0, 0.35);
   transition-delay: calc(var(--foc-i, 0) * 70ms);
 }
 .foc-success .foc-input {
@@ -207,17 +216,17 @@
   transition-delay: calc(var(--foc-i, 0) * 70ms + 60ms);
 }
 
-/* success halo (fades to alpha 0, no hard box) */
+/* success halo */
 .foc-boxes::after {
   content: "";
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 300px;
-  height: 150px;
+  width: 320px;
+  height: 160px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(var(--foc-green), 0.2), rgba(var(--foc-green), 0));
+  background: radial-gradient(closest-side, rgba(var(--foc-green), 0.22), rgba(var(--foc-green), 0));
   opacity: 0;
   pointer-events: none;
   z-index: 0;
@@ -236,21 +245,21 @@
   height: 56px;
   margin: -28px 0 0 -28px;
   border-radius: 50%;
-  border: 2px solid rgba(var(--foc-green), 0.55);
+  border: 2px solid rgba(var(--foc-green), 0.6);
   opacity: 0;
   transform: scale(0.3);
   pointer-events: none;
   z-index: 0;
 }
 .foc-ripple--blue {
-  border-color: rgba(var(--foc-blue), 0.42);
+  border-color: rgba(var(--foc-gold), 0.45);
 }
 
 /* wrong / shake */
 .foc-shake .foc-box {
-  border-color: rgba(var(--foc-red), 0.62);
-  background: linear-gradient(180deg, rgba(var(--foc-red), 0.13), rgba(var(--foc-red), 0.03));
-  box-shadow: 0 0 0 1px rgba(var(--foc-red), 0.3), 0 7px 18px rgba(0, 0, 0, 0.3);
+  border-color: rgba(var(--foc-red), 0.7);
+  background: linear-gradient(180deg, rgba(var(--foc-red), 0.16), rgba(var(--foc-red), 0.04));
+  box-shadow: 0 0 0 1px rgba(var(--foc-red), 0.35), 0 7px 18px rgba(0, 0, 0, 0.35);
 }
 .foc-shake .foc-input {
   color: rgb(var(--foc-red));
@@ -263,14 +272,14 @@
   gap: 8px;
   font-size: 12.5px;
   font-weight: 500;
-  color: rgba(var(--foc-fg), 0.62);
+  color: #8f96a8;
   transition: color 0.3s var(--foc-ease);
 }
 .foc-status-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: rgba(var(--foc-fg), 0.38);
+  background: rgba(255, 255, 255, 0.3);
   transition:
     background 0.3s var(--foc-ease),
     box-shadow 0.3s var(--foc-ease);
@@ -293,7 +302,7 @@
 .foc-hint {
   margin: 0;
   font-size: 11px;
-  color: rgba(var(--foc-fg), 0.48);
+  color: #6b7280;
 }
 
 @keyframes foc-blink {
@@ -316,15 +325,15 @@
     0%,
     100% {
       box-shadow:
-        0 0 0 1px rgba(var(--foc-blue), 0.42),
-        0 0 20px rgba(var(--foc-blue), 0.26),
-        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        0 0 0 1px rgba(var(--foc-gold), 0.4),
+        0 0 20px rgba(var(--foc-gold), 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
     50% {
       box-shadow:
-        0 0 0 1px rgba(var(--foc-blue), 0.6),
-        0 0 34px rgba(var(--foc-blue), 0.48),
-        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        0 0 0 1px rgba(var(--foc-gold), 0.65),
+        0 0 34px rgba(var(--foc-gold), 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
   }
 
@@ -423,7 +432,7 @@
   }
 }
 
-/* ---------- REDUCED MOTION (calm, still, premium) ---------- */
+/* ---------- REDUCED MOTION ---------- */
 @media (prefers-reduced-motion: reduce) {
   .foc-box,
   .foc-check,
