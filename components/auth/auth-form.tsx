@@ -269,7 +269,11 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
 
     if (existingEmail) {
       setOtpLoading(false);
-      return toast.error("An account with this email already exists. Please sign in instead.");
+      toast.info("An account with this email already exists! Redirecting to Sign In...");
+      setTimeout(() => {
+        router.push(`/login?next=${encodeURIComponent(next)}`);
+      }, 900);
+      return;
     }
 
     // 2. Pre-check if Gamer Tag is already taken
@@ -301,15 +305,26 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     });
 
     if (signUpError) {
-      // If user already registered, provide friendly notice
       setOtpLoading(false);
-      return toast.error(friendlyAuthError(signUpError));
+      const msg = friendlyAuthError(signUpError);
+      if (msg.toLowerCase().includes("already") || msg.toLowerCase().includes("exist")) {
+        toast.info("An account with this email already exists! Redirecting to Sign In...");
+        setTimeout(() => {
+          router.push(`/login?next=${encodeURIComponent(next)}`);
+        }, 900);
+        return;
+      }
+      return toast.error(msg);
     }
 
     // If Supabase returns user with empty identities (email enumeration protection indicator for existing user)
     if (signUpData?.user?.identities && signUpData.user.identities.length === 0) {
       setOtpLoading(false);
-      return toast.error("An account with this email already exists. Please sign in instead.");
+      toast.info("An account with this email already exists! Redirecting to Sign In...");
+      setTimeout(() => {
+        router.push(`/login?next=${encodeURIComponent(next)}`);
+      }, 900);
+      return;
     }
 
     // Save WhatsApp number locally
