@@ -153,18 +153,18 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                           {mounted && !isMobile && loadVideo && active === index && game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i) && (
                             <video src={game.trailer_url} autoPlay muted loop playsInline className="hero-media absolute inset-0 h-full w-full object-cover z-0" />
                           )}
-                          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,11,.97)_0%,rgba(3,5,11,.68)_38%,rgba(3,5,11,.08)_78%),linear-gradient(0deg,rgba(3,5,11,.8),transparent_50%)]" />
+                          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,11,.97)_0%,rgba(3,5,11,.68)_38%,rgba(3,5,11,.08)_78%),linear-gradient(0deg,rgba(3,5,11,.92)_0%,rgba(3,5,11,.65)_40%,transparent_75%)]" />
                           <motion.div 
                             key={`${active}-${game.id}`} 
                             initial={{ opacity: 0, y: 24 }} 
                             animate={active === index ? { opacity: 1, y: 0 } : { opacity: .75, y: 12 }} 
                             transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} 
-                            className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-5 pb-16 pt-8 md:pb-20 md:pt-14 md:px-14"
+                            className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-4 pb-14 pt-6 sm:p-6 sm:pb-16 md:pb-20 md:pt-14 md:px-14"
                           >
-                            <p className="eyebrow mb-4">
+                            <p className="eyebrow mb-1.5 sm:mb-3">
                               {game.preorder ? "Pre-order spotlight" : "Rakexura spotlight"}
                             </p>
-                            <h3 className="text-2xl font-black md:text-5xl lg:text-[64px] tracking-tight leading-[1.05]">
+                            <h3 className="text-2xl font-black sm:text-4xl md:text-5xl lg:text-[64px] tracking-tight leading-[1.08] drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
                               <BlurText 
                                 key={`${game.id}-${active === index}`}
                                 text={game.title} 
@@ -174,33 +174,39 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                                 stepDuration={0.3} 
                               />
                             </h3>
-                            <p className="mt-6 max-w-xl text-base leading-7 text-[#d4d8e4] md:text-lg">{game.tagline || game.description || "A standout PC experience, ready for your library."}</p>
-                            <div className="mt-7 flex flex-wrap items-center gap-3">
+                            <p className="mt-2 sm:mt-4 max-w-xl text-xs sm:text-base md:text-lg leading-relaxed text-[#d4d8e4] line-clamp-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                              {game.tagline || game.description || "A standout PC experience, ready for your library."}
+                            </p>
+                            <div className="mt-3.5 sm:mt-6 flex flex-wrap items-center gap-2 sm:gap-3">
                               {game.preorder ? (
-                                <Link href={gameUrl(game)} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">
-                                  Pre-order now <ArrowRight size={17} />
+                                <Link href={gameUrl(game)} className="magnetic-button inline-flex h-10 sm:min-h-12 items-center gap-1.5 sm:gap-2 rounded-md bg-[#facc15] px-4 sm:px-6 text-xs sm:text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">
+                                  Pre-order now <ArrowRight size={15} />
                                 </Link>
                               ) : (
-                                <Link href={gameUrl(game)} className="magnetic-button inline-flex min-h-12 items-center gap-2 rounded-md bg-[#facc15] px-6 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">View game <ArrowRight size={17} /></Link>
+                                <Link href={gameUrl(game)} className="magnetic-button inline-flex h-10 sm:min-h-12 items-center gap-1.5 sm:gap-2 rounded-md bg-[#facc15] px-4 sm:px-6 text-xs sm:text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c]">
+                                  View game <ArrowRight size={15} />
+                                </Link>
                               )}
                               {game.trailer_url ? (
                                 <button
                                   suppressHydrationWarning={true}
                                   type="button"
                                   onClick={(e) => handlePlayTrailer(game, e)}
-                                  className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/12 bg-black/40 px-5 text-sm font-semibold backdrop-blur hover:bg-black/60 hover:border-[#facc15]/50 transition-all cursor-pointer"
+                                  className="inline-flex h-10 sm:min-h-12 items-center gap-1.5 sm:gap-2 rounded-md border border-white/15 bg-black/60 px-3.5 sm:px-5 text-xs sm:text-sm font-semibold backdrop-blur hover:bg-black/80 hover:border-[#facc15]/50 transition-all cursor-pointer text-white"
                                 >
-                                  <Play size={16} fill="currentColor" className="text-[#facc15]" /> Trailer
+                                  <Play size={14} fill="currentColor" className="text-[#facc15]" /> Trailer
                                 </button>
                               ) : (
                                 <Link
                                   href={gameUrl(game)}
-                                  className="inline-flex min-h-12 items-center gap-2 rounded-md border border-white/12 bg-black/40 px-5 text-sm font-semibold backdrop-blur hover:bg-black/60 transition-all"
+                                  className="inline-flex h-10 sm:min-h-12 items-center gap-1.5 sm:gap-2 rounded-md border border-white/15 bg-black/60 px-3.5 sm:px-5 text-xs sm:text-sm font-semibold backdrop-blur hover:bg-black/80 transition-all text-white"
                                 >
-                                  <Play size={16} fill="currentColor" /> Trailer
+                                  <Play size={14} fill="currentColor" /> Trailer
                                 </Link>
                               )}
-                              <span className="rounded-md bg-black/45 px-4 py-3 text-sm font-semibold backdrop-blur">From {formatPrice(lowestPrice(game))}</span>
+                              <span className="inline-flex h-10 sm:min-h-12 items-center rounded-md border border-white/10 bg-black/60 px-3 sm:px-4 text-xs sm:text-sm font-bold text-[#facc15] backdrop-blur">
+                                From {formatPrice(lowestPrice(game))}
+                              </span>
                             </div>
                           </motion.div>
                         </>
