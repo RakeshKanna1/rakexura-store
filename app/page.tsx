@@ -16,6 +16,7 @@ import { RecentlyViewedShelf } from "@/components/store/recently-viewed";
 import { TrustStats } from "@/components/store/trust-stats";
 import { WhatsAppCommunity } from "@/components/store/whatsapp-community";
 import { WhatsAppCta } from "@/components/store/whatsapp-cta";
+import { ComboDealsBanner } from "@/components/layout/combo-deals-banner";
 import { getBundles, getCustomerProofs, getFlashSales, getGames, getRecentDeliveries, getReviews } from "@/lib/supabase/queries";
 import { lowestPrice } from "@/lib/utils";
 
@@ -39,6 +40,7 @@ export default async function Home() {
 
   return <>
     <OfferMarquee />
+    <ComboDealsBanner />
     <div className="crystal-grid-bg bg-black overflow-hidden pb-12 relative">
       {/* Subtle brand color gradient glows to match logo signature colors */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(139,92,246,0.015),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(250,204,21,0.005),transparent_50%)]" />
@@ -46,7 +48,7 @@ export default async function Home() {
       {/* Dynamic Animated Sparkles, Shimmering Diamonds & Fireflies Canvas */}
       <FireflyCanvas />
 
-      <div className="shell pt-5 md:pt-8">
+      <div className="shell pt-6 sm:pt-7 md:pt-9">
         <HeroCarousel games={heroGames} />
         <LiveDeliveryTicker deliveries={deliveries} />
         <WhatsAppCommunity />

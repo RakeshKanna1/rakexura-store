@@ -16,7 +16,6 @@ import { MobilePromptManager } from "@/components/layout/mobile-prompt-manager";
 import { VisitorTracker } from "@/components/common/visitor-tracker";
 import { FlyToCartAnimator } from "@/components/common/fly-to-cart-animator";
 import { WhatsAppFloat } from "@/components/common/whatsapp-float";
-import { ComboDealsBanner } from "@/components/layout/combo-deals-banner";
 import "./globals.css";
 
 const geist = Geist({
@@ -57,7 +56,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <MouseSpotlight />
           <CartDrawer />
           <Header />
-          <ComboDealsBanner />
           <main><BackButton />{children}</main>
           <Footer />
           <WhatsAppOnboardingModal />

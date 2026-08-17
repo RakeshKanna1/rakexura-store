@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowRight, Bell, Gamepad2, Gift, Heart, LifeBuoy, PackageSearch, Send, Settings, ShieldCheck, ShoppingBag, TicketPercent, UserRound } from "lucide-react";
@@ -36,7 +37,7 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
   const [{ data: profile }, { data: orders, count: totalOrdersCount }, { data: rewards }, { data: notifications }, { count: libraryCount }, { count: referralCount }, { data: latestTicket }, { count: purchasedLibraryCount }] = await Promise.all([
-    supabase.from("profiles").select("display_name,role,last_request_date").eq("id", user.id).maybeSingle(),
+    supabase.from("profiles").select("display_name,role,avatar_url,last_request_date").eq("id", user.id).maybeSingle(),
     supabase.from("orders").select("id,order_reference,order_status,total_price,created_at,cart_items,payment_reference,coupon_usage(coupons(code))", { count: "exact" }).eq("user_id", user.id).order("created_at", { ascending: false }).limit(5),
     supabase.from("user_rewards").select("points,level").eq("user_id", user.id).maybeSingle(),
     supabase.from("notifications").select("id,title,message").eq("user_id", user.id).eq("read", false),
@@ -75,7 +76,9 @@ export default async function DashboardPage() {
     { label: "Level", value: currentLevel, icon: TicketPercent, color: "text-[#facc15] filter drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]", hover: "hover:border-[#facc15]/25 hover:shadow-[0_12px_28px_rgba(250,204,21,0.05)]" }
   ];
 
-  const name = profile?.display_name || user.user_metadata.full_name || "Player";
+  const name = profile?.display_name || user.user_metadata.display_name || user.user_metadata.full_name || user.email?.split("@")[0] || "Player";
+  const avatarUrl = profile?.avatar_url || user.user_metadata.avatar_url;
+
   const visibleQuickActions = profile?.role === "admin"
     ? [
         ...quickActions,
@@ -87,7 +90,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="page-shell py-8 sm:py-10">
-      {/* Profile Header Wrapper with gold gradients */}
+      {/* Profile Header Wrapper with purple/violet gradients */}
       <header className="relative overflow-hidden rounded-2xl border border-[#8b5cf6]/25 bg-[#0e0a1f]/85 p-6 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl">
 
         <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
@@ -98,12 +101,16 @@ export default async function DashboardPage() {
           </div>
           
           <div className="flex items-center gap-3.5 rounded-xl border border-white/[0.08] bg-[#070912]/80 p-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] hover:border-[#b9a4ff]/20 transition-all duration-300">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-[#8b5cf6]/5 border border-[#8b5cf6]/15 text-[#b9a4ff] shadow-[0_0_10px_rgba(139,92,246,0.15)]">
-              <UserRound size={20} />
+            <span className="relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-lg bg-[#8b5cf6]/5 border border-[#8b5cf6]/15 text-[#b9a4ff] shadow-[0_0_10px_rgba(139,92,246,0.15)] font-black text-sm">
+              {avatarUrl ? (
+                <Image src={avatarUrl} alt="Profile picture" fill sizes="44px" className="object-cover" unoptimized />
+              ) : (
+                <UserRound size={20} />
+              )}
             </span>
             <div className="min-w-0">
               <strong className="block truncate text-xs font-black text-white">{user.email}</strong>
-              <Link href="/dashboard/settings" className="mt-1.5 inline-flex items-center gap-1.5 text-xs font-black text-[#b9a4ff] hover:text-[#d2c7ff] transition-colors">
+              <Link href="/dashboard/settings" className="mt-1.5 inline-flex items-center gap-1.5 text-xs font-black text-[#b9a4ff] hover:text-[#d2c7ff] transition-colors cursor-pointer">
                 <Settings size={12} /> Account settings
               </Link>
             </div>

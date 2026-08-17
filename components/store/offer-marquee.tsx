@@ -74,22 +74,28 @@ export async function OfferMarquee() {
 
   return (
     <aside
-      className="offer-marquee relative flex h-9 sm:h-10 w-full items-center overflow-hidden border-y border-white/[0.08] bg-[#080806] select-none"
+      className="offer-marquee relative flex h-9 sm:h-9.5 md:h-10 w-full items-center overflow-hidden border-y border-white/[0.07] bg-[#120f06] select-none mt-2.5 sm:mt-3 shadow-[inset_0_1px_16px_rgba(250,204,21,0.12),inset_0_-1px_12px_rgba(250,204,21,0.06)]"
       aria-label="Store announcements and offers"
     >
-      {/* Subtle, soft warm gold ambient center wash */}
+      {/* Rich Internal Warm Gold Ambient Glow & Shimmer Wash */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.03)_0%,transparent_75%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(250,204,21,0.14)_0%,rgba(250,204,21,0.04)_55%,transparent_85%)]"
         aria-hidden="true"
       />
 
-      {/* Precision Left and Right Fade Masks */}
+      {/* Internal Gold Horizon Light Beam */}
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 sm:w-28 bg-gradient-to-r from-[#080806] via-[#080806]/90 to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-[60%] bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.09)_0%,transparent_70%)]"
+        aria-hidden="true"
+      />
+
+      {/* Precision Left and Right Fade Masks matching gold background */}
+      <div
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 sm:w-28 bg-gradient-to-r from-[#120f06] via-[#120f06]/95 to-transparent"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 sm:w-28 bg-gradient-to-l from-[#080806] via-[#080806]/90 to-transparent"
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 sm:w-28 bg-gradient-to-l from-[#120f06] via-[#120f06]/95 to-transparent"
         aria-hidden="true"
       />
 
@@ -102,23 +108,23 @@ export async function OfferMarquee() {
               const isWhatsApp = item.icon_key === "message" || item.message.toUpperCase().includes("WHATSAPP");
 
               const content = (
-                <span className="inline-flex items-center gap-2 sm:gap-2.5 text-[11px] sm:text-xs md:text-[12.5px] font-bold uppercase tracking-[0.05em] text-zinc-200 transition-colors duration-150">
-                  {/* Refined LIVE Badge with gently pulsing status dot */}
+                <span className="inline-flex items-center gap-2 sm:gap-2.5 text-[11.5px] sm:text-xs md:text-[12.5px] font-bold uppercase tracking-[0.05em] text-zinc-200 transition-colors duration-150">
+                  {/* Refined LIVE Badge with gently pulsing gold dot */}
                   {isWhatsApp && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 text-[9px] font-black text-[#facc15] tracking-widest shrink-0">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#facc15]/15 border border-[#facc15]/40 px-2 py-0.5 text-[9px] font-black text-[#facc15] tracking-widest shadow-[0_0_8px_rgba(250,204,21,0.2)] shrink-0">
                       <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#facc15] opacity-60" />
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#facc15] opacity-75" />
                         <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#facc15]" />
                       </span>
                       LIVE
                     </span>
                   )}
 
-                  {/* Static, sharp Icon */}
-                  <Icon size={13} className="text-[#facc15] shrink-0" aria-hidden="true" />
+                  {/* Static, sharp Icon with subtle gold luster */}
+                  <Icon size={13} className="text-[#facc15] filter drop-shadow-[0_0_6px_rgba(250,204,21,0.4)] shrink-0" aria-hidden="true" />
 
                   {/* Clean announcement text with selective gold highlights */}
-                  <span className="text-zinc-100">
+                  <span className="text-zinc-100 font-bold">
                     {renderHighlightedMessage(item.message)}
                   </span>
                 </span>
@@ -143,9 +149,9 @@ export async function OfferMarquee() {
                     content
                   )}
 
-                  {/* Single, consistent clean bullet separator */}
+                  {/* Gold star bullet separator */}
                   <span
-                    className="mx-6 sm:mx-8 md:mx-10 text-[#facc15]/30 font-black text-sm select-none shrink-0"
+                    className="mx-6 sm:mx-8 md:mx-10 text-[#facc15]/50 drop-shadow-[0_0_5px_rgba(250,204,21,0.3)] font-black text-sm select-none shrink-0"
                     aria-hidden="true"
                   >
                     •
