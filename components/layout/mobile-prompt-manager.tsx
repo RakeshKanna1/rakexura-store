@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { Bell, LogIn, X, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -19,12 +19,28 @@ function urlBase64ToUint8Array(base64String: string) {
 
 export function MobilePromptManager() {
   const router = useRouter();
+  const pathname = usePathname();
   const [showPrompt, setShowPrompt] = useState<"login" | "push" | null>(null);
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    // Suppress prompts on auth/admin pages
+    const isAuthPage =
+      pathname.startsWith("/login") ||
+      pathname.startsWith("/register") ||
+      pathname.startsWith("/signup") ||
+      pathname.startsWith("/auth") ||
+      pathname.startsWith("/forgot-password") ||
+      pathname.startsWith("/reset-password") ||
+      pathname.startsWith("/admin");
+
+    if (isAuthPage) {
+      setShowPrompt(null);
+      return;
+    }
 
     const timer = setTimeout(async () => {
       try {
@@ -60,7 +76,7 @@ export function MobilePromptManager() {
     }, 5000); // 5 seconds delay
 
     return () => clearTimeout(timer);
-  }, [supabase]);
+  }, [supabase, pathname]);
 
   useEffect(() => {
     const pushTimer = setTimeout(async () => {
