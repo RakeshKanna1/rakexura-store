@@ -259,7 +259,33 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     setOtpLoading(true);
     const supabase = createClient();
 
-    // 1. Initiate Supabase signUp with the chosen password, display name, and WhatsApp phone
+    // 1. Pre-check if email already exists in profiles
+    const { data: existingEmail } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", trimmedEmail)
+      .limit(1)
+      .maybeSingle();
+
+    if (existingEmail) {
+      setOtpLoading(false);
+      return toast.error("An account with this email already exists. Please sign in instead.");
+    }
+
+    // 2. Pre-check if Gamer Tag is already taken
+    const { data: existingTag } = await supabase
+      .from("profiles")
+      .select("id")
+      .ilike("display_name", trimmedName)
+      .limit(1)
+      .maybeSingle();
+
+    if (existingTag) {
+      setOtpLoading(false);
+      return toast.error("This Gamer Tag is already taken. Please choose a unique tag.");
+    }
+
+    // 3. Initiate Supabase signUp with the chosen password, display name, and WhatsApp phone
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: trimmedEmail,
       password: password,
@@ -278,6 +304,12 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
       // If user already registered, provide friendly notice
       setOtpLoading(false);
       return toast.error(friendlyAuthError(signUpError));
+    }
+
+    // If Supabase returns user with empty identities (email enumeration protection indicator for existing user)
+    if (signUpData?.user?.identities && signUpData.user.identities.length === 0) {
+      setOtpLoading(false);
+      return toast.error("An account with this email already exists. Please sign in instead.");
     }
 
     // Save WhatsApp number locally
