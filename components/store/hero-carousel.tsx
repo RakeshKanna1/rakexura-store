@@ -216,8 +216,8 @@ export function HeroCarousel({ games }: { games: Game[] }) {
           </>
       </div>
 
-      <aside className="featured-now min-w-0 pb-3 sm:pb-0" aria-label="Featured games">
-        <div className="featured-now-heading mb-2.5 sm:mb-3 flex items-center justify-between">
+      <aside className="featured-now min-w-0" aria-label="Featured games">
+        <div className="featured-now-heading mb-3 flex items-center justify-between">
           <strong className="text-sm text-white">Featured now</strong>
           <Link href="/games" className="text-xs text-[#b9a4ff] hover:underline">View all</Link>
         </div>

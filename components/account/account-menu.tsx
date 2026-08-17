@@ -77,15 +77,15 @@ export function AccountMenu() {
     };
   }, [open]);
 
-  if (!ready || !account) return <Link href="/login" className="btn btn-secondary h-9 w-9 min-h-0 sm:h-11 sm:w-auto sm:min-h-11 p-0 sm:px-3 flex items-center justify-center" aria-label="Sign in to your account"><UserRound size={17} /></Link>;
+  if (!ready || !account) return <Link href="/login" className="btn btn-secondary btn-icon" aria-label="Sign in to your account"><UserRound size={19} /></Link>;
 
   const links = [["/dashboard", "Dashboard", LayoutDashboard], ["/dashboard/orders", "My orders", PackageSearch], ["/dashboard/library", "My games", Gamepad2], ["/wishlist", "Wishlist", Heart], ["/dashboard/notifications", "Notifications", Bell], ["/dashboard/settings", "Account settings", Settings]] as const;
   const owner = account.email.toLowerCase() === OWNER_EMAIL;
 
   return <div ref={menuRef} className="relative">
-    <button type="button" onClick={() => setOpen((value) => !value)} className="btn btn-secondary h-9 min-h-0 sm:h-11 sm:min-h-11 px-2 sm:px-3 gap-1.5 sm:gap-2 flex items-center" aria-label="Open profile menu" aria-expanded={open}>
-      <span className="relative grid h-6 w-6 sm:h-7 sm:w-7 shrink-0 place-items-center overflow-hidden rounded-full bg-[#6d4aff]/20 text-[11px] sm:text-xs font-black text-[#d4caff]">{account.avatarUrl ? <Image src={account.avatarUrl} alt="" fill sizes="28px" className="object-cover" unoptimized /> : account.name.slice(0, 1).toUpperCase()}</span>
-      <span className="hidden max-w-24 truncate sm:inline text-xs sm:text-sm">{account.name}</span>
+    <button type="button" onClick={() => setOpen((value) => !value)} className="btn btn-secondary gap-2" aria-label="Open profile menu" aria-expanded={open}>
+      <span className="relative grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-full bg-[#6d4aff]/20 text-xs font-black text-[#d4caff]">{account.avatarUrl ? <Image src={account.avatarUrl} alt="" fill sizes="28px" className="object-cover" unoptimized /> : account.name.slice(0, 1).toUpperCase()}</span>
+      <span className="hidden max-w-24 truncate sm:inline">{account.name}</span>
       <ChevronDown size={14} className={`hidden transition sm:block ${open ? "rotate-180" : ""}`} />
     </button>
     {open && <div className="absolute right-0 top-[calc(100%+10px)] z-50 w-72 overflow-hidden rounded-lg border border-white/10 bg-[#0b0f18]/98 p-2 shadow-2xl backdrop-blur-xl">

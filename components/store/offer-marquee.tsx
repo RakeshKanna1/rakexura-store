@@ -74,7 +74,7 @@ export async function OfferMarquee() {
 
   return (
     <aside
-      className="offer-marquee relative flex h-7 sm:h-8 md:h-9 w-full items-center overflow-hidden border-y border-white/[0.06] bg-[#080806] select-none"
+      className="offer-marquee relative flex h-8 sm:h-9 w-full items-center overflow-hidden border-y border-white/[0.06] bg-[#080806] select-none"
       aria-label="Store announcements and offers"
     >
       {/* Subtle, soft warm gold ambient center wash */}
@@ -85,11 +85,11 @@ export async function OfferMarquee() {
 
       {/* Precision Left and Right Fade Masks */}
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 sm:w-20 md:w-24 bg-gradient-to-r from-[#080806] via-[#080806]/85 to-transparent"
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 sm:w-24 bg-gradient-to-r from-[#080806] via-[#080806]/85 to-transparent"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 sm:w-20 md:w-24 bg-gradient-to-l from-[#080806] via-[#080806]/85 to-transparent"
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 sm:w-24 bg-gradient-to-l from-[#080806] via-[#080806]/85 to-transparent"
         aria-hidden="true"
       />
 
@@ -102,10 +102,10 @@ export async function OfferMarquee() {
               const isWhatsApp = item.icon_key === "message" || item.message.toUpperCase().includes("WHATSAPP");
 
               const content = (
-                <span className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.04em] text-zinc-300 transition-colors duration-150">
+                <span className="inline-flex items-center gap-2 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.05em] text-zinc-300 transition-colors duration-150">
                   {/* Refined LIVE Badge with gently pulsing status dot */}
                   {isWhatsApp && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#facc15]/10 border border-[#facc15]/25 px-1.5 py-0.5 text-[8px] sm:text-[8.5px] font-bold text-[#facc15] tracking-widest shrink-0">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#facc15]/10 border border-[#facc15]/25 px-2 py-0.5 text-[8.5px] font-bold text-[#facc15] tracking-widest shrink-0">
                       <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#facc15] opacity-50" />
                         <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#facc15]" />
@@ -115,7 +115,7 @@ export async function OfferMarquee() {
                   )}
 
                   {/* Static, sharp Icon */}
-                  <Icon size={11} className="text-[#facc15] shrink-0" aria-hidden="true" />
+                  <Icon size={12} className="text-[#facc15] shrink-0" aria-hidden="true" />
 
                   {/* Clean announcement text with selective gold highlights */}
                   <span className="text-zinc-200">
@@ -125,14 +125,17 @@ export async function OfferMarquee() {
               );
 
               return (
-                <div key={`${copyIndex}-${item.id ?? index}`} className="flex items-center">
+                <div
+                  key={`${copyIndex}-${item.id ?? index}-${index}`}
+                  className="flex shrink-0 items-center"
+                >
                   {isWhatsApp ? (
                     <a
-                      href="https://wa.me/918317416695?text=Hi%20Rakexura%20Gaming%20Community"
+                      href="https://wa.me/918317416695?text=Hello%20Rakexura%20Gaming%20Community"
                       target="_blank"
-                      rel="noreferrer"
-                      className="cursor-pointer transition-opacity hover:opacity-90 active:scale-[0.98]"
-                      aria-label="Join Rakexura WhatsApp Community"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center cursor-pointer hover:brightness-125 transition-all duration-150"
+                      aria-label="Join the Rakexura WhatsApp Community"
                     >
                       {content}
                     </a>
@@ -140,8 +143,11 @@ export async function OfferMarquee() {
                     content
                   )}
 
-                  {/* Single Muted Gold Bullet Separator */}
-                  <span className="mx-4 sm:mx-6 md:mx-8 text-[#facc15]/30 font-black text-xs select-none shrink-0" aria-hidden="true">
+                  {/* Single, consistent clean bullet separator */}
+                  <span
+                    className="mx-6 sm:mx-8 md:mx-10 text-[#facc15]/30 font-black text-xs select-none shrink-0"
+                    aria-hidden="true"
+                  >
                     •
                   </span>
                 </div>

@@ -100,8 +100,8 @@ export function PremiumSearch() {
   const shown = query.trim().length >= 2 ? results : suggestions;
   return (
     <div className="relative w-full">
-      <label htmlFor="premium-search-input" className="flex h-9 sm:h-10 md:h-11 w-full items-center gap-2.5 sm:gap-3 rounded-md border border-white/[.09] bg-[#10131b] px-3 sm:px-4 text-xs sm:text-sm shadow-inner transition focus-within:border-[#8b5cf6]/65 focus-within:bg-[#141823] focus-within:shadow-[0_0_0_3px_rgba(139,92,246,.08)]">
-        <Search size={15} className="shrink-0 text-[#9da5b8]" />
+      <label htmlFor="premium-search-input" className="flex h-11 w-full items-center gap-3 rounded-md border border-white/[.09] bg-[#10131b] px-4 text-sm shadow-inner transition focus-within:border-[#8b5cf6]/65 focus-within:bg-[#141823] focus-within:shadow-[0_0_0_3px_rgba(139,92,246,.08)]">
+        <Search size={17} className="shrink-0 text-[#9da5b8]" />
         <span className="sr-only">Search games</span>
         <div className="relative flex-1 min-w-0 h-full flex items-center">
           <input
