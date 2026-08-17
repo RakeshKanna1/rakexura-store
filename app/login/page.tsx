@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Gamepad2, ShieldCheck } from "lucide-react";
 import { AuthForm } from "@/components/auth/auth-form";
+import { ChampagneFizz } from "@/components/animations/champagne-fizz";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Sign In" };
@@ -17,7 +18,9 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   }
 
   return (
-    <div className="page-shell grid min-h-[calc(100vh-140px)] items-center gap-10 py-10 lg:grid-cols-2">
+    <>
+      <ChampagneFizz />
+      <div className="relative z-10 page-shell grid min-h-[calc(100vh-140px)] items-center gap-10 py-10 lg:grid-cols-2">
       <section className="hidden lg:block">
         <Gamepad2 size={42} className="text-[#facc15]" />
         <h1 className="mt-7 max-w-lg text-6xl font-black leading-[1.02]">
@@ -47,5 +50,6 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         </p>
       </section>
     </div>
+    </>
   );
 }
