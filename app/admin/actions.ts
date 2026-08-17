@@ -1630,13 +1630,13 @@ export async function saveBulkFlashSale(formData: FormData) {
   const gameUpdatePromises = [];
 
   for (const game of dbGames) {
-    const origPrice = Number(game.original_price ?? game.sale_price ?? 0);
-    let calculatedSalePrice = origPrice;
+    const basePrice = Number(game.sale_price ?? game.original_price ?? 0);
+    let calculatedSalePrice = basePrice;
 
     if (discountType === "percentage") {
-      calculatedSalePrice = Math.max(1, Math.round(origPrice * (1 - discountValue / 100)));
+      calculatedSalePrice = Math.max(1, Math.round(basePrice * (1 - discountValue / 100)));
     } else if (discountType === "flat") {
-      calculatedSalePrice = Math.max(1, Math.round(origPrice - discountValue));
+      calculatedSalePrice = Math.max(1, Math.round(basePrice - discountValue));
     } else if (discountType === "fixed") {
       calculatedSalePrice = Math.max(1, Math.round(discountValue));
     }

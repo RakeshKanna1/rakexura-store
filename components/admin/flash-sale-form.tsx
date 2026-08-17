@@ -87,9 +87,9 @@ export function FlashSaleForm({
     setBulkEndsAt(new Date(endMs).toISOString().slice(0, 16));
   };
 
-  // Preview price calculator
+  // Preview price calculator based on current active selling price
   const calculatePreviewPrice = (game: FullGameInfo) => {
-    const basePrice = Number(game.original_price ?? game.sale_price ?? 0);
+    const basePrice = Number(game.sale_price ?? game.original_price ?? 0);
     if (basePrice <= 0) return 0;
     if (discountType === "percentage") {
       return Math.max(1, Math.round(basePrice * (1 - discountValue / 100)));
@@ -309,14 +309,16 @@ export function FlashSaleForm({
             </div>
 
             {/* Game List */}
-            <div className="mt-4 max-h-80 overflow-y-auto space-y-1.5 pr-1 rounded-md border border-white/10 bg-black/25 p-2">
+            <div className="mt-4 max-h-[440px] overflow-y-auto overscroll-contain space-y-1.5 pr-1.5 rounded-md border border-white/10 bg-black/25 p-2">
               {filteredGames.length === 0 ? (
                 <p className="py-6 text-center text-xs text-[#8991a8]">No games found matching your search.</p>
               ) : (
                 filteredGames.map((game) => {
                   const isSelected = selectedGameIds.includes(game.id);
                   const previewPrice = calculatePreviewPrice(game);
-                  const basePrice = Number(game.original_price ?? game.sale_price ?? 0);
+                  const currentPrice = Number(game.sale_price ?? game.original_price ?? 0);
+                  const mrpPrice = Number(game.original_price ?? 0);
+                  const hasSeparateMrp = mrpPrice > 0 && mrpPrice > currentPrice;
 
                   return (
                     <div
@@ -344,25 +346,31 @@ export function FlashSaleForm({
                         </div>
                         <div className="min-w-0">
                           <p className="truncate text-xs font-bold text-white">{game.title}</p>
-                          <p className="text-[11px] text-[#8991a8]">
-                            Original: {formatPrice(basePrice)}
-                          </p>
+                          <div className="flex items-center gap-1.5 text-[11px]">
+                            <span className="text-[#8991a8]">Current:</span>
+                            <span className="font-semibold text-white">{formatPrice(currentPrice)}</span>
+                            {hasSeparateMrp && (
+                              <span className="text-[#64748b] text-[10px] line-through">
+                                (MRP {formatPrice(mrpPrice)})
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
 
                       <div className="text-right shrink-0">
                         {isSelected ? (
                           <div className="flex flex-col items-end">
-                            <span className="font-bold text-xs text-[#facc15]">
+                            <span className="font-bold text-xs text-[#facc15] bg-[#facc15]/10 border border-[#facc15]/30 rounded px-1.5 py-0.5">
                               Sale: {formatPrice(previewPrice)}
                             </span>
-                            <span className="text-[10px] text-[#8991a8] line-through">
-                              {formatPrice(basePrice)}
+                            <span className="text-[10px] text-[#8991a8] line-through mt-0.5">
+                              {formatPrice(currentPrice)}
                             </span>
                           </div>
                         ) : (
-                          <span className="text-xs text-[#8991a8]">
-                            {formatPrice(basePrice)}
+                          <span className="text-xs font-semibold text-white/90">
+                            {formatPrice(currentPrice)}
                           </span>
                         )}
                       </div>
