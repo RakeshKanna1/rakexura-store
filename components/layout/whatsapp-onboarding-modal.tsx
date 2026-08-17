@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
-import { Bell, MessageCircle, Shield, ArrowRight, Loader2, X, CheckCircle2 } from "lucide-react";
+import { MessageCircle, Shield, ArrowRight, Loader2, X, CheckCircle2, Bell } from "lucide-react";
 import { saveWhatsAppNumber } from "@/app/dashboard/settings/actions";
 
 function urlBase64ToUint8Array(base64String: string) {
@@ -21,16 +21,16 @@ function urlBase64ToUint8Array(base64String: string) {
 export function WhatsAppOnboardingModal() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [step, setStep] = useState<1 | 2>(1);
   const [phone, setPhone] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [notifPermission, setNotifPermission] = useState<string>("default");
+  const [enablePush, setEnablePush] = useState(true);
+  const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    // Skip checking or opening on authentication or admin routes
+    // 1. Skip on authentication, registration, or admin routes
     if (
       pathname.startsWith("/login") ||
       pathname.startsWith("/register") ||
@@ -44,10 +44,6 @@ export function WhatsAppOnboardingModal() {
       return;
     }
 
-    if (typeof window !== "undefined" && "Notification" in window) {
-      setNotifPermission(Notification.permission);
-    }
-
     let timer: NodeJS.Timeout;
 
     async function checkUserOnboarding() {
@@ -55,7 +51,7 @@ export function WhatsAppOnboardingModal() {
         const res = await supabase.auth.getUser().catch(() => null);
         const user = res?.data?.user;
 
-        // Only prompt logged-in accounts for onboarding
+        // Only prompt logged-in accounts
         if (!user) {
           setUserId(null);
           setIsOpen(false);
@@ -75,40 +71,26 @@ export function WhatsAppOnboardingModal() {
           setPhone(existingPhone);
         }
 
-        const hasWhatsapp = existingPhone !== "";
-        const isNotificationSupported = typeof window !== "undefined" && "Notification" in window;
-        const needsNotifications = isNotificationSupported && Notification.permission === "default";
+        // If user already has WhatsApp linked, NEVER show the modal
+        if (existingPhone) {
+          setIsOpen(false);
+          return;
+        }
 
-        // Session dismissal check
+        // Check if dismissed in this session
         const sessionDismissed = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("wp_modal_session_dismissed") : null;
         if (sessionDismissed === "true") {
           setIsOpen(false);
           return;
         }
 
-        // If customer has NOT linked WhatsApp, prompt them
-        if (!hasWhatsapp) {
-          timer = setTimeout(() => {
-            setStep(1);
-            setIsOpen(true);
-          }, 2000);
-          return;
-        }
+        // Context-aware delay: immediate on dashboard/checkout (2s), graceful on browsing pages (6s)
+        const isActionableRoute = pathname.startsWith("/dashboard") || pathname.startsWith("/checkout") || pathname.startsWith("/account") || pathname.startsWith("/orders");
+        const delayMs = isActionableRoute ? 1800 : 6000;
 
-        // If customer HAS WhatsApp but needs device notifications
-        const lastPrompt = typeof window !== "undefined" ? localStorage.getItem("last_wp_onboard_prompt_time") : null;
-        const now = Date.now();
-        const oneDay = 24 * 60 * 60 * 1000;
-        const hasPromptedRecently = lastPrompt && (now - Number(lastPrompt) < oneDay);
-
-        if (!hasPromptedRecently && needsNotifications) {
-          timer = setTimeout(() => {
-            setStep(2);
-            setIsOpen(true);
-          }, 2000);
-        } else {
-          setIsOpen(false);
-        }
+        timer = setTimeout(() => {
+          setIsOpen(true);
+        }, delayMs);
       } catch {
         setIsOpen(false);
       }
@@ -133,114 +115,81 @@ export function WhatsAppOnboardingModal() {
 
   const handleWhatsappSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const cleanDigits = phone.replace(/\D/g, "");
+
+    if (!cleanDigits || cleanDigits.length < 10) {
+      return toast.error("Please enter a valid 10-digit WhatsApp number");
+    }
+
     setIsLoading(true);
 
     try {
       if (userId) {
-        const res = await saveWhatsAppNumber(phone);
+        const res = await saveWhatsAppNumber(cleanDigits);
         if (!res.success) {
           throw new Error(res.error || "Failed to update WhatsApp number");
         }
-      } else if (typeof window !== "undefined") {
-        localStorage.setItem("guest_whatsapp_phone", phone);
       }
-
-      toast.success("Mobile/WhatsApp number linked successfully!");
 
       if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("profile-updated", { detail: { whatsapp: phone } }));
+        localStorage.setItem("guest_whatsapp_phone", cleanDigits);
+        window.dispatchEvent(new CustomEvent("profile-updated", { detail: { whatsapp: cleanDigits } }));
         sessionStorage.removeItem("wp_modal_session_dismissed");
       }
+
+      // Optional push notification subscription if selected and supported
+      if (enablePush && typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+        try {
+          const perm = await Notification.requestPermission();
+          if (perm === "granted") {
+            let reg = await navigator.serviceWorker.getRegistration();
+            if (!reg) {
+              reg = await navigator.serviceWorker.register("/sw.js");
+            }
+            await navigator.serviceWorker.ready;
+            const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+            if (publicVapidKey && reg.pushManager) {
+              const sub = await reg.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+              });
+              const p256dh = btoa(String.fromCharCode(...new Uint8Array(sub.getKey("p256dh") as ArrayBuffer)));
+              const auth = btoa(String.fromCharCode(...new Uint8Array(sub.getKey("auth") as ArrayBuffer)));
+              await supabase.from("push_subscriptions").insert({
+                user_id: userId,
+                endpoint: sub.endpoint,
+                p256dh,
+                auth
+              });
+            }
+          }
+        } catch {
+          // Non-blocking: continue if push fails
+        }
+      }
+
+      setIsSuccess(true);
+      toast.success("WhatsApp number linked successfully!");
       router.refresh();
 
-      if (userId && typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
-        setStep(2);
-      } else {
+      setTimeout(() => {
         setIsOpen(false);
-      }
+      }, 1200);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update WhatsApp number");
+      toast.error(err instanceof Error ? err.message : "Failed to link WhatsApp number");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleEnableNotifications = async () => {
-    setIsLoading(true);
-    try {
-      if (typeof window === "undefined") return;
-
-      if (Notification.permission === "denied") {
-        throw new Error(
-          "Notification permission is blocked. Please tap the lock/info icon in your browser address bar to enable notifications."
-        );
-      }
-
-      let reg = await navigator.serviceWorker.getRegistration();
-      if (!reg) {
-        reg = await navigator.serviceWorker.register("/sw.js");
-      }
-
-      await navigator.serviceWorker.ready;
-
-      const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      if (!publicVapidKey) {
-        throw new Error("Push VAPID key is missing.");
-      }
-
-      let permissionResult: NotificationPermission = Notification.permission;
-      if (permissionResult === "default") {
-        permissionResult = await new Promise<NotificationPermission>((resolve) => {
-          const res = Notification.requestPermission(resolve);
-          if (res && typeof res.then === "function") {
-            res.then(resolve);
-          }
-        });
-      }
-
-      setNotifPermission(permissionResult);
-
-      if (permissionResult !== "granted") {
-        throw new Error("Permission denied. Click 'Allow' when prompted by your browser.");
-      }
-
-      const subscription = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
-      });
-
-      const p256dh = btoa(String.fromCharCode(...new Uint8Array(subscription.getKey("p256dh") as ArrayBuffer)));
-      const auth = btoa(String.fromCharCode(...new Uint8Array(subscription.getKey("auth") as ArrayBuffer)));
-
-      const { error } = await supabase.from("push_subscriptions").insert({
-        user_id: userId,
-        endpoint: subscription.endpoint,
-        p256dh,
-        auth
-      });
-
-      if (error && error.code !== "23505") {
-        throw error;
-      }
-
-      toast.success("Push notifications enabled successfully!");
-      setIsOpen(false);
-    } catch (err) {
-      console.error(err);
-      toast.error(err instanceof Error ? err.message : "Failed to enable notifications");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSkipOrAcknowledge = () => {
+  const handleDismiss = () => {
     if (typeof sessionStorage !== "undefined") {
       sessionStorage.setItem("wp_modal_session_dismissed", "true");
     }
     setIsOpen(false);
   };
 
-  // Exclude auth and admin routes completely from rendering
+  // Skip completely on auth or admin routes
   if (
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
@@ -259,25 +208,29 @@ export function WhatsAppOnboardingModal() {
     <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
       <div className="w-full max-w-md rounded-xl border border-white/10 bg-[#08090c] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.9)] backdrop-blur-xl md:p-8 relative">
         {/* Subtle Ambient Accent */}
-        <div className="absolute -left-12 -top-12 h-32 w-32 rounded-full bg-[#facc15]/5 blur-3xl pointer-events-none" />
-        <div className="absolute -right-12 -bottom-12 h-32 w-32 rounded-full bg-[#8b5cf6]/5 blur-3xl pointer-events-none" />
+        <div className="absolute -left-12 -top-12 h-32 w-32 rounded-full bg-[#25d366]/5 blur-3xl pointer-events-none" />
+        <div className="absolute -right-12 -bottom-12 h-32 w-32 rounded-full bg-[#facc15]/5 blur-3xl pointer-events-none" />
 
-        {/* Close/Skip Button top-right */}
+        {/* Close/Skip Button */}
         <button
-          onClick={handleSkipOrAcknowledge}
+          onClick={handleDismiss}
           className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-md bg-white/[0.04] text-[#8991a6] hover:bg-white/10 hover:text-white transition-colors cursor-pointer border border-white/5"
-          aria-label="Skip onboarding"
+          aria-label="Close modal"
         >
           <X size={15} />
         </button>
 
-        {/* Step Indicators */}
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <span className={`h-1 w-8 rounded-full transition-all duration-300 ${step === 1 ? "bg-[#25d366]" : "bg-white/15"}`} />
-          <span className={`h-1 w-8 rounded-full transition-all duration-300 ${step === 2 ? "bg-[#facc15]" : "bg-white/15"}`} />
-        </div>
-
-        {step === 1 ? (
+        {isSuccess ? (
+          <div className="py-6 text-center space-y-3">
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#25d366]/10 text-[#25d366] border border-[#25d366]/30">
+              <CheckCircle2 size={32} />
+            </div>
+            <h3 className="text-lg font-black text-white">WhatsApp Linked!</h3>
+            <p className="text-xs text-[#8991a6]">
+              Your account is ready for instant game key and order delivery.
+            </p>
+          </div>
+        ) : (
           <div>
             <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-lg border border-[#25d366]/30 bg-[#25d366]/10 text-[#25d366]">
               <MessageCircle size={22} />
@@ -286,13 +239,13 @@ export function WhatsAppOnboardingModal() {
               Link Your WhatsApp
             </h2>
             <p className="mt-2 text-xs text-[#8991a6] text-center leading-relaxed">
-              To ensure instant delivery of your game activation details, please link your active WhatsApp number before continuing.
+              We deliver your game keys, account credentials, and instant order updates directly via WhatsApp.
             </p>
 
             <form onSubmit={handleWhatsappSubmit} className="mt-6 space-y-4">
               <div>
                 <label htmlFor="whatsapp-phone" className="block text-[11px] font-black uppercase tracking-wider text-[#25d366]">
-                  WhatsApp Number
+                  WhatsApp Number *
                 </label>
                 <input
                   id="whatsapp-phone"
@@ -301,21 +254,37 @@ export function WhatsAppOnboardingModal() {
                   autoFocus
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="e.g., +91 98765 43210"
-                  className="mt-2 h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#25d366] focus:outline-none"
+                  placeholder="e.g. +91 98765 43210"
+                  className="mt-2 h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#25d366] focus:outline-none font-mono"
                 />
               </div>
+
+              {/* Optional Push Notification Checkbox */}
+              {typeof window !== "undefined" && "Notification" in window && Notification.permission === "default" && (
+                <label className="flex items-start gap-2.5 p-2.5 rounded-lg bg-white/[0.02] border border-white/5 cursor-pointer text-left">
+                  <input
+                    type="checkbox"
+                    checked={enablePush}
+                    onChange={(e) => setEnablePush(e.target.checked)}
+                    className="mt-0.5 rounded border-white/20 bg-black/40 text-[#facc15] focus:ring-0 cursor-pointer"
+                  />
+                  <div className="text-[11px] leading-tight">
+                    <span className="font-bold text-white block">Also enable device notifications</span>
+                    <span className="text-[#8991a6]">Get instant popups when game keys are dispatched.</span>
+                  </div>
+                </label>
+              )}
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-md bg-[#25d366] hover:bg-[#20ba5a] h-11 font-black text-black transition shadow-md shadow-[#25d366]/15 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-1.5 text-xs sm:text-sm cursor-pointer"
+                className="w-full rounded-md bg-[#25d366] hover:bg-[#20ba5a] h-11 font-black text-black transition shadow-md shadow-[#25d366]/15 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-1.5 text-xs sm:text-sm cursor-pointer mt-2"
               >
                 {isLoading ? (
-                  <Loader2 size={16} className="animate-spin" />
+                  <Loader2 size={16} className="animate-spin text-black" />
                 ) : (
                   <>
-                    <span>Continue</span>
+                    <span>Confirm & Link Account</span>
                     <ArrowRight size={15} />
                   </>
                 )}
@@ -323,71 +292,17 @@ export function WhatsAppOnboardingModal() {
 
               <button
                 type="button"
-                onClick={handleSkipOrAcknowledge}
+                onClick={handleDismiss}
                 className="w-full rounded-md border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] h-10 text-xs font-bold text-[#8991a6] hover:text-white transition cursor-pointer"
               >
                 Configure Later / Skip
               </button>
-            </form>
-          </div>
-        ) : (
-          <div>
-            <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-lg border border-[#facc15]/20 bg-[#facc15]/10 text-[#facc15]">
-              <Bell size={22} />
-            </div>
-            <h2 className="text-xl font-black text-white text-center tracking-tight">
-              Enable Device Notifications
-            </h2>
-            <p className="mt-2 text-xs text-[#8991a6] text-center leading-relaxed">
-              Get real-time updates directly on your device lock screen when your orders are processed and ready for activation.
-            </p>
 
-            <div className="mt-6 space-y-3">
-              {notifPermission === "granted" ? (
-                <div className="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
-                  <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold text-sm">
-                    <CheckCircle2 size={16} /> Device Notifications Active
-                  </div>
-                  <p className="mt-1 text-xs text-emerald-200/80">You are configured to receive instant order status alerts.</p>
-                  <button
-                    type="button"
-                    onClick={handleSkipOrAcknowledge}
-                    className="mt-4 w-full rounded-md bg-emerald-500 hover:bg-emerald-400 h-10 text-xs font-black text-black transition cursor-pointer"
-                  >
-                    Done / Finish
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={handleEnableNotifications}
-                    disabled={isLoading}
-                    className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black shadow-md shadow-[#facc15]/10 transition flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer"
-                  >
-                    {isLoading ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <>
-                        <Bell size={15} /> <span>Enable Device Notifications</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleSkipOrAcknowledge}
-                    className="w-full rounded-md border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] h-10 text-xs font-bold text-[#8991a6] hover:text-white transition cursor-pointer"
-                  >
-                    Configure Later / Skip
-                  </button>
-                </>
-              )}
-
-              <p className="flex items-center justify-center gap-1.5 text-[10px] text-[#727a90] text-center pt-2">
-                <Shield size={12} /> Secure push subscription via standard browser API.
+              <p className="flex items-center justify-center gap-1.5 text-[10px] text-[#727a90] text-center pt-1">
+                <Shield size={12} className="text-[#25d366]" />
+                <span>Your number is kept strictly private & used only for order delivery.</span>
               </p>
-            </div>
+            </form>
           </div>
         )}
       </div>
