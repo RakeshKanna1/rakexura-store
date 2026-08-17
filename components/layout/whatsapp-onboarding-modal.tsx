@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
-import { MessageCircle, Shield, ArrowRight, Loader2, X, CheckCircle2, Bell } from "lucide-react";
+import { MessageCircle, Shield, ArrowRight, Loader2, X, CheckCircle2 } from "lucide-react";
 import { saveWhatsAppNumber } from "@/app/dashboard/settings/actions";
 
 function urlBase64ToUint8Array(base64String: string) {
