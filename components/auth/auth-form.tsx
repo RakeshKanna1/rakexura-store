@@ -239,8 +239,9 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
       return toast.error("Please enter a valid email address");
     }
 
-    if (!trimmedEmail.endsWith("@gmail.com")) {
-      return toast.error("Only valid @gmail.com email addresses are supported for verification");
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      return toast.error("Please enter a valid email format");
     }
 
     if (!cleanPhone || cleanPhone.length < 10) {
@@ -289,6 +290,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     if (signUpData.session) {
       await supabase.from("profiles").upsert({
         id: signUpData.session.user.id,
+        email: trimmedEmail,
         display_name: trimmedName,
         full_name: trimmedName,
         whatsapp: cleanPhone,
@@ -324,19 +326,20 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     setOtpLoading(true);
     setOtpError("");
     const supabase = createClient();
+    const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Verify OTP code
+    // 1. Verify OTP code (try signup type first, then email, then magiclink)
     let { data, error } = await supabase.auth.verifyOtp({
-      email: email.trim(),
+      email: cleanEmail,
       token: code,
-      type: "email"
+      type: "signup"
     });
 
     if (error) {
       const fallback = await supabase.auth.verifyOtp({
-        email: email.trim(),
+        email: cleanEmail,
         token: code,
-        type: "signup"
+        type: "email"
       });
       data = fallback.data;
       error = fallback.error;
@@ -344,7 +347,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
 
     if (error) {
       const fallbackMagic = await supabase.auth.verifyOtp({
-        email: email.trim(),
+        email: cleanEmail,
         token: code,
         type: "magiclink"
       });
@@ -369,6 +372,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
       const cleanPhone = whatsapp.replace(/\D/g, "");
       await supabase.from("profiles").upsert({
         id: data.user.id,
+        email: cleanEmail,
         display_name: displayName.trim() || undefined,
         full_name: displayName.trim() || undefined,
         whatsapp: cleanPhone || undefined,
