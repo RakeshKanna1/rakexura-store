@@ -281,18 +281,9 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6]">
-                        Password
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="text-[11px] font-semibold text-[#8991a6] hover:text-white transition cursor-pointer flex items-center gap-1"
-                      >
-                        {showPassword ? <><EyeOff size={12} /> Hide</> : <><Eye size={12} /> Show</>}
-                      </button>
-                    </div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
+                      Password
+                    </label>
                     <div className="relative">
                       <input 
                         type={showPassword ? "text" : "password"}
@@ -302,8 +293,16 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="At least 8 characters"
                         autoComplete="new-password"
-                        className="h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
+                        className="h-11 w-full rounded-md border border-white/10 bg-black/40 pl-3.5 pr-10 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors cursor-pointer p-1"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
                     </div>
                   </div>
 
@@ -320,7 +319,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Re-enter your password"
                         autoComplete="new-password"
-                        className={`h-11 w-full rounded-md border bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:outline-none ${
+                        className={`h-11 w-full rounded-md border bg-black/40 pl-3.5 pr-10 text-sm text-white placeholder-zinc-500 transition-colors focus:outline-none ${
                           confirmPassword && password !== confirmPassword 
                             ? "border-red-500/60 focus:border-red-500" 
                             : confirmPassword && password === confirmPassword
@@ -328,6 +327,14 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                             : "border-white/10 focus:border-[#facc15]"
                         }`}
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors cursor-pointer p-1"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
                     </div>
                     {confirmPassword && password !== confirmPassword && (
                       <span className="mt-1 block text-[11px] text-red-400 font-medium">

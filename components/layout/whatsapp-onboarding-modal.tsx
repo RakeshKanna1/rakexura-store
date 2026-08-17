@@ -51,11 +51,14 @@ export function WhatsAppOnboardingModal() {
       try {
         const res = await supabase.auth.getUser().catch(() => null);
         const user = res?.data?.user;
-        let existingPhone = "";
-        let currentUserId: string | null = null;
 
-      if (user) {
-        currentUserId = user.id;
+        // Only prompt logged-in accounts for onboarding
+        if (!user) {
+          setUserId(null);
+          setIsOpen(false);
+          return;
+        }
+
         setUserId(user.id);
         const { data: profile } = await supabase
           .from("profiles")
@@ -63,57 +66,49 @@ export function WhatsAppOnboardingModal() {
           .eq("id", user.id)
           .maybeSingle();
 
-        if (profile?.whatsapp) {
-          existingPhone = profile.whatsapp;
+        const existingPhone = profile?.whatsapp || "";
+        if (existingPhone) {
+          setPhone(existingPhone);
         }
-      }
 
-      if (!existingPhone && typeof window !== "undefined") {
-        existingPhone = localStorage.getItem("guest_whatsapp_phone") || "";
-      }
+        const hasWhatsapp = existingPhone.trim() !== "";
+        const isNotificationSupported = typeof window !== "undefined" && "Notification" in window;
+        const needsNotifications = isNotificationSupported && Notification.permission === "default";
 
-      if (existingPhone) {
-        setPhone(existingPhone);
-      }
+        // Session dismissal check
+        const sessionDismissed = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("wp_modal_session_dismissed") : null;
+        if (sessionDismissed === "true") {
+          setIsOpen(false);
+          return;
+        }
 
-      const hasWhatsapp = existingPhone.trim() !== "";
-      const isNotificationSupported = typeof window !== "undefined" && "Notification" in window;
-      const needsNotifications = isNotificationSupported && Notification.permission === "default";
+        // If customer has NOT linked WhatsApp, prompt them
+        if (!hasWhatsapp) {
+          timer = setTimeout(() => {
+            setStep(1);
+            setIsOpen(true);
+          }, 2000);
+          return;
+        }
 
-      // Session dismissal check: if user closed modal during this specific tab session, skip
-      const sessionDismissed = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("wp_modal_session_dismissed") : null;
-      if (sessionDismissed === "true") {
-        setIsOpen(false);
-        return;
-      }
+        // If customer HAS WhatsApp but needs device notifications
+        const lastPrompt = typeof window !== "undefined" ? localStorage.getItem("last_wp_onboard_prompt_time") : null;
+        const now = Date.now();
+        const oneDay = 24 * 60 * 60 * 1000;
+        const hasPromptedRecently = lastPrompt && (now - Number(lastPrompt) < oneDay);
 
-      // CRITICAL: If customer has NOT linked WhatsApp, ALWAYS intimate them after 2 seconds!
-      if (!hasWhatsapp) {
-        timer = setTimeout(() => {
-          setStep(1);
-          setIsOpen(true);
-        }, 2000);
-        return;
-      }
-
-      // If customer HAS WhatsApp but needs device notifications
-      const lastPrompt = typeof window !== "undefined" ? localStorage.getItem("last_wp_onboard_prompt_time") : null;
-      const now = Date.now();
-      const oneDay = 24 * 60 * 60 * 1000;
-      const hasPromptedRecently = lastPrompt && (now - Number(lastPrompt) < oneDay);
-
-      if (!hasPromptedRecently && needsNotifications && currentUserId) {
-        timer = setTimeout(() => {
-          setStep(2);
-          setIsOpen(true);
-        }, 2000);
-      } else {
+        if (!hasPromptedRecently && needsNotifications) {
+          timer = setTimeout(() => {
+            setStep(2);
+            setIsOpen(true);
+          }, 2000);
+        } else {
+          setIsOpen(false);
+        }
+      } catch {
         setIsOpen(false);
       }
-    } catch {
-      setIsOpen(false);
     }
-  }
 
     checkUserOnboarding();
 
