@@ -64,6 +64,12 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
   const [notice, setNotice] = useState("");
   const [emailAction, setEmailAction] = useState<"resend" | "magic" | null>(null);
 
+  // Login States
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
+
   const redirectTo = () => `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
 
   async function routeSignedInUser() {
@@ -73,6 +79,52 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     const destination = next.startsWith("/") ? next : profile?.role === "admin" ? "/admin" : "/dashboard";
     router.replace(destination === "/dashboard" && profile?.role === "admin" ? "/admin" : destination);
     router.refresh();
+  }
+
+  // Sign In Handler
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    const identifier = loginEmail.trim();
+    if (!identifier) {
+      return toast.error("Please enter your email or Gamer Tag");
+    }
+    if (!loginPassword) {
+      return toast.error("Please enter your password");
+    }
+
+    setLoginLoading(true);
+    const supabase = createClient();
+    let targetEmail = identifier;
+
+    // If identifier doesn't have @, look up corresponding email from profiles
+    if (!identifier.includes("@")) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email")
+        .or(`display_name.ilike.${identifier},full_name.ilike.${identifier}`)
+        .limit(1)
+        .maybeSingle();
+
+      if (!profile || !profile.email) {
+        setLoginLoading(false);
+        return toast.error("No account found with this Gamer Tag. Please check spelling or sign in with your email.");
+      }
+      targetEmail = profile.email;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: targetEmail.toLowerCase().trim(),
+      password: loginPassword,
+    });
+
+    if (error) {
+      setLoginLoading(false);
+      return toast.error(friendlyAuthError(error));
+    }
+
+    setLoginLoading(false);
+    toast.success("Welcome back!");
+    await routeSignedInUser();
   }
 
   // Registration Step 1 - Validate inputs & Send OTP
@@ -274,23 +326,75 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     <div className="space-y-4">
       <div className="glass mx-auto max-w-md overflow-hidden rounded-xl border border-white/10 bg-[#08090c]/90 p-6 md:p-8 backdrop-blur-xl shadow-2xl">
         {mode === "login" ? (
-          <div>
-            {/* Notice to use Google & Discord exclusively */}
-            <div className="mb-6 rounded-md border border-amber-500/20 bg-amber-500/[.03] p-4 text-center">
-              <h4 className="text-amber-400 font-bold text-sm flex items-center justify-center gap-1.5 mb-1">
-                Sign In Option Notice
-              </h4>
-              <p className="text-xs text-[#a0a8c0] leading-relaxed">
-                Email Password and OTP Verification logins are currently under construction. Please use <strong>Google</strong> or <strong>Discord</strong> below to access your account.
-              </p>
+          <div className="space-y-5">
+            {/* 1-Click Social Sign-In */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <button suppressHydrationWarning type="button" onClick={() => social("google")} className="flex h-11 items-center justify-center gap-2.5 rounded-md bg-white text-xs font-bold text-[#202124] transition hover:bg-[#f1f3f4] cursor-pointer"><span className="text-sm font-black text-[#4285f4]">G</span> Google</button>
+              <button suppressHydrationWarning type="button" onClick={() => social("discord")} className="flex h-11 items-center justify-center gap-2.5 rounded-md bg-[#5865f2] text-xs font-bold text-white transition hover:bg-[#4752c4] cursor-pointer"><Gamepad2 size={16} /> Discord</button>
             </div>
 
-            {/* Social login buttons displayed prominently */}
-            <div className="space-y-3.5">
-              <button suppressHydrationWarning type="button" onClick={() => social("google")} className="flex h-12 w-full items-center justify-center gap-3 rounded-md bg-white text-sm font-bold text-[#202124] transition hover:bg-[#f1f3f4] cursor-pointer"><span className="text-base font-black text-[#4285f4]">G</span> Sign In with Google</button>
-              <button suppressHydrationWarning type="button" onClick={() => social("discord")} className="flex h-12 w-full items-center justify-center gap-3 rounded-md bg-[#5865f2] text-sm font-bold text-white transition hover:bg-[#4752c4] cursor-pointer"><Gamepad2 size={18} /> Sign In with Discord</button>
-              <p className="flex items-center justify-center gap-2 text-[11px] text-[#7f879d] pt-2"><ShieldCheck size={13} /> Secure OAuth. Rakexura never receives your provider password.</p>
-            </div>
+            <div className="flex items-center gap-3 text-xs text-[#727a90]"><span className="h-px flex-1 bg-white/10" /><span>or sign in with email</span><span className="h-px flex-1 bg-white/10" /></div>
+
+            {/* Email / Gamer Tag + Password Form */}
+            <form onSubmit={handleLogin} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
+                  Email or Gamer Tag
+                </label>
+                <input 
+                  type="text"
+                  required
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  placeholder="you@example.com or Gamer Tag"
+                  autoComplete="username email"
+                  className="h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
+                  Password
+                </label>
+                <div className="relative">
+                  <input 
+                    type={showLoginPassword ? "text" : "password"}
+                    required
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    className="h-11 w-full rounded-md border border-white/10 bg-black/40 pl-3.5 pr-10 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginPassword(!showLoginPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors cursor-pointer p-1"
+                    aria-label={showLoginPassword ? "Hide password" : "Show password"}
+                  >
+                    {showLoginPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={loginLoading} 
+                className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-xs sm:text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 mt-2"
+              >
+                {loginLoading ? "Signing In..." : (
+                  <>
+                    <span>Sign In to Rakexura</span>
+                    <ArrowRight size={15} />
+                  </>
+                )}
+              </button>
+
+              <p className="flex items-center justify-center gap-1.5 text-[11px] text-[#7f879d] pt-1 text-center">
+                <ShieldCheck size={13} className="shrink-0 text-[#00d68f]" />
+                <span>256-bit encrypted credentials & session security.</span>
+              </p>
+            </form>
           </div>
         ) : (
           <div className="space-y-5">
