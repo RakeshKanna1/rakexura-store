@@ -42,6 +42,10 @@ export function SettingsForm({
       }
 
       if (typeof window !== "undefined") {
+        if (res.whatsapp) {
+          localStorage.setItem("rakexura_whatsapp_linked", "true");
+          localStorage.setItem("guest_whatsapp_phone", res.whatsapp);
+        }
         window.dispatchEvent(
           new CustomEvent("profile-updated", {
             detail: { whatsapp: res.whatsapp, display_name: res.displayName },

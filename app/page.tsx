@@ -39,8 +39,9 @@ export default async function Home() {
   const highlightGames = featured.length ? featured : games.filter((g) => !g.is_subscription);
 
   return <>
-    <OfferMarquee />
-    <ComboDealsBanner />
+    <ComboDealsBanner>
+      <OfferMarquee />
+    </ComboDealsBanner>
     <div className="crystal-grid-bg bg-black overflow-hidden pb-12 relative">
       {/* Subtle brand color gradient glows to match logo signature colors */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(139,92,246,0.015),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(250,204,21,0.005),transparent_50%)]" />
@@ -48,7 +49,7 @@ export default async function Home() {
       {/* Dynamic Animated Sparkles, Shimmering Diamonds & Fireflies Canvas */}
       <FireflyCanvas />
 
-      <div className="shell pt-6 sm:pt-7 md:pt-9">
+      <div className="shell pt-5 md:pt-8">
         <HeroCarousel games={heroGames} />
         <LiveDeliveryTicker deliveries={deliveries} />
         <WhatsAppCommunity />

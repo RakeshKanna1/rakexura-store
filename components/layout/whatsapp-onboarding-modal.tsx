@@ -59,20 +59,28 @@ export function WhatsAppOnboardingModal() {
         }
 
         setUserId(user.id);
+
+        const localLinked = typeof window !== "undefined" ? localStorage.getItem("rakexura_whatsapp_linked") : null;
+        const localPhone = typeof window !== "undefined" ? localStorage.getItem("guest_whatsapp_phone") || "" : "";
+
+        // Query profiles table
         const { data: profile } = await supabase
           .from("profiles")
           .select("whatsapp, phone")
           .eq("id", user.id)
           .maybeSingle();
 
-        const localPhone = typeof window !== "undefined" ? localStorage.getItem("guest_whatsapp_phone") || "" : "";
-        const existingPhone = (profile?.whatsapp || profile?.phone || localPhone || "").trim();
-        if (existingPhone) {
-          setPhone(existingPhone);
-        }
+        const metaWhatsapp = String(user.user_metadata?.whatsapp || user.user_metadata?.phone || user.phone || "");
+        const existingPhone = (profile?.whatsapp || profile?.phone || metaWhatsapp || localPhone || "").trim();
 
-        // If user already has WhatsApp linked, NEVER show the modal
-        if (existingPhone) {
+        if (existingPhone || localLinked === "true") {
+          if (existingPhone) {
+            setPhone(existingPhone);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("guest_whatsapp_phone", existingPhone);
+              localStorage.setItem("rakexura_whatsapp_linked", "true");
+            }
+          }
           setIsOpen(false);
           return;
         }
@@ -98,6 +106,22 @@ export function WhatsAppOnboardingModal() {
 
     checkUserOnboarding();
 
+    const handleProfileUpdate = (e: Event) => {
+      const detail = (e as CustomEvent)?.detail;
+      if (detail?.whatsapp) {
+        setPhone(detail.whatsapp);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("rakexura_whatsapp_linked", "true");
+          localStorage.setItem("guest_whatsapp_phone", detail.whatsapp);
+        }
+        setIsOpen(false);
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("profile-updated", handleProfileUpdate);
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string) => {
       if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
         if (typeof sessionStorage !== "undefined") {
@@ -109,6 +133,9 @@ export function WhatsAppOnboardingModal() {
 
     return () => {
       if (timer) clearTimeout(timer);
+      if (typeof window !== "undefined") {
+        window.removeEventListener("profile-updated", handleProfileUpdate);
+      }
       subscription.unsubscribe();
     };
   }, [supabase, pathname]);

@@ -39,14 +39,14 @@ export function WhatsAppFloat() {
         transition: { rotate: { duration: 0.4 } },
       }}
       whileTap={{ scale: 0.92 }}
-      className="group fixed bottom-[82px] right-3.5 z-40 grid h-11 w-11 sm:h-12 sm:w-12 place-items-center rounded-full bg-[#25d366] text-black shadow-[0_10px_32px_rgba(37,211,102,0.45)] hover:shadow-[0_0_32px_rgba(37,211,102,0.7)] sm:bottom-5 sm:right-5 border border-emerald-300/50 backdrop-blur-sm"
+      className="group fixed bottom-[74px] right-3 z-40 grid h-10 w-10 sm:h-12 sm:w-12 place-items-center rounded-full bg-[#25d366] text-black shadow-[0_8px_24px_rgba(37,211,102,0.45)] hover:shadow-[0_0_32px_rgba(37,211,102,0.7)] sm:bottom-5 sm:right-5 border border-emerald-300/50 backdrop-blur-sm"
       aria-label="Chat with Rakexura on WhatsApp"
     >
       {/* Soft Radar Pulse Ring */}
       <span className="absolute -inset-1 -z-10 rounded-full bg-[#25d366]/40 animate-ping opacity-50 pointer-events-none" />
 
       {/* WhatsApp Icon */}
-      <MessageCircle size={21} fill="currentColor" className="transition-transform duration-200 group-hover:scale-110" />
+      <MessageCircle size={19} fill="currentColor" className="transition-transform duration-200 group-hover:scale-110 sm:scale-110" />
     </motion.a>
   );
 }

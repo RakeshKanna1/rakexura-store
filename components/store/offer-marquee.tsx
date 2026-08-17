@@ -74,22 +74,22 @@ export async function OfferMarquee() {
 
   return (
     <aside
-      className="offer-marquee relative flex h-9 sm:h-9.5 md:h-10 w-full items-center overflow-hidden border-y border-white/[0.08] bg-[#080806] select-none mt-2.5 sm:mt-3"
+      className="offer-marquee relative flex h-9 sm:h-10 w-full items-center overflow-hidden border-b border-[#facc15]/15 bg-[#0e0c06] select-none shadow-[inset_0_1px_12px_rgba(250,204,21,0.06)]"
       aria-label="Store announcements and offers"
     >
-      {/* Subtle, soft warm gold ambient center wash */}
+      {/* Subtle warm gold ambient center wash */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.03)_0%,transparent_75%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.08)_0%,rgba(250,204,21,0.02)_50%,transparent_80%)]"
         aria-hidden="true"
       />
 
       {/* Precision Left and Right Fade Masks */}
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 sm:w-28 bg-gradient-to-r from-[#080806] via-[#080806]/90 to-transparent"
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 sm:w-28 bg-gradient-to-r from-[#0e0c06] via-[#0e0c06]/90 to-transparent"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 sm:w-28 bg-gradient-to-l from-[#080806] via-[#080806]/90 to-transparent"
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 sm:w-28 bg-gradient-to-l from-[#0e0c06] via-[#0e0c06]/90 to-transparent"
         aria-hidden="true"
       />
 
