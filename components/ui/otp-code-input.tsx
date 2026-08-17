@@ -18,15 +18,9 @@ export function OtpCodeInput({
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!root) return;
+    if (!root || typeof window === "undefined") return;
 
-    const raf = window.requestAnimationFrame
-      ? window.requestAnimationFrame.bind(window)
-      : function (f: FrameRequestCallback) {
-          return setTimeout(() => {
-            f(performance.now());
-          }, 16);
-        };
+    const raf = (f: FrameRequestCallback): number => window.requestAnimationFrame(f);
 
     const inputs = Array.from(root.querySelectorAll<HTMLInputElement>(".foc-input"));
     const boxes = inputs.map((inp) => inp.parentElement as HTMLElement);
