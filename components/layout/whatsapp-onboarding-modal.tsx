@@ -30,12 +30,15 @@ export function WhatsAppOnboardingModal() {
   const supabase = createClient();
 
   useEffect(() => {
-    // Skip checking or opening on authentication routes
+    // Skip checking or opening on authentication or admin routes
     if (
       pathname.startsWith("/login") ||
+      pathname.startsWith("/register") ||
       pathname.startsWith("/signup") ||
       pathname.startsWith("/forgot-password") ||
-      pathname.startsWith("/auth")
+      pathname.startsWith("/reset-password") ||
+      pathname.startsWith("/auth") ||
+      pathname.startsWith("/admin")
     ) {
       setIsOpen(false);
       return;
@@ -236,12 +239,15 @@ export function WhatsAppOnboardingModal() {
     setIsOpen(false);
   };
 
-  // Exclude auth routes completely
+  // Exclude auth and admin routes completely from rendering
   if (
     pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
     pathname.startsWith("/signup") ||
     pathname.startsWith("/forgot-password") ||
-    pathname.startsWith("/auth")
+    pathname.startsWith("/reset-password") ||
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/admin")
   ) {
     return null;
   }
