@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { AnimatedOtpInput } from "./animated-otp-input";
 
 function friendlyAuthError(err: unknown): string {
   if (!err) return "An unexpected error occurred. Please try again.";
@@ -57,6 +58,8 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [otpSuccess, setOtpSuccess] = useState(false);
 
   const [notice, setNotice] = useState("");
   const [emailAction, setEmailAction] = useState<"resend" | "magic" | null>(null);
@@ -73,8 +76,8 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
   }
 
   // Registration Step 1 - Validate inputs & Send OTP
-  async function handleRegisterStep1(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleRegisterStep1(e?: React.FormEvent) {
+    e?.preventDefault();
     const trimmedEmail = email.trim().toLowerCase();
     const trimmedName = displayName.trim();
     const cleanPhone = whatsapp.replace(/\D/g, "");
@@ -163,14 +166,14 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
   }
 
   // Registration Step 2 - Verify Code & Finalize Account
-  async function handleVerifyOtp(e: React.FormEvent) {
-    e.preventDefault();
-    const code = otpCode.trim();
-    if (!code || code.length < 6 || code.length > 8) {
-      return toast.error("Enter the valid 6 to 8-digit verification code");
+  async function handleVerifyOtp(codeToVerify?: string) {
+    const code = (codeToVerify || otpCode).trim();
+    if (!code || code.length < 6) {
+      return toast.error("Enter the valid 6-digit verification code");
     }
 
     setOtpLoading(true);
+    setOtpError("");
     const supabase = createClient();
 
     // 1. Verify OTP code
@@ -202,8 +205,12 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
 
     if (error) {
       setOtpLoading(false);
-      return toast.error(friendlyAuthError(error));
+      const friendlyMsg = friendlyAuthError(error);
+      setOtpError(friendlyMsg);
+      return toast.error(friendlyMsg);
     }
+
+    setOtpSuccess(true);
 
     // 2. Set the user's permanent password & save profile
     if (data?.user) {
@@ -222,7 +229,9 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
 
     setOtpLoading(false);
     toast.success("Email verified! Welcome to Rakexura.");
-    await routeSignedInUser();
+    setTimeout(() => {
+      routeSignedInUser();
+    }, 700);
   }
 
   async function resend() { 
@@ -440,38 +449,38 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                   </p>
                 </form>
               ) : (
-                <form onSubmit={handleVerifyOtp} className="space-y-4">
-                  <div className="rounded-md border border-[#facc15]/20 bg-[#facc15]/5 p-3 text-xs text-[#a0a8c0] text-center leading-relaxed">
-                    We sent a 6-digit verification code to <strong className="text-white">{email}</strong>. Enter it below to activate your account:
-                  </div>
+                <div className="space-y-5">
+                  <AnimatedOtpInput
+                    length={6}
+                    email={email}
+                    name={displayName}
+                    isLoading={otpLoading}
+                    isError={Boolean(otpError)}
+                    isSuccess={otpSuccess}
+                    errorMessage={otpError}
+                    onCodeChange={(code) => {
+                      setOtpCode(code);
+                      if (otpError) setOtpError("");
+                    }}
+                    onComplete={(code) => handleVerifyOtp(code)}
+                  />
 
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5 text-center">
-                      Enter 6-Digit Code
-                    </label>
-                    <input 
-                      type="text"
-                      maxLength={8}
-                      required
-                      autoFocus
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-                      placeholder="123456"
-                      pattern="[0-9]{6,8}"
-                      autoComplete="one-time-code"
-                      className="h-12 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-center text-xl font-black tracking-[0.25em] text-white placeholder-zinc-600 transition-colors focus:border-[#facc15] focus:outline-none" 
-                    />
-                  </div>
-
+                  {/* Manual verify fallback button */}
                   <button 
-                    type="submit" 
-                    disabled={otpLoading} 
-                    className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-xs sm:text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-wait disabled:bg-[#facc15]/80 cursor-pointer flex items-center justify-center gap-2"
+                    type="button" 
+                    onClick={() => handleVerifyOtp()}
+                    disabled={otpLoading || otpCode.length < 6 || otpSuccess} 
+                    className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-xs sm:text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                   >
                     {otpLoading ? (
                       <>
                         <Loader2 size={16} className="animate-spin text-black" />
                         <span>Verifying Security Code...</span>
+                      </>
+                    ) : otpSuccess ? (
+                      <>
+                        <CheckCircle2 size={16} className="text-black" />
+                        <span>Verified! Logging in...</span>
                       </>
                     ) : (
                       <>
@@ -481,10 +490,14 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                     )}
                   </button>
 
-                  <div className="flex justify-between items-center text-xs pt-2">
+                  <div className="flex justify-between items-center text-xs pt-1 border-t border-white/5">
                     <button 
                       type="button" 
-                      onClick={() => setOtpSent(false)} 
+                      onClick={() => {
+                        setOtpSent(false);
+                        setOtpError("");
+                        setOtpSuccess(false);
+                      }} 
                       disabled={otpLoading}
                       className="text-xs font-semibold text-[#8991a6] hover:text-white transition-colors cursor-pointer flex items-center gap-1 py-1 px-1.5 rounded hover:bg-white/5 disabled:opacity-50"
                     >
@@ -493,7 +506,11 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                     </button>
                     <button 
                       type="button" 
-                      onClick={handleRegisterStep1} 
+                      onClick={() => {
+                        setOtpError("");
+                        setOtpSuccess(false);
+                        handleRegisterStep1();
+                      }} 
                       disabled={otpLoading}
                       className="text-xs font-semibold text-[#8991a6] hover:text-[#facc15] transition-colors cursor-pointer flex items-center gap-1.5 py-1 px-1.5 rounded hover:bg-[#facc15]/10 disabled:opacity-50"
                     >
@@ -501,7 +518,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                       <span>Resend Code</span>
                     </button>
                   </div>
-                </form>
+                </div>
               )}
             </div>
           </div>
