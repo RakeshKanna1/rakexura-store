@@ -159,12 +159,12 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                             initial={{ opacity: 0, y: 24 }} 
                             animate={active === index ? { opacity: 1, y: 0 } : { opacity: .75, y: 12 }} 
                             transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} 
-                            className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-4 pb-14 pt-6 sm:p-6 sm:pb-16 md:pb-20 md:pt-14 md:px-14"
+                            className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-4 pb-14 pt-6 sm:p-6 sm:pb-16 md:pb-24 md:pt-14 md:px-14 lg:px-16"
                           >
                             <p className="eyebrow mb-1.5 sm:mb-3">
                               {game.preorder ? "Pre-order spotlight" : "Rakexura spotlight"}
                             </p>
-                            <h3 className="text-2xl font-black sm:text-4xl md:text-5xl lg:text-[64px] tracking-tight leading-[1.08] drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
+                            <h3 className="text-2xl font-black sm:text-4xl md:text-5xl lg:text-[60px] tracking-tight leading-[1.08] drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
                               <BlurText 
                                 key={`${game.id}-${active === index}`}
                                 text={game.title} 
@@ -177,11 +177,11 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                             <p className="mt-2 sm:mt-4 max-w-xl text-xs sm:text-base md:text-lg leading-relaxed text-[#d4d8e4] line-clamp-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
                               {game.tagline || game.description || "A standout PC experience, ready for your library."}
                             </p>
-                            <div className="mt-3.5 sm:mt-6 flex items-center gap-2 sm:gap-3 overflow-x-auto hide-scrollbar whitespace-nowrap">
+                            <div className="mt-3.5 sm:mt-6 flex items-center gap-2 sm:gap-3.5 overflow-x-auto hide-scrollbar whitespace-nowrap">
                               {game.preorder ? (
                                 <Link 
                                   href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-10 sm:min-h-12 items-center justify-center gap-2 rounded-md bg-[#facc15] px-4 sm:px-6 text-xs sm:text-sm font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] shrink-0 tracking-tight"
+                                  className="magnetic-button inline-flex h-10 sm:h-12 items-center justify-center gap-2 sm:gap-2.5 rounded-md bg-[#facc15] px-4 sm:px-6 text-xs sm:text-sm font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] shrink-0 tracking-tight"
                                 >
                                   <span>Pre-order</span>
                                   <ArrowRight size={15} className="shrink-0" />
@@ -189,7 +189,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                               ) : (
                                 <Link 
                                   href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-10 sm:min-h-12 items-center justify-center gap-2 rounded-md bg-[#facc15] px-4 sm:px-6 text-xs sm:text-sm font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] shrink-0 tracking-tight"
+                                  className="magnetic-button inline-flex h-10 sm:h-12 items-center justify-center gap-2 sm:gap-2.5 rounded-md bg-[#facc15] px-4 sm:px-6 text-xs sm:text-sm font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] shrink-0 tracking-tight"
                                 >
                                   <span>View game</span>
                                   <ArrowRight size={15} className="shrink-0" />
@@ -200,7 +200,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                                   suppressHydrationWarning={true}
                                   type="button"
                                   onClick={(e) => handlePlayTrailer(game, e)}
-                                  className="inline-flex h-10 sm:min-h-12 items-center justify-center gap-2 rounded-md border border-white/15 bg-black/65 px-4 sm:px-6 text-xs sm:text-sm font-black backdrop-blur hover:bg-black/85 hover:border-[#facc15]/50 transition-all cursor-pointer text-white shrink-0 tracking-tight"
+                                  className="inline-flex h-10 sm:h-12 items-center justify-center gap-2 sm:gap-2.5 rounded-md border border-white/15 bg-black/65 px-4 sm:px-6 text-xs sm:text-sm font-black backdrop-blur hover:bg-black/85 hover:border-[#facc15]/50 transition-all cursor-pointer text-white shrink-0 tracking-tight"
                                 >
                                   <Play size={14} fill="currentColor" className="text-[#facc15] shrink-0" />
                                   <span>Trailer</span>
@@ -208,13 +208,13 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                               ) : (
                                 <Link
                                   href={gameUrl(game)}
-                                  className="inline-flex h-10 sm:min-h-12 items-center justify-center gap-2 rounded-md border border-white/15 bg-black/65 px-4 sm:px-6 text-xs sm:text-sm font-black backdrop-blur hover:bg-black/85 transition-all text-white shrink-0 tracking-tight"
+                                  className="inline-flex h-10 sm:h-12 items-center justify-center gap-2 sm:gap-2.5 rounded-md border border-white/15 bg-black/65 px-4 sm:px-6 text-xs sm:text-sm font-black backdrop-blur hover:bg-black/85 transition-all text-white shrink-0 tracking-tight"
                                 >
                                   <Play size={14} fill="currentColor" className="shrink-0" />
                                   <span>Trailer</span>
                                 </Link>
                               )}
-                              <span className="inline-flex h-10 sm:min-h-12 items-center justify-center rounded-md border border-white/10 bg-black/65 px-4 sm:px-6 text-xs sm:text-sm font-black text-[#facc15] backdrop-blur shrink-0 tracking-tight">
+                              <span className="inline-flex h-10 sm:h-12 items-center justify-center rounded-md border border-white/10 bg-black/65 px-4 sm:px-6 text-xs sm:text-sm font-black text-[#facc15] backdrop-blur shrink-0 tracking-tight">
                                 <span>From {formatPrice(lowestPrice(game))}</span>
                               </span>
                             </div>
@@ -226,7 +226,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                 );
               })}
             </Swiper>
-            <div className="absolute inset-x-6 bottom-5 z-20 flex gap-2 md:inset-x-16">
+            <div className="absolute inset-x-6 bottom-5 z-20 flex gap-2 md:inset-x-14 lg:inset-x-16">
               {games.map((game, index) => <span key={game.id} className="h-0.5 flex-1 overflow-hidden bg-white/20"><span key={active === index ? `active-${game.id}` : game.id} className={`block h-full origin-left bg-[#facc15] ${active === index ? "animate-[hero-progress_6.5s_linear_forwards]" : index < active ? "scale-x-100" : "scale-x-0"}`} /></span>)}
             </div>
           </>
