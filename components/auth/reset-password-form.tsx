@@ -50,7 +50,7 @@ export function ResetPasswordForm() {
     setLoading(false);
     toast.success("Password updated successfully! Welcome back.");
     setTimeout(() => {
-      router.replace("/dashboard");
+      router.replace("/");
     }, 1200);
   }
 
@@ -72,14 +72,14 @@ export function ResetPasswordForm() {
         <div>
           <h3 className="text-lg font-black text-white">Password Updated!</h3>
           <p className="mt-1 text-xs text-[#a0a8c0]">
-            Your new password is active. Redirecting you to your dashboard...
+            Your new password is active. Redirecting you to the store...
           </p>
         </div>
         <Link
-          href="/dashboard"
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#facc15] to-[#eab308] h-11 text-sm font-black text-black shadow-[0_0_24px_rgba(250,204,21,0.3)]"
+          href="/"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#facc15] to-[#eab308] h-11 text-sm font-black text-black shadow-[0_0_24px_rgba(250,204,21,0.3)] hover:shadow-[0_0_35px_rgba(250,204,21,0.5)] transition-all cursor-pointer"
         >
-          <span>Go to Dashboard</span>
+          <span>Continue Shopping</span>
           <ArrowRight size={15} />
         </Link>
       </div>

@@ -90,8 +90,12 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     const { data: profile } = user ? await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle() : { data: null };
-    const destination = next.startsWith("/") ? next : profile?.role === "admin" ? "/admin" : "/dashboard";
-    router.replace(destination === "/dashboard" && profile?.role === "admin" ? "/admin" : destination);
+    const destination = (next && next !== "/" && next !== "/dashboard" && next.startsWith("/")) 
+      ? next 
+      : profile?.role === "admin" 
+      ? "/admin" 
+      : "/";
+    router.replace(destination);
     router.refresh();
   }
 

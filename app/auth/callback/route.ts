@@ -43,5 +43,5 @@ export async function GET(request: Request) {
     ? await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle() 
     : { data: null };
     
-  return handleRedirect(profile?.role === "admin" ? "/admin" : "/dashboard");
+  return handleRedirect(profile?.role === "admin" ? "/admin" : "/");
 }
