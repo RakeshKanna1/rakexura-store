@@ -1,6 +1,6 @@
 "use client";
 
-import { Gamepad2, MailCheck, RefreshCw, ShieldCheck, ArrowRight, Eye, EyeOff, Loader2, ChevronLeft, MessageSquare, User, Mail } from "lucide-react";
+import { Gamepad2, MailCheck, RefreshCw, ShieldCheck, ArrowRight, Eye, EyeOff, ChevronLeft, MessageSquare, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -60,16 +60,14 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [otpSuccess, setOtpSuccess] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [emailAction, setEmailAction] = useState<"resend" | "magic" | null>(null);
 
-  // Login States (Username / Email + Password)
-  const [loginIdentifier, setLoginIdentifier] = useState("");
+  // Login States
+  const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
-  const [loginMode, setLoginMode] = useState<"password" | "magic">("password");
-
-  const [notice, setNotice] = useState("");
-  const [emailAction, setEmailAction] = useState<"resend" | "magic" | null>(null);
 
   const redirectTo = () => `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
 
@@ -80,6 +78,52 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     const destination = next.startsWith("/") ? next : profile?.role === "admin" ? "/admin" : "/dashboard";
     router.replace(destination === "/dashboard" && profile?.role === "admin" ? "/admin" : destination);
     router.refresh();
+  }
+
+  // Sign In Handler
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    const identifier = loginEmail.trim();
+    if (!identifier) {
+      return toast.error("Please enter your email or Gamer Tag");
+    }
+    if (!loginPassword) {
+      return toast.error("Please enter your password");
+    }
+
+    setLoginLoading(true);
+    const supabase = createClient();
+    let targetEmail = identifier;
+
+    // If identifier doesn't have @, look up corresponding email from profiles
+    if (!identifier.includes("@")) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email")
+        .or(`display_name.ilike.${identifier},full_name.ilike.${identifier}`)
+        .limit(1)
+        .maybeSingle();
+
+      if (!profile || !profile.email) {
+        setLoginLoading(false);
+        return toast.error("No account found with this Gamer Tag. Please check spelling or sign in with your email.");
+      }
+      targetEmail = profile.email;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: targetEmail.toLowerCase().trim(),
+      password: loginPassword,
+    });
+
+    if (error) {
+      setLoginLoading(false);
+      return toast.error(friendlyAuthError(error));
+    }
+
+    setLoginLoading(false);
+    toast.success("Welcome back!");
+    await routeSignedInUser();
   }
 
   // Registration Step 1 - Validate inputs & Send OTP
@@ -269,83 +313,6 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     setNotice("Magic link sent. Check your email inbox and spam folder."); 
   }
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    const rawIdentifier = loginIdentifier.trim();
-    if (!rawIdentifier) {
-      return toast.error("Please enter your Gamer Tag/Username or Email");
-    }
-
-    if (loginMode === "magic") {
-      let targetEmail = rawIdentifier;
-      if (!rawIdentifier.includes("@")) {
-        const supabase = createClient();
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("email")
-          .or(`display_name.ilike.${rawIdentifier},full_name.ilike.${rawIdentifier}`)
-          .limit(1)
-          .maybeSingle();
-
-        if (!profile || !profile.email) {
-          return toast.error("No account found with this Gamer Tag. Try signing in with your email.");
-        }
-        targetEmail = profile.email;
-      }
-
-      setLoginLoading(true);
-      const { error } = await createClient().auth.signInWithOtp({
-        email: targetEmail.toLowerCase().trim(),
-        options: {
-          emailRedirectTo: redirectTo(),
-          shouldCreateUser: false,
-        },
-      });
-      setLoginLoading(false);
-      if (error) return toast.error(friendlyAuthError(error));
-      toast.success(`Magic sign-in link sent to ${targetEmail}. Check your inbox!`);
-      return;
-    }
-
-    if (!loginPassword) {
-      return toast.error("Please enter your password");
-    }
-
-    setLoginLoading(true);
-    const supabase = createClient();
-    let resolvedEmail = rawIdentifier;
-
-    // Resolve Gamer Tag/Username to Email
-    if (!rawIdentifier.includes("@")) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("email")
-        .or(`display_name.ilike.${rawIdentifier},full_name.ilike.${rawIdentifier}`)
-        .limit(1)
-        .maybeSingle();
-
-      if (!profile || !profile.email) {
-        setLoginLoading(false);
-        return toast.error("No account found with that Gamer Tag / Username. Check spelling or sign in with email.");
-      }
-      resolvedEmail = profile.email;
-    }
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email: resolvedEmail.toLowerCase().trim(),
-      password: loginPassword,
-    });
-
-    if (error) {
-      setLoginLoading(false);
-      return toast.error(friendlyAuthError(error));
-    }
-
-    setLoginLoading(false);
-    toast.success("Welcome back!");
-    await routeSignedInUser();
-  }
-
   async function social(provider: "google" | "discord") { 
     const { error } = await createClient().auth.signInWithOAuth({ 
       provider, 
@@ -361,108 +328,101 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
           <div className="space-y-5">
             {/* 1-Click Fast Social Logins */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <button suppressHydrationWarning type="button" onClick={() => social("google")} className="flex h-11 items-center justify-center gap-2.5 rounded-md bg-white text-xs font-bold text-[#202124] transition hover:bg-[#f1f3f4] cursor-pointer">
-                <span className="text-sm font-black text-[#4285f4]">G</span> Google
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={() => social("google")}
+                className="flex h-11 items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/20 text-xs font-bold text-white transition-all cursor-pointer shadow-sm active:scale-[0.98]"
+              >
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                <span>Google</span>
               </button>
-              <button suppressHydrationWarning type="button" onClick={() => social("discord")} className="flex h-11 items-center justify-center gap-2.5 rounded-md bg-[#5865f2] text-xs font-bold text-white transition hover:bg-[#4752c4] cursor-pointer">
-                <Gamepad2 size={16} /> Discord
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={() => social("discord")}
+                className="flex h-11 items-center justify-center gap-2.5 rounded-xl border border-[#5865f2]/25 bg-[#5865f2]/10 hover:bg-[#5865f2]/20 hover:border-[#5865f2]/40 text-xs font-bold text-[#99a2ff] hover:text-white transition-all cursor-pointer shadow-sm active:scale-[0.98]"
+              >
+                <Gamepad2 size={16} className="text-[#5865f2]" />
+                <span>Discord</span>
               </button>
             </div>
 
-            <div className="flex items-center gap-3 text-xs text-[#727a90]">
-              <span className="h-px flex-1 bg-white/10" />
-              <span>or sign in with username / email</span>
-              <span className="h-px flex-1 bg-white/10" />
+            <div className="relative flex items-center justify-center my-1">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-white/10" />
+              </div>
+              <span className="relative bg-[#08090c] px-3 text-[11px] font-semibold uppercase tracking-wider text-[#727a90]">
+                or sign in with email
+              </span>
             </div>
 
-            {/* Username / Email + Password Login Form */}
+            {/* Email / Username + Password Form */}
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
-                  Gamer Tag / Username or Email
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
+                  Email or Gamer Tag
                 </label>
-                <div className="relative">
+                <div className="relative group">
                   <input
                     type="text"
                     required
-                    value={loginIdentifier}
-                    onChange={(e) => setLoginIdentifier(e.target.value)}
-                    placeholder="e.g. ShadowHunter or you@example.com"
-                    autoComplete="username"
-                    className="h-11 w-full rounded-md border border-white/10 bg-black/40 pl-3.5 pr-10 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    placeholder="you@example.com or GamerTag"
+                    autoComplete="username email"
+                    className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.03] pl-3.5 pr-10 text-sm text-white placeholder-[#586074] transition-all duration-200 focus:border-[#facc15]/70 focus:bg-black/50 focus:ring-2 focus:ring-[#facc15]/15 focus:outline-none"
                   />
-                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">
-                    {loginIdentifier.includes("@") ? <Mail size={15} /> : <User size={15} />}
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#727a90] group-focus-within:text-[#facc15] transition-colors pointer-events-none">
+                    <User size={15} />
                   </div>
                 </div>
               </div>
 
-              {loginMode === "password" ? (
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6]">
-                      Password
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setLoginMode("magic")}
-                      className="text-[11px] text-[#facc15] hover:underline cursor-pointer font-medium"
-                    >
-                      Use Magic Link instead?
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <input
-                      type={showLoginPassword ? "text" : "password"}
-                      required
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      placeholder="Enter your password"
-                      autoComplete="current-password"
-                      className="h-11 w-full rounded-md border border-white/10 bg-black/40 pl-3.5 pr-10 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowLoginPassword(!showLoginPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors cursor-pointer p-1"
-                      aria-label={showLoginPassword ? "Hide password" : "Show password"}
-                    >
-                      {showLoginPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-md border border-amber-500/20 bg-amber-500/[.03] p-3 text-xs text-[#a0a8c0] flex items-center justify-between">
-                  <span>We&apos;ll email you a 1-click instant login link.</span>
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
+                  Password
+                </label>
+                <div className="relative group">
+                  <input
+                    type={showLoginPassword ? "text" : "password"}
+                    required
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.03] pl-3.5 pr-10 text-sm text-white placeholder-[#586074] transition-all duration-200 focus:border-[#facc15]/70 focus:bg-black/50 focus:ring-2 focus:ring-[#facc15]/15 focus:outline-none"
+                  />
                   <button
                     type="button"
-                    onClick={() => setLoginMode("password")}
-                    className="text-[#facc15] hover:underline font-bold ml-2 shrink-0 cursor-pointer"
+                    onClick={() => setShowLoginPassword(!showLoginPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#727a90] hover:text-white transition-colors cursor-pointer p-1"
+                    aria-label={showLoginPassword ? "Hide password" : "Show password"}
                   >
-                    Back to Password
+                    {showLoginPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
                 </div>
-              )}
+              </div>
 
               <button
                 type="submit"
                 disabled={loginLoading}
-                className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-xs sm:text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-2"
+                className="w-full rounded-xl bg-gradient-to-r from-[#facc15] to-[#eab308] hover:from-[#ffe45c] hover:to-[#facc15] h-11 font-black text-black text-xs sm:text-sm tracking-wide transition-all shadow-[0_0_20px_rgba(250,204,21,0.2)] hover:shadow-[0_0_28px_rgba(250,204,21,0.35)] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-2 active:scale-[0.99]"
               >
-                {loginLoading ? (
+                {loginLoading ? "Signing In..." : (
                   <>
-                    <Loader2 size={16} className="animate-spin text-black" />
-                    <span>Signing In...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>{loginMode === "magic" ? "Send Magic Sign-In Link" : "Sign In to Rakexura"}</span>
+                    <span>Sign In to Rakexura</span>
                     <ArrowRight size={15} />
                   </>
                 )}
               </button>
 
-              <p className="flex items-center justify-center gap-1.5 text-[11px] text-[#7f879d] pt-1 text-center">
+              <p className="flex items-center justify-center gap-1.5 text-[11px] text-[#727a90] pt-1 text-center font-medium">
                 <ShieldCheck size={13} className="shrink-0 text-[#00d68f]" />
                 <span>256-bit encrypted credentials & session security.</span>
               </p>
@@ -472,18 +432,46 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
           <div className="space-y-5">
             {/* 1-Click Social Sign-Up */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <button suppressHydrationWarning type="button" onClick={() => social("google")} className="flex h-11 items-center justify-center gap-2.5 rounded-md bg-white text-xs font-bold text-[#202124] transition hover:bg-[#f1f3f4] cursor-pointer"><span className="text-sm font-black text-[#4285f4]">G</span> Google</button>
-              <button suppressHydrationWarning type="button" onClick={() => social("discord")} className="flex h-11 items-center justify-center gap-2.5 rounded-md bg-[#5865f2] text-xs font-bold text-white transition hover:bg-[#4752c4] cursor-pointer"><Gamepad2 size={16} /> Discord</button>
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={() => social("google")}
+                className="flex h-11 items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/20 text-xs font-bold text-white transition-all cursor-pointer shadow-sm active:scale-[0.98]"
+              >
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                <span>Google</span>
+              </button>
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={() => social("discord")}
+                className="flex h-11 items-center justify-center gap-2.5 rounded-xl border border-[#5865f2]/25 bg-[#5865f2]/10 hover:bg-[#5865f2]/20 hover:border-[#5865f2]/40 text-xs font-bold text-[#99a2ff] hover:text-white transition-all cursor-pointer shadow-sm active:scale-[0.98]"
+              >
+                <Gamepad2 size={16} className="text-[#5865f2]" />
+                <span>Discord</span>
+              </button>
             </div>
 
-            <div className="flex items-center gap-3 text-xs text-[#727a90]"><span className="h-px flex-1 bg-white/10" /><span>or create with verified email</span><span className="h-px flex-1 bg-white/10" /></div>
+            <div className="relative flex items-center justify-center my-1">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-white/10" />
+              </div>
+              <span className="relative bg-[#08090c] px-3 text-[11px] font-semibold uppercase tracking-wider text-[#727a90]">
+                or create with verified email
+              </span>
+            </div>
 
             {/* Email + Password + OTP Verification Flow */}
             <div className="space-y-4">
               {!otpSent ? (
                 <form onSubmit={handleRegisterStep1} className="space-y-3.5">
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
                       Display Name / Gamer Tag
                     </label>
                     <input 
@@ -492,12 +480,12 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                       placeholder="e.g. ShadowHunter"
                       autoComplete="name"
                       required
-                      className="h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
+                      className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 text-sm text-white placeholder-[#586074] transition-all duration-200 focus:border-[#facc15]/70 focus:bg-black/50 focus:ring-2 focus:ring-[#facc15]/15 focus:outline-none" 
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
                       Email Address
                     </label>
                     <input 
@@ -507,15 +495,15 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
                       autoComplete="email"
-                      className="h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
+                      className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 text-sm text-white placeholder-[#586074] transition-all duration-200 focus:border-[#facc15]/70 focus:bg-black/50 focus:ring-2 focus:ring-[#facc15]/15 focus:outline-none" 
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
                       WhatsApp Number
                     </label>
-                    <div className="relative">
+                    <div className="relative group">
                       <input 
                         type="tel"
                         required
@@ -523,22 +511,22 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                         onChange={(e) => setWhatsapp(e.target.value)}
                         placeholder="e.g. +91 98765 43210"
                         autoComplete="tel"
-                        className="h-11 w-full rounded-md border border-white/10 bg-black/40 pl-3.5 pr-10 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#25d366] focus:outline-none" 
+                        className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.03] pl-3.5 pr-10 text-sm text-white placeholder-[#586074] transition-all duration-200 focus:border-[#25d366]/70 focus:bg-black/50 focus:ring-2 focus:ring-[#25d366]/15 focus:outline-none" 
                       />
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#25d366] pointer-events-none">
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#25d366] pointer-events-none">
                         <MessageSquare size={16} />
                       </div>
                     </div>
-                    <span className="mt-1 block text-[11px] text-[#8991a6]">
+                    <span className="mt-1 block text-[11px] text-[#727a90]">
                       Used for instant game activation delivery & order tracking.
                     </span>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
                       Password
                     </label>
-                    <div className="relative">
+                    <div className="relative group">
                       <input 
                         type={showPassword ? "text" : "password"}
                         required
@@ -547,24 +535,24 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="At least 8 characters"
                         autoComplete="new-password"
-                        className="h-11 w-full rounded-md border border-white/10 bg-black/40 pl-3.5 pr-10 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
+                        className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.03] pl-3.5 pr-10 text-sm text-white placeholder-[#586074] transition-all duration-200 focus:border-[#facc15]/70 focus:bg-black/50 focus:ring-2 focus:ring-[#facc15]/15 focus:outline-none" 
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors cursor-pointer p-1"
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#727a90] hover:text-white transition-colors cursor-pointer p-1"
                         aria-label={showPassword ? "Hide password" : "Show password"}
                       >
-                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                       </button>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
                       Confirm Password
                     </label>
-                    <div className="relative">
+                    <div className="relative group">
                       <input 
                         type={showConfirmPassword ? "text" : "password"}
                         required
@@ -573,21 +561,21 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Re-enter your password"
                         autoComplete="new-password"
-                        className={`h-11 w-full rounded-md border bg-black/40 pl-3.5 pr-10 text-sm text-white placeholder-zinc-500 transition-colors focus:outline-none ${
+                        className={`h-11 w-full rounded-xl border bg-white/[0.03] pl-3.5 pr-10 text-sm text-white placeholder-[#586074] transition-all duration-200 focus:outline-none ${
                           confirmPassword && password !== confirmPassword 
-                            ? "border-red-500/60 focus:border-red-500" 
+                            ? "border-red-500/60 focus:border-red-500 focus:ring-2 focus:ring-red-500/15" 
                             : confirmPassword && password === confirmPassword
-                            ? "border-emerald-500/60 focus:border-emerald-500"
-                            : "border-white/10 focus:border-[#facc15]"
+                            ? "border-emerald-500/60 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15"
+                            : "border-white/10 focus:border-[#facc15]/70 focus:bg-black/50 focus:ring-2 focus:ring-[#facc15]/15"
                         }`}
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors cursor-pointer p-1"
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#727a90] hover:text-white transition-colors cursor-pointer p-1"
                         aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                       >
-                        {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                       </button>
                     </div>
                     {confirmPassword && password !== confirmPassword && (
@@ -602,14 +590,14 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                     )}
                   </div>
 
-                  <p className="text-[11px] text-[#8991a6] pt-0.5">
+                  <p className="text-[11px] text-[#727a90] pt-0.5 font-medium">
                     We will send a 6-digit verification code to confirm this email is yours.
                   </p>
 
                   <button 
                     type="submit" 
                     disabled={otpLoading} 
-                    className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-xs sm:text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 mt-2"
+                    className="w-full rounded-xl bg-gradient-to-r from-[#facc15] to-[#eab308] hover:from-[#ffe45c] hover:to-[#facc15] h-11 font-black text-black text-xs sm:text-sm tracking-wide transition-all shadow-[0_0_20px_rgba(250,204,21,0.2)] hover:shadow-[0_0_28px_rgba(250,204,21,0.35)] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 mt-2 active:scale-[0.99]"
                   >
                     {otpLoading ? "Sending Code..." : (
                       <>
@@ -619,7 +607,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                     )}
                   </button>
 
-                  <p className="flex items-center justify-center gap-1.5 text-[11px] text-[#7f879d] pt-1 text-center">
+                  <p className="flex items-center justify-center gap-1.5 text-[11px] text-[#727a90] pt-1 text-center font-medium">
                     <ShieldCheck size={13} className="shrink-0 text-[#00d68f]" />
                     <span>256-bit encrypted credentials & instant email verification.</span>
                   </p>
