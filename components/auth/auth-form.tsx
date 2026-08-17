@@ -1,6 +1,6 @@
 "use client";
 
-import { Gamepad2, MailCheck, RefreshCw, ShieldCheck, ArrowRight, Eye, EyeOff, Loader2, ChevronLeft, CheckCircle2, MessageSquare } from "lucide-react";
+import { Gamepad2, MailCheck, RefreshCw, ShieldCheck, ArrowRight, Eye, EyeOff, Loader2, ChevronLeft, MessageSquare, User, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -60,6 +60,13 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [otpSuccess, setOtpSuccess] = useState(false);
+
+  // Login States (Username / Email + Password)
+  const [loginIdentifier, setLoginIdentifier] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginMode, setLoginMode] = useState<"password" | "magic">("password");
 
   const [notice, setNotice] = useState("");
   const [emailAction, setEmailAction] = useState<"resend" | "magic" | null>(null);
@@ -262,6 +269,83 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     setNotice("Magic link sent. Check your email inbox and spam folder."); 
   }
 
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    const rawIdentifier = loginIdentifier.trim();
+    if (!rawIdentifier) {
+      return toast.error("Please enter your Gamer Tag/Username or Email");
+    }
+
+    if (loginMode === "magic") {
+      let targetEmail = rawIdentifier;
+      if (!rawIdentifier.includes("@")) {
+        const supabase = createClient();
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("email")
+          .or(`display_name.ilike.${rawIdentifier},full_name.ilike.${rawIdentifier}`)
+          .limit(1)
+          .maybeSingle();
+
+        if (!profile || !profile.email) {
+          return toast.error("No account found with this Gamer Tag. Try signing in with your email.");
+        }
+        targetEmail = profile.email;
+      }
+
+      setLoginLoading(true);
+      const { error } = await createClient().auth.signInWithOtp({
+        email: targetEmail.toLowerCase().trim(),
+        options: {
+          emailRedirectTo: redirectTo(),
+          shouldCreateUser: false,
+        },
+      });
+      setLoginLoading(false);
+      if (error) return toast.error(friendlyAuthError(error));
+      toast.success(`Magic sign-in link sent to ${targetEmail}. Check your inbox!`);
+      return;
+    }
+
+    if (!loginPassword) {
+      return toast.error("Please enter your password");
+    }
+
+    setLoginLoading(true);
+    const supabase = createClient();
+    let resolvedEmail = rawIdentifier;
+
+    // Resolve Gamer Tag/Username to Email
+    if (!rawIdentifier.includes("@")) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email")
+        .or(`display_name.ilike.${rawIdentifier},full_name.ilike.${rawIdentifier}`)
+        .limit(1)
+        .maybeSingle();
+
+      if (!profile || !profile.email) {
+        setLoginLoading(false);
+        return toast.error("No account found with that Gamer Tag / Username. Check spelling or sign in with email.");
+      }
+      resolvedEmail = profile.email;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: resolvedEmail.toLowerCase().trim(),
+      password: loginPassword,
+    });
+
+    if (error) {
+      setLoginLoading(false);
+      return toast.error(friendlyAuthError(error));
+    }
+
+    setLoginLoading(false);
+    toast.success("Welcome back!");
+    await routeSignedInUser();
+  }
+
   async function social(provider: "google" | "discord") { 
     const { error } = await createClient().auth.signInWithOAuth({ 
       provider, 
@@ -274,23 +358,115 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
     <div className="space-y-4">
       <div className="glass mx-auto max-w-md overflow-hidden rounded-xl border border-white/10 bg-[#08090c]/90 p-6 md:p-8 backdrop-blur-xl shadow-2xl">
         {mode === "login" ? (
-          <div>
-            {/* Notice to use Google & Discord exclusively */}
-            <div className="mb-6 rounded-md border border-amber-500/20 bg-amber-500/[.03] p-4 text-center">
-              <h4 className="text-amber-400 font-bold text-sm flex items-center justify-center gap-1.5 mb-1">
-                Sign In Option Notice
-              </h4>
-              <p className="text-xs text-[#a0a8c0] leading-relaxed">
-                Email Password and OTP Verification logins are currently under construction. Please use <strong>Google</strong> or <strong>Discord</strong> below to access your account.
-              </p>
+          <div className="space-y-5">
+            {/* 1-Click Fast Social Logins */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <button suppressHydrationWarning type="button" onClick={() => social("google")} className="flex h-11 items-center justify-center gap-2.5 rounded-md bg-white text-xs font-bold text-[#202124] transition hover:bg-[#f1f3f4] cursor-pointer">
+                <span className="text-sm font-black text-[#4285f4]">G</span> Google
+              </button>
+              <button suppressHydrationWarning type="button" onClick={() => social("discord")} className="flex h-11 items-center justify-center gap-2.5 rounded-md bg-[#5865f2] text-xs font-bold text-white transition hover:bg-[#4752c4] cursor-pointer">
+                <Gamepad2 size={16} /> Discord
+              </button>
             </div>
 
-            {/* Social login buttons displayed prominently */}
-            <div className="space-y-3.5">
-              <button suppressHydrationWarning type="button" onClick={() => social("google")} className="flex h-12 w-full items-center justify-center gap-3 rounded-md bg-white text-sm font-bold text-[#202124] transition hover:bg-[#f1f3f4] cursor-pointer"><span className="text-base font-black text-[#4285f4]">G</span> Sign In with Google</button>
-              <button suppressHydrationWarning type="button" onClick={() => social("discord")} className="flex h-12 w-full items-center justify-center gap-3 rounded-md bg-[#5865f2] text-sm font-bold text-white transition hover:bg-[#4752c4] cursor-pointer"><Gamepad2 size={18} /> Sign In with Discord</button>
-              <p className="flex items-center justify-center gap-2 text-[11px] text-[#7f879d] pt-2"><ShieldCheck size={13} /> Secure OAuth. Rakexura never receives your provider password.</p>
+            <div className="flex items-center gap-3 text-xs text-[#727a90]">
+              <span className="h-px flex-1 bg-white/10" />
+              <span>or sign in with username / email</span>
+              <span className="h-px flex-1 bg-white/10" />
             </div>
+
+            {/* Username / Email + Password Login Form */}
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6] mb-1.5">
+                  Gamer Tag / Username or Email
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    value={loginIdentifier}
+                    onChange={(e) => setLoginIdentifier(e.target.value)}
+                    placeholder="e.g. ShadowHunter or you@example.com"
+                    autoComplete="username"
+                    className="h-11 w-full rounded-md border border-white/10 bg-black/40 pl-3.5 pr-10 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none"
+                  />
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">
+                    {loginIdentifier.includes("@") ? <Mail size={15} /> : <User size={15} />}
+                  </div>
+                </div>
+              </div>
+
+              {loginMode === "password" ? (
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#8991a6]">
+                      Password
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setLoginMode("magic")}
+                      className="text-[11px] text-[#facc15] hover:underline cursor-pointer font-medium"
+                    >
+                      Use Magic Link instead?
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showLoginPassword ? "text" : "password"}
+                      required
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      autoComplete="current-password"
+                      className="h-11 w-full rounded-md border border-white/10 bg-black/40 pl-3.5 pr-10 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginPassword(!showLoginPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors cursor-pointer p-1"
+                      aria-label={showLoginPassword ? "Hide password" : "Show password"}
+                    >
+                      {showLoginPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-md border border-amber-500/20 bg-amber-500/[.03] p-3 text-xs text-[#a0a8c0] flex items-center justify-between">
+                  <span>We&apos;ll email you a 1-click instant login link.</span>
+                  <button
+                    type="button"
+                    onClick={() => setLoginMode("password")}
+                    className="text-[#facc15] hover:underline font-bold ml-2 shrink-0 cursor-pointer"
+                  >
+                    Back to Password
+                  </button>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loginLoading}
+                className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-xs sm:text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-2"
+              >
+                {loginLoading ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin text-black" />
+                    <span>Signing In...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{loginMode === "magic" ? "Send Magic Sign-In Link" : "Sign In to Rakexura"}</span>
+                    <ArrowRight size={15} />
+                  </>
+                )}
+              </button>
+
+              <p className="flex items-center justify-center gap-1.5 text-[11px] text-[#7f879d] pt-1 text-center">
+                <ShieldCheck size={13} className="shrink-0 text-[#00d68f]" />
+                <span>256-bit encrypted credentials & session security.</span>
+              </p>
+            </form>
           </div>
         ) : (
           <div className="space-y-5">
