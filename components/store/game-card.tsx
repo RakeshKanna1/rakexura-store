@@ -93,7 +93,7 @@ function GameCardInner({
           height={550}
           priority={priority}
           sizes="(max-width: 768px) 170px, 240px"
-          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+          className="h-full w-full object-cover transition-transform duration-500 ease-out md:group-hover:scale-[1.06]"
         />
       </Link>
 
@@ -245,12 +245,20 @@ export function GameCard({
     transition: { duration: 0.42, ease: [0.2, 0.7, 0.2, 1] as [number, number, number, number] }
   } : {};
 
-  const baseCardClasses = "spotlight-card group relative flex flex-col overflow-hidden rounded-md border transition-all duration-300 ease-out";
-  const hoverTranslate = showDesktopEffects ? "hover:-translate-y-1.5" : "";
+  const baseCardClasses = "spotlight-card group relative flex flex-col overflow-hidden rounded-md border transition-colors duration-200";
+  const hoverTranslate = showDesktopEffects ? "hover:-translate-y-1.5 transition-transform duration-300" : "";
   
   const themeClasses = game.is_premium
     ? `border-[#d4af37]/35 bg-[#14110a]/90 ${showDesktopEffects ? "hover:border-[#d4af37]/80 hover:shadow-[0_12px_40px_rgba(212,175,55,0.28)]" : ""}`
     : `border-white/[0.08] bg-[#0c0d16]/90 ${showDesktopEffects ? "hover:border-[#facc15]/40 hover:bg-[#15171e] hover:shadow-[0_12px_40px_rgba(250,204,21,0.14)]" : "hover:border-[#facc15]/40 hover:bg-[#15171e]"}`;
+
+  if (!showDesktopEffects) {
+    return (
+      <article className={`${baseCardClasses} ${themeClasses}`}>
+        <GameCardInner {...props} />
+      </article>
+    );
+  }
 
   return (
     <motion.article
