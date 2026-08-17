@@ -222,149 +222,218 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
   return (
     <div className="space-y-4">
       <div className="glass mx-auto max-w-md overflow-hidden rounded-lg p-6 md:p-8">
-        {/* Notice to use Google & Discord exclusively */}
-        <div className="mb-6 rounded-md border border-amber-500/20 bg-amber-500/[.03] p-4 text-center">
-          <h4 className="text-amber-400 font-bold text-sm flex items-center justify-center gap-1.5 mb-1">
-            Sign In Option Notice
-          </h4>
-          <p className="text-xs text-[#a0a8c0] leading-relaxed">
-            Email Password and OTP Verification logins are currently under construction. Please use <strong>Google</strong> or <strong>Discord</strong> below to access your account.
-          </p>
-        </div>
+        {mode === "login" ? (
+          <div>
+            {/* Notice to use Google & Discord exclusively */}
+            <div className="mb-6 rounded-md border border-amber-500/20 bg-amber-500/[.03] p-4 text-center">
+              <h4 className="text-amber-400 font-bold text-sm flex items-center justify-center gap-1.5 mb-1">
+                Sign In Option Notice
+              </h4>
+              <p className="text-xs text-[#a0a8c0] leading-relaxed">
+                Email Password and OTP Verification logins are currently under construction. Please use <strong>Google</strong> or <strong>Discord</strong> below to access your account.
+              </p>
+            </div>
 
-        {/* Social login buttons displayed prominently */}
-        <div className="space-y-4">
-          <button suppressHydrationWarning type="button" onClick={() => social("google")} className="flex h-12 w-full items-center justify-center gap-3 rounded-md bg-white text-sm font-bold text-[#202124] transition hover:bg-[#f1f3f4] cursor-pointer"><span className="text-base font-black text-[#4285f4]">G</span> Sign In with Google</button>
-          <button suppressHydrationWarning type="button" onClick={() => social("discord")} className="flex h-12 w-full items-center justify-center gap-3 rounded-md bg-[#5865f2] text-sm font-bold text-white transition hover:bg-[#4752c4] cursor-pointer"><Gamepad2 size={18} /> Sign In with Discord</button>
-          <p className="flex items-center justify-center gap-2 text-[11px] text-[#7f879d] pt-2"><ShieldCheck size={13} /> Secure OAuth. Rakexura never receives your provider password.</p>
-        </div>
-
-        {/* Keep the other flows and tabs in a hidden container to preserve state usages and variable compilation */}
-        <div className="hidden" aria-hidden="true">
-          {/* Auth Method Tabs */}
-          <div className="flex border-b border-white/10 mb-6">
-            <button
-              type="button"
-              onClick={() => setAuthMethod("otp")}
-              className={`flex-1 pb-3 text-xs font-bold text-center border-b-2 transition select-none ${
-                authMethod === "otp" ? "border-[#6974ff] text-white" : "border-transparent text-[#8991a6]"
-              }`}
-            >
-              Email Verification Code (OTP)
-            </button>
-            <button
-              type="button"
-              onClick={() => setAuthMethod("password")}
-              className={`flex-1 pb-3 text-xs font-bold text-center border-b-2 transition select-none ${
-                authMethod === "password" ? "border-[#6974ff] text-white" : "border-transparent text-[#8991a6]"
-              }`}
-            >
-              Password
-            </button>
+            {/* Social login buttons displayed prominently */}
+            <div className="space-y-3.5">
+              <button suppressHydrationWarning type="button" onClick={() => social("google")} className="flex h-12 w-full items-center justify-center gap-3 rounded-md bg-white text-sm font-bold text-[#202124] transition hover:bg-[#f1f3f4] cursor-pointer"><span className="text-base font-black text-[#4285f4]">G</span> Sign In with Google</button>
+              <button suppressHydrationWarning type="button" onClick={() => social("discord")} className="flex h-12 w-full items-center justify-center gap-3 rounded-md bg-[#5865f2] text-sm font-bold text-white transition hover:bg-[#4752c4] cursor-pointer"><Gamepad2 size={18} /> Sign In with Discord</button>
+              <p className="flex items-center justify-center gap-2 text-[11px] text-[#7f879d] pt-2"><ShieldCheck size={13} /> Secure OAuth. Rakexura never receives your provider password.</p>
+            </div>
           </div>
+        ) : (
+          <div className="space-y-5">
+            {/* Social sign up buttons */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <button suppressHydrationWarning type="button" onClick={() => social("google")} className="flex h-11 items-center justify-center gap-2.5 rounded-md bg-white text-xs font-bold text-[#202124] transition hover:bg-[#f1f3f4] cursor-pointer"><span className="text-sm font-black text-[#4285f4]">G</span> Google</button>
+              <button suppressHydrationWarning type="button" onClick={() => social("discord")} className="flex h-11 items-center justify-center gap-2.5 rounded-md bg-[#5865f2] text-xs font-bold text-white transition hover:bg-[#4752c4] cursor-pointer"><Gamepad2 size={16} /> Discord</button>
+            </div>
 
-          {/* 1. OTP Code Auth Flow */}
-          {authMethod === "otp" && (
-            <div className="space-y-5">
-              {!otpSent ? (
-                <form onSubmit={handleSendOtp} className="space-y-5">
-                  {mode === "register" && (
-                    <label className="block text-sm font-semibold">
-                      Display name
+            <div className="flex items-center gap-3 text-xs text-[#727a90]"><span className="h-px flex-1 bg-white/10" /><span>or register with email</span><span className="h-px flex-1 bg-white/10" /></div>
+
+            {/* Auth Method Tabs */}
+            <div className="flex border-b border-white/10 mb-5">
+              <button
+                type="button"
+                onClick={() => setAuthMethod("password")}
+                className={`flex-1 pb-2.5 text-xs font-bold text-center border-b-2 transition select-none cursor-pointer ${
+                  authMethod === "password" ? "border-[#facc15] text-[#facc15]" : "border-transparent text-[#8991a6] hover:text-white"
+                }`}
+              >
+                Password
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuthMethod("otp")}
+                className={`flex-1 pb-2.5 text-xs font-bold text-center border-b-2 transition select-none cursor-pointer ${
+                  authMethod === "otp" ? "border-[#facc15] text-[#facc15]" : "border-transparent text-[#8991a6] hover:text-white"
+                }`}
+              >
+                Email Code (OTP)
+              </button>
+            </div>
+
+            {/* Password Registration Flow */}
+            {authMethod === "password" && (
+              <form onSubmit={handleSubmit(onSubmitPassword)} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#a0a8c0] mb-1.5">
+                    Display Name / Gamer Tag
+                  </label>
+                  <input 
+                    {...register("name")} 
+                    autoComplete="name" 
+                    placeholder="e.g. ShadowHunter" 
+                    className="h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#a0a8c0] mb-1.5">
+                    Email Address
+                  </label>
+                  <input 
+                    {...emailField} 
+                    type="email" 
+                    autoComplete="email" 
+                    placeholder="you@example.com" 
+                    className="h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
+                  />
+                  {errors.email && <span className="mt-1 block text-xs text-[#ff7373]">{errors.email.message}</span>}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#a0a8c0] mb-1.5">
+                    Password
+                  </label>
+                  <input 
+                    {...register("password")} 
+                    type="password" 
+                    autoComplete="new-password" 
+                    placeholder="At least 8 characters" 
+                    className="h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
+                  />
+                  {errors.password && <span className="mt-1 block text-xs text-[#ff7373]">{errors.password.message}</span>}
+                </div>
+
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting} 
+                  className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                >
+                  {isSubmitting ? "Creating Account..." : "Create Account"}
+                </button>
+
+                <p className="flex items-center justify-center gap-1.5 text-[11px] text-[#7f879d] pt-1 text-center">
+                  <ShieldCheck size={13} className="shrink-0 text-[#00d68f]" />
+                  <span>Encrypted credentials. Instant access to your dashboard.</span>
+                </p>
+              </form>
+            )}
+
+            {/* OTP Code Registration Flow */}
+            {authMethod === "otp" && (
+              <div className="space-y-4">
+                {!otpSent ? (
+                  <form onSubmit={handleSendOtp} className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-[#a0a8c0] mb-1.5">
+                        Display Name / Gamer Tag
+                      </label>
                       <input 
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
-                        placeholder="Gamer tag"
+                        placeholder="e.g. ShadowHunter"
                         autoComplete="name"
-                        className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#6974ff] text-white" 
+                        className="h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
                       />
-                    </label>
-                  )}
-                  <label className="block text-sm font-semibold">
-                    Email address
-                    <input 
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      autoComplete="email"
-                      className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#6974ff] text-white" 
-                    />
-                  </label>
-                  <Button disabled={otpLoading} className="w-full">
-                    {otpLoading ? "Sending Code..." : "Send Verification Code"}
-                  </Button>
-                </form>
-              ) : (
-                <form onSubmit={handleVerifyOtp} className="space-y-5">
-                  <div className="rounded-md border border-[#6974ff]/20 bg-[#6974ff]/5 p-4 text-xs text-[#a3aeff] leading-relaxed">
-                    <p className="text-xs text-[#8991a6] text-center leading-relaxed">
-                      We sent a verification code to <strong>{email}</strong>. Copy the code and paste it below.
-                    </p>
-                  </div>
-                  <label className="block text-sm font-semibold">
-                    Verification Code (OTP)
-                    <input 
-                      type="text"
-                      maxLength={8}
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-                      placeholder="123456"
-                      pattern="[0-9]{6,8}"
-                      autoComplete="one-time-code"
-                      className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#6974ff] text-center text-xl font-bold tracking-[0.2em] text-white" 
-                    />
-                  </label>
-                  <Button disabled={otpLoading} className="w-full">
-                    {otpLoading ? "Verifying..." : "Verify & Log In"}
-                  </Button>
-                  <div className="flex justify-between items-center text-xs">
-                    <button 
-                      type="button" 
-                      onClick={() => setOtpSent(false)} 
-                      className="text-[#8991a6] hover:text-white underline"
-                    >
-                      Change Email
-                    </button>
-                    <button 
-                      type="button" 
-                      onClick={handleSendOtp} 
-                      className="text-[#8991a6] hover:text-white underline"
-                    >
-                      Resend Code
-                    </button>
-                  </div>
-                </form>
-              )}
+                    </div>
 
-              <div className="flex items-center gap-3 text-xs text-[#727a90]"><span className="h-px flex-1 bg-white/10" />or<span className="h-px flex-1 bg-white/10" /></div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <button type="button" onClick={() => social("google")} className="flex h-12 items-center justify-center gap-3 rounded-md bg-white text-sm font-bold text-[#202124] transition hover:bg-[#f1f3f4]"><span className="text-base font-black text-[#4285f4]">G</span> Google</button>
-                <button type="button" onClick={() => social("discord")} className="flex h-12 items-center justify-center gap-3 rounded-md bg-[#5865f2] text-sm font-bold text-white transition hover:bg-[#4752c4]"><Gamepad2 size={18} /> Discord</button>
+                    <div>
+                      <label className="block text-xs font-bold text-[#a0a8c0] mb-1.5">
+                        Email Address
+                      </label>
+                      <input 
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@example.com"
+                        autoComplete="email"
+                        className="h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-sm text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
+                      />
+                    </div>
+
+                    <button 
+                      type="submit" 
+                      disabled={otpLoading} 
+                      className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                    >
+                      {otpLoading ? "Sending Code..." : "Send Verification Code"}
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleVerifyOtp} className="space-y-4">
+                    <div className="rounded-md border border-[#facc15]/20 bg-[#facc15]/5 p-3 text-xs text-[#a0a8c0] text-center leading-relaxed">
+                      We sent a verification code to <strong className="text-white">{email}</strong>. Copy and paste it below:
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#a0a8c0] mb-1.5">
+                        Verification Code (OTP)
+                      </label>
+                      <input 
+                        type="text"
+                        maxLength={8}
+                        required
+                        autoFocus
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                        placeholder="123456"
+                        pattern="[0-9]{6,8}"
+                        autoComplete="one-time-code"
+                        className="h-11 w-full rounded-md border border-white/10 bg-black/40 px-3.5 text-center text-lg font-black tracking-[0.2em] text-white placeholder-zinc-500 transition-colors focus:border-[#facc15] focus:outline-none" 
+                      />
+                    </div>
+
+                    <button 
+                      type="submit" 
+                      disabled={otpLoading} 
+                      className="w-full rounded-md bg-[#facc15] hover:bg-[#ffe45c] h-11 font-black text-black text-sm transition shadow-md shadow-[#facc15]/10 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                    >
+                      {otpLoading ? "Verifying..." : "Verify & Create Account"}
+                    </button>
+
+                    <div className="flex justify-between items-center text-xs pt-1">
+                      <button 
+                        type="button" 
+                        onClick={() => setOtpSent(false)} 
+                        className="text-[#8991a6] hover:text-white underline cursor-pointer"
+                      >
+                        Change Email
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={handleSendOtp} 
+                        className="text-[#8991a6] hover:text-white underline cursor-pointer"
+                      >
+                        Resend Code
+                      </button>
+                    </div>
+                  </form>
+                )}
               </div>
-            </div>
-          )}
-
-          {/* 2. Password Auth Flow */}
-          {authMethod === "password" && (
-            <form onSubmit={handleSubmit(onSubmitPassword)} className="space-y-5">
-              {mode === "register" && <label className="block text-sm font-semibold">Display name<input {...register("name")} autoComplete="name" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#6974ff]" /></label>}
-              <label className="block text-sm font-semibold">Email<input {...emailField} type="email" autoComplete="email" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#6974ff]" />{errors.email && <span className="mt-1 block text-xs text-[#ff7373]">{errors.email.message}</span>}</label>
-              <label className="block text-sm font-semibold">Password<input {...register("password")} type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#6974ff]" />{errors.password && <span className="mt-1 block text-xs text-[#ff7373]">{errors.password.message}</span>}</label>
-              <Button disabled={isSubmitting} className="w-full">{isSubmitting ? "Please wait..." : mode === "login" ? "Sign in" : "Create account"}</Button>
-              <div className="flex items-center gap-3 text-xs text-[#727a90]"><span className="h-px flex-1 bg-white/10" />or<span className="h-px flex-1 bg-white/10" /></div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><button type="button" onClick={() => social("google")} className="flex h-12 items-center justify-center gap-3 rounded-md bg-white text-sm font-bold text-[#202124] transition hover:bg-[#f1f3f4]"><span className="text-base font-black text-[#4285f4]">G</span> Google</button><button type="button" onClick={() => social("discord")} className="flex h-12 items-center justify-center gap-3 rounded-md bg-[#5865f2] text-sm font-bold text-white transition hover:bg-[#4752c4]"><Gamepad2 size={18} /> Discord</button></div>
-              <p className="flex items-center justify-center gap-2 text-[11px] text-[#7f879d]"><ShieldCheck size={13} /> Secure OAuth. Rakexura never receives your provider password.</p>
-            </form>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {notice && <div className="mx-auto max-w-md rounded-md border border-[#00d68f]/20 bg-[#00d68f]/[.06] p-4"><div className="flex gap-3"><MailCheck className="shrink-0 text-[#70efbb]" /><p className="text-sm leading-6 text-[#b8d8cb]">{notice}</p></div></div>}
-      {authMethod === "password" && (
-        <div className="hidden" aria-hidden="true">
-          <div className="mx-auto grid max-w-md grid-cols-1 gap-2 sm:grid-cols-2"><button type="button" onClick={resend} disabled={emailAction !== null} className="btn btn-secondary text-sm"><RefreshCw size={16} /> {emailAction === "resend" ? "Sending..." : "Resend confirmation"}</button><button type="button" onClick={magicLink} disabled={emailAction !== null} className="btn btn-secondary text-sm"><MailCheck size={16} /> {emailAction === "magic" ? "Sending..." : "Use magic link"}</button></div>
-          <p className="mx-auto max-w-md text-center text-xs leading-5 text-[#8991a6]">Email can take a few minutes. Check Promotions and Spam before resending.</p>
+      {notice && (
+        <div className="mx-auto max-w-md rounded-md border border-[#00d68f]/20 bg-[#00d68f]/[.06] p-4">
+          <div className="flex gap-3">
+            <MailCheck className="shrink-0 text-[#70efbb]" />
+            <p className="text-sm leading-6 text-[#b8d8cb]">{notice}</p>
+          </div>
         </div>
       )}
     </div>
