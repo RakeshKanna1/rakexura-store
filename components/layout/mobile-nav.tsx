@@ -14,6 +14,14 @@ export function MobileNav() {
   const count = useCartStore((state) => state.lines.reduce((sum, line) => sum + line.quantity, 0) + state.bundleLines.reduce((sum, line) => sum + line.quantity, 0));
   const [mounted, setMounted] = useState(false);
 
+  const isAuthPage = Boolean(
+    path === "/login" ||
+    path === "/register" ||
+    path === "/reset-password" ||
+    path === "/otp-preview" ||
+    path?.startsWith("/auth")
+  );
+
   useEffect(() => {
     setMounted(true);
     // Prefetch bottom nav items in background on mobile mounts
@@ -21,6 +29,8 @@ export function MobileNav() {
       router.prefetch(item.href);
     });
   }, [router]);
+
+  if (isAuthPage) return null;
 
   return (
     <nav

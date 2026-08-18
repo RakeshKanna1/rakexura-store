@@ -124,13 +124,13 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
 
         return `
           <tr style="border-bottom:1px solid #e5e5e5;">
-            <td style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:'Outfit','Plus Jakarta Sans',sans-serif;" width="50%">
+            <td style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="50%">
               ${title}
             </td>
-            <td style="padding:14px 12px;font-size:12px;color:#555555;font-family:'Plus Jakarta Sans',sans-serif;" width="25%">
+            <td style="padding:14px 12px;font-size:12px;color:#555555;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="25%">
               ${platform} ${qty > 1 ? `(Qty: ${qty})` : ''}
             </td>
-            <td align="right" style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:'Outfit',monospace;" width="25%">
+            <td align="right" style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:ui-monospace,Consolas,monospace;" width="25%">
               ${priceDisplay}
             </td>
           </tr>
@@ -138,9 +138,9 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
       }).join("")
     : `
       <tr style="border-bottom:1px solid #e5e5e5;">
-        <td style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:'Outfit',sans-serif;">PC Game Order Item</td>
-        <td style="padding:14px 12px;font-size:12px;color:#555555;font-family:'Plus Jakarta Sans',sans-serif;">Rakexura Games</td>
-        <td align="right" style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:'Outfit',monospace;">₹${total.toLocaleString('en-IN')}.00 INR</td>
+        <td style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">PC Game Order Item</td>
+        <td style="padding:14px 12px;font-size:12px;color:#555555;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Rakexura Games</td>
+        <td align="right" style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:ui-monospace,Consolas,monospace;">₹${total.toLocaleString('en-IN')}.00 INR</td>
       </tr>
     `;
 
@@ -154,16 +154,13 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
         <head>
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-          <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet" />
           <style>
             body, table, td, p, a, h1, div, span, strong {
-              font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
             }
           </style>
         </head>
-        <body style="margin:0;padding:0;background-color:#ffffff;font-family:'Outfit','Plus Jakarta Sans',-apple-system,sans-serif;color:#121212;-webkit-font-smoothing:antialiased;">
+        <body style="margin:0;padding:0;background-color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#121212;-webkit-font-smoothing:antialiased;">
           <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#ffffff;padding:40px 15px;">
             <tr>
               <td align="center">
@@ -187,7 +184,7 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
 
                   <!-- Subhead -->
                   <tr>
-                    <td align="center" style="padding-bottom:28px;font-size:14px;color:#333333;line-height:1.5;font-family:'Plus Jakarta Sans',sans-serif;">
+                    <td align="center" style="padding-bottom:28px;font-size:14px;color:#333333;line-height:1.5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
                       A new order payment proof has been uploaded by <strong style="color:#000000;">${customerName}</strong>. Please verify and fulfill from the admin panel.
                     </td>
                   </tr>
@@ -195,10 +192,10 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
                   <!-- ORDER REFERENCE ID BLOCK -->
                   <tr>
                     <td align="center" style="padding-bottom:30px;">
-                      <div style="font-size:12px;font-weight:900;color:#727272;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:'Outfit',sans-serif;">
+                      <div style="font-size:12px;font-weight:900;color:#727272;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
                         ORDER REFERENCE:
                       </div>
-                      <div style="font-size:28px;font-weight:900;color:#000000;letter-spacing:1px;font-family:'Outfit',Consolas,monospace;">
+                      <div style="font-size:28px;font-weight:900;color:#000000;letter-spacing:1px;font-family:ui-monospace,Consolas,monospace;">
                         ${orderRef}
                       </div>
                     </td>
@@ -207,17 +204,17 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
                   <!-- CUSTOMER INFORMATION -->
                   <tr>
                     <td align="left" style="padding-bottom:24px;">
-                      <div style="font-size:11px;font-weight:900;color:#727272;letter-spacing:1.5px;text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid #e5e5e5;margin-bottom:16px;font-family:'Outfit',sans-serif;">
+                      <div style="font-size:11px;font-weight:900;color:#727272;letter-spacing:1.5px;text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid #e5e5e5;margin-bottom:16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
                         CUSTOMER INFORMATION:
                       </div>
-                      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;width:100%;font-size:13px;color:#121212;font-family:'Plus Jakarta Sans',sans-serif;">
+                      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;width:100%;font-size:13px;color:#121212;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
                         <tr>
                           <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
-                            <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">Customer Name:</strong>
+                            <strong style="display:block;color:#000000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Customer Name:</strong>
                             <span style="color:#555555;">${customerName}</span>
                           </td>
                           <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
-                            <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">Customer Email:</strong>
+                            <strong style="display:block;color:#000000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Customer Email:</strong>
                             <a href="mailto:${customerEmail}" style="color:#0066cc;text-decoration:none;font-weight:700;word-break:break-all;">${customerEmail}</a>
                           </td>
                         </tr>
@@ -270,14 +267,14 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
                           Open Admin Dashboard &rarr;
                         </a>
                       </div>
-                      <p style="margin:0;font-size:12px;color:#727272;font-family:'Plus Jakarta Sans',sans-serif;">Click to verify payment proof and release activation keys.</p>
+                      <p style="margin:0;font-size:12px;color:#727272;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Click to verify payment proof and release activation keys.</p>
                     </td>
                   </tr>
 
                   <!-- FOOTER -->
                   <tr>
-                    <td align="center" style="padding-top:24px;font-size:11px;color:#727272;line-height:1.6;font-family:'Plus Jakarta Sans',sans-serif;">
-                      <div style="font-weight:700;color:#000000;margin-bottom:4px;font-family:'Outfit',sans-serif;">Rakexura Store Admin Operations</div>
+                    <td align="center" style="padding-top:24px;font-size:11px;color:#727272;line-height:1.6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                      <div style="font-weight:700;color:#000000;margin-bottom:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Rakexura Store Admin Operations</div>
                       <div style="margin-bottom:16px;">Automated Admin Notification System</div>
 
                       <div style="margin-bottom:16px;">
@@ -308,17 +305,13 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet" />
         <style>
           body, table, td, p, a, h1, div, span, strong {
-            font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
           }
         </style>
       </head>
-      <body style="margin:0;padding:0;background-color:#ffffff;font-family:'Outfit','Plus Jakarta Sans',-apple-system,sans-serif;color:#121212;-webkit-font-smoothing:antialiased;">
+      <body style="margin:0;padding:0;background-color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#121212;-webkit-font-smoothing:antialiased;">
         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#ffffff;padding:40px 15px;">
           <tr>
             <td align="center">
@@ -334,7 +327,7 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
                 <!-- Thank You Headline -->
                 <tr>
                   <td align="center" style="padding-bottom:20px;">
-                    <h1 style="margin:0;font-size:38px;font-weight:900;color:#000000;letter-spacing:-0.5px;line-height:1.1;font-family:'Outfit',sans-serif;">
+                    <h1 style="margin:0;font-size:38px;font-weight:900;color:#000000;letter-spacing:-0.5px;line-height:1.1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
                       Thank You.
                     </h1>
                   </td>
@@ -342,8 +335,8 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
 
                 <!-- Greeting Subhead -->
                 <tr>
-                  <td align="center" style="padding-bottom:30px;font-size:14px;color:#333333;line-height:1.5;font-family:'Plus Jakarta Sans',sans-serif;">
-                    <strong style="font-size:15px;color:#000000;display:block;margin-bottom:4px;font-family:'Outfit',sans-serif;">Hi ${customerName}!</strong>
+                  <td align="center" style="padding-bottom:30px;font-size:14px;color:#333333;line-height:1.5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                    <strong style="font-size:15px;color:#000000;display:block;margin-bottom:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Hi ${customerName}!</strong>
                     Thank you for your purchase!
                   </td>
                 </tr>
@@ -351,10 +344,10 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
                 <!-- INVOICE ID SECTION -->
                 <tr>
                   <td align="center" style="padding-bottom:35px;">
-                    <div style="font-size:14px;font-weight:900;color:#000000;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:'Outfit',sans-serif;">
+                    <div style="font-size:14px;font-weight:900;color:#000000;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
                       INVOICE ID:
                     </div>
-                    <div style="font-size:32px;font-weight:900;color:#000000;letter-spacing:1px;font-family:'Outfit',Consolas,monospace;">
+                    <div style="font-size:32px;font-weight:900;color:#000000;letter-spacing:1px;font-family:ui-monospace,Consolas,monospace;">
                       ${orderRef}
                     </div>
                   </td>
@@ -363,27 +356,27 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
                 <!-- YOUR ORDER INFORMATION -->
                 <tr>
                   <td align="left" style="padding-bottom:28px;">
-                    <div style="font-size:11px;font-weight:900;color:#727272;letter-spacing:1.5px;text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid #e5e5e5;margin-bottom:16px;font-family:'Outfit',sans-serif;">
+                    <div style="font-size:11px;font-weight:900;color:#727272;letter-spacing:1.5px;text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid #e5e5e5;margin-bottom:16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
                       YOUR ORDER INFORMATION:
                     </div>
-                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;width:100%;font-size:13px;color:#121212;font-family:'Plus Jakarta Sans',sans-serif;">
+                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed;width:100%;font-size:13px;color:#121212;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
                       <tr>
                         <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
-                          <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">Order ID:</strong>
-                          <span style="color:#555555;font-family:'Outfit',monospace;">${orderRef}</span>
+                          <strong style="display:block;color:#000000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Order ID:</strong>
+                          <span style="color:#555555;font-family:ui-monospace,Consolas,monospace;">${orderRef}</span>
                         </td>
                         <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
-                          <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">Bill To:</strong>
+                          <strong style="display:block;color:#000000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Bill To:</strong>
                           <span style="color:#0066cc;word-break:break-all;">${customerEmail || customerWhatsApp || "Valued Customer"}</span>
                         </td>
                       </tr>
                       <tr>
                         <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
-                          <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">Order Date:</strong>
+                          <strong style="display:block;color:#000000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Order Date:</strong>
                           <span style="color:#555555;">${dateStr}</span>
                         </td>
                         <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
-                          <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">Source:</strong>
+                          <strong style="display:block;color:#000000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Source:</strong>
                           <span style="color:#555555;">Rakexura Store</span>
                         </td>
                       </tr>
@@ -394,16 +387,16 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
                 <!-- HERE'S WHAT YOU ORDERED -->
                 <tr>
                   <td align="left" style="padding-bottom:30px;">
-                    <div style="font-size:11px;font-weight:900;color:#727272;letter-spacing:1.5px;text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid #e5e5e5;margin-bottom:16px;font-family:'Outfit',sans-serif;">
+                    <div style="font-size:11px;font-weight:900;color:#727272;letter-spacing:1.5px;text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid #e5e5e5;margin-bottom:16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
                       HERE'S WHAT YOU ORDERED:
                     </div>
 
                     <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;">
                       <thead>
                         <tr style="background:#f2f2f2;">
-                          <th align="left" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:'Outfit',sans-serif;" width="50%">Description</th>
-                          <th align="left" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:'Outfit',sans-serif;" width="25%">Publisher</th>
-                          <th align="right" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:'Outfit',sans-serif;" width="25%">Price</th>
+                          <th align="left" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="50%">Description</th>
+                          <th align="left" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="25%">Publisher</th>
+                          <th align="right" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="25%">Price</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -414,11 +407,11 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
                     ${total === 0 ? `
                     <!-- Discounts Row -->
                     <div style="border-top:1px solid #e5e5e5;margin-top:16px;padding-top:12px;">
-                      <div style="font-size:11px;font-weight:900;color:#727272;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;font-family:'Outfit',sans-serif;">Discounts:</div>
+                      <div style="font-size:11px;font-weight:900;color:#727272;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Discounts:</div>
                       <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="font-size:13px;">
                         <tr>
-                          <td style="color:#555555;font-family:'Plus Jakarta Sans',sans-serif;" width="75%">Sale Discount / Free Reward Coupon</td>
-                          <td align="right" style="color:#000000;font-weight:700;font-family:'Outfit',monospace;" width="25%">- ₹880.00 INR</td>
+                          <td style="color:#555555;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="75%">Sale Discount / Free Reward Coupon</td>
+                          <td align="right" style="color:#000000;font-weight:700;font-family:ui-monospace,Consolas,monospace;" width="25%">- ₹880.00 INR</td>
                         </tr>
                       </table>
                     </div>
@@ -426,15 +419,15 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
 
                     <!-- TOTAL ROW -->
                     <div style="border-top:1px solid #e5e5e5;margin-top:16px;padding-top:14px;text-align:right;">
-                      <span style="font-size:12px;font-weight:900;color:#727272;letter-spacing:1px;text-transform:uppercase;margin-right:16px;font-family:'Outfit',sans-serif;">TOTAL:</span>
-                      <span style="font-size:16px;font-weight:900;color:#000000;font-family:'Outfit',monospace;">₹${total.toLocaleString('en-IN')}.00 INR</span>
+                      <span style="font-size:12px;font-weight:900;color:#727272;letter-spacing:1px;text-transform:uppercase;margin-right:16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">TOTAL:</span>
+                      <span style="font-size:16px;font-weight:900;color:#000000;font-family:ui-monospace,Consolas,monospace;">₹${total.toLocaleString('en-IN')}.00 INR</span>
                     </div>
                   </td>
                 </tr>
 
                 <!-- RECORD KEEPING & ACTION LINKS -->
                 <tr>
-                  <td align="center" style="padding:24px 0;border-top:1px solid #e5e5e5;border-bottom:1px solid #e5e5e5;font-size:12px;color:#555555;font-family:'Plus Jakarta Sans',sans-serif;">
+                  <td align="center" style="padding:24px 0;border-top:1px solid #e5e5e5;border-bottom:1px solid #e5e5e5;font-size:12px;color:#555555;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
                     <p style="margin:0 0 12px 0;">Please keep a copy of this receipt for your records.</p>
                     <div style="line-height:1.8;">
                       <div>
@@ -449,11 +442,11 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
 
                 <!-- POLICY & LEGAL FOOTER -->
                 <tr>
-                  <td align="center" style="padding-top:28px;font-size:11px;color:#727272;line-height:1.6;font-family:'Plus Jakarta Sans',sans-serif;">
+                  <td align="center" style="padding-top:28px;font-size:11px;color:#727272;line-height:1.6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
                     <p style="margin:0 0 16px 0;">
                       PC games and apps purchased on Rakexura Store are eligible for instant delivery upon payment verification. If you have any activation questions, please contact our support team.
                     </p>
-                    <div style="font-weight:700;color:#000000;margin-bottom:4px;font-family:'Outfit',sans-serif;">Rakexura Store Gaming Pvt Ltd</div>
+                    <div style="font-weight:700;color:#000000;margin-bottom:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Rakexura Store Gaming Pvt Ltd</div>
                     <div style="margin-bottom:20px;">Authorized PC Game Reseller · India</div>
 
                     <!-- Bottom RX Metallic Silver Shield Badge Only -->

@@ -27,7 +27,7 @@ const defaultAnnouncements = [
  */
 function renderHighlightedMessage(message: string) {
   // Regex to split by key highlight words
-  const parts = message.split(/(RAKE10|10%|PRE-ORDER|ONIMUSHA)/gi);
+  const parts = message.split(/(RAKE10|10%|PRE-ORDER|ONIMUSHA|FLASH SALE|INSTANT DELIVERY|DISCOUNT)/gi);
 
   return parts.map((part, index) => {
     const upper = part.toUpperCase();
@@ -35,16 +35,16 @@ function renderHighlightedMessage(message: string) {
       return (
         <span
           key={index}
-          className="mx-0.5 inline-block rounded bg-[#facc15]/10 px-1 py-0.5 font-bold tracking-widest text-[#facc15] border border-[#facc15]/25"
+          className="mx-0.5 inline-block rounded bg-[#facc15]/10 px-1.5 py-0.5 font-bold tracking-widest text-[#facc15] border border-[#facc15]/25"
         >
           RAKE10
         </span>
       );
     }
-    if (upper === "10%") {
+    if (upper === "10%" || upper === "FLASH SALE" || upper === "INSTANT DELIVERY" || upper === "DISCOUNT") {
       return (
         <span key={index} className="font-bold text-[#facc15]">
-          10%
+          {part}
         </span>
       );
     }
@@ -74,7 +74,7 @@ export async function OfferMarquee() {
 
   return (
     <aside
-      className="offer-marquee relative flex h-9.5 sm:h-10.5 md:h-11 w-full items-center overflow-hidden border-b border-[#facc15]/15 bg-[#0e0c06] select-none shadow-[inset_0_1px_12px_rgba(250,204,21,0.06)]"
+      className="offer-marquee relative flex h-9.5 sm:h-10.5 md:h-11 w-full items-center overflow-hidden border-b border-[#facc15]/15 bg-[#0e0c06]/95 backdrop-blur-md select-none shadow-[inset_0_1px_12px_rgba(250,204,21,0.06)]"
       aria-label="Store announcements and offers"
     >
       {/* Subtle warm gold ambient center wash */}
@@ -134,7 +134,7 @@ export async function OfferMarquee() {
                       href="https://wa.me/918317416695?text=Hello%20Rakexura%20Gaming%20Community"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center cursor-pointer hover:brightness-125 transition-all duration-150"
+                      className="inline-flex items-center cursor-pointer hover:brightness-125 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#facc15]/60 focus-visible:rounded transition-all duration-150"
                       aria-label="Join the Rakexura WhatsApp Community"
                     >
                       {content}

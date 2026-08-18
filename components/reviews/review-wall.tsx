@@ -40,7 +40,7 @@ export function ReviewWall({ reviews }: { reviews: Review[] }) {
                 <div className="flex gap-1 text-[#ffb800]">{Array.from({ length: review.rating }, (_, index) => <Star key={index} size={15} fill="currentColor" />)}</div>
                 {review.verified_purchase !== false && <BadgeCheck size={18} className="text-[#00d68f]" aria-label="Verified purchase" />}
               </div>
-              <blockquote className="min-h-20 text-sm leading-6 text-[#d8dce7]">&ldquo;{review.message}&rdquo;</blockquote>
+              <blockquote className="min-h-20 text-sm leading-6 text-[#d8dce7]">&ldquo;{review.message?.replace(/^["'“”\s]+|["'“”\s]+$/g, "")}&rdquo;</blockquote>
               <div className="mt-5 border-t border-white/[.07] pt-4">
                 <strong className="text-sm">{review.customer_name}</strong>
                 <p className="mt-1 text-xs text-[#7f879d]">{review.games?.title || "Verified Rakexura customer"}</p>

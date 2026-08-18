@@ -49,7 +49,10 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
         </div>
         <span className="flex items-center gap-2 text-sm text-[#ffca55]"><Clock3 size={17} /> Prices expire automatically</span>
       </div>
-      <div className="touch-row hide-scrollbar grid auto-cols-[82%] grid-flow-col gap-4 overflow-x-auto md:auto-cols-[46%] xl:auto-cols-[31%]">
+      <div
+        className="touch-row hide-scrollbar grid auto-cols-[82%] grid-flow-col gap-4 overflow-x-auto overscroll-x-contain scroll-smooth snap-x snap-proximity md:auto-cols-[46%] xl:auto-cols-[31%]"
+        style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}
+      >
         {active.map((sale) => {
           const timer = mounted ? remaining(sale.ends_at, now) : { d: 0, h: 0, m: 0, s: 0 };
           const game = sale.games;
@@ -60,17 +63,17 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
             : [[timer.h, "H"], [timer.m, "M"], [timer.s, "S"]];
 
           return (
-            <BorderGlow
-              key={sale.id}
-              edgeSensitivity={40}
-              glowColor="45 100 50"
-              backgroundColor="#0c0c0c"
-              borderRadius={6}
-              glowRadius={28}
-              glowIntensity={1.2}
-              colors={['#ffca55', '#facc15', '#b59241']}
-              className="w-full h-full"
-            >
+            <div key={sale.id} className="snap-start will-change-transform transform-gpu h-full">
+              <BorderGlow
+                edgeSensitivity={40}
+                glowColor="45 100 50"
+                backgroundColor="#0c0c0c"
+                borderRadius={6}
+                glowRadius={28}
+                glowIntensity={1.2}
+                colors={['#ffca55', '#facc15', '#b59241']}
+                className="w-full h-full"
+              >
               <Link href={gameUrl(game)} className="group grid min-h-56 grid-cols-[40%_1fr] overflow-hidden w-full h-full">
                 <div className="relative">
                   <Image src={assetUrl(game.cover_image)} alt="" fill className="object-cover transition duration-500 group-hover:scale-105" />
@@ -91,7 +94,8 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                   </div>
                 </div>
               </Link>
-            </BorderGlow>
+              </BorderGlow>
+            </div>
           );
         })}
       </div>

@@ -110,7 +110,7 @@ export function Footer() {
 
       {/* Copyright Footer Bottom */}
       <div className="page-shell mt-12 flex flex-col gap-4 border-t border-white/[0.06] pt-6 text-xs sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-neutral-400">© 2026 Rakexura. All rights reserved.</p>
+        <p className="text-neutral-400">© {new Date().getFullYear()} Rakexura. All rights reserved.</p>
         <div className="flex flex-wrap gap-4 text-[#8991a6]">
           <span className="flex items-center gap-1.5 hover:text-white transition-colors"><BadgeCheck size={14} className="text-[#facc15]" /> Verified seller</span>
           <span className="flex items-center gap-1.5 hover:text-white transition-colors"><ShieldCheck size={14} className="text-[#00d68f]" /> Secure payment</span>

@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState, PointerEvent } from "react";
-import { motion } from "framer-motion";
+import { PointerEvent } from "react";
 import { Eye, ShoppingCart, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { assetUrl, formatPrice, gameUrl, isHighEndDevice } from "@/lib/utils";
+import { assetUrl, formatPrice, gameUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { triggerFlyToCart } from "@/components/common/fly-to-cart-animator";
 import type { Game, Platform } from "@/types/store";
@@ -84,7 +83,7 @@ function GameCardInner({
         href={gameUrl(game)} 
         prefetch={false} 
         onMouseEnter={handleMouseEnter}
-        className="block aspect-[4/5] overflow-hidden bg-[#08090c] relative"
+        className="block aspect-[4/5] w-full shrink-0 overflow-hidden bg-[#08090c] relative"
       >
         <Image
           src={assetUrl(game.cover_image)}
@@ -125,7 +124,7 @@ function GameCardInner({
         )}
       </div>
 
-      <div className="p-3.5 flex flex-col justify-between flex-1">
+      <div className="p-3.5 flex flex-col justify-between flex-1 min-h-0">
         <div>
           <p className="mb-1 truncate text-[9px] font-extrabold uppercase tracking-wider text-[#81889a]">{game.is_subscription ? "Service Membership" : (game.genres?.slice(0, 2).join(" / ") || "PC Game")}</p>
 
@@ -133,9 +132,9 @@ function GameCardInner({
             {game.title}
           </Link>
 
-          <div className="mt-2 flex flex-wrap gap-1">
+          <div className="mt-2 flex items-center gap-1 overflow-hidden min-h-[22px]">
             {platforms.slice(0, 3).map((platform) => (
-              <span key={platform} className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[8px] font-black uppercase text-[#a7adbb]">
+              <span key={platform} className="inline-flex shrink-0 items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[8px] font-black uppercase text-[#a7adbb]">
                 <PlatformIcon platform={platform} className="h-2.5 w-2.5 shrink-0 text-[#a7adbb]" />
                 <span>{game.is_subscription && game.duration ? game.duration : platform}</span>
               </span>
@@ -202,17 +201,6 @@ export function GameCard({
   const discount = original > price && price > 0 ? Math.round((1 - price / original) * 100) : 0;
   const platforms = availablePlatforms(game);
 
-  const [isMobile, setIsMobile] = useState(true);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768 && !isHighEndDevice());
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
   const props: GameCardInnerProps = {
     game,
     priority,
@@ -232,42 +220,17 @@ export function GameCard({
     event.currentTarget.style.setProperty("--mouse-y", `${event.clientY - rect.top}px`);
   };
 
-  const showDesktopEffects = !isMobile;
-
-  const mouseEvents = showDesktopEffects ? {
-    onPointerMove: move,
-  } : {};
-
-  const animateProps = showDesktopEffects ? {
-    initial: { opacity: 0, y: 18 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, amount: 0.18 },
-    transition: { duration: 0.42, ease: [0.2, 0.7, 0.2, 1] as [number, number, number, number] }
-  } : {};
-
-  const baseCardClasses = "spotlight-card group relative flex flex-col overflow-hidden rounded-md border transition-colors duration-200";
-  const hoverTranslate = showDesktopEffects ? "hover:-translate-y-1.5 transition-transform duration-300" : "";
-  
   const themeClasses = game.is_premium
-    ? `border-[#d4af37]/35 bg-[#14110a]/90 ${showDesktopEffects ? "hover:border-[#d4af37]/80 hover:shadow-[0_12px_40px_rgba(212,175,55,0.28)]" : ""}`
-    : `border-white/[0.08] bg-[#0c0d16]/90 ${showDesktopEffects ? "hover:border-[#facc15]/40 hover:bg-[#15171e] hover:shadow-[0_12px_40px_rgba(250,204,21,0.14)]" : "hover:border-[#facc15]/40 hover:bg-[#15171e]"}`;
-
-  if (!showDesktopEffects) {
-    return (
-      <article className={`${baseCardClasses} ${themeClasses}`}>
-        <GameCardInner {...props} />
-      </article>
-    );
-  }
+    ? "border-[#d4af37]/35 bg-[#14110a]/90 hover:border-[#d4af37]/80 hover:shadow-[0_12px_40px_rgba(212,175,55,0.28)]"
+    : "border-white/[0.08] bg-[#0c0d16]/90 hover:border-[#facc15]/40 hover:bg-[#15171e] hover:shadow-[0_12px_40px_rgba(250,204,21,0.14)]";
 
   return (
-    <motion.article
-      className={`${baseCardClasses} ${hoverTranslate} ${themeClasses}`}
-      {...animateProps}
-      {...mouseEvents}
+    <article
+      onPointerMove={move}
+      className={`spotlight-card group relative flex h-full flex-col overflow-hidden rounded-md border transition-colors duration-200 md:transition-all md:duration-300 md:hover:-translate-y-1.5 transform-gpu ${themeClasses}`}
     >
       <GameCardInner {...props} />
-    </motion.article>
+    </article>
   );
 }
 

@@ -170,137 +170,11 @@ export function textToHtml(text: string) {
   `;
 }
 
-export type AdminAlertField = {
-  label: string;
-  value: string;
-  isMono?: boolean;
-  isLink?: boolean;
-  linkHref?: string;
-};
-
-export type AdminAlertEmailOptions = {
-  badgeText?: string;
-  title: string;
-  subtitle?: string;
-  fields: AdminAlertField[];
-  actionButton?: {
-    label: string;
-    url: string;
-  };
-  footerNote?: string;
-};
-
-export function buildAdminAlertEmailHtml(options: AdminAlertEmailOptions) {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
-  const logoUrl = `${siteUrl}/images/rakexura-silver-badge.png`;
-  const {
-    badgeText = "STORE ALERT",
-    title,
-    subtitle = "Automated notification from Rakexura Store",
-    fields,
-    actionButton,
-    footerNote = "Automated Admin Notification • Confidential",
-  } = options;
-
-  const fieldCardsHtml = fields
-    .map((field) => {
-      let valContent = escapeHtml(field.value);
-
-      if (field.isLink && field.linkHref) {
-        valContent = `<a href="${escapeHtml(field.linkHref)}" style="color:#c4b5fd;text-decoration:underline;font-weight:700;word-break:break-all;">${valContent}</a>`;
-      } else if (field.isMono) {
-        valContent = `<div style="font-family:monospace,Consolas,Courier,monospace;font-size:12px;font-weight:600;color:#cbd5e1;background-color:#0b0816;padding:6px 10px;border-radius:6px;border:1px solid #281e4a;word-break:break-all;display:block;margin-top:2px;">${valContent}</div>`;
-      }
-
-      return `
-        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:10px;background-color:#140f29;border:1px solid #281e4a;border-radius:10px;width:100%;">
-          <tr>
-            <td style="padding:12px 16px;text-align:left;">
-              <div style="font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;line-height:1.2;">
-                ${escapeHtml(field.label)}
-              </div>
-              <div style="font-size:14px;font-weight:700;color:#ffffff;word-break:break-word;line-height:1.4;">
-                ${valContent}
-              </div>
-            </td>
-          </tr>
-        </table>
-      `;
-    })
-    .join("");
-
-  return `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>${escapeHtml(title)}</title>
-      </head>
-      <body style="margin:0;padding:0;background-color:#07050e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#e4e4e7;-webkit-font-smoothing:antialiased;">
-        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#07050e;padding:20px 8px;">
-          <tr>
-            <td align="center">
-              
-              <!-- Main Card Container -->
-              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:480px;background-color:#0e0a1f;border:1px solid #2b1f4d;border-radius:16px;padding:24px 16px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.6);">
-                <tr>
-                  <td align="center">
-                    
-                    <!-- Shield Badge & Category Pill -->
-                    <div style="margin-bottom:16px;text-align:center;">
-                      <img src="${logoUrl}" alt="Rakexura Shield" width="40" height="47" style="display:block;margin:0 auto 12px auto;border:0;outline:none;" />
-                      <span style="display:inline-block;padding:4px 12px;background-color:#1e153a;border:1px solid #4c1d95;border-radius:20px;font-size:10px;font-weight:900;color:#c4b5fd;letter-spacing:1.5px;text-transform:uppercase;">
-                        ${escapeHtml(badgeText)}
-                      </span>
-                    </div>
-
-                    <!-- Title & Subtitle -->
-                    <h1 style="margin:0 0 6px 0;font-size:20px;font-weight:900;color:#ffffff;letter-spacing:0.5px;text-transform:uppercase;line-height:1.25;">
-                      ${escapeHtml(title)}
-                    </h1>
-                    <p style="margin:0 0 20px 0;font-size:13px;color:#94a3b8;line-height:1.5;">
-                      ${escapeHtml(subtitle)}
-                    </p>
-
-                    <!-- Stacked Mobile-Optimized Field Tiles -->
-                    <div style="margin-bottom:18px;">
-                      ${fieldCardsHtml}
-                    </div>
-
-                    <!-- Action Button CTA (if provided) -->
-                    ${
-                      actionButton
-                        ? `
-                      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:12px;">
-                        <tr>
-                          <td align="center">
-                            <a href="${escapeHtml(actionButton.url)}" target="_blank" style="display:inline-block;width:90%;max-width:320px;background-color:#7c3aed;color:#ffffff;font-size:13px;font-weight:900;text-decoration:none;padding:14px 20px;border-radius:8px;text-transform:uppercase;letter-spacing:0.8px;text-align:center;box-shadow:0 4px 14px rgba(124,58,237,0.35);">
-                              ${escapeHtml(actionButton.label)} &rarr;
-                            </a>
-                          </td>
-                        </tr>
-                      </table>
-                    `
-                        : ""
-                    }
-
-                    <!-- Footer Details -->
-                    <div style="font-size:11px;color:#64748b;line-height:1.5;margin-top:14px;border-top:1px solid #1e153a;padding-top:14px;">
-                      <strong style="color:#a1a1aa;text-transform:uppercase;letter-spacing:0.5px;">Rakexura Store</strong> &bull; ${escapeHtml(footerNote)}
-                    </div>
-
-                  </td>
-                </tr>
-              </table>
-
-            </td>
-          </tr>
-        </table>
-      </body>
-    </html>
-  `;
-}
+export {
+  type AdminAlertField,
+  type AdminAlertEmailOptions,
+  buildAdminAlertEmailHtml,
+} from "./email-templates";
 
 export type StoreEmailOptions = {
   title: string;
@@ -757,6 +631,12 @@ export function buildReviewRequestEmailHtml(options: ReviewRequestEmailOptions =
     </html>
   `;
 }
+
+export {
+  type OtpEmailOptions,
+  buildOtpVerificationEmailHtml,
+  getSupabaseOtpEmailTemplateHtml,
+} from "./email-templates";
 
 export async function sendEmail({ to, subject, text, html }: SendEmailInput): Promise<EmailResult> {
   const ownerEmail = OWNER_EMAIL.toLowerCase().trim();

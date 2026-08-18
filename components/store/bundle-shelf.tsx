@@ -12,20 +12,24 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
     <section className="section-space w-full max-w-full overflow-hidden">
       <p className="eyebrow mb-3">More games, better value</p>
       <h2 className="section-title mb-7">Combo deals</h2>
-      <div className="hide-scrollbar grid w-full max-w-full auto-cols-[85%] grid-flow-col gap-4 overflow-x-auto md:grid-flow-row md:grid-cols-2 md:overflow-visible">
+      <div
+        className="hide-scrollbar grid w-full max-w-full auto-cols-[85%] grid-flow-col gap-4 overflow-x-auto overscroll-x-contain scroll-smooth snap-x snap-proximity md:grid-flow-row md:grid-cols-2 md:overflow-visible"
+        style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}
+      >
         {bundles.map((bundle, index) => {
           const isSecond = index === 1;
           return (
             <motion.div
               key={bundle.id}
-              initial={{ opacity: 0, y: 30, scale: 0.96 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, amount: 0.15 }}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.1 }}
               transition={{
-                duration: 0.5,
-                delay: index * 0.1,
-                ease: [0.21, 0.47, 0.32, 0.98]
+                duration: 0.45,
+                delay: index * 0.08,
+                ease: [0.21, 0.47, 0.32, 0.98],
               }}
+              className="snap-start will-change-transform transform-gpu"
             >
               <Link
                 href={`/bundles/${bundle.id}`}

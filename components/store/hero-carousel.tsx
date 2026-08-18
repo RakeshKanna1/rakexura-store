@@ -161,10 +161,10 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                             transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} 
                             className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-4 pb-14 pt-6 sm:p-6 sm:pb-16 md:pb-24 md:pt-14 md:px-14 lg:px-16"
                           >
-                            <p className="eyebrow mb-1.5 sm:mb-3">
+                            <p className="mb-1.5 sm:mb-2 text-xs sm:text-sm font-extrabold uppercase tracking-[0.16em] text-[#b9a4ff]">
                               {game.preorder ? "Pre-order spotlight" : "Rakexura spotlight"}
                             </p>
-                            <h3 className="text-2xl font-black sm:text-4xl md:text-5xl lg:text-[60px] tracking-tight leading-[1.08] drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
+                            <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-[62px] font-black tracking-tight leading-[1.06] drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
                               <BlurText 
                                 key={`${game.id}-${active === index}`}
                                 text={game.title} 
@@ -174,10 +174,10 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                                 stepDuration={0.3} 
                               />
                             </h3>
-                            <p className="mt-2 sm:mt-4 max-w-xl text-xs sm:text-base md:text-lg leading-relaxed text-[#d4d8e4] line-clamp-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                            <p className="mt-2 sm:mt-3.5 max-w-xl text-sm sm:text-base md:text-lg leading-relaxed text-[#d8dce8] font-medium line-clamp-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
                               {game.tagline || game.description || "A standout PC experience, ready for your library."}
                             </p>
-                            <div className="mt-3.5 sm:mt-6 flex items-center gap-2 sm:gap-3.5 overflow-x-auto hide-scrollbar whitespace-nowrap">
+                            <div className="mt-4 sm:mt-6 flex items-center gap-2 sm:gap-3.5 overflow-x-auto hide-scrollbar whitespace-nowrap">
                               {game.preorder ? (
                                 <Link 
                                   href={gameUrl(game)} 

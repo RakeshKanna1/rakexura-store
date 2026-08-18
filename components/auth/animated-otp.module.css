@@ -69,25 +69,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 6px 2px;
+  gap: 5px;
+  padding: 6px 0;
   width: 100%;
+  max-width: 100%;
 }
 .foc-divider {
-  width: 8px;
+  width: 6px;
   height: 2px;
   border-radius: 2px;
-  background: rgba(250, 204, 21, 0.35);
+  background: rgba(250, 204, 21, 0.4);
   flex: 0 0 auto;
+  margin: 0 1px;
 }
 
 .foc-box {
   position: relative;
   z-index: 1;
-  width: 44px;
-  height: 56px;
-  flex: 0 0 auto;
-  border-radius: 12px;
+  width: clamp(36px, 11vw, 44px);
+  height: clamp(48px, 14vw, 56px);
+  flex: 1 1 0;
+  max-width: 44px;
+  min-width: 32px;
+  border-radius: 10px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 7px 18px rgba(0, 0, 0, 0.35);
@@ -99,10 +103,29 @@
     background .32s var(--foc-ease);
 }
 
-@media (min-width: 400px) {
+@media (min-width: 380px) {
+  .foc-boxes {
+    gap: 7px;
+  }
+  .foc-divider {
+    width: 8px;
+    margin: 0 2px;
+  }
+  .foc-box {
+    width: 44px;
+    height: 56px;
+    border-radius: 12px;
+  }
+}
+
+@media (min-width: 440px) {
+  .foc-boxes {
+    gap: 8px;
+  }
   .foc-box {
     width: 48px;
     height: 60px;
+    max-width: 48px;
     border-radius: 14px;
   }
 }
@@ -120,7 +143,7 @@
   outline: 0;
   text-align: center;
   font-family: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
-  font-size: 24px;
+  font-size: clamp(18px, 5.2vw, 24px);
   font-weight: 700;
   color: #ffffff;
   caret-color: #facc15;
@@ -213,7 +236,7 @@
   transform: scale(1);
   transition:
     opacity .3s var(--foc-ease),
-    transform .42s cubic-bezier(.2, 1.35, .3, 1);
+    transform .42s cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: calc(var(--foc-i, 0) * 70ms);
 }
 .foc-success .foc-check path {
@@ -336,21 +359,21 @@
   }
 
   .foc-box--tap .foc-input {
-    animation: foc-digit .34s cubic-bezier(.2, 1.3, .3, 1);
+    animation: foc-digit .34s cubic-bezier(0.16, 1, 0.3, 1);
   }
   @keyframes foc-digit {
     0% { transform: scale(.45); opacity: 0; }
-    60% { transform: scale(1.14); opacity: 1; }
+    60% { transform: scale(1.08); opacity: 1; }
     100% { transform: scale(1); opacity: 1; }
   }
 
   .foc-success .foc-box {
-    animation: foc-pop .5s cubic-bezier(.2, 1.25, .3, 1) both;
+    animation: foc-pop .5s cubic-bezier(0.16, 1, 0.3, 1) both;
     animation-delay: calc(var(--foc-i, 0) * 70ms);
   }
   @keyframes foc-pop {
     0% { transform: translateY(0) scale(1); }
-    42% { transform: translateY(-4px) scale(1.06); }
+    42% { transform: translateY(-4px) scale(1.04); }
     100% { transform: translateY(0) scale(1); }
   }
 

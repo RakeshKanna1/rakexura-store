@@ -62,7 +62,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <WhatsAppFloat />
           <MobileNav />
           <MobilePromptManager />
-          <Toaster theme="dark" richColors position="top-center" />
+          <Toaster theme="dark" richColors position="top-center" offset="70px" />
         </AppProviders>
         <Analytics />
         <SpeedInsights />

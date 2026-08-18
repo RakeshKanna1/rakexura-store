@@ -62,6 +62,7 @@ export function ComboDealsBanner({ children }: { children?: React.ReactNode }) {
 
             <button
               type="button"
+              suppressHydrationWarning={true}
               onClick={() => setClosed(true)}
               className="shrink-0 flex items-center justify-center h-5.5 w-5.5 sm:h-6 sm:w-6 rounded-full border border-white/15 bg-white/[0.06] text-zinc-300 hover:text-[#facc15] hover:border-[#facc15]/50 hover:bg-[#facc15]/10 hover:shadow-[0_0_8px_rgba(250,204,21,0.25)] transition-all cursor-pointer active:scale-95"
               aria-label="Close combo deals banner"
