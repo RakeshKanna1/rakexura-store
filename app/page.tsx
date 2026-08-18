@@ -48,7 +48,7 @@ export default async function Home() {
         <HeroCarousel games={heroGames} />
         <LiveDeliveryTicker deliveries={deliveries} />
         <WhatsAppCommunity />
-        <TrustStats />
+        <div className="mt-4 sm:mt-5"><TrustStats /></div>
         <Reveal><CategoryRail /></Reveal>
         <Reveal><FlashSaleBlock sales={sales} /></Reveal>
         {upcoming.length > 0 && <Reveal><GameShelf title="Pre-order games" subtitle="Secure your copy of upcoming titles" games={upcoming} href="/games?category=Pre-order" rows={1} /></Reveal>}

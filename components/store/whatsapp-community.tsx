@@ -6,7 +6,7 @@ export function WhatsAppCommunity() {
   const message = encodeURIComponent("Hi Rakexura, I would like to join the community for game deals and updates.");
   const channel = process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL || `https://wa.me/${number}?text=${message}`;
   return (
-    <section className="section-space pb-1">
+    <section className="mt-4 sm:mt-5">
       <BorderGlow
         edgeSensitivity={35}
         glowColor="140 100 50"
