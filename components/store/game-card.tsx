@@ -83,25 +83,31 @@ function GameCardInner({
         href={gameUrl(game)} 
         prefetch={false} 
         onMouseEnter={handleMouseEnter}
-        className="block aspect-[4/5] w-full shrink-0 overflow-hidden bg-[#08090c] relative"
+        className="block aspect-[3/4] w-full shrink-0 overflow-hidden bg-[#08090c] relative"
       >
         <Image
           src={assetUrl(game.cover_image)}
           alt={game.title}
           width={440}
-          height={550}
+          height={586}
           priority={priority}
           sizes="(max-width: 768px) 170px, 240px"
           className="h-full w-full object-cover transition-transform duration-500 ease-out md:group-hover:scale-[1.06]"
         />
       </Link>
 
-      <div className="absolute left-2.5 top-2.5 flex flex-col gap-1 items-start z-10">
-        {game.is_premium && <span className="rounded-md bg-gradient-to-r from-[#b8860b] to-[#d4af37] px-2 py-0.5 text-[8px] font-black text-black uppercase tracking-wider shadow-md shadow-black/80">Premium</span>}
-        {game.preorder && <span suppressHydrationWarning className="rounded-md bg-purple-600 px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Pre-order</span>}
-        {discount > 0 && <span className="rounded-md bg-gradient-to-r from-[#facc15] to-[#eab308] px-2 py-0.5 text-[10px] font-black text-black shadow-md shadow-black/50">-{discount}%</span>}
-        {game.online_activation && <span className="rounded-md bg-[#00d68f] px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Online Activation</span>}
-        {game.out_of_stock && <span className="rounded-md bg-red-600 px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Out of Stock</span>}
+      {/* Top Left Badges: Maximum 2 High-Priority Badges for clean poster visibility */}
+      <div className="absolute left-2.5 top-2.5 flex flex-col gap-1 items-start z-10 pointer-events-none">
+        {game.out_of_stock ? (
+          <span className="rounded-md bg-red-600 px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Out of Stock</span>
+        ) : game.preorder ? (
+          <span suppressHydrationWarning className="rounded-md bg-purple-600 px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Pre-order</span>
+        ) : game.is_premium ? (
+          <span className="rounded-md bg-gradient-to-r from-[#b8860b] to-[#d4af37] px-2 py-0.5 text-[8px] font-black text-black uppercase tracking-wider shadow-md shadow-black/80">Premium</span>
+        ) : null}
+        {discount > 0 && !game.out_of_stock && (
+          <span className="rounded-md bg-gradient-to-r from-[#facc15] to-[#eab308] px-2 py-0.5 text-[10px] font-black text-black shadow-md shadow-black/50">-{discount}%</span>
+        )}
       </div>
 
       <div className="absolute right-2.5 top-2.5 flex gap-1.5 z-10">
@@ -133,6 +139,11 @@ function GameCardInner({
           </Link>
 
           <div className="mt-2 flex items-center gap-1 overflow-hidden min-h-[22px]">
+            {game.online_activation && (
+              <span className="inline-flex shrink-0 items-center rounded-md border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[8px] font-black uppercase text-emerald-400">
+                Online
+              </span>
+            )}
             {platforms.slice(0, 3).map((platform) => (
               <span key={platform} className="inline-flex shrink-0 items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[8px] font-black uppercase text-[#a7adbb]">
                 <PlatformIcon platform={platform} className="h-2.5 w-2.5 shrink-0 text-[#a7adbb]" />

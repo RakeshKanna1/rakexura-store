@@ -46,18 +46,17 @@ export default async function Home() {
 
       <div className="shell pt-5 md:pt-8">
         <HeroCarousel games={heroGames} />
-        <LiveDeliveryTicker deliveries={deliveries} />
-        <WhatsAppCommunity />
-        <div className="mt-4 sm:mt-5"><TrustStats /></div>
-        <Reveal><CategoryRail /></Reveal>
-        <Reveal><FlashSaleBlock sales={sales} /></Reveal>
+        <div className="mt-6 sm:mt-8"><LiveDeliveryTicker deliveries={deliveries} /></div>
+        <div className="mt-6 sm:mt-7"><WhatsAppCommunity /></div>
+        <div className="mt-6 sm:mt-7 mb-10 sm:mb-14"><TrustStats /></div>
         {upcoming.length > 0 && <Reveal><GameShelf title="Pre-order games" subtitle="Secure your copy of upcoming titles" games={upcoming} href="/games?category=Pre-order" rows={1} /></Reveal>}
         <Reveal><GameShelf title="Gamer's choice" subtitle="Popular picks selected by Rakexura players" games={highlightGames} href="/games?sort=featured" rows={2} /></Reveal>
+        <Reveal><CategoryRail /></Reveal>
+        <Reveal><FlashSaleBlock sales={sales} /></Reveal>
         <Reveal><GameShelf title="Deals under ₹299" subtitle="Strong games without stretching your budget" games={budget} href="/games?maxPrice=299" rows={1} /></Reveal>
         {subscriptions.length > 0 && <Reveal><GameShelf title="Game Pass and subscriptions" subtitle="Memberships and gaming services" games={subscriptions} href="/subscriptions" rows={1} /></Reveal>}
         <Reveal><GameShelf title="Best sellers" subtitle="The titles players keep choosing" games={bestSellers.length ? bestSellers : games} href="/games?sort=bestselling" rows={2} /></Reveal>
         <Reveal><BundleShelf bundles={bundles} /></Reveal>
-        <Reveal><GameShelf title="Trending now" subtitle="Games players are checking out" games={trending.length ? trending : games} href="/games?sort=trending" rows={1} /></Reveal>
         <Reveal><GameShelf title="New arrivals" subtitle="Fresh additions to the Rakexura catalog" games={arrivals} href="/games?sort=newest" rows={2} /></Reveal>
         <RecentlyViewedShelf games={games} />
         <CustomerProofWall proofs={proofs} />

@@ -119,9 +119,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .admin-sidebar-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(185, 164, 255, 0.6);
 }
-.section-space { padding-top: 36px; padding-bottom: 12px; }
+.section-space { padding-top: 44px; padding-bottom: 16px; }
 @media (min-width: 768px) {
-  .section-space { padding-top: 48px; padding-bottom: 16px; }
+  .section-space { padding-top: 56px; padding-bottom: 20px; }
 }
 .section-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
 .section-title { margin: 0; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 600; letter-spacing: -0.025em; }
