@@ -11,12 +11,10 @@ import { FlashSaleBlock } from "@/components/store/flash-sale";
 import { GameShelf } from "@/components/store/game-shelf";
 import { HowToOrder } from "@/components/store/how-to-order";
 import { LiveDeliveryTicker } from "@/components/store/live-delivery-ticker";
-import { OfferMarquee } from "@/components/store/offer-marquee";
 import { RecentlyViewedShelf } from "@/components/store/recently-viewed";
 import { TrustStats } from "@/components/store/trust-stats";
 import { WhatsAppCommunity } from "@/components/store/whatsapp-community";
 import { WhatsAppCta } from "@/components/store/whatsapp-cta";
-import { ComboDealsBanner } from "@/components/layout/combo-deals-banner";
 import { getBundles, getCustomerProofs, getFlashSales, getGames, getRecentDeliveries, getReviews } from "@/lib/supabase/queries";
 import { lowestPrice } from "@/lib/utils";
 
@@ -39,9 +37,6 @@ export default async function Home() {
   const highlightGames = featured.length ? featured : games.filter((g) => !g.is_subscription);
 
   return <>
-    <ComboDealsBanner>
-      <OfferMarquee />
-    </ComboDealsBanner>
     <div className="crystal-grid-bg bg-black overflow-hidden pb-12 relative">
       {/* Subtle brand color gradient glows to match logo signature colors */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(139,92,246,0.015),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(250,204,21,0.005),transparent_50%)]" />
@@ -53,17 +48,17 @@ export default async function Home() {
         <HeroCarousel games={heroGames} />
         <LiveDeliveryTicker deliveries={deliveries} />
         <WhatsAppCommunity />
-        <Reveal className="mt-6"><TrustStats /></Reveal>
-        {upcoming.length > 0 && <Reveal><GameShelf title="Pre-order games" subtitle="Secure your copy of upcoming titles" games={upcoming} /></Reveal>}
-        <Reveal><GameShelf title="Gamer's choice" subtitle="Popular picks selected by Rakexura players" games={highlightGames.slice(0, 12)} /></Reveal>
+        <TrustStats />
         <Reveal><CategoryRail /></Reveal>
         <Reveal><FlashSaleBlock sales={sales} /></Reveal>
-        <Reveal><GameShelf title="Deals under ₹299" subtitle="Strong games without stretching your budget" games={budget} /></Reveal>
-        {subscriptions.length > 0 && <Reveal><GameShelf title="Game Pass and subscriptions" subtitle="Memberships and gaming services" games={subscriptions} /></Reveal>}
-        <Reveal><GameShelf title="Best sellers" subtitle="The titles players keep choosing" games={bestSellers.length ? bestSellers : games.slice(0, 12)} /></Reveal>
+        {upcoming.length > 0 && <Reveal><GameShelf title="Pre-order games" subtitle="Secure your copy of upcoming titles" games={upcoming} href="/games?category=Pre-order" rows={1} /></Reveal>}
+        <Reveal><GameShelf title="Gamer's choice" subtitle="Popular picks selected by Rakexura players" games={highlightGames} href="/games?sort=featured" rows={2} /></Reveal>
+        <Reveal><GameShelf title="Deals under ₹299" subtitle="Strong games without stretching your budget" games={budget} href="/games?maxPrice=299" rows={1} /></Reveal>
+        {subscriptions.length > 0 && <Reveal><GameShelf title="Game Pass and subscriptions" subtitle="Memberships and gaming services" games={subscriptions} href="/subscriptions" rows={1} /></Reveal>}
+        <Reveal><GameShelf title="Best sellers" subtitle="The titles players keep choosing" games={bestSellers.length ? bestSellers : games} href="/games?sort=bestselling" rows={2} /></Reveal>
         <Reveal><BundleShelf bundles={bundles} /></Reveal>
-        <Reveal><GameShelf title="Trending now" subtitle="Games players are checking out" games={trending.length ? trending : games.slice().reverse().slice(0, 12)} /></Reveal>
-        <Reveal><GameShelf title="New arrivals" subtitle="Fresh additions to the Rakexura catalog" games={arrivals} /></Reveal>
+        <Reveal><GameShelf title="Trending now" subtitle="Games players are checking out" games={trending.length ? trending : games} href="/games?sort=trending" rows={1} /></Reveal>
+        <Reveal><GameShelf title="New arrivals" subtitle="Fresh additions to the Rakexura catalog" games={arrivals} href="/games?sort=newest" rows={2} /></Reveal>
         <RecentlyViewedShelf games={games} />
         <CustomerProofWall proofs={proofs} />
         <ReviewWall reviews={reviews} />

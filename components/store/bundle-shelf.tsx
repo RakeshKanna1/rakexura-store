@@ -10,8 +10,15 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
   if (!bundles.length) return null;
   return (
     <section className="section-space w-full max-w-full overflow-hidden">
-      <p className="eyebrow mb-3">More games, better value</p>
-      <h2 className="section-title mb-7">Combo deals</h2>
+      <div className="mb-5 flex items-end justify-between gap-4">
+        <div>
+          <h2 className="section-title font-semibold tracking-tight">Combo deals</h2>
+          <p className="muted mt-1 text-sm">More games, better value in curated value bundles</p>
+        </div>
+        <Link href="/bundles" className="flex shrink-0 items-center gap-2 text-xs font-bold uppercase tracking-wide text-[#facc15] hover:text-white transition-colors">
+          View all bundles
+        </Link>
+      </div>
       <div
         className="hide-scrollbar grid w-full max-w-full auto-cols-[85%] grid-flow-col gap-4 overflow-x-auto overscroll-x-contain scroll-smooth snap-x snap-proximity md:grid-flow-row md:grid-cols-2 md:overflow-visible"
         style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}
