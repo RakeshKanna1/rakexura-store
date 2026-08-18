@@ -15,11 +15,9 @@ import { RecentlyViewedShelf } from "@/components/store/recently-viewed";
 import { TrustStats } from "@/components/store/trust-stats";
 import { WhatsAppCommunity } from "@/components/store/whatsapp-community";
 import { WhatsAppCta } from "@/components/store/whatsapp-cta";
+import { OfferMarquee } from "@/components/store/offer-marquee";
 import { getBundles, getCustomerProofs, getFlashSales, getGames, getRecentDeliveries, getReviews } from "@/lib/supabase/queries";
 import { lowestPrice } from "@/lib/utils";
-
-
-
 
 export const revalidate = 60;
 
@@ -37,6 +35,7 @@ export default async function Home() {
   const highlightGames = featured.length ? featured : games.filter((g) => !g.is_subscription);
 
   return <>
+    <OfferMarquee />
     <div className="crystal-grid-bg bg-black overflow-hidden pb-12 relative">
       {/* Subtle brand color gradient glows to match logo signature colors */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(139,92,246,0.015),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(250,204,21,0.005),transparent_50%)]" />
@@ -46,9 +45,9 @@ export default async function Home() {
 
       <div className="shell pt-5 md:pt-8">
         <HeroCarousel games={heroGames} />
-        <div className="mt-6 sm:mt-8"><LiveDeliveryTicker deliveries={deliveries} /></div>
-        <div className="mt-6 sm:mt-7"><WhatsAppCommunity /></div>
-        <div className="mt-6 sm:mt-7 mb-10 sm:mb-14"><TrustStats /></div>
+        <LiveDeliveryTicker deliveries={deliveries} />
+        <WhatsAppCommunity />
+        <TrustStats />
         {upcoming.length > 0 && <Reveal><GameShelf title="Pre-order games" subtitle="Secure your copy of upcoming titles" games={upcoming} href="/games?category=Pre-order" rows={1} /></Reveal>}
         <Reveal><GameShelf title="Gamer's choice" subtitle="Popular picks selected by Rakexura players" games={highlightGames} href="/games?sort=featured" rows={2} /></Reveal>
         <Reveal><CategoryRail /></Reveal>
