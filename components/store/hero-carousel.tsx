@@ -130,7 +130,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                             suppressHydrationWarning={true}
                             type="button"
                             onClick={handleCloseTrailer}
-                            className="absolute top-4 right-4 z-40 flex items-center gap-2 px-4 py-2 rounded-full bg-black/80 hover:bg-[#facc15] hover:text-black text-[#ffffff] transition-all border border-white/20 shadow-xl text-xs font-extrabold tracking-wide cursor-pointer"
+                            className="absolute top-3 right-3 sm:top-4 sm:right-4 z-40 flex items-center gap-2 px-3.5 py-2 rounded-lg bg-black/35 hover:bg-black/75 hover:text-[#facc15] hover:border-[#facc15]/50 text-white transition-all border border-white/20 shadow-2xl backdrop-blur-xl text-xs font-extrabold tracking-wide cursor-pointer active:scale-95"
                             aria-label="Close trailer video"
                           >
                             <X size={15} /> Close Banner Trailer
@@ -181,18 +181,18 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                               {game.preorder ? (
                                 <Link 
                                   href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#facc15] px-1 sm:px-0 text-[11px] sm:text-sm font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] tracking-tight"
+                                  className="magnetic-button inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#facc15] px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] tracking-tight shadow-lg"
                                 >
                                   <span className="truncate">Pre-order</span>
-                                  <ArrowRight size={14} className="shrink-0" />
+                                  <ArrowRight size={15} className="shrink-0" />
                                 </Link>
                               ) : (
                                 <Link 
                                   href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#facc15] px-1 sm:px-0 text-[11px] sm:text-sm font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] tracking-tight"
+                                  className="magnetic-button inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#facc15] px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] tracking-tight shadow-lg"
                                 >
                                   <span className="truncate">View game</span>
-                                  <ArrowRight size={14} className="shrink-0" />
+                                  <ArrowRight size={15} className="shrink-0" />
                                 </Link>
                               )}
                               {game.trailer_url ? (
@@ -200,21 +200,21 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                                   suppressHydrationWarning={true}
                                   type="button"
                                   onClick={(e) => handlePlayTrailer(game, e)}
-                                  className="inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center gap-1.5 sm:gap-2 rounded-lg border border-white/15 bg-black/65 px-1 sm:px-0 text-[11px] sm:text-sm font-extrabold backdrop-blur hover:bg-black/85 hover:border-[#facc15]/50 transition-all cursor-pointer text-white tracking-tight"
+                                  className="inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center gap-1.5 sm:gap-2 rounded-lg border border-white/15 bg-black/65 px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-extrabold backdrop-blur hover:bg-black/85 hover:border-[#facc15]/50 transition-all cursor-pointer text-white tracking-tight"
                                 >
-                                  <Play size={13} fill="currentColor" className="text-[#facc15] shrink-0" />
+                                  <Play size={14} fill="currentColor" className="text-[#facc15] shrink-0" />
                                   <span className="font-extrabold text-white truncate">Trailer</span>
                                 </button>
                               ) : (
                                 <Link
                                   href={gameUrl(game)}
-                                  className="inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center gap-1.5 sm:gap-2 rounded-lg border border-white/15 bg-black/65 px-1 sm:px-0 text-[11px] sm:text-sm font-extrabold backdrop-blur hover:bg-black/85 transition-all text-white tracking-tight"
+                                  className="inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center gap-1.5 sm:gap-2 rounded-lg border border-white/15 bg-black/65 px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-extrabold backdrop-blur hover:bg-black/85 transition-all text-white tracking-tight"
                                 >
-                                  <Play size={13} fill="currentColor" className="shrink-0" />
+                                  <Play size={14} fill="currentColor" className="shrink-0" />
                                   <span className="font-extrabold text-white truncate">Trailer</span>
                                 </Link>
                               )}
-                              <span className="inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center rounded-lg border border-white/10 bg-black/65 px-1 sm:px-0 text-[11px] sm:text-sm font-black text-[#facc15] backdrop-blur tracking-tight">
+                              <span className="inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center rounded-lg border border-white/10 bg-black/65 px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-black text-[#facc15] backdrop-blur tracking-tight">
                                 <span className="truncate">From {formatPrice(lowestPrice(game))}</span>
                               </span>
                             </div>

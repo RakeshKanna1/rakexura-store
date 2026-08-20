@@ -42,7 +42,7 @@ function CustomSelect({ value, onChange, options, className = "" }: CustomSelect
         type="button"
         suppressHydrationWarning
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-9 w-full items-center justify-between gap-2 rounded-md bg-[#090b10] border border-white/5 hover:border-white/15 px-3 py-1 text-xs font-bold text-white transition-all focus:outline-none"
+        className="flex h-9 w-full items-center justify-between gap-2 rounded-md bg-[#090b10] border border-white/5 hover:border-white/15 px-3.5 text-xs font-bold text-white transition-all focus:outline-none cursor-pointer"
       >
         <span className="truncate">{value}</span>
         <ChevronDown size={14} className={`text-[#facc15] transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180" : ""}`} />
@@ -178,7 +178,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
             />
           </label>
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <label className="flex min-h-12 flex-1 md:flex-none items-center gap-2 rounded-md bg-black/20 px-3 sm:px-4 text-sm min-w-0">
+            <div className="flex min-h-12 flex-1 md:flex-none items-center gap-2.5 rounded-md bg-black/20 px-3 sm:px-4 text-sm min-w-0">
               <SlidersHorizontal size={17} className="text-[#facc15] shrink-0" />
               <span className="sr-only">Sort games</span>
               <CustomSelect
@@ -187,19 +187,21 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
                 options={sorts}
                 className="w-full sm:w-44 min-w-0"
               />
-            </label>
+            </div>
             {isAdmin && (
-              <button
-                type="button"
-                suppressHydrationWarning
-                onClick={() => setIsCopyModalOpen(true)}
-                title="Copy formatted price list for WhatsApp/Telegram"
-                className="flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/10 bg-black/20 px-3 sm:px-4 text-xs font-bold text-white hover:bg-white/[0.06] hover:border-white/20 transition-all cursor-pointer shrink-0"
-              >
-                <Share2 size={16} className="text-[#facc15] shrink-0" />
-                <span className="whitespace-nowrap hidden min-[400px]:inline">Copy Price List</span>
-                <span className="whitespace-nowrap min-[400px]:hidden">Copy Price</span>
-              </button>
+              <div className="flex min-h-12 items-center gap-2.5 rounded-md bg-black/20 px-3 sm:px-4 shrink-0">
+                <Share2 size={17} className="text-[#facc15] shrink-0" />
+                <button
+                  type="button"
+                  suppressHydrationWarning
+                  onClick={() => setIsCopyModalOpen(true)}
+                  title="Copy formatted price list for WhatsApp/Telegram"
+                  className="flex h-9 items-center justify-center rounded-md bg-[#090b10] border border-white/5 hover:border-white/15 hover:bg-white/[0.04] px-3.5 text-xs font-bold text-white transition-all cursor-pointer"
+                >
+                  <span className="whitespace-nowrap hidden min-[400px]:inline">Copy Price List</span>
+                  <span className="whitespace-nowrap min-[400px]:hidden">Copy Price</span>
+                </button>
+              </div>
             )}
           </div>
         </div>
