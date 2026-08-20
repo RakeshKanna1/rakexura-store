@@ -227,16 +227,20 @@ function TrackOrderContent() {
 
   if (!mounted) {
     return (
-      <div className="shell py-10">
-        <p className="eyebrow mb-3">Live order status</p>
-        <h1 className="text-4xl font-bold md:text-5xl">Track your delivery</h1>
-        <p className="muted mb-8 mt-3">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
-        <div className="glass rounded-lg p-5">
+      <div className="page-shell py-10">
+        <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15] mb-3">Live order status</p>
+        <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">
+          Track Your <span className="bg-gradient-to-r from-[#8b5cf6] via-[#c4b5fd] to-[#facc15] bg-clip-text text-transparent">Delivery</span>.
+        </h1>
+        <p className="section-copy max-w-2xl mb-8">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
+        <div className="glass rounded-xl border border-white/[.08] bg-[#0c0f18]/80 p-6 backdrop-blur-xl">
           <div className="mb-4">
-            <h2 className="font-black">Find your order</h2>
+            <h2 className="text-lg font-black text-white flex items-center gap-2">
+              Find Your <span className="text-[#facc15]">Order</span>
+            </h2>
             <p className="mt-1 text-sm text-[#8991a6]">Use the reference shown after checkout and the same WhatsApp number used for delivery.</p>
           </div>
-          <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto] items-end">
+          <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] items-end">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-[#aeb5c8]">Order reference</label>
               <div className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm" />
@@ -245,7 +249,7 @@ function TrackOrderContent() {
               <label className="text-xs font-bold text-[#aeb5c8]">WhatsApp number</label>
               <div className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm" />
             </div>
-            <div className="h-12 min-w-32 rounded-md bg-[#facc15]/20" />
+            <div className="h-12 min-w-36 rounded-md bg-[#facc15]" />
           </div>
         </div>
       </div>
@@ -253,45 +257,54 @@ function TrackOrderContent() {
   }
 
   return (
-    <div className="shell py-10">
+    <div className="page-shell py-10">
       <Confetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
-      <p className="eyebrow mb-3">Live order status</p>
-      <h1 className="text-4xl font-bold md:text-5xl">Track your delivery</h1>
-      <p className="muted mb-8 mt-3">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
+      <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15] mb-3">Live order status</p>
+      <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">
+        Track Your <span className="bg-gradient-to-r from-[#8b5cf6] via-[#c4b5fd] to-[#facc15] bg-clip-text text-transparent">Delivery</span>.
+      </h1>
+      <p className="section-copy max-w-2xl mb-8">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
       
-      <div className="glass rounded-lg p-5">
+      <div className="glass rounded-xl border border-white/[.08] bg-[#0c0f18]/80 p-6 backdrop-blur-xl shadow-2xl">
         <div className="mb-4">
-          <h2 className="font-black">Find your order</h2>
+          <h2 className="text-lg font-black text-white flex items-center gap-2">
+            Find Your <span className="text-[#facc15]">Order</span>
+          </h2>
           <p className="mt-1 text-sm text-[#8991a6]">Use the reference shown after checkout and the same WhatsApp number used for delivery.</p>
         </div>
-        <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto] items-end">
+        <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] items-end">
           <div className="flex flex-col gap-1.5">
             <label htmlFor="track-order-ref" className="text-xs font-bold text-[#aeb5c8]">
               Order reference
             </label>
-            <input suppressHydrationWarning id="track-order-ref" name="order_ref" value={order} onChange={(event) => setOrder(event.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void track(); } }} autoComplete="off" placeholder="RKX-2606-000123" className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none focus:border-[#facc15]" />
+            <input suppressHydrationWarning id="track-order-ref" name="order_ref" value={order} onChange={(event) => setOrder(event.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void track(); } }} autoComplete="off" placeholder="RKX-2606-000123" className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none transition focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15]/30 text-white" />
           </div>
           <div className="flex flex-col gap-1.5">
             <label htmlFor="track-order-phone" className="text-xs font-bold text-[#aeb5c8]">
               WhatsApp number
             </label>
-            <input suppressHydrationWarning id="track-order-phone" name="phone" value={phone} onChange={(event) => setPhone(event.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void track(); } }} autoComplete="tel" placeholder="91 98765 43210" inputMode="tel" className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none focus:border-[#facc15]" />
+            <input suppressHydrationWarning id="track-order-phone" name="phone" value={phone} onChange={(event) => setPhone(event.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void track(); } }} autoComplete="tel" placeholder="91 98765 43210" inputMode="tel" className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none transition focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15]/30 text-white" />
           </div>
-          <button suppressHydrationWarning onClick={track} disabled={loading} className="btn btn-primary min-h-12 disabled:opacity-50">
-            <Search size={17} />
-            {loading ? "Checking..." : "Track order"}
+          <button 
+            suppressHydrationWarning 
+            onClick={track} 
+            disabled={loading} 
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-[#facc15]/60 bg-gradient-to-r from-[#facc15] via-[#fbbf24] to-[#f59e0b] px-6 text-xs font-black uppercase tracking-wider text-black shadow-lg shadow-[#facc15]/20 transition-all hover:scale-[1.02] hover:brightness-105 active:scale-95 cursor-pointer disabled:opacity-50"
+          >
+            <Search size={17} className="text-black stroke-[2.5]" />
+            <span className="font-black text-black">{loading ? "Checking..." : "Track Order"}</span>
           </button>
         </div>
       </div>
 
       {result && (
-        <article className="premium-panel mt-6 rounded-lg p-6 md:p-8" id="order-tracking-result">
+        <article className="premium-panel mt-6 rounded-xl border border-white/[.08] bg-[#0c0f18]/90 p-6 md:p-8 backdrop-blur-xl" id="order-tracking-result">
           <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/[.08] pb-6">
             <div>
-              <p className="eyebrow">Order reference</p>
-              <button type="button" onClick={copyOrder} className="mt-2 inline-flex min-h-11 items-center gap-2 text-2xl font-black hover:text-[#f8e38a]" aria-label="Copy order reference">
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#b9a4ff]">Order Reference</p>
+              <button type="button" onClick={copyOrder} className="mt-1.5 inline-flex min-h-11 items-center gap-2 text-2xl font-black text-[#facc15] hover:text-[#fde047] transition-colors" aria-label="Copy order reference">
                 {result.order_ref}
-                <Clipboard size={16} />
+                <Clipboard size={16} className="text-[#facc15]" />
               </button>
               {result.auth_required ? (
                 <div className="mt-3 flex items-center gap-2 text-sm text-[#facc15] font-bold">
@@ -299,16 +312,17 @@ function TrackOrderContent() {
                 </div>
               ) : (
                 <>
-                  <h2 className="mt-3 text-lg font-bold">{gamesText}</h2>
-                  <p className="text-xs font-semibold text-[#8b5cf6] mt-1.5 uppercase tracking-wider">
-                    Rank: {result.customer_rank}
+                  <h2 className="mt-2 text-lg font-extrabold text-white">{gamesText}</h2>
+                  <p className="text-xs font-bold text-[#c4b5fd] mt-1.5 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#8b5cf6]" />
+                    Rank: <span className="text-[#facc15]">{result.customer_rank}</span>
                   </p>
                 </>
               )}
             </div>
             <div className="text-right flex flex-col items-end gap-1.5">
-              <strong className="text-xl">{result.auth_required ? "Rs. --" : formatPrice(result.total_price)}</strong>
-              <span className={`block rounded-md px-3 py-1.5 text-xs font-bold ${isRejected ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-white/[.06]"}`}>{result.status}</span>
+              <strong className="text-2xl font-black text-[#facc15]">{result.auth_required ? "Rs. --" : formatPrice(result.total_price)}</strong>
+              <span className={`block rounded-md px-3 py-1.5 text-xs font-bold ${isRejected ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-[#8b5cf6]/15 text-[#c4b5fd] border border-[#8b5cf6]/25"}`}>{result.status}</span>
               
               {/* Side Receipt Button with Active Gold Glow */}
               <button
@@ -523,35 +537,36 @@ function TrackOrderContent() {
               <div className="mt-8 space-y-0" aria-label="Order progress">
                 {stages.map((stage, index) => {
                   const done = index <= active;
+                  const isCurrent = index === active;
                   const showX = isRejected && index === active;
                   return (
                     <div key={stage} className="grid grid-cols-[38px_1fr] gap-3">
                       <div className="flex flex-col items-center">
-                        <span className={`grid h-9 w-9 place-items-center rounded-full border ${showX ? "border-red-500 bg-red-500 text-white" : done ? "border-[#00d88a] bg-[#00d88a] text-black" : "border-white/15 text-[#5e667b]"}`}>
-                          {showX ? <X size={18} /> : done ? <Check size={18} /> : <Circle size={12} />}
+                        <span className={`grid h-9 w-9 place-items-center rounded-full border transition-all ${showX ? "border-red-500 bg-red-500 text-white" : isCurrent ? "border-[#facc15] bg-[#facc15] text-black shadow-[0_0_12px_rgba(250,204,21,0.35)]" : done ? "border-[#8b5cf6] bg-[#8b5cf6] text-white" : "border-white/15 text-[#5e667b]"}`}>
+                          {showX ? <X size={18} /> : isCurrent ? <Check size={18} className="stroke-[3]" /> : done ? <Check size={18} /> : <Circle size={12} />}
                         </span>
-                        {index < stages.length - 1 && <span className={`h-12 w-px ${index < active ? "bg-[#00d88a]" : "bg-white/10"}`} />}
+                        {index < stages.length - 1 && <span className={`h-12 w-px transition-colors ${index < active ? "bg-[#8b5cf6]" : "bg-white/10"}`} />}
                       </div>
                       <div className="pt-2">
-                        <strong className={showX ? "text-red-400" : done ? "text-white" : "text-[#6f778e]"}>{stage}</strong>
-                        {index === active && <p className={`mt-1 text-xs ${showX ? "text-red-400 font-bold" : "text-[#8991a6]"}`}>{showX ? "Order Rejected" : "Current step"}</p>}
+                        <strong className={showX ? "text-red-400" : isCurrent ? "text-[#facc15] font-black" : done ? "text-white" : "text-[#6f778e]"}>{stage}</strong>
+                        {index === active && <p className={`mt-1 text-xs font-bold ${showX ? "text-red-400" : "text-[#facc15]"}`}>{showX ? "Order Rejected" : "Current Step"}</p>}
                       </div>
                     </div>
                   );
                 })}
               </div>
               <div className="mt-7 flex flex-wrap gap-3 border-t border-white/[.08] pt-5">
-                <button type="button" onClick={copyOrder} className="btn btn-secondary">
-                  <Clipboard size={16} /> Copy order ID
+                <button type="button" onClick={copyOrder} className="btn btn-secondary border-white/10 hover:border-[#facc15]/40 hover:text-[#facc15]">
+                  <Clipboard size={16} className="text-[#facc15]" /> Copy order ID
                 </button>
-                <Link href="/support" className="btn btn-secondary">
-                  <LifeBuoy size={17} /> Support ticket
+                <Link href="/support" className="btn btn-secondary border-white/10 hover:border-[#8b5cf6]/40 hover:text-[#c4b5fd]">
+                  <LifeBuoy size={17} className="text-[#8b5cf6]" /> Support ticket
                 </Link>
-                <a href={whatsappUrl} target="_blank" rel="noreferrer" className="btn btn-secondary">
-                  <MessageCircle size={17} /> WhatsApp Help
+                <a href={whatsappUrl} target="_blank" rel="noreferrer" className="btn btn-secondary border-white/10 hover:border-emerald-500/40 hover:text-emerald-400">
+                  <MessageCircle size={17} className="text-[#25d366]" /> WhatsApp Help
                 </a>
-                <Link href="/faq" className="btn btn-secondary">
-                  <HelpCircle size={17} /> FAQ
+                <Link href="/faq" className="btn btn-secondary border-white/10 hover:border-white/20">
+                  <HelpCircle size={17} className="text-[#8991a6]" /> FAQ
                 </Link>
               </div>
             </>

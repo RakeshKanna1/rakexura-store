@@ -71,47 +71,57 @@ export function TrackingForm() {
   return (
     <div>
       <Confetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
-      <div className="glass rounded-lg p-5">
+      <div className="glass rounded-xl border border-white/[.08] bg-[#0c0f18]/80 p-6 backdrop-blur-xl shadow-2xl">
         <div className="mb-4">
-          <h2 className="font-black">Find your order</h2>
+          <h2 className="text-lg font-black text-white flex items-center gap-2">
+            Find Your <span className="text-[#facc15]">Order</span>
+          </h2>
           <p className="mt-1 text-sm text-[#8991a6]">Use the reference shown after checkout and the same WhatsApp number used for delivery.</p>
         </div>
-        <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-          <label htmlFor="tracking-form-order-ref" className="text-xs font-bold text-[#aeb5c8]">
-            Order reference
-            <input id="tracking-form-order-ref" name="order_ref" value={order} onChange={(event) => setOrder(event.target.value)} autoComplete="off" placeholder="RKX-2606-000123" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none focus:border-[#facc15]" />
-          </label>
-          <label htmlFor="tracking-form-phone" className="text-xs font-bold text-[#aeb5c8]">
-            WhatsApp number
-            <input id="tracking-form-phone" name="phone" value={phone} onChange={(event) => setPhone(event.target.value)} autoComplete="tel" placeholder="91 98765 43210" inputMode="tel" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none focus:border-[#facc15]" />
-          </label>
-          <button onClick={track} disabled={loading} className="btn btn-primary mt-auto min-h-12 disabled:opacity-50">
-            <Search size={17} />
-            {loading ? "Checking..." : "Track order"}
+        <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] items-end">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="tracking-form-order-ref" className="text-xs font-bold text-[#aeb5c8]">
+              Order reference
+            </label>
+            <input id="tracking-form-order-ref" name="order_ref" value={order} onChange={(event) => setOrder(event.target.value)} autoComplete="off" placeholder="RKX-2606-000123" className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none transition focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15]/30 text-white" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="tracking-form-phone" className="text-xs font-bold text-[#aeb5c8]">
+              WhatsApp number
+            </label>
+            <input id="tracking-form-phone" name="phone" value={phone} onChange={(event) => setPhone(event.target.value)} autoComplete="tel" placeholder="91 98765 43210" inputMode="tel" className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none transition focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15]/30 text-white" />
+          </div>
+          <button 
+            onClick={track} 
+            disabled={loading} 
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-[#facc15]/60 bg-gradient-to-r from-[#facc15] via-[#fbbf24] to-[#f59e0b] px-6 text-xs font-black uppercase tracking-wider text-black shadow-lg shadow-[#facc15]/20 transition-all hover:scale-[1.02] hover:brightness-105 active:scale-95 cursor-pointer disabled:opacity-50"
+          >
+            <Search size={17} className="text-black stroke-[2.5]" />
+            <span className="font-black text-black">{loading ? "Checking..." : "Track Order"}</span>
           </button>
         </div>
       </div>
 
       {result && (
-        <article className="premium-panel mt-6 rounded-lg p-6 md:p-8">
+        <article className="premium-panel mt-6 rounded-xl border border-white/[.08] bg-[#0c0f18]/90 p-6 md:p-8 backdrop-blur-xl">
           <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/[.08] pb-6">
             <div>
-              <p className="eyebrow">Order reference</p>
-              <button type="button" onClick={copyOrder} className="mt-2 inline-flex min-h-11 items-center gap-2 text-2xl font-black hover:text-[#f8e38a]" aria-label="Copy order reference">
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#b9a4ff]">Order Reference</p>
+              <button type="button" onClick={copyOrder} className="mt-1.5 inline-flex min-h-11 items-center gap-2 text-2xl font-black text-[#facc15] hover:text-[#fde047] transition-colors" aria-label="Copy order reference">
                 {result.order_ref}
-                <Clipboard size={16} />
+                <Clipboard size={16} className="text-[#facc15]" />
               </button>
               {result.auth_required ? (
                 <div className="mt-3 flex items-center gap-2 text-sm text-[#facc15] font-bold">
                   <span>Protected Customer Order</span>
                 </div>
               ) : (
-                <h2 className="mt-3 text-lg font-bold">{result.items?.map((item) => item.title).join(", ") || "Game order"}</h2>
+                <h2 className="mt-2 text-lg font-extrabold text-white">{result.items?.map((item) => item.title).join(", ") || "Game order"}</h2>
               )}
             </div>
             <div className="text-right">
-              <strong className="text-xl">{result.auth_required ? "Rs. --" : formatPrice(result.total_price)}</strong>
-              <span className={`mt-2 block rounded-md px-3 py-2 text-xs font-bold ${isRejected ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-white/[.06]"}`}>{result.status}</span>
+              <strong className="text-2xl font-black text-[#facc15]">{result.auth_required ? "Rs. --" : formatPrice(result.total_price)}</strong>
+              <span className={`mt-2 block rounded-md px-3 py-1.5 text-xs font-bold ${isRejected ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-[#8b5cf6]/15 text-[#c4b5fd] border border-[#8b5cf6]/25"}`}>{result.status}</span>
             </div>
           </div>
 
