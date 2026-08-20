@@ -55,13 +55,13 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
                   />
                 </div>
                 <div className="flex flex-col justify-end p-6">
-                  <span className="eyebrow">Bundle</span>
-                  <h3 className="mt-3 text-2xl font-bold">{bundle.title}</h3>
-                  <p className="muted mt-2 line-clamp-2 text-sm">{bundle.description}</p>
-                  <div className="mt-6 flex items-center gap-3">
-                    <strong>{formatPrice(bundle.bundle_price)}</strong>
+                  <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#b9a4ff]">Bundle</span>
+                  <h3 className="mt-2 text-2xl font-black text-white group-hover:text-[#facc15] transition-colors">{bundle.title}</h3>
+                  <p className="muted mt-2 line-clamp-2 text-sm text-[#8991a6]">{bundle.description}</p>
+                  <div className="mt-5 flex items-center gap-3">
+                    <strong className="text-xl font-black text-[#facc15]">{formatPrice(bundle.bundle_price)}</strong>
                     {bundle.original_price > bundle.bundle_price && (
-                      <del className="text-sm text-[#727a90]">{formatPrice(bundle.original_price)}</del>
+                      <del className="text-sm font-semibold text-[#727a90]">{formatPrice(bundle.original_price)}</del>
                     )}
                   </div>
                 </div>

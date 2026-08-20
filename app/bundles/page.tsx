@@ -12,33 +12,33 @@ export default async function BundlesPage() {
       <div className="absolute -top-40 right-0 -z-10 w-96 h-96 bg-[#facc15]/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-40 left-0 -z-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
 
-      <p className="eyebrow">Save more together</p>
+      <header className="mb-10 max-w-3xl">
+        <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15]">Save More Together</p>
+        <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">
+          Game <span className="bg-gradient-to-r from-[#8b5cf6] via-[#c4b5fd] to-[#facc15] bg-clip-text text-transparent">Bundles</span>.
+        </h1>
+        <p className="section-copy">
+          Curated collections with one clear bundle price. Save significantly compared to buying titles individually.
+        </p>
+      </header>
       
-      <h1 className="mt-4 text-4xl font-black sm:text-6xl text-white">
-        Game bundles
-      </h1>
-      
-      <p className="section-copy">
-        Curated collections with one clear bundle price.
-      </p>
-      
-      <div className="mt-9 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {bundles.map((bundle) => (
           <Link 
             href={`/bundles/${bundle.id}`} 
             key={bundle.id} 
-            className="overflow-hidden rounded-md border border-white/[.08] bg-[#101522] transition hover:-translate-y-1 hover:border-white/20"
+            className="group overflow-hidden rounded-xl border border-white/[.08] bg-[#101522] transition-all duration-300 hover:-translate-y-1 hover:border-[#facc15]/30 hover:shadow-xl"
           >
-            <div className="relative aspect-video">
-              <Image src={assetUrl(bundle.cover_image)} alt="" fill className="object-cover" />
+            <div className="relative aspect-video overflow-hidden">
+              <Image src={assetUrl(bundle.cover_image)} alt="" fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
             </div>
             <div className="p-6">
-              <h2>{bundle.title}</h2>
-              <p className="line-clamp-2 text-sm leading-6 text-[#a0a8c0]">{bundle.description}</p>
-              <div className="mt-5 flex gap-3">
-                <strong>{formatPrice(bundle.bundle_price)}</strong>
+              <h2 className="text-xl font-black text-white group-hover:text-[#facc15] transition-colors">{bundle.title}</h2>
+              <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[#a0a8c0]">{bundle.description}</p>
+              <div className="mt-5 flex items-center gap-3">
+                <strong className="text-xl font-black text-[#facc15]">{formatPrice(bundle.bundle_price)}</strong>
                 {bundle.original_price && (
-                  <s className="text-[#8991a6]">{formatPrice(bundle.original_price)}</s>
+                  <del className="text-sm font-semibold text-[#8991a6]">{formatPrice(bundle.original_price)}</del>
                 )}
               </div>
             </div>

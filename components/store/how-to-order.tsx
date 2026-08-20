@@ -19,7 +19,7 @@ export function HowToOrder() {
           <p className="section-copy">Four clear steps from discovery to your game library.</p>
         </div>
         <Link
-          href="/track"
+          href="/track-order"
           className="btn btn-secondary shrink-0 whitespace-nowrap text-xs sm:text-sm font-bold px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-lg border border-white/15 bg-white/[0.06] text-white hover:border-[#facc15]/50 hover:bg-[#facc15]/10 hover:text-[#facc15] transition-all flex items-center gap-1.5 active:scale-95"
         >
           <span>Track your order</span>
@@ -27,10 +27,10 @@ export function HowToOrder() {
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {steps.map(([numberLabel, title, text, Icon]) => (
-          <article key={numberLabel} className="premium-panel rounded-md p-5">
+          <article key={numberLabel} className="premium-panel rounded-xl p-5 border border-white/[.08] bg-[#0c0f18] hover:border-[#facc15]/30 transition-colors">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black text-[#facc15]">STEP {numberLabel}</span>
-              <Icon size={19} className="text-[#f6dc73]" />
+              <Icon size={19} className="text-[#facc15]" />
             </div>
             <h3 className="mt-6 font-black">{title}</h3>
             <p className="mt-2 text-sm leading-6 text-[#8991a6]">{text}</p>

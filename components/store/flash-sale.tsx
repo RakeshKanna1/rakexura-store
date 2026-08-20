@@ -47,7 +47,9 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
           <p className="eyebrow">Ends soon</p>
           <h2 className="section-title mt-2">Flash sale</h2>
         </div>
-        <span className="flex items-center gap-2 text-sm text-[#ffca55]"><Clock3 size={17} /> Prices expire automatically</span>
+        <span className="flex items-center gap-2 text-sm font-bold text-[#facc15]">
+          <Clock3 size={17} /> Prices expire automatically
+        </span>
       </div>
       <div
         className="touch-row hide-scrollbar grid auto-cols-[82%] grid-flow-col gap-4 overflow-x-auto overscroll-x-contain scroll-smooth snap-x snap-proximity md:auto-cols-[46%] xl:auto-cols-[31%]"
@@ -71,29 +73,29 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                 borderRadius={6}
                 glowRadius={28}
                 glowIntensity={1.2}
-                colors={['#ffca55', '#facc15', '#b59241']}
+                colors={['#facc15', '#eab308', '#8b5cf6']}
                 className="w-full h-full"
               >
-              <Link href={gameUrl(game)} className="group grid min-h-56 grid-cols-[40%_1fr] overflow-hidden w-full h-full">
-                <div className="relative">
-                  <Image src={assetUrl(game.cover_image)} alt="" fill className="object-cover transition duration-500 group-hover:scale-105" />
-                </div>
-                <div className="flex flex-col justify-center p-5">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-[#ffca55]">Limited deal</span>
-                  <h3 className="mt-2 line-clamp-2 font-black">{game.title}</h3>
-                  <strong className="mt-4 text-2xl">{formatPrice(sale.sale_price)}</strong>
-                  <div className="mt-4 flex gap-1.5 flex-wrap">
-                    {timeBlocks.map(([value, label]) => (
-                      <span key={String(label)} className="min-w-10 rounded bg-black/35 px-2 py-2 text-center text-xs border border-white/5">
-                        <b className="block text-white">
-                          {mounted ? String(value).padStart(2, "0") : "--"}
-                        </b>
-                        <small className="text-[#7f879d]">{label}</small>
-                      </span>
-                    ))}
+                <Link href={gameUrl(game)} className="group grid min-h-56 grid-cols-[40%_1fr] overflow-hidden w-full h-full">
+                  <div className="relative">
+                    <Image src={assetUrl(game.cover_image)} alt="" fill className="object-cover transition duration-500 group-hover:scale-105" />
                   </div>
-                </div>
-              </Link>
+                  <div className="flex flex-col justify-center p-5">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#facc15]">Limited deal</span>
+                    <h3 className="mt-2 line-clamp-2 font-black text-white group-hover:text-[#facc15] transition-colors">{game.title}</h3>
+                    <strong className="mt-4 text-2xl font-black text-[#facc15]">{formatPrice(sale.sale_price)}</strong>
+                    <div className="mt-4 flex gap-1.5 flex-wrap">
+                      {timeBlocks.map(([value, label]) => (
+                        <span key={String(label)} className="min-w-10 rounded bg-black/35 px-2 py-2 text-center text-xs border border-white/5">
+                          <b className="block text-white">
+                            {mounted ? String(value).padStart(2, "0") : "--"}
+                          </b>
+                          <small className="text-[#7f879d]">{label}</small>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </Link>
               </BorderGlow>
             </div>
           );
