@@ -581,31 +581,31 @@ export function Sleuth404() {
 
       {/* Foreground Copy & Recovery Navigation */}
       <div className="sleuth-copy">
-        <span className="inline-block text-[11px] font-bold uppercase tracking-[0.2em] text-[#81889a]">
+        <span className="inline-block text-[10px] font-bold uppercase tracking-[0.2em] text-[#81889a]">
           404 — Page Not Found
         </span>
         <h1 className="sleuth-copy__title">
           Looking for a Game?
         </h1>
         <p className="sleuth-copy__sub">
-          The title, bundle, or page you were looking for doesn&apos;t exist or has moved. Move your cursor to sweep the floor with the magnifying glass.
+          Nothing at this address. The page may have moved or no longer exists.
         </p>
 
         {/* Action Buttons */}
         <div className="sleuth-copy__actions">
           <Link
             href="/"
-            className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-md bg-[#facc15] px-7 py-2.5 text-xs font-black uppercase tracking-wider text-black shadow-lg shadow-[#facc15]/20 transition-all hover:bg-[#fde047] hover:scale-[1.02] active:scale-95 cursor-pointer"
+            className="inline-flex min-h-[38px] items-center justify-center gap-2 rounded-full bg-[#facc15] px-6 py-2 text-xs font-black uppercase tracking-wider text-black shadow-md shadow-[#facc15]/20 transition-all hover:bg-[#fde047] hover:scale-[1.02] active:scale-95 cursor-pointer"
           >
-            <Home size={14} strokeWidth={2.5} />
+            <Home size={13} strokeWidth={2.5} />
             <span>Return to Store</span>
           </Link>
 
           <Link
             href="/games"
-            className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-md border border-white/20 bg-black/40 backdrop-blur-md px-7 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-white/[0.1] hover:border-white/40 active:scale-95 cursor-pointer"
+            className="inline-flex min-h-[38px] items-center justify-center gap-2 rounded-full border border-white/20 bg-black/40 backdrop-blur-md px-6 py-2 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-white/[0.1] hover:border-white/40 active:scale-95 cursor-pointer"
           >
-            <Search size={14} strokeWidth={2.5} />
+            <Search size={13} strokeWidth={2.5} />
             <span>Browse All Games</span>
           </Link>
         </div>

@@ -315,10 +315,10 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: clamp(64px, 10vh, 110px);
+  top: clamp(14px, 3vh, 36px);
   z-index: 10;
   display: grid;
-  gap: 8px;
+  gap: 6px;
   justify-items: center;
   text-align: center;
   pointer-events: none;
@@ -327,34 +327,34 @@
 
 .sleuth-copy__title {
   font-weight: 900;
-  font-size: clamp(2rem, 5.5vw, 3.2rem);
-  line-height: 1.1;
+  font-size: clamp(1.6rem, 3.8vw, 2.3rem);
+  line-height: 1.15;
   letter-spacing: -0.02em;
   color: #ffffff;
 }
 
 .sleuth-copy__sub {
   color: var(--muted);
-  font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+  font-size: clamp(0.84rem, 1.2vw, 0.94rem);
   line-height: 1.4;
-  max-width: 480px;
+  max-width: 440px;
 }
 
 .sleuth-copy__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   justify-content: center;
-  margin-top: 12px;
+  margin-top: 8px;
   pointer-events: auto;
 }
 
 .sleuth-quick-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 18px;
+  gap: 16px;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 6px;
   pointer-events: auto;
 }
 
