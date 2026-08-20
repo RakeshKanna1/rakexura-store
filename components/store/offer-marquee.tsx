@@ -100,12 +100,12 @@ export async function OfferMarquee() {
 
               const content = (
                 <span className="inline-flex items-center gap-2 sm:gap-2.5 text-[11px] sm:text-[12px] font-extrabold uppercase tracking-[0.12em] text-[#d4d8e6] transition-colors duration-150">
-                  {/* Refined LIVE Badge with pulsing emerald dot */}
+                  {/* Rakexura Gold LIVE Badge with pulsing gold dot */}
                   {isWhatsApp && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 text-[9px] font-black text-emerald-400 tracking-wider shadow-[0_0_8px_rgba(16,185,129,0.15)] shrink-0">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#facc15]/15 border border-[#facc15]/40 px-2 py-0.5 text-[9px] font-black text-[#facc15] tracking-widest shadow-[0_0_8px_rgba(250,204,21,0.2)] shrink-0">
                       <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#facc15] opacity-75" />
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#facc15]" />
                       </span>
                       LIVE
                     </span>
