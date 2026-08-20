@@ -1,21 +1,16 @@
 import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { AdminAccessDenied } from "@/components/admin/access-denied";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser, getCurrentUserProfile } from "@/lib/supabase/server";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedUser();
 
   if (!user) {
     redirect("/login?next=/admin");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
+  const profile = await getCurrentUserProfile();
 
   if (profile?.role !== "admin") {
     return <AdminAccessDenied email={user.email} />;

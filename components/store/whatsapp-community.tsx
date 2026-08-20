@@ -1,5 +1,6 @@
-import { ArrowUpRight, BadgeCheck, MessageCircle } from "lucide-react";
+import { ArrowUpRight, BadgeCheck } from "lucide-react";
 import { BorderGlow } from "@/components/animations/border-glow";
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 
 export function WhatsAppCommunity() {
   const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695";
@@ -19,8 +20,8 @@ export function WhatsAppCommunity() {
       >
         <div className="flex flex-col justify-between gap-5 p-5 text-white sm:flex-row sm:items-center md:px-7 w-full h-full">
           <div className="flex items-start gap-4">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#25d366]/10 text-[#58e98d] border border-[#25d366]/20">
-              <MessageCircle size={22} />
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#25d366]/10 text-[#25d366] border border-[#25d366]/20">
+              <WhatsAppIcon size={22} className="h-[22px] w-[22px] text-[#25d366]" />
             </span>
             <div>
               <h2 className="flex items-center gap-2 text-lg font-black text-white">
@@ -35,7 +36,7 @@ export function WhatsAppCommunity() {
             href={channel}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex min-h-[40px] items-center justify-center gap-2 rounded-full bg-[#25d366] px-6 py-2.5 text-xs font-black uppercase tracking-wider text-[#07130b] hover:bg-[#55e88a] transition-all hover:scale-[1.02] active:scale-95 shadow-md shadow-[#25d366]/20 shrink-0"
+            className="inline-flex min-h-[40px] items-center justify-center gap-2 rounded-lg bg-[#25d366] px-5 py-2.5 text-xs font-black uppercase tracking-wider text-[#07130b] hover:bg-[#55e88a] transition-all hover:scale-[1.02] active:scale-95 shadow-md shadow-[#25d366]/20 shrink-0"
           >
             <span>Open Official Channel</span> <ArrowUpRight size={15} />
           </a>

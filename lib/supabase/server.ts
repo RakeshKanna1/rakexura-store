@@ -1,8 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { createClient as createSupabaseJsClient } from "@supabase/supabase-js";
+import { cache } from "react";
 
-export async function createClient() {
+export const createClient = cache(async () => {
   const cookieStore = await cookies();
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
@@ -27,7 +28,25 @@ export async function createClient() {
       },
     },
   );
-}
+});
+
+export const getAuthenticatedUser = cache(async () => {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
+});
+
+export const getCurrentUserProfile = cache(async () => {
+  const user = await getAuthenticatedUser();
+  if (!user) return null;
+  const supabase = await createClient();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .maybeSingle();
+  return profile;
+});
 
 export function createAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";

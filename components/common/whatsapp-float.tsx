@@ -1,8 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 
 export function WhatsAppFloat() {
   const pathname = usePathname();
@@ -46,7 +46,7 @@ export function WhatsAppFloat() {
       <span className="absolute -inset-1 -z-10 rounded-full bg-[#25d366]/40 animate-ping opacity-50 pointer-events-none" />
 
       {/* WhatsApp Icon */}
-      <MessageCircle size={19} fill="currentColor" className="transition-transform duration-200 group-hover:scale-110 sm:scale-110" />
+      <WhatsAppIcon size={20} className="transition-transform duration-200 group-hover:scale-110 sm:scale-110 h-5 w-5 fill-current" />
     </motion.a>
   );
 }

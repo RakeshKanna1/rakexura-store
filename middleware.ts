@@ -50,48 +50,9 @@ export async function middleware(request: NextRequest) {
   );
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (request.nextUrl.pathname.startsWith("/dashboard") || request.nextUrl.pathname.startsWith("/account")) {
+  if (isProtectedRoute) {
     if (!user) {
       const redirectResponse = NextResponse.redirect(new URL("/login?next=" + encodeURIComponent(request.nextUrl.pathname), request.url));
-      response.cookies.getAll().forEach((cookie) => {
-        redirectResponse.cookies.set(cookie.name, cookie.value, {
-          path: cookie.path,
-          domain: cookie.domain,
-          maxAge: cookie.maxAge,
-          secure: cookie.secure,
-          sameSite: cookie.sameSite,
-          expires: cookie.expires,
-          httpOnly: cookie.httpOnly,
-        });
-      });
-      return redirectResponse;
-    }
-  }
-
-  if (request.nextUrl.pathname.startsWith("/admin")) {
-    if (!user) {
-      const redirectResponse = NextResponse.redirect(new URL("/login?next=" + encodeURIComponent(request.nextUrl.pathname), request.url));
-      response.cookies.getAll().forEach((cookie) => {
-        redirectResponse.cookies.set(cookie.name, cookie.value, {
-          path: cookie.path,
-          domain: cookie.domain,
-          maxAge: cookie.maxAge,
-          secure: cookie.secure,
-          sameSite: cookie.sameSite,
-          expires: cookie.expires,
-          httpOnly: cookie.httpOnly,
-        });
-      });
-      return redirectResponse;
-    }
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (profile?.role !== "admin") {
-      const redirectResponse = NextResponse.redirect(new URL("/", request.url));
       response.cookies.getAll().forEach((cookie) => {
         redirectResponse.cookies.set(cookie.name, cookie.value, {
           path: cookie.path,

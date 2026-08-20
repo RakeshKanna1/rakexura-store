@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
-import { MessageCircle, Shield, ArrowRight, Loader2, X, CheckCircle2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { Shield, ArrowRight, Loader2, X, CheckCircle2 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 import { saveWhatsAppNumber } from "@/app/dashboard/settings/actions";
 
 function urlBase64ToUint8Array(base64String: string) {
@@ -260,7 +261,7 @@ export function WhatsAppOnboardingModal() {
         ) : (
           <div>
             <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-lg border border-[#25d366]/30 bg-[#25d366]/10 text-[#25d366]">
-              <MessageCircle size={22} />
+              <WhatsAppIcon size={24} className="h-6 w-6 text-[#25d366] fill-current" />
             </div>
             <h2 className="text-xl font-black text-white text-center tracking-tight">
               Link Your WhatsApp

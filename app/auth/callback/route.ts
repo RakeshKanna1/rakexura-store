@@ -8,8 +8,13 @@ export async function GET(request: Request) {
   const requested = url.searchParams.get("next");
   const next = requested?.startsWith("/") ? requested : null;
   
+  const authError = url.searchParams.get("error_description") || url.searchParams.get("error");
+  if (authError) {
+    return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(authError)}`, request.url));
+  }
+
   if (!code) {
-    return NextResponse.redirect(new URL("/login?error=The+email+link+is+invalid+or+expired", request.url));
+    return NextResponse.redirect(new URL("/login?error=The+authentication+link+is+invalid+or+expired", request.url));
   }
   
   const supabase = await createClient();
