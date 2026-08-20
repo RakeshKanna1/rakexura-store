@@ -368,3 +368,12 @@
   .sleuth-note { font-size: 0.68rem; }
   .sleuth-lens__handle { width: 46px; height: 12px; margin-top: -6px; }
 }
+
+/* Hide global layout footer on 404 page to prevent vertical overflow/spacing gap */
+body:has(.sleuth-stage) footer {
+  display: none !important;
+}
+
+body:has(.sleuth-stage) {
+  overflow-x: hidden;
+}
