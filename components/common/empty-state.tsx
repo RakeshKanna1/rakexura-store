@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, type LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 export function EmptyState({
   icon: Icon,
@@ -25,10 +25,9 @@ export function EmptyState({
       </p>
       <Link
         href={href}
-        className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-[#facc15] px-6 py-2.5 text-xs font-black uppercase tracking-wider text-black shadow-md shadow-[#facc15]/15 transition-all duration-200 hover:bg-[#fde047] hover:scale-[1.02] active:scale-95 cursor-pointer"
+        className="mt-6 inline-flex items-center gap-1.5 rounded-2xl border border-[#facc15]/35 bg-[#facc15]/10 px-6 py-2.5 text-xs font-bold text-[#facc15] transition-all duration-200 hover:bg-[#facc15] hover:text-black"
       >
-        <span>{action}</span>
-        <ArrowRight size={14} className="stroke-[2.5]" />
+        {action} &rarr;
       </Link>
     </div>
   );
