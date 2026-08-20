@@ -1,0 +1,369 @@
+/* ==========================================================================
+   SLEUTH — 404, with the magnifier on the end of the cursor.
+   ========================================================================== */
+
+.sleuth-stage {
+  --page: #0d0e15;
+  --floor: #11131c;
+  --ghost: #232738;
+  --ink: #f0f2f8;
+  --ink-2: #c4b5fd;
+  --muted: #8991a6;
+  --red: #facc15;
+  --red-ink: #facc15;
+  --beak: #facc15;
+  --hair: rgba(255, 255, 255, 0.08);
+
+  --mag: 1.3;
+  --lens-r: 76px;
+  --clip-r: calc(var(--lens-r) / 1.3);
+  --bird-h: clamp(152px, 27vh, 220px);
+  --ground: 78;
+
+  --wall-hi: #121520;
+  --wall-lo: #0a0c13;
+  --board-hi: #181b28;
+  --board-lo: #0f111a;
+  --seam: rgba(255, 255, 255, 0.06);
+
+  --r-panel: 28px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 600px;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Paper tooth texture */
+.sleuth-paper {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.18;
+  background-image:
+    url('/textures/grain.png'),
+    radial-gradient(120% 80% at 50% 0%, rgba(250, 204, 21, 0.08), transparent 60%),
+    radial-gradient(100% 70% at 50% 110%, rgba(139, 92, 246, 0.08), transparent 62%);
+  background-size: 340px 340px, auto, auto;
+}
+
+/* The scene */
+.sleuth-scene {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.04) 1.1px, transparent 1.2px),
+    radial-gradient(88% 62% at 50% 6%, var(--wall-hi), transparent 72%),
+    linear-gradient(180deg, var(--wall-hi) 0%, var(--wall-lo) 100%);
+  background-size: 14px 14px, auto, auto;
+  box-shadow: inset 0 0 160px rgba(0, 0, 0, 0.6), inset 0 -40px 90px -60px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  isolation: isolate;
+  touch-action: none;
+}
+
+/* 404 Large background number */
+.sleuth-glyph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: end center;
+  padding-bottom: calc(var(--ground, 78) * 1px - 8px);
+  font-weight: 900;
+  font-size: max(4.5rem, min(48vh, 46vw));
+  line-height: 0.8;
+  letter-spacing: 0.04em;
+  user-select: none;
+}
+
+.sleuth-glyph--base {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.sleuth-glyph--lit {
+  background: linear-gradient(180deg, #facc15 0%, #ca8a04 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* The lens layer */
+.sleuth-found {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at center, rgba(250, 204, 21, 0.15) 1.1px, transparent 1.2px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 9px),
+    repeating-linear-gradient(0deg,  rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 9px);
+  background-size: 14px 14px, auto, auto;
+  clip-path: circle(var(--clip-r) at calc(var(--lx, -999) * 1px) calc(var(--ly, -999) * 1px));
+  transform: scale(var(--mag));
+  transform-origin: calc(var(--lx, 0) * 1px) calc(var(--ly, 0) * 1px);
+  will-change: clip-path, transform;
+}
+
+/* The case notes */
+.sleuth-note {
+  position: absolute;
+  left: var(--nx);
+  top: var(--ny);
+  transform: translate(-50%, -50%) rotate(-4deg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #facc15;
+  text-shadow: 0 0 8px rgba(250, 204, 21, 0.4);
+  white-space: nowrap;
+}
+.sleuth-note:nth-child(odd) { transform: translate(-50%, -50%) rotate(5deg); }
+
+/* Dust particles */
+.sleuth-dust { position: absolute; inset: 0; pointer-events: none; }
+
+.sleuth-dust i {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: rgba(250, 204, 21, 0.4);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: sleuth-drift var(--dur) linear infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes sleuth-drift {
+  0%       { transform: translate3d(0, 0, 0);                opacity: 0; }
+  18%, 82% {                                                 opacity: 0.25; }
+  100%     { transform: translate3d(var(--dx), var(--dy), 0); opacity: 0; }
+}
+
+.sleuth-trail { position: absolute; inset: 0; pointer-events: none; }
+
+/* Footprints */
+.sleuth-print {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 13px;
+  height: 8px;
+  border-radius: 50% 50% 44% 44%;
+  background: rgba(250, 204, 21, 0.2);
+  transform:
+    translate(calc(var(--fx) * 1px - 50%), calc(var(--fy) * 1px - 50%))
+    scaleX(var(--fd, 1)) rotate(var(--fr, 0deg));
+  opacity: 0;
+  transition: opacity 0.5s linear;
+}
+.sleuth-print.is-in { opacity: 1; }
+
+/* The boards */
+.sleuth-floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--ground) * 1px);
+  background-image:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.4), transparent 18px),
+    radial-gradient(96% 150% at 50% -14%, rgba(250, 204, 21, 0.06), transparent 70%),
+    repeating-linear-gradient(90deg, transparent 0 198px, rgba(255, 255, 255, 0.04) 198px 199px),
+    repeating-linear-gradient(90deg, transparent 0 66px, var(--seam) 66px 67px),
+    linear-gradient(180deg, var(--board-hi), var(--board-lo));
+}
+
+/* Skirting board */
+.sleuth-ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--ground) * 1px);
+  height: 3px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0 1px, rgba(0, 0, 0, 0.5) 1px 3px);
+}
+
+/* The bird */
+.sleuth-bird {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--bird-h) * 240 / 260);
+  transform-origin: 50% 100%;
+  transform:
+    translate(calc(var(--bx, 0) * 1px - 50%), calc(var(--by, 0) * 1px - 100%))
+    scaleX(var(--face, 1));
+}
+
+.sleuth-bird__svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+.sleuth-bird__body, .sleuth-bird__wing, .sleuth-eye__pupil { transform-box: view-box; }
+
+.sleuth-bird__shadow { fill: rgba(0, 0, 0, 0.5); }
+
+.sleuth-bird__body {
+  transform-origin: 118px 216px;
+  transform: translateY(calc(var(--bob, 0) * 1px)) rotate(calc(var(--lean, 0) * 1deg));
+}
+
+.sleuth-bird__blob, .sleuth-bird__tail { fill: #1c2030; }
+.sleuth-bird__crest path { fill: #facc15; }
+.sleuth-bird__beak { fill: #facc15; }
+.sleuth-bird__spots circle { fill: #8b5cf6; }
+.sleuth-eye__white { fill: #ffffff; }
+.sleuth-eye__pupil { fill: #0d0e15; transform: translate(calc(var(--px, 0) * 1px), calc(var(--py, 0) * 1px)); }
+.sleuth-eye__spark { fill: #ffffff; opacity: 0.9; }
+
+.sleuth-bird__head { transform: translateX(calc(var(--hx, 0) * 1px)); }
+
+.sleuth-bird__wing { transform-origin: 140px 150px; transform: rotate(calc(var(--wing, 0) * 1deg)); }
+.sleuth-wing__plate { fill: #2a3048; }
+.sleuth-wing__swirl { stroke: #8b5cf6; stroke-width: 5; stroke-linecap: round; fill: none; }
+
+.sleuth-leg__limb, .sleuth-leg__toes {
+  stroke: #e2e8f0;
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.sleuth-leg:first-of-type .sleuth-leg__limb,
+.sleuth-leg:first-of-type .sleuth-leg__toes { stroke: #64748b; }
+
+/* Arm + Glass */
+.sleuth-arm { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.sleuth-arm__limb { stroke: #1c2030; stroke-width: var(--arm-w, 11); stroke-linecap: round; fill: none; }
+.sleuth-arm__hand { fill: #1c2030; }
+
+.sleuth-lens {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--lens-r) * 2);
+  height: calc(var(--lens-r) * 2);
+  transform: translate(calc(var(--lx, -999) * 1px - 50%), calc(var(--ly, -999) * 1px - 50%));
+}
+
+.sleuth-lens__ring, .sleuth-lens__glass { position: absolute; inset: 0; border-radius: 50%; }
+
+.sleuth-lens__glass {
+  background: linear-gradient(140deg, rgba(250, 204, 21, 0.15), rgba(255, 255, 255, 0) 42%, rgba(139, 92, 246, 0.12));
+  box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0.4);
+}
+
+.sleuth-lens__ring {
+  border: 9px solid #facc15;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(250, 204, 21, 0.25);
+}
+
+.sleuth-lens__handle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 62px;
+  height: 15px;
+  margin-top: -7.5px;
+  border-radius: 99px;
+  background: #facc15;
+  transform-origin: 0 50%;
+  transform: rotate(calc(var(--handle, 0) * 1deg)) translateX(calc(var(--lens-r) - 6px));
+}
+
+/* Speech Bubble */
+.sleuth-bubble {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 8px 14px 9px;
+  border-radius: 14px 14px 14px 4px;
+  background: #121520;
+  border: 2px solid #facc15;
+  color: #facc15;
+  font-weight: 700;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  transform-origin: 0 100%;
+  transform:
+    translate(calc(var(--sx, 0) * 1px), calc(var(--sy, 0) * 1px - 100%))
+    scale(var(--say, 0));
+  opacity: var(--say, 0);
+  transition: transform 0.34s var(--ease), opacity 0.2s linear;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Copy Header & Actions */
+.sleuth-copy {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: clamp(20px, 12vh, 120px);
+  z-index: 10;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  text-align: center;
+  pointer-events: none;
+  padding: 0 16px;
+}
+
+.sleuth-copy__title {
+  font-weight: 900;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.sleuth-copy__sub {
+  color: var(--muted);
+  font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+  line-height: 1.4;
+  max-width: 480px;
+}
+
+.sleuth-copy__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 12px;
+  pointer-events: auto;
+}
+
+.sleuth-quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  justify-content: center;
+  margin-top: 8px;
+  pointer-events: auto;
+}
+
+@media (max-width: 620px) {
+  .sleuth-stage {
+    --lens-r: 56px;
+    --clip-r: calc(56px / 1.3);
+    --bird-h: clamp(112px, 19vh, 170px);
+    --ground: 62;
+  }
+  .sleuth-note { font-size: 0.68rem; }
+  .sleuth-lens__handle { width: 46px; height: 12px; margin-top: -6px; }
+}
