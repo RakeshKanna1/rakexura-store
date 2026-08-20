@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Heart, Minus, Package, Plus, ShieldCheck, TicketPercent, Trash2 } from "lucide-react";
+import { ArrowRight, Heart, Minus, Package, Plus, ShieldCheck, ShoppingBag, TicketPercent, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/common/empty-state";
@@ -185,9 +185,21 @@ export function CartView() {
     toast.success("Coupon applied");
   }
 
-  if (!mounted) return null;
-
-  if (!lines.length && !bundles.length) return <EmptyState icon={Heart} title="Your cart is waiting" description="Add a game or combo bundle. Your cart stays available on this device and syncs when you sign in." href="/games" action="Browse games" />;
+  if (!lines.length && !bundles.length) {
+    return (
+      <div className="my-8 flex min-h-[380px] flex-col items-center justify-center rounded-2xl border border-white/[0.06] bg-[#0c0a1a]/60 px-6 py-16 text-center backdrop-blur-md">
+        <ShoppingBag className="text-[#596176]" size={42} strokeWidth={1.8} />
+        <h2 className="mt-4 text-2xl font-bold tracking-tight text-white sm:text-3xl">Your cart is empty</h2>
+        <p className="mt-1.5 text-sm text-[#8991a6]">Add a game or combo to get started.</p>
+        <Link 
+          href="/games" 
+          className="mt-6 inline-flex items-center gap-2 rounded-2xl border border-[#facc15]/35 bg-[#facc15]/10 px-6 py-2.5 text-xs font-bold text-[#facc15] hover:bg-[#facc15] hover:text-black transition-all duration-200"
+        >
+          Explore Top Deals &rarr;
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <>

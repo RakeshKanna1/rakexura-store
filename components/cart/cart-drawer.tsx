@@ -137,19 +137,17 @@ export function CartDrawer() {
               ))}
 
               {!count && (
-                <div className="grid min-h-64 place-items-center text-center">
-                  <div>
-                    <ShoppingBag className="mx-auto text-[#596176]" size={32} />
-                    <p className="mt-3 font-bold text-white">Your cart is empty</p>
-                    <span className="mt-1 block text-xs text-[#8991a6]">Add a game or combo to get started.</span>
-                    <Link 
-                      href="/games" 
-                      onClick={() => close(false)} 
-                      className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-[#facc15]/30 bg-[#facc15]/10 px-4 py-2 text-xs font-black text-[#facc15] hover:bg-[#facc15] hover:text-black transition-all"
-                    >
-                      Explore Top Deals &rarr;
-                    </Link>
-                  </div>
+                <div className="flex min-h-[320px] flex-col items-center justify-center px-4 py-12 text-center">
+                  <ShoppingBag className="text-[#596176]" size={42} strokeWidth={1.8} />
+                  <p className="mt-4 text-xl font-bold tracking-tight text-white sm:text-2xl">Your cart is empty</p>
+                  <span className="mt-1.5 block text-sm text-[#8991a6]">Add a game or combo to get started.</span>
+                  <Link 
+                    href="/games" 
+                    onClick={() => close(false)} 
+                    className="mt-6 inline-flex items-center gap-1.5 rounded-2xl border border-[#facc15]/35 bg-[#facc15]/10 px-6 py-2.5 text-xs font-bold text-[#facc15] hover:bg-[#facc15] hover:text-black transition-all duration-200"
+                  >
+                    Explore Top Deals &rarr;
+                  </Link>
                 </div>
               )}
             </div>
