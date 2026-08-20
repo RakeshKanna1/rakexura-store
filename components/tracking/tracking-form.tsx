@@ -73,9 +73,7 @@ export function TrackingForm() {
       <Confetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
       <div className="glass rounded-xl border border-white/[.08] bg-[#0c0f18]/80 p-6 backdrop-blur-xl shadow-2xl">
         <div className="mb-4">
-          <h2 className="text-lg font-black text-white flex items-center gap-2">
-            Find Your <span className="text-[#facc15]">Order</span>
-          </h2>
+          <h2 className="text-lg font-black text-white">Find your order</h2>
           <p className="mt-1 text-sm text-[#8991a6]">Use the reference shown after checkout and the same WhatsApp number used for delivery.</p>
         </div>
         <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] items-end">

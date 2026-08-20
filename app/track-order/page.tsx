@@ -228,16 +228,12 @@ function TrackOrderContent() {
   if (!mounted) {
     return (
       <div className="page-shell py-10">
-        <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15] mb-3">Live order status</p>
-        <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">
-          Track Your <span className="bg-gradient-to-r from-[#8b5cf6] via-[#c4b5fd] to-[#facc15] bg-clip-text text-transparent">Delivery</span>.
-        </h1>
+        <p className="eyebrow mb-3">Live order status</p>
+        <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Track your delivery</h1>
         <p className="section-copy max-w-2xl mb-8">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
         <div className="glass rounded-xl border border-white/[.08] bg-[#0c0f18]/80 p-6 backdrop-blur-xl">
           <div className="mb-4">
-            <h2 className="text-lg font-black text-white flex items-center gap-2">
-              Find Your <span className="text-[#facc15]">Order</span>
-            </h2>
+            <h2 className="text-lg font-black text-white">Find your order</h2>
             <p className="mt-1 text-sm text-[#8991a6]">Use the reference shown after checkout and the same WhatsApp number used for delivery.</p>
           </div>
           <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] items-end">
@@ -259,17 +255,13 @@ function TrackOrderContent() {
   return (
     <div className="page-shell py-10">
       <Confetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
-      <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15] mb-3">Live order status</p>
-      <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">
-        Track Your <span className="bg-gradient-to-r from-[#8b5cf6] via-[#c4b5fd] to-[#facc15] bg-clip-text text-transparent">Delivery</span>.
-      </h1>
+      <p className="eyebrow mb-3">Live order status</p>
+      <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Track your delivery</h1>
       <p className="section-copy max-w-2xl mb-8">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
       
       <div className="glass rounded-xl border border-white/[.08] bg-[#0c0f18]/80 p-6 backdrop-blur-xl shadow-2xl">
         <div className="mb-4">
-          <h2 className="text-lg font-black text-white flex items-center gap-2">
-            Find Your <span className="text-[#facc15]">Order</span>
-          </h2>
+          <h2 className="text-lg font-black text-white">Find your order</h2>
           <p className="mt-1 text-sm text-[#8991a6]">Use the reference shown after checkout and the same WhatsApp number used for delivery.</p>
         </div>
         <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] items-end">

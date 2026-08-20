@@ -10,8 +10,8 @@ export default function FaqPage() {
   return (
     <div className="page-shell py-10">
       <header className="mb-10 max-w-3xl">
-        <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15]">Support Center</p>
-        <h1 className="mb-4 text-4xl font-black sm:text-6xl">Frequently Asked Questions.</h1>
+        <p className="eyebrow mb-3">Support center</p>
+        <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Frequently Asked Questions.</h1>
         <p className="section-copy">Clear answers to common questions about payment, delivery, platforms, and game requests.</p>
       </header>
       <div className="max-w-4xl space-y-3">

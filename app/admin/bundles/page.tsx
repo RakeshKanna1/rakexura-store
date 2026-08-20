@@ -18,13 +18,11 @@ export default async function AdminBundlesPage({ searchParams }: { searchParams:
   
   return (
     <div className="py-10">
-      <Link href="/admin" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-[#8991a6] hover:text-[#facc15] transition-colors">
+      <Link href="/admin" className="inline-flex min-h-11 items-center gap-2 text-sm text-[#8991a6] hover:text-white transition-colors">
         <ArrowLeft size={16} /> Control center
       </Link>
-      <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15] mt-7">Administration</p>
-      <h1 className="mt-3 text-4xl font-black md:text-5xl text-white">
-        Combo <span className="bg-gradient-to-r from-[#8b5cf6] via-[#c4b5fd] to-[#facc15] bg-clip-text text-transparent">Deals</span>.
-      </h1>
+      <p className="eyebrow mt-7 text-xs font-bold uppercase tracking-[.14em] text-[#8991a6]">Administration</p>
+      <h1 className="mt-3 text-4xl font-black md:text-5xl text-white">Combo deals</h1>
       <p className="section-copy">Build multi-game offers and control when they appear on the storefront.</p>
       
       <BundleForm games={games ?? []} bundle={editing ?? null} />

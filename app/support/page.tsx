@@ -43,8 +43,8 @@ export default function SupportPage() {
 
       <p className="eyebrow">Support & social</p>
       
-      <h1 className="mt-4 text-4xl font-black sm:text-6xl">
-        Talk to <span className="bg-gradient-to-r from-[#8b5cf6] via-[#a78bfa] to-[#facc15] bg-clip-text text-transparent">Rakexura</span>
+      <h1 className="mt-4 text-4xl font-black sm:text-6xl text-white">
+        Talk to Rakexura
       </h1>
       
       <p className="section-copy max-w-2xl mt-3 text-neutral-400">

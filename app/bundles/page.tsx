@@ -13,10 +13,8 @@ export default async function BundlesPage() {
       <div className="absolute -bottom-40 left-0 -z-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <header className="mb-10 max-w-3xl">
-        <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15]">Save More Together</p>
-        <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">
-          Game <span className="bg-gradient-to-r from-[#8b5cf6] via-[#c4b5fd] to-[#facc15] bg-clip-text text-transparent">Bundles</span>.
-        </h1>
+        <p className="eyebrow mb-3">Save more together</p>
+        <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Game bundles</h1>
         <p className="section-copy">
           Curated collections with one clear bundle price. Save significantly compared to buying titles individually.
         </p>

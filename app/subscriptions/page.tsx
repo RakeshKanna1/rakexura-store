@@ -15,8 +15,8 @@ export default async function SubscriptionsPage() {
   return (
     <div className="page-shell py-10">
       <header className="mb-10 max-w-3xl">
-        <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15]">Services & Memberships</p>
-        <h1 className="mb-4 text-4xl font-black sm:text-6xl">Gaming Subscriptions.</h1>
+        <p className="eyebrow mb-3">Services & memberships</p>
+        <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Gaming Subscriptions.</h1>
         <p className="section-copy">
           Xbox Game Pass Ultimate, EA Play, Ubisoft+, and more. Buy monthly, quarterly, or annual access with immediate delivery support.
         </p>

@@ -12,8 +12,8 @@ export default async function ReviewsPage() {
   return (
     <div className="page-shell py-10">
       <header className="mb-10 max-w-3xl">
-        <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15]">Verified feedback</p>
-        <h1 className="mb-4 text-4xl font-black sm:text-6xl">Customer Reviews.</h1>
+        <p className="eyebrow mb-3">Verified feedback</p>
+        <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Customer Reviews.</h1>
         <p className="section-copy">Read genuine experiences from gamers who purchased digital games and subscriptions from Rakexura.</p>
       </header>
 

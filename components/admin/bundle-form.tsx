@@ -61,8 +61,8 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
         <div>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15]">Combo Builder</p>
-              <h2 className="mt-2 text-2xl font-black text-white">{bundle ? `Edit ${bundle.title}` : "Create a Bundle"}</h2>
+              <p className="eyebrow text-xs font-bold uppercase tracking-[.14em] text-[#8991a6]">Combo builder</p>
+              <h2 className="mt-2 text-2xl font-black text-white">{bundle ? `Edit ${bundle.title}` : "Create a bundle"}</h2>
             </div>
             {bundle && (
               <Link href="/admin/bundles" onClick={confirmNavigation} className="btn btn-secondary border-white/10 hover:border-white/20 text-xs font-bold">

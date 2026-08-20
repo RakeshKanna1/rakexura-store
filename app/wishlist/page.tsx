@@ -9,8 +9,8 @@ export default async function WishlistPage() {
   return (
     <div className="page-shell py-10">
       <header className="mb-10 max-w-3xl">
-        <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15]">Saved for later</p>
-        <h1 className="mb-4 text-4xl font-black sm:text-6xl">Your Wishlist.</h1>
+        <p className="eyebrow mb-3">Saved for later</p>
+        <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Your Wishlist.</h1>
         <p className="section-copy">Keep track of games you want to purchase later. Your saved titles sync across your devices.</p>
       </header>
       <WishlistView games={games} />
