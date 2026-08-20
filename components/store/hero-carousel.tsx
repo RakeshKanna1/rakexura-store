@@ -177,22 +177,22 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                             <p className="mt-2 sm:mt-3.5 max-w-xl text-sm sm:text-base md:text-lg leading-relaxed text-[#d8dce8] font-medium line-clamp-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
                               {game.tagline || game.description || "A standout PC experience, ready for your library."}
                             </p>
-                            <div className="mt-4 sm:mt-6 flex items-center gap-2 sm:gap-3.5 overflow-x-auto hide-scrollbar whitespace-nowrap">
+                            <div className="mt-4 sm:mt-6 flex items-center gap-2.5 sm:gap-3.5 overflow-x-auto hide-scrollbar whitespace-nowrap">
                               {game.preorder ? (
                                 <Link 
                                   href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full bg-[#facc15] px-6 sm:px-8 text-xs sm:text-sm font-black uppercase tracking-wider text-black shadow-lg shadow-[#facc15]/20 transition-all hover:scale-[1.02] hover:bg-[#fde047] active:scale-95 shrink-0"
+                                  className="magnetic-button inline-flex h-11 sm:h-12 min-w-[130px] sm:min-w-[148px] items-center justify-center gap-2 rounded-lg bg-[#facc15] px-4 sm:px-6 text-xs sm:text-sm font-black uppercase tracking-wider text-black shadow-md shadow-[#facc15]/15 transition-all hover:bg-[#fde047] hover:-translate-y-0.5 active:scale-95 shrink-0"
                                 >
                                   <span>Pre-order</span>
-                                  <ArrowRight size={15} className="shrink-0" />
+                                  <ArrowRight size={14} className="shrink-0" />
                                 </Link>
                               ) : (
                                 <Link 
                                   href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full bg-[#facc15] px-6 sm:px-8 text-xs sm:text-sm font-black uppercase tracking-wider text-black shadow-lg shadow-[#facc15]/20 transition-all hover:scale-[1.02] hover:bg-[#fde047] active:scale-95 shrink-0"
+                                  className="magnetic-button inline-flex h-11 sm:h-12 min-w-[130px] sm:min-w-[148px] items-center justify-center gap-2 rounded-lg bg-[#facc15] px-4 sm:px-6 text-xs sm:text-sm font-black uppercase tracking-wider text-black shadow-md shadow-[#facc15]/15 transition-all hover:bg-[#fde047] hover:-translate-y-0.5 active:scale-95 shrink-0"
                                 >
                                   <span>View Game</span>
-                                  <ArrowRight size={15} className="shrink-0" />
+                                  <ArrowRight size={14} className="shrink-0" />
                                 </Link>
                               )}
                               {game.trailer_url ? (
@@ -200,21 +200,21 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                                   suppressHydrationWarning={true}
                                   type="button"
                                   onClick={(e) => handlePlayTrailer(game, e)}
-                                  className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full border border-white/20 bg-black/60 px-5 sm:px-7 text-xs sm:text-sm font-bold uppercase tracking-wider backdrop-blur-md hover:bg-white/[0.1] hover:border-white/40 transition-all cursor-pointer text-white shrink-0 active:scale-95"
+                                  className="inline-flex h-11 sm:h-12 min-w-[130px] sm:min-w-[148px] items-center justify-center gap-2 rounded-lg border border-white/15 bg-black/60 px-4 sm:px-6 text-xs sm:text-sm font-bold uppercase tracking-wider backdrop-blur-md hover:bg-black/85 hover:border-white/35 transition-all cursor-pointer text-white shrink-0 active:scale-95"
                                 >
                                   <Play size={13} fill="currentColor" className="text-[#facc15] shrink-0" />
-                                  <span>Watch Trailer</span>
+                                  <span>Trailer</span>
                                 </button>
                               ) : (
                                 <Link
                                   href={gameUrl(game)}
-                                  className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full border border-white/20 bg-black/60 px-5 sm:px-7 text-xs sm:text-sm font-bold uppercase tracking-wider backdrop-blur-md hover:bg-white/[0.1] hover:border-white/40 transition-all text-white shrink-0 active:scale-95"
+                                  className="inline-flex h-11 sm:h-12 min-w-[130px] sm:min-w-[148px] items-center justify-center gap-2 rounded-lg border border-white/15 bg-black/60 px-4 sm:px-6 text-xs sm:text-sm font-bold uppercase tracking-wider backdrop-blur-md hover:bg-black/85 transition-all text-white shrink-0 active:scale-95"
                                 >
                                   <Play size={13} fill="currentColor" className="shrink-0" />
-                                  <span>Watch Trailer</span>
+                                  <span>Trailer</span>
                                 </Link>
                               )}
-                              <span className="inline-flex h-11 sm:h-12 items-center justify-center rounded-full border border-white/10 bg-black/60 px-5 sm:px-6 text-xs sm:text-sm font-black text-[#facc15] backdrop-blur-md shrink-0">
+                              <span className="inline-flex h-11 sm:h-12 min-w-[130px] sm:min-w-[148px] items-center justify-center rounded-lg border border-white/10 bg-black/60 px-4 sm:px-6 text-xs sm:text-sm font-black text-[#facc15] backdrop-blur-md shrink-0">
                                 <span>From {formatPrice(lowestPrice(game))}</span>
                               </span>
                             </div>
