@@ -52,10 +52,10 @@ export function Footer() {
           <p className="mt-2 max-w-sm text-xs leading-relaxed text-[#8991a6]">
             Premium PC games with clear pricing, secure payment review, and direct human support.
           </p>
-          <div className="mt-2 flex flex-wrap gap-2 text-[9px] font-black tracking-wider">
-            <span className="rounded bg-white/[0.02] border border-white/5 hover:border-white/20 px-2.5 py-1 text-white transition-all cursor-default">STEAM</span>
-            <span className="rounded bg-white/[0.02] border border-white/5 hover:border-white/20 px-2.5 py-1 text-white transition-all cursor-default">EPIC</span>
-            <span className="rounded bg-white/[0.02] border border-white/5 hover:border-white/20 px-2.5 py-1 text-white transition-all cursor-default">OFFLINE</span>
+          <div className="mt-2 flex flex-wrap gap-2 text-[9px] font-black text-[#facc15] tracking-wider">
+            <span className="rounded border border-[#facc15]/20 px-2.5 py-1 bg-[#facc15]/5 hover:bg-[#facc15]/10 transition-colors cursor-default">STEAM</span>
+            <span className="rounded border border-[#facc15]/20 px-2.5 py-1 bg-[#facc15]/5 hover:bg-[#facc15]/10 transition-colors cursor-default">EPIC</span>
+            <span className="rounded border border-[#facc15]/20 px-2.5 py-1 bg-[#facc15]/5 hover:bg-[#facc15]/10 transition-colors cursor-default">OFFLINE</span>
           </div>
         </section>
 
