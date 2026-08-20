@@ -185,6 +185,8 @@ export function CartView() {
     toast.success("Coupon applied");
   }
 
+  if (!mounted) return null;
+
   if (!lines.length && !bundles.length) {
     return (
       <div className="my-8 flex min-h-[380px] flex-col items-center justify-center rounded-2xl border border-white/[0.06] bg-[#0c0a1a]/60 px-6 py-16 text-center backdrop-blur-md">

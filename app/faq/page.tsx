@@ -1,2 +1,27 @@
-const items = [["How does delivery work?", "Create an order after payment. Rakexura verifies it and updates the same tracking timeline until delivery."], ["Which platform will I receive?", "Choose from the platforms shown on the game page. Unavailable platforms cannot be added to cart."], ["How do I track an order?", "Use the order reference and the WhatsApp number entered at checkout."], ["Is my phone number public?", "No. Tracking requires matching private information and never exposes another customer’s details."], ["Can I request a game?", "Yes. Sign in and use the Game Request page. Popular requests help prioritize new listings."]];
-export default function FaqPage() { return <div className="shell py-12"><p className="eyebrow mb-3">Support center</p><h1 className="text-4xl font-bold md:text-5xl">Frequently asked questions</h1><div className="mt-9 max-w-4xl space-y-3">{items.map(([q,a]) => <details key={q} className="glass group rounded-lg p-5"><summary className="cursor-pointer list-none font-bold">{q}</summary><p className="muted mt-4 max-w-3xl text-sm leading-7">{a}</p></details>)}</div></div>; }
+const items = [
+  ["How does delivery work?", "Create an order after payment. Rakexura verifies it and updates the same tracking timeline until delivery."],
+  ["Which platform will I receive?", "Choose from the platforms shown on the game page. Unavailable platforms cannot be added to cart."],
+  ["How do I track an order?", "Use the order reference and the WhatsApp number entered at checkout."],
+  ["Is my phone number public?", "No. Tracking requires matching private information and never exposes another customer’s details."],
+  ["Can I request a game?", "Yes. Sign in and use the Game Request page. Popular requests help prioritize new listings."]
+];
+
+export default function FaqPage() {
+  return (
+    <div className="page-shell py-10">
+      <header className="mb-10 max-w-3xl">
+        <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15]">Support Center</p>
+        <h1 className="mb-4 text-4xl font-black sm:text-6xl">Frequently Asked Questions.</h1>
+        <p className="section-copy">Clear answers to common questions about payment, delivery, platforms, and game requests.</p>
+      </header>
+      <div className="max-w-4xl space-y-3">
+        {items.map(([q, a]) => (
+          <details key={q} className="glass group rounded-xl border border-white/[.07] p-5">
+            <summary className="cursor-pointer list-none font-bold text-white transition-colors hover:text-[#facc15]">{q}</summary>
+            <p className="mt-3.5 max-w-3xl text-sm leading-relaxed text-[#8991a6]">{a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  );
+}
