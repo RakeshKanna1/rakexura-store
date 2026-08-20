@@ -48,7 +48,7 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
       action={saveBundle}
       onChange={() => setIsDirty(true)}
       onSubmit={() => setIsSubmitting(true)}
-      className="premium-panel mt-8 rounded-md p-5 md:p-7"
+      className="premium-panel mt-8 rounded-xl border border-white/[.08] bg-[#0c0f18]/90 p-6 md:p-8 backdrop-blur-xl shadow-2xl"
     >
       <input type="hidden" name="id" value={bundle?.id ?? ""} />
       
@@ -61,11 +61,11 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
         <div>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="eyebrow">Combo builder</p>
-              <h2 className="mt-2 text-2xl font-black">{bundle ? `Edit ${bundle.title}` : "Create a bundle"}</h2>
+              <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15]">Combo Builder</p>
+              <h2 className="mt-2 text-2xl font-black text-white">{bundle ? `Edit ${bundle.title}` : "Create a Bundle"}</h2>
             </div>
             {bundle && (
-              <Link href="/admin/bundles" onClick={confirmNavigation} className="btn btn-secondary">
+              <Link href="/admin/bundles" onClick={confirmNavigation} className="btn btn-secondary border-white/10 hover:border-white/20 text-xs font-bold">
                 Cancel edit
               </Link>
             )}
@@ -207,21 +207,25 @@ export function BundleForm({ games, bundle }: { games: GameChoice[]; bundle?: Bu
             Active on storefront
           </label>
 
-          <button className="btn btn-primary mt-5" disabled={selectedIds.length < 2}>
-            <PackagePlus size={17} /> {bundle ? "Update bundle" : "Save bundle"}
+          <button 
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-[#facc15] bg-[#facc15] px-6 text-xs font-black uppercase tracking-wider text-black shadow-[0_0_20px_rgba(250,204,21,0.25)] transition-all hover:bg-[#fde047] hover:scale-[1.02] active:scale-95 cursor-pointer disabled:opacity-50 mt-5" 
+            disabled={selectedIds.length < 2}
+          >
+            <PackagePlus size={17} className="stroke-[2.5]" /> 
+            <span>{bundle ? "Update Bundle" : "Save Bundle"}</span>
           </button>
           {selectedIds.length < 2 && (
-            <p className="mt-2 text-xs text-amber-400 font-medium">Please select at least 2 games for the combo bundle.</p>
+            <p className="mt-2 text-xs text-[#facc15] font-medium">Please select at least 2 games for the combo bundle.</p>
           )}
         </div>
 
-        <aside className="overflow-hidden rounded-md border border-white/[.08] bg-black/20">
-          <div className="relative aspect-[4/5]">
+        <aside className="overflow-hidden rounded-xl border border-white/[.08] bg-[#090c14]/80 backdrop-blur-md">
+          <div className="relative aspect-[4/5] bg-black/40">
             <Image src={assetUrl(bundle?.cover_image)} alt="Bundle cover preview" fill className="object-cover" />
           </div>
           <div className="p-4">
-            <span className="eyebrow">Preview</span>
-            <strong className="mt-2 block">{bundle?.title || "Your bundle"}</strong>
+            <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#b9a4ff]">Preview</span>
+            <strong className="mt-1.5 block text-white font-black">{bundle?.title || "Your bundle"}</strong>
             <p className="mt-2 text-xs leading-5 text-[#8991a6]">
               Recommended upload: portrait 1200 x 1600. Rakexura converts it to optimized WebP.
             </p>

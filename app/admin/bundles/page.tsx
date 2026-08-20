@@ -18,11 +18,13 @@ export default async function AdminBundlesPage({ searchParams }: { searchParams:
   
   return (
     <div className="py-10">
-      <Link href="/admin" className="inline-flex min-h-11 items-center gap-2 text-sm text-[#8991a6] hover:text-white">
+      <Link href="/admin" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-[#8991a6] hover:text-[#facc15] transition-colors">
         <ArrowLeft size={16} /> Control center
       </Link>
-      <p className="eyebrow mt-7">Administration</p>
-      <h1 className="mt-3 text-4xl font-black md:text-5xl">Combo deals</h1>
+      <p className="text-xs font-bold uppercase tracking-[.16em] text-[#facc15] mt-7">Administration</p>
+      <h1 className="mt-3 text-4xl font-black md:text-5xl text-white">
+        Combo <span className="bg-gradient-to-r from-[#8b5cf6] via-[#c4b5fd] to-[#facc15] bg-clip-text text-transparent">Deals</span>.
+      </h1>
       <p className="section-copy">Build multi-game offers and control when they appear on the storefront.</p>
       
       <BundleForm games={games ?? []} bundle={editing ?? null} />
@@ -39,31 +41,37 @@ export default async function AdminBundlesPage({ searchParams }: { searchParams:
             .join(", ") || "No games linked";
 
           return (
-            <article key={bundle.id} className="flex flex-wrap items-center justify-between gap-4 rounded-md border border-white/[.08] bg-[#0b0f19] p-4">
+            <article key={bundle.id} className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/[.08] bg-[#0c0f18]/90 p-5 backdrop-blur-xl transition-all hover:border-[#8b5cf6]/30">
               <div>
-                <strong className="text-white block text-base">{bundle.title}</strong>
-                <p className="mt-1 text-sm text-[#8991a6]">
-                  {formatPrice(bundle.bundle_price)} · {bundle.bundle_games.length} games · {bundle.active ? "Live" : "Paused"}
-                  {bundle.offer_end_date && ` · Ends ${new Date(bundle.offer_end_date).toLocaleString("en-IN")}`}
+                <strong className="text-white block text-base font-black">{bundle.title}</strong>
+                <p className="mt-1 text-sm text-[#8991a6] flex items-center gap-2 flex-wrap">
+                  <span className="font-black text-[#facc15] text-base">{formatPrice(bundle.bundle_price)}</span>
+                  <span>·</span>
+                  <span>{bundle.bundle_games.length} games</span>
+                  <span>·</span>
+                  <span className={`inline-flex rounded px-2 py-0.5 text-xs font-bold ${bundle.active ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border border-amber-500/20"}`}>
+                    {bundle.active ? "Live" : "Paused"}
+                  </span>
+                  {bundle.offer_end_date && <span className="text-xs text-[#8991a6]">· Ends {new Date(bundle.offer_end_date).toLocaleString("en-IN")}</span>}
                 </p>
-                <p className="mt-1.5 text-xs text-[#b9a4ff]/90">
-                  <span className="opacity-60 text-white font-semibold">Included:</span> {gameList}
+                <p className="mt-2 text-xs text-[#c4b5fd]">
+                  <span className="opacity-70 text-[#8991a6] font-semibold">Included:</span> {gameList}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 items-center">
-                <Link href={`/admin/bundles?edit=${bundle.id}`} className="btn btn-secondary text-xs min-h-9 px-3">
+                <Link href={`/admin/bundles?edit=${bundle.id}`} className="btn btn-secondary text-xs min-h-9 px-3.5 border-white/10 hover:border-[#8b5cf6]/40 hover:text-[#c4b5fd]">
                   Edit
                 </Link>
                 <form action={toggleBundle}>
                   <input type="hidden" name="id" value={bundle.id} />
                   <input type="hidden" name="active" value={String(!bundle.active)} />
-                  <button className="btn btn-secondary text-xs min-h-9 px-3">
+                  <button className="btn btn-secondary text-xs min-h-9 px-3.5 border-white/10 hover:border-[#facc15]/40 hover:text-[#facc15]">
                     {bundle.active ? "Pause" : "Activate"}
                   </button>
                 </form>
                 <form action={deleteBundle}>
                   <input type="hidden" name="id" value={bundle.id} />
-                  <button className="btn border border-red-500/30 bg-red-950/20 text-xs text-red-300 min-h-9 px-3 hover:bg-red-950/40">
+                  <button className="btn border border-red-500/30 bg-red-950/20 text-xs text-red-300 min-h-9 px-3.5 hover:bg-red-950/40 cursor-pointer">
                     Delete
                   </button>
                 </form>
@@ -72,7 +80,7 @@ export default async function AdminBundlesPage({ searchParams }: { searchParams:
           );
         })}
         {!bundles?.length && (
-          <p className="rounded-md border border-white/[.08] p-8 text-center text-[#8991a6]">
+          <p className="rounded-xl border border-white/[.08] bg-[#0c0f18]/60 p-8 text-center text-[#8991a6]">
             No combo deals yet.
           </p>
         )}
