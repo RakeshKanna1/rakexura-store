@@ -89,7 +89,8 @@ export function OrderActions({
         gameName,
         id: orderReference || String(id),
       };
-      const trackingLink = `https://rakexura-store.vercel.app/track-order?order=${order.id}&phone=${customerPhone}`;
+      const siteUrl = typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL ?? "https://rakexura.store");
+      const trackingLink = `${siteUrl}/track-order?order=${order.id}&phone=${customerPhone}`;
 
       let textContent = `*RAKEXURA INVOICE & DELIVERY*\n\n` +
         `*Items:* ${order.gameName}\n` +

@@ -44,13 +44,13 @@ export default function NotFound() {
 
         {/* Quick Links Footer */}
         <div className="mt-10 pt-6 border-t border-white/[0.08] flex flex-wrap items-center justify-center gap-6 text-xs text-[#8991a6]">
-          <Link href="/track" className="hover:text-[#facc15] transition-colors inline-flex items-center gap-1">
+          <Link href="/track-order" className="hover:text-[#facc15] transition-colors inline-flex items-center gap-1">
             Track Order <ArrowRight size={12} />
           </Link>
           <Link href="/faq" className="hover:text-[#facc15] transition-colors inline-flex items-center gap-1">
             Help & FAQ <ArrowRight size={12} />
           </Link>
-          <Link href="/contact" className="hover:text-[#facc15] transition-colors inline-flex items-center gap-1">
+          <Link href="/support" className="hover:text-[#facc15] transition-colors inline-flex items-center gap-1">
             Contact Support <ArrowRight size={12} />
           </Link>
         </div>

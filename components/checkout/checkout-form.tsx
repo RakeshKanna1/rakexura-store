@@ -172,6 +172,8 @@ export function CheckoutForm() {
   const [purchasedTitles, setPurchasedTitles] = useState("");
   const [finalAmount, setFinalAmount] = useState(0);
   const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(null);
+  const [appliedCouponDiscount, setAppliedCouponDiscount] = useState(0);
+  const [purchasedItemsSnapshot, setPurchasedItemsSnapshot] = useState<Array<{ name: string; platform?: string; price: number; quantity?: number }>>([]);
   const [postPurchasePhone, setPostPurchasePhone] = useState("");
   const [isPrintingReceiptScreen, setIsPrintingReceiptScreen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -544,11 +546,26 @@ export function CheckoutForm() {
       ...bundles.map((item) => ({ title: String(item.title), platform: "Bundle", quantity: Number(item.quantity), price: Number(item.unit_price) })),
     ], customerEmail, user?.id);
     
-    // Save metadata for WhatsApp redirection link before clearing
+    // Save metadata for WhatsApp redirection link & receipt printer before clearing
     const titles = [...lines.map((l) => l.game.title), ...bundleLines.map((b) => b.bundle.title)].join(", ") || "Game";
     setPurchasedTitles(titles);
     setFinalAmount(finalTotal);
     setAppliedCouponCode(couponEligible && coupon ? coupon.code : null);
+    setAppliedCouponDiscount(couponDiscount);
+    setPurchasedItemsSnapshot([
+      ...lines.map((l) => ({
+        name: l.game.title,
+        platform: l.platform,
+        price: getCheckoutLinePrice(l.game, l.platform),
+        quantity: l.quantity,
+      })),
+      ...bundleLines.map((b) => ({
+        name: b.bundle.title,
+        platform: "Bundle",
+        price: Number(b.bundle.bundle_price || 0),
+        quantity: b.quantity,
+      })),
+    ]);
     setPostPurchasePhone(values.whatsapp.replace(/\D/g, ""));
 
     clear();
@@ -839,7 +856,9 @@ export function CheckoutForm() {
                 encodeURIComponent(`Track Order: ${trackingLink}`) + `%0A%0A` +
                 encodeURIComponent(`Please send over my activation details!`);
 
-              const receiptItems = lines.length > 0
+              const receiptItems = purchasedItemsSnapshot.length > 0
+                ? purchasedItemsSnapshot
+                : lines.length > 0
                 ? lines.map((l) => ({
                     name: l.game.title,
                     platform: l.platform,
@@ -848,6 +867,7 @@ export function CheckoutForm() {
                   }))
                 : bundleLines.map((b) => ({
                     name: b.bundle.title,
+                    platform: "Bundle",
                     price: Number(b.bundle.bundle_price || 0),
                     quantity: b.quantity,
                   }));
@@ -859,8 +879,8 @@ export function CheckoutForm() {
                   total={finalAmount}
                   items={receiptItems}
                   whatsappUrl={whatsappUrl}
-                  couponCode={coupon?.code}
-                  couponDiscount={discount}
+                  couponCode={appliedCouponCode ?? coupon?.code}
+                  couponDiscount={appliedCouponDiscount > 0 ? appliedCouponDiscount : discount}
                 />
               );
             })()

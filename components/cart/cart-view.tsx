@@ -94,9 +94,9 @@ export function CartView() {
         return toast.error("Sign in to redeem Diamond loyalty perks");
       }
       const { data: reward } = await supabase.from("user_rewards").select("points").eq("user_id", user.id).maybeSingle();
-      if ((reward?.points ?? 0) < 3000) {
+      if ((reward?.points ?? 0) < 4000) {
         setChecking(false);
-        return toast.error("Diamond loyalty freebies require Diamond rank (3,000+ points).");
+        return toast.error("Diamond loyalty freebies require Diamond rank (4,000+ points).");
       }
       setCoupon({ code: "DIAMONDFREE", discount_type: "percentage", discount_value: 100, minimum_order: 0, applicable_to: "both" });
       setChecking(false);

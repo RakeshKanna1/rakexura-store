@@ -100,19 +100,13 @@ export async function POST(request: Request) {
       error = fallbackQuery.error;
     }
 
-    // If the coupon has expired, automatically delete it from database
+    // If the coupon has expired, return coupon expired error
     if (coupon && coupon.expires_at && new Date(coupon.expires_at) <= new Date()) {
-      try {
-        await supabase.from("coupon_usage").delete().eq("coupon_id", coupon.id);
-        await supabase.from("coupons").delete().eq("id", coupon.id);
-      } catch {
-        // Ignore error during cleanup
-      }
       return NextResponse.json(
         {
           success: false,
           error: {
-            message: "This coupon offer has expired and has been automatically removed.",
+            message: "This coupon offer has expired and is no longer available.",
             code: "COUPON_EXPIRED"
           }
         },

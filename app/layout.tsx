@@ -24,7 +24,7 @@ const geist = Geist({
   variable: "--font-sans",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rakeon-store.vercel.app";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rakexura.store";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

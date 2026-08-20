@@ -32,7 +32,7 @@ export default async function AdminRewardsPage() {
     <p className="eyebrow">Customer loyalty</p>
     <h1 className="mt-3 text-4xl font-black md:text-5xl">Ranks & rewards</h1>
     <p className="section-copy">Delivered orders earn 100 points. Review loyal customers and grant a manual bonus when deserved.</p>
-    <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">{tiers.map(([rank, range, Icon]) => <article key={rank} className="premium-panel rounded-md p-4"><Icon size={19} className={rankStyle[rank]} /><strong className="mt-4 block">{rank}</strong><span className="mt-1 text-xs text-[#8991a6]">{range} points</span></article>)}</div>
+    <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">{tiers.map(([rank, range, Icon]) => <article key={rank} className="premium-panel rounded-md p-4"><Icon size={19} className={rankStyle[rank]} /><strong className="mt-4 block">{rank}</strong><span className="mt-1 text-xs text-[#8991a6]">{range} points</span></article>)}</div>
     {queryError && <p className="mt-7 rounded-md border border-red-500/20 bg-red-500/[.07] p-4 text-sm text-red-200">Rewards data is temporarily unavailable. Run the latest Phase 13 migration, then reload this page.</p>}
     <div className="mt-7 space-y-3">{!queryError && rewards?.map((reward, index) => {
       const profile = profileMap.get(reward.user_id);

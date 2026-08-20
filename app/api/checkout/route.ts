@@ -57,12 +57,6 @@ export async function POST(request: Request) {
 
       if (couponData) {
         if (couponData.expires_at && new Date(couponData.expires_at) <= new Date()) {
-          try {
-            await supabase.from("coupon_usage").delete().eq("coupon_id", couponData.id);
-            await supabase.from("coupons").delete().eq("id", couponData.id);
-          } catch {
-            // Ignore error during cleanup
-          }
           return NextResponse.json({ error: "This coupon offer has ended and is no longer available." }, { status: 400 });
         }
 

@@ -1,7 +1,7 @@
 import { rateLimiter } from "@/lib/security/rate-limit";
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 import { sendWhatsAppText } from "@/lib/whatsapp";
 import { runBackgroundJob } from "@/lib/security/queue";
@@ -521,7 +521,7 @@ export async function POST(request: Request) {
       // 2.5 Also send push notification and database notification as customer invoice fallback
       if (order.userId) {
         try {
-          const supabase = await createClient();
+          const supabase = createAdminClient();
           const customerMessage = makeCustomerInvoiceMessage(order);
           const title = `Order Placed: ${order.reference ?? ""}`;
           
@@ -574,7 +574,7 @@ export async function POST(request: Request) {
 
       // 4. Send database in-app & push notification to admins
       try {
-        const supabase = await createClient();
+        const supabase = createAdminClient();
         const { data: admins } = await supabase.from("profiles").select("id").eq("role", "admin");
         if (admins && admins.length > 0) {
           const adminNotifs = admins.map((admin) => ({

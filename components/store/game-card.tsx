@@ -153,7 +153,7 @@ function GameCardInner({
           </div>
 
           <div className="mt-2.5 rounded-md border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-center">
-            <p className="truncate text-[9px] font-medium text-[#8991a6]">Add three more games to attain a code</p>
+            <p className="truncate text-[9px] font-medium text-[#8991a6]">Buy 3 games & get 10% off with RAKE10</p>
           </div>
         </div>
 

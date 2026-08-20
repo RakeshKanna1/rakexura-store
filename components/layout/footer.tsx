@@ -68,7 +68,7 @@ export function Footer() {
             <Link href="/subscriptions" className="hover:text-[#facc15] transition-colors duration-200">Subscriptions</Link>
             <Link href="/wishlist" className="hover:text-[#facc15] transition-colors duration-200">Wishlist</Link>
             <Link href="/dashboard/library" className="hover:text-[#facc15] transition-colors duration-200">My games</Link>
-            <Link href="/track" className="hover:text-[#facc15] transition-colors duration-200">Track order</Link>
+            <Link href="/track-order" className="hover:text-[#facc15] transition-colors duration-200">Track order</Link>
           </div>
         </nav>
 
