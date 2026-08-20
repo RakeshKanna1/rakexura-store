@@ -66,15 +66,27 @@ export function StoreCloudSync() {
         // Notify owner/admins if this is a first-time customer signup/login
         void fetch("/api/notifications/new-user", { method: "POST" }).catch(() => {});
 
-        const [{ data: cartRows, error: cartError }, { data: bundleRows, error: bundleError }, { data: wishlistRows, error: wishlistError }] = await Promise.all([
-          supabase.from("cart_items").select("variant_type,quantity,games(id,title,cover_image,sale_price,original_price,steam_price,epic_price,offline_price,online_price,xbox_price,geforce_price,is_subscription,duration)").eq("user_id", user.id),
-          supabase.from("cart_bundles").select("quantity,bundles(id,title,description,cover_image,original_price,bundle_price,active,offer_end_date,bundle_games(games(id,title)))").eq("user_id", user.id),
-          supabase.from("wishlist").select("game_id").eq("user_id", user.id),
-        ]);
-        if (!active) return;
-        if (cartError || bundleError || wishlistError) { 
-          return; 
+        let cartRows = null;
+        let bundleRows = null;
+        let wishlistRows = null;
+
+        try {
+          const [cartRes, bundleRes, wishlistRes] = await Promise.all([
+            supabase.from("cart_items").select("variant_type,quantity,games(id,title,cover_image,sale_price,original_price,steam_price,epic_price,offline_price,online_price,xbox_price,geforce_price,is_subscription,duration)").eq("user_id", user.id),
+            supabase.from("cart_bundles").select("quantity,bundles(id,title,description,cover_image,original_price,bundle_price,active,offer_end_date,bundle_games(games(id,title)))").eq("user_id", user.id),
+            supabase.from("wishlist").select("game_id").eq("user_id", user.id),
+          ]);
+          if (!active) return;
+          if (cartRes.error || bundleRes.error || wishlistRes.error) {
+            return;
+          }
+          cartRows = cartRes.data;
+          bundleRows = bundleRes.data;
+          wishlistRows = wishlistRes.data;
+        } catch {
+          return;
         }
+
         const local = useCartStore.getState();
         const cloudLines = ((cartRows ?? []) as unknown as CloudCartRow[]).flatMap((row) => { 
           const game = one(row.games); 

@@ -15,15 +15,19 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       const reason = event.reason;
-      const msg = typeof reason === "string" ? reason : reason?.message || "";
+      const msg = (typeof reason === "string" ? reason : reason?.message || String(reason || "")).toLowerCase();
       if (
         !reason ||
         reason instanceof Event ||
         (typeof reason === "object" && (reason?.constructor?.name === "Event" || reason?.constructor?.name === "ErrorEvent")) ||
         String(reason) === "[object Event]" ||
-        msg.includes("[object Event]") ||
-        msg === "Failed to fetch" ||
-        msg.includes("Failed to fetch")
+        msg.includes("[object event]") ||
+        msg.includes("failed to fetch") ||
+        msg.includes("network error") ||
+        msg.includes("networkerror") ||
+        msg.includes("load failed") ||
+        msg.includes("connection") ||
+        msg.includes("aborted")
       ) {
         event.preventDefault();
         event.stopImmediatePropagation?.();
@@ -32,11 +36,16 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
 
     const handleWindowError = (event: ErrorEvent | Event) => {
       const err = (event as ErrorEvent).error;
+      const msg = ((event as ErrorEvent).message || (err?.message) || String(err || "")).toLowerCase();
       const target = event.target;
       if (
         err instanceof Event ||
         String(err) === "[object Event]" ||
         String(event).includes("[object Event]") ||
+        msg.includes("network error") ||
+        msg.includes("networkerror") ||
+        msg.includes("failed to fetch") ||
+        msg.includes("load failed") ||
         (target && target !== window && (target instanceof HTMLElement || target instanceof HTMLImageElement || target instanceof HTMLMediaElement))
       ) {
         event.preventDefault();
