@@ -4,6 +4,8 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { TextType } from "@/components/animations/text-type";
 
+import { MathCurveLoader } from "@/components/ui/math-curve-loader";
+
 export default function Loading() {
   return (
     <motion.div
@@ -29,16 +31,25 @@ export default function Loading() {
       </div>
 
       <div className="text-center relative z-10 flex flex-col items-center justify-center">
-        <div className="relative flex items-center justify-center w-16 h-16 mb-4">
-          {/* Ultra-sleek spinning gold arc */}
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#facc15] border-r-[#facc15]/30"
-          />
+        <div className="relative flex items-center justify-center w-24 h-24 mb-3">
+          {/* Mathematical Parametric Curve Trail Loader */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <MathCurveLoader
+              size={96}
+              petalCount={7}
+              baseRadius={7}
+              detailAmplitude={3}
+              curveScale={3.9}
+              strokeWidth={3.8}
+              particleCount={64}
+              trailSpan={0.4}
+              color="#facc15"
+              glowColor="#8b5cf6"
+            />
+          </div>
 
           {/* Clean minimal logo badge */}
-          <div className="relative flex items-center justify-center w-11 h-11 rounded-full bg-[#0c0e17] border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.6)]">
+          <div className="relative z-10 flex items-center justify-center w-11 h-11 rounded-full bg-[#0c0e17] border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)]">
             <Image
               src="/Assets/RakeLogo.png"
               alt="Rakexura"
