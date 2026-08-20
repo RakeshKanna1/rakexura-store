@@ -234,10 +234,8 @@ export function HeroCarousel({ games }: { games: Game[] }) {
 
       <aside className="featured-now min-w-0" aria-label="Featured games">
         <div className="featured-now-heading mb-3 flex items-center justify-between">
-          <strong className="text-xs font-black uppercase tracking-wider text-white">Featured Now</strong>
-          <Link href="/games" className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-[#facc15] hover:text-white transition-colors">
-            View All <ArrowRight size={13} />
-          </Link>
+          <strong className="text-sm text-white">Featured now</strong>
+          <Link href="/games" className="text-xs text-[#b9a4ff] hover:underline">View all</Link>
         </div>
         <div className="featured-now-list hide-scrollbar">
           {games.map((game, index) => (
