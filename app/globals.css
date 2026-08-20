@@ -82,23 +82,57 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .muted { color: var(--muted); }
 .eyebrow { margin: 0; color: var(--brand-soft); font-size: .72rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
 .display { margin: 0; max-width: 900px; font-size: clamp(3.3rem, 7vw, 6.8rem); font-weight: 900; letter-spacing: 0; line-height: .95; }
+/* Global & Body Scrollbar Styling */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) #05070f;
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #05070f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+  border: 1.5px solid #05070f;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(250, 204, 21, 0.5);
+}
+
+::-webkit-scrollbar-corner {
+  background: #05070f;
+}
+
 .hide-scrollbar { scrollbar-width: none; scroll-snap-type: inline proximity; }
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar > * { scroll-snap-align: start; }
+
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 }
 .custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(250, 204, 21, 0.5);
 }
 
 .admin-sidebar-scroll {
@@ -107,14 +141,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   overscroll-behavior: contain;
 }
 .admin-sidebar-scroll::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
 .admin-sidebar-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 .admin-sidebar-scroll::-webkit-scrollbar-thumb {
   background: rgba(139, 92, 246, 0.35);
-  border-radius: 4px;
+  border-radius: 9999px;
 }
 .admin-sidebar-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(185, 164, 255, 0.6);
@@ -698,21 +732,7 @@ select option:active {
   -webkit-text-fill-color: #ffffff !important;
 }
 
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(139, 92, 246, 0.5);
-  border-radius: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 92, 246, 0.8);
-}
+
 
 /* Custom Native Date & Datetime Picker Calendar Icon Styling */
 input[type="date"]::-webkit-calendar-picker-indicator,
