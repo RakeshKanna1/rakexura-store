@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { Minus, Package, Plus, ShoppingBag, Trash2, X } from "lucide-react";
@@ -50,6 +51,21 @@ export function CartDrawer() {
   const setBundleQuantity = useCartStore((state) => state.setBundleQuantity);
   const total = lines.reduce((sum, line) => sum + price(line) * line.quantity, 0) + bundles.reduce((sum, line) => sum + Number(line.bundle.bundle_price) * line.quantity, 0);
   const count = lines.reduce((sum, line) => sum + line.quantity, 0) + bundles.reduce((sum, line) => sum + line.quantity, 0);
+
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        close(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open, close]);
 
   return (
     <AnimatePresence>

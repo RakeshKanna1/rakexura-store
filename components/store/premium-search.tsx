@@ -113,7 +113,10 @@ export function PremiumSearch() {
             onBlur={() => { window.setTimeout(() => setOpen(false), 180); setFocused(false); }}
             onChange={(event) => { setQuery(event.target.value); setOpen(true); }}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && shown.length > 0) {
+              if (e.key === "Escape") {
+                setOpen(false);
+                e.currentTarget.blur();
+              } else if (e.key === "Enter" && shown.length > 0) {
                 e.preventDefault();
                 remember(shown[0]);
                 router.push(gameUrl(shown[0]));

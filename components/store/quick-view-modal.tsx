@@ -27,13 +27,20 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
   useEffect(() => {
     if (game) {
       document.body.style.overflow = "hidden";
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          onClose();
+        }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "";
+        window.removeEventListener("keydown", handleKeyDown);
+      };
     } else {
       document.body.style.overflow = "";
     }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [game]);
+  }, [game, onClose]);
 
   const add = useCartStore((state) => state.add);
   const coupon = useCartStore((state) => state.coupon);
