@@ -34,19 +34,9 @@ function renderHighlightedMessage(message: string) {
 
   return parts.map((part, index) => {
     const upper = part.toUpperCase();
-    if (upper === "RAKE10") {
+    if (upper === "RAKE10" || upper === "COMBO DEALS" || upper === "10%" || upper === "FLASH SALE" || upper === "INSTANT DELIVERY" || upper === "DISCOUNT") {
       return (
-        <span
-          key={index}
-          className="mx-1 inline-flex items-center rounded-md bg-[#facc15]/15 px-2 py-0.5 font-black tracking-widest text-[#facc15] border border-[#facc15]/35 shadow-[0_0_10px_rgba(250,204,21,0.15)]"
-        >
-          RAKE10
-        </span>
-      );
-    }
-    if (upper === "COMBO DEALS" || upper === "10%" || upper === "FLASH SALE" || upper === "INSTANT DELIVERY" || upper === "DISCOUNT") {
-      return (
-        <span key={index} className="font-black text-[#facc15]">
+        <span key={index} className="font-black text-[#facc15] tracking-wider">
           {part}
         </span>
       );
