@@ -195,10 +195,10 @@ export function CartView() {
         <p className="mt-1.5 text-sm text-[#8991a6]">Add a game or combo to get started.</p>
         <Link 
           href="/games" 
-          className="mt-5 inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#facc15] hover:text-[#fde047] transition-colors"
+          className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[#facc15] hover:text-white transition-colors"
         >
-          <span>Explore Top Deals</span>
-          <span className="text-sm">&rarr;</span>
+          <span>Explore top deals</span>
+          <ArrowRight size={13} />
         </Link>
       </div>
     );

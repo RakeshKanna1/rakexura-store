@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { Minus, Package, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import { ArrowRight, Minus, Package, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { assetUrl, formatPrice, gameUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { DustDisintegration } from "@/components/common/dust-disintegration";
@@ -160,10 +160,10 @@ export function CartDrawer() {
                   <Link 
                     href="/games" 
                     onClick={() => close(false)} 
-                    className="mt-5 inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#facc15] hover:text-[#fde047] transition-colors"
+                    className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[#facc15] hover:text-white transition-colors"
                   >
-                    <span>Explore Top Deals</span>
-                    <span className="text-sm">&rarr;</span>
+                    <span>Explore top deals</span>
+                    <ArrowRight size={13} />
                   </Link>
                 </div>
               )}
