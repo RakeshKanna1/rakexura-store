@@ -145,15 +145,15 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                             fill 
                             priority={index === 0} 
                             fetchPriority={index === 0 ? "high" : "low"}
-                            className="hero-media object-cover" 
+                            className="hero-media object-cover object-[center_20%] sm:object-[center_15%] md:object-[center_18%]" 
                             sizes="100vw" 
                           />
 
                           {/* Background looping silent ambient video client-side */}
                           {mounted && !isMobile && loadVideo && active === index && game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i) && (
-                            <video src={game.trailer_url} autoPlay muted loop playsInline className="hero-media absolute inset-0 h-full w-full object-cover z-0" />
+                            <video src={game.trailer_url} autoPlay muted loop playsInline className="hero-media absolute inset-0 h-full w-full object-cover object-[center_18%] z-0" />
                           )}
-                          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,11,.97)_0%,rgba(3,5,11,.68)_38%,rgba(3,5,11,.08)_78%),linear-gradient(0deg,rgba(3,5,11,.92)_0%,rgba(3,5,11,.65)_40%,transparent_75%)]" />
+                          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,11,0.94)_0%,rgba(3,5,11,0.72)_34%,rgba(3,5,11,0.18)_68%,transparent_90%),linear-gradient(0deg,rgba(3,5,11,0.9)_0%,rgba(3,5,11,0.32)_28%,transparent_62%)]" />
                           <motion.div 
                             key={`${active}-${game.id}`} 
                             initial={{ opacity: 0, y: 24 }} 

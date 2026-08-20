@@ -407,7 +407,7 @@ export default async function GamePage({ params }: Props) {
       <img 
         src={bannerUrl} 
         alt={game.title} 
-        className="absolute inset-0 h-full w-full object-cover object-center" 
+        className="absolute inset-0 h-full w-full object-cover object-[center_20%]" 
         loading="eager"
         decoding="sync"
         crossOrigin="anonymous"

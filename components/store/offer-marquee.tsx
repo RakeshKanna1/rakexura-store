@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { Flame, Gamepad2, MessageCircle, ShoppingCart, Sparkles, Zap, Package } from "lucide-react";
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 import { getMarqueeMessages } from "@/lib/supabase/queries";
 import Link from "next/link";
 import React from "react";
@@ -112,7 +113,11 @@ export async function OfferMarquee() {
                   )}
 
                   {/* Static, sharp Icon with subtle gold luster */}
-                  <Icon size={13} className="text-[#facc15] filter drop-shadow-[0_0_8px_rgba(250,204,21,0.35)] shrink-0" aria-hidden="true" />
+                  {isWhatsApp ? (
+                    <WhatsAppIcon size={14} className="h-3.5 w-3.5 text-[#facc15] filter drop-shadow-[0_0_8px_rgba(250,204,21,0.35)] shrink-0 fill-current" aria-hidden="true" />
+                  ) : (
+                    <Icon size={13} className="text-[#facc15] filter drop-shadow-[0_0_8px_rgba(250,204,21,0.35)] shrink-0" aria-hidden="true" />
+                  )}
 
                   {/* Clean announcement text with selective gold highlights */}
                   <span className="text-[#e2e5f0] font-extrabold">

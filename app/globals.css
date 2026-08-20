@@ -196,7 +196,7 @@ html {
   box-shadow: 0 0 14px rgba(250,204,21,.34);
   animation: featured-pulse 2.4s ease-in-out infinite;
 }
-.featured-now-list { display: grid; gap: 8px; max-height: 510px; overflow-y: auto; padding-right: 4px; }
+.featured-now-list { display: grid; gap: 8px; max-height: 524px; overflow-y: auto; padding-right: 4px; }
 .featured-now-item {
   display: flex;
   min-height: 68px;
@@ -307,8 +307,8 @@ html {
   animation: hero-sheen 8s ease-in-out infinite alternate;
 }
 .hero-media {
-  transform: scale(1.012);
-  animation: hero-drift 13s ease-in-out infinite alternate;
+  transform: scale(1.01);
+  animation: hero-drift 14s ease-in-out infinite alternate;
   will-change: transform;
 }
 .spotlight-card { position: relative; isolation: isolate; }
@@ -325,7 +325,7 @@ html {
 @keyframes gold-twinkle { 0%, 100% { filter: brightness(.86); opacity: .34; } 48% { filter: brightness(1.3); opacity: .54; } }
 @keyframes skeleton-shimmer { to { transform: translateX(100%); } }
 @keyframes hero-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes hero-drift { from { transform: scale(1.012) translate3d(0,0,0); } to { transform: scale(1.045) translate3d(-.8%, -.5%, 0); } }
+@keyframes hero-drift { from { transform: scale(1.01) translate3d(0, 0, 0); } to { transform: scale(1.03) translate3d(-0.4%, 0.3%, 0); } }
 @keyframes hero-sheen { from { opacity: .25; transform: translateX(-22%); } to { opacity: .54; transform: translateX(16%); } }
 @keyframes offer-marquee {
   0% {
