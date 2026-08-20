@@ -350,7 +350,7 @@ export function CartView() {
           </div>
           <div className="mt-5 flex justify-between border-t border-white/10 pt-5 text-xl font-black">
             <span>Total</span>
-            <span>{formatPrice(total)}</span>
+            <span className="text-[#facc15] font-black">{formatPrice(total)}</span>
           </div>
           <Link
             href="/checkout"

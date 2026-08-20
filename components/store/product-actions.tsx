@@ -313,7 +313,7 @@ export function ProductActions({ game }: { game: Game }) {
                         <del className="text-base font-medium text-[#8991a8] line-through decoration-red-500/60 select-none">
                           {formatPrice(originalSubtotal)}
                         </del>
-                        <strong className="text-3xl font-black text-white tracking-tight">
+                        <strong className="text-3xl font-black text-[#facc15] tracking-tight">
                           {formatPrice(gameSubtotal)}
                         </strong>
                         <span className="inline-flex items-center rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-extrabold text-emerald-400 shadow-sm backdrop-blur-sm">
@@ -322,7 +322,7 @@ export function ProductActions({ game }: { game: Game }) {
                       </>
                     )}
                     {originalSubtotal <= 0 && (
-                      <strong className="block text-3xl font-black text-white tracking-tight">
+                      <strong className="block text-3xl font-black text-[#facc15] tracking-tight">
                         {formatPrice(gameSubtotal)}
                       </strong>
                     )}

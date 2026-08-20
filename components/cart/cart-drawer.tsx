@@ -141,7 +141,7 @@ export function CartDrawer() {
                         <span className="mt-1 block text-xs text-[#8991a6]">
                           {getPlatformLabel(line.platform, line.game.is_subscription, line.game.duration)}
                         </span>
-                        <b className="mt-2 block text-sm">{formatPrice(price(line) * line.quantity)}</b>
+                        <b className="mt-2 block text-sm font-black text-[#facc15]">{formatPrice(price(line) * line.quantity)}</b>
                         <Stepper value={line.quantity} down={() => setQuantity(line.game.id, line.platform, line.quantity - 1)} up={() => setQuantity(line.game.id, line.platform, line.quantity + 1)} />
                       </div>
                       <button onClick={triggerRemove} className="grid h-9 w-9 place-items-center rounded-md text-[#8991a6] hover:bg-white/[.06] hover:text-[#ff7373] cursor-pointer" aria-label={`Remove ${line.game.title}`}>
@@ -171,7 +171,7 @@ export function CartDrawer() {
             <footer className="border-t border-white/[.08] p-5">
               <div className="mb-4 flex items-center justify-between">
                 <span className="text-sm text-[#8991a6]">Subtotal</span>
-                <strong className="text-xl">{formatPrice(total)}</strong>
+                <strong className="text-xl font-black text-[#facc15]">{formatPrice(total)}</strong>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <Link href="/cart" onClick={() => close(false)} className="btn btn-secondary">View cart</Link>
