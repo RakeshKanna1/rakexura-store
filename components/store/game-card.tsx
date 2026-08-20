@@ -178,14 +178,14 @@ function GameCardInner({
               add(game, platforms[0] ?? "Steam");
               toast.success(`${game.title} added to cart`);
             }}
-            className={`grid h-8.5 w-8.5 shrink-0 place-items-center rounded-full border transition-all duration-200 hover:scale-110 active:scale-90 cursor-pointer ${
+            className={`grid h-8.5 w-8.5 shrink-0 place-items-center rounded-lg border transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer ${
               game.out_of_stock
                 ? "border-red-500/30 text-red-500 hover:bg-red-500/10"
                 : "border-[#facc15]/40 bg-[#facc15]/10 text-[#facc15] hover:bg-[#facc15] hover:text-black hover:border-transparent shadow-sm"
             }`}
             aria-label={game.out_of_stock ? "Out of Stock" : `Add ${game.title} to cart`}
           >
-            {game.out_of_stock ? <X size={14} /> : <ShoppingCart size={14} />}
+            {game.out_of_stock ? <X size={14} /> : <ShoppingCart size={15} />}
           </button>
         </div>
       </div>
