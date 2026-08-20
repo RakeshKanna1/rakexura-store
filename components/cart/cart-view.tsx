@@ -189,13 +189,13 @@ export function CartView() {
 
   if (!lines.length && !bundles.length) {
     return (
-      <div className="my-8 flex min-h-[380px] flex-col items-center justify-center rounded-2xl border border-white/[0.06] bg-[#0c0a1a]/60 px-6 py-16 text-center backdrop-blur-md">
+      <div className="flex min-h-[340px] flex-col items-center justify-center px-4 py-16 text-center">
         <ShoppingBag className="text-[#596176]" size={42} strokeWidth={1.8} />
         <h2 className="mt-4 text-2xl font-bold tracking-tight text-white sm:text-3xl">Your cart is empty</h2>
         <p className="mt-1.5 text-sm text-[#8991a6]">Add a game or combo to get started.</p>
         <Link 
           href="/games" 
-          className="mt-6 inline-flex items-center gap-2 rounded-2xl border border-[#facc15]/35 bg-[#facc15]/10 px-6 py-2.5 text-xs font-bold text-[#facc15] hover:bg-[#facc15] hover:text-black transition-all duration-200"
+          className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#facc15]/35 bg-[#facc15]/10 px-6 py-2.5 text-xs font-bold text-[#facc15] hover:bg-[#facc15] hover:text-black transition-all duration-200"
         >
           Explore Top Deals &rarr;
         </Link>

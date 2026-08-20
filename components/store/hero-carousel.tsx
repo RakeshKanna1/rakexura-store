@@ -200,18 +200,18 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                                   suppressHydrationWarning={true}
                                   type="button"
                                   onClick={(e) => handlePlayTrailer(game, e)}
-                                  className="inline-flex h-10 sm:h-12 items-center justify-center gap-2 sm:gap-2.5 rounded-md border border-white/15 bg-black/65 px-4 sm:px-6 text-xs sm:text-sm font-black backdrop-blur hover:bg-black/85 hover:border-[#facc15]/50 transition-all cursor-pointer text-white shrink-0 tracking-tight"
+                                  className="inline-flex h-10 sm:h-12 items-center justify-center gap-2 sm:gap-2.5 rounded-md border border-white/15 bg-black/65 px-4 sm:px-6 text-xs sm:text-sm font-extrabold backdrop-blur hover:bg-black/85 hover:border-[#facc15]/50 transition-all cursor-pointer text-white shrink-0 tracking-tight"
                                 >
                                   <Play size={14} fill="currentColor" className="text-[#facc15] shrink-0" />
-                                  <span>Trailer</span>
+                                  <span className="font-extrabold text-white">Trailer</span>
                                 </button>
                               ) : (
                                 <Link
                                   href={gameUrl(game)}
-                                  className="inline-flex h-10 sm:h-12 items-center justify-center gap-2 sm:gap-2.5 rounded-md border border-white/15 bg-black/65 px-4 sm:px-6 text-xs sm:text-sm font-black backdrop-blur hover:bg-black/85 transition-all text-white shrink-0 tracking-tight"
+                                  className="inline-flex h-10 sm:h-12 items-center justify-center gap-2 sm:gap-2.5 rounded-md border border-white/15 bg-black/65 px-4 sm:px-6 text-xs sm:text-sm font-extrabold backdrop-blur hover:bg-black/85 transition-all text-white shrink-0 tracking-tight"
                                 >
                                   <Play size={14} fill="currentColor" className="shrink-0" />
-                                  <span>Trailer</span>
+                                  <span className="font-extrabold text-white">Trailer</span>
                                 </Link>
                               )}
                               <span className="inline-flex h-10 sm:h-12 items-center justify-center rounded-md border border-white/10 bg-black/65 px-4 sm:px-6 text-xs sm:text-sm font-black text-[#facc15] backdrop-blur shrink-0 tracking-tight">

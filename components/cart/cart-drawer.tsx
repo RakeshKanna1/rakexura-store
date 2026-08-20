@@ -160,7 +160,7 @@ export function CartDrawer() {
                   <Link 
                     href="/games" 
                     onClick={() => close(false)} 
-                    className="mt-6 inline-flex items-center gap-1.5 rounded-2xl border border-[#facc15]/35 bg-[#facc15]/10 px-6 py-2.5 text-xs font-bold text-[#facc15] hover:bg-[#facc15] hover:text-black transition-all duration-200"
+                    className="mt-6 inline-flex items-center gap-1.5 rounded-full border border-[#facc15]/35 bg-[#facc15]/10 px-6 py-2.5 text-xs font-bold text-[#facc15] hover:bg-[#facc15] hover:text-black transition-all duration-200"
                   >
                     Explore Top Deals &rarr;
                   </Link>
