@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { assetUrl, formatPrice } from "@/lib/utils";
 import type { Bundle } from "@/types/store";
@@ -12,11 +13,11 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
     <section className="section-space w-full max-w-full overflow-hidden">
       <div className="mb-5 flex items-end justify-between gap-4">
         <div>
-          <h2 className="section-title font-semibold tracking-tight">Combo deals</h2>
+          <h2 className="section-title font-black tracking-tight text-white">Combo deals</h2>
           <p className="muted mt-1 text-sm">More games, better value in curated value bundles</p>
         </div>
-        <Link href="/bundles" className="flex shrink-0 items-center gap-2 text-xs font-bold uppercase tracking-wide text-[#facc15] hover:text-white transition-colors">
-          View all bundles
+        <Link href="/bundles" className="flex shrink-0 items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-[#facc15] hover:text-white transition-colors">
+          <span>View all bundles</span> <ArrowRight size={13} />
         </Link>
       </div>
       <div
@@ -40,7 +41,7 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
             >
               <Link
                 href={`/bundles/${bundle.id}`}
-                className={`group grid min-h-64 overflow-hidden rounded-md border sm:grid-cols-[45%_1fr] transition duration-300 hover:-translate-y-1 bg-[#11131a] hover:bg-[#151922] ${
+                className={`group grid min-h-64 overflow-hidden rounded-xl border sm:grid-cols-[45%_1fr] transition duration-300 hover:-translate-y-1 bg-[#11131a] hover:bg-[#151922] shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] ${
                   isSecond 
                     ? "border-white/[.08] hover:border-[#8b5cf6]/35 hover:shadow-[0_14px_38px_rgba(139,92,246,0.15)]" 
                     : "border-white/[.08] hover:border-[#facc15]/35 hover:shadow-[0_14px_38px_rgba(0,0,0,.42)]"

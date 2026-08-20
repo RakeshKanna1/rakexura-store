@@ -96,18 +96,15 @@ function GameCardInner({
         />
       </Link>
 
-      {/* Top Left Badges: Maximum 2 High-Priority Badges for clean poster visibility */}
+      {/* Top Left Badge: Single Critical Status Badge */}
       <div className="absolute left-2.5 top-2.5 flex flex-col gap-1 items-start z-10 pointer-events-none">
         {game.out_of_stock ? (
-          <span className="rounded-md bg-red-600 px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Out of Stock</span>
+          <span className="rounded-full bg-red-600/90 backdrop-blur-sm px-2.5 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Out of Stock</span>
         ) : game.preorder ? (
-          <span suppressHydrationWarning className="rounded-md bg-purple-600 px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Pre-order</span>
+          <span suppressHydrationWarning className="rounded-full bg-purple-600/90 backdrop-blur-sm px-2.5 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Pre-order</span>
         ) : game.is_premium ? (
-          <span className="rounded-md bg-gradient-to-r from-[#b8860b] to-[#d4af37] px-2 py-0.5 text-[8px] font-black text-black uppercase tracking-wider shadow-md shadow-black/80">Premium</span>
+          <span className="rounded-full bg-gradient-to-r from-[#b8860b] to-[#d4af37] px-2.5 py-0.5 text-[8px] font-black text-black uppercase tracking-wider shadow-md shadow-black/80">Premium</span>
         ) : null}
-        {discount > 0 && !game.out_of_stock && (
-          <span className="rounded-md bg-gradient-to-r from-[#facc15] to-[#eab308] px-2 py-0.5 text-[10px] font-black text-black shadow-md shadow-black/50">-{discount}%</span>
-        )}
       </div>
 
       <div className="absolute right-2.5 top-2.5 flex gap-1.5 z-10">
@@ -122,7 +119,7 @@ function GameCardInner({
               e.stopPropagation();
               onQuickView(game);
             }}
-            className="group/eyebtn flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/75 backdrop-blur-md hover:scale-110 hover:border-white/40 hover:bg-black/90 active:scale-90 transition-all duration-200 text-white"
+            className="group/eyebtn flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/75 backdrop-blur-md hover:scale-110 hover:border-white/40 hover:bg-black/90 active:scale-90 transition-all duration-200 text-white cursor-pointer"
             aria-label={`Quick view ${game.title}`}
           >
             <Eye size={14} className="eye-icon-blink" />
@@ -140,28 +137,31 @@ function GameCardInner({
 
           <div className="mt-2 flex items-center gap-1 overflow-hidden min-h-[22px]">
             {game.online_activation && (
-              <span className="inline-flex shrink-0 items-center rounded-md border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[8px] font-black uppercase text-emerald-400">
+              <span className="inline-flex shrink-0 items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[8px] font-black uppercase text-emerald-400">
                 Online
               </span>
             )}
             {platforms.slice(0, 3).map((platform) => (
-              <span key={platform} className="inline-flex shrink-0 items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[8px] font-black uppercase text-[#a7adbb]">
+              <span key={platform} className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[8px] font-black uppercase text-[#a7adbb]">
                 <PlatformIcon platform={platform} className="h-2.5 w-2.5 shrink-0 text-[#a7adbb]" />
                 <span>{game.is_subscription && game.duration ? game.duration : platform}</span>
               </span>
             ))}
           </div>
-
-          <div className="mt-2.5 rounded-md border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-center">
-            <p className="truncate text-[9px] font-medium text-[#8991a6]">Buy 3 games & get 10% off with RAKE10</p>
-          </div>
         </div>
 
-        <div className="mt-3.5 flex items-end justify-between gap-2 border-t border-white/5 pt-2.5">
-          <span className="min-w-0">
-            <strong className="block text-base font-black text-[#facc15]">{price ? formatPrice(price) : "Ask"}</strong>
-            {original > price && <del className="block text-[10px] text-[#646b7b] font-semibold">{formatPrice(original)}</del>}
-          </span>
+        <div className="mt-3.5 flex items-center justify-between gap-2 border-t border-white/[0.06] pt-2.5">
+          <div className="flex items-center gap-2 min-w-0">
+            {discount > 0 && !game.out_of_stock && (
+              <span className="inline-flex shrink-0 rounded-full bg-[#facc15] px-2 py-0.5 text-[10px] font-black text-black shadow-sm">
+                -{discount}%
+              </span>
+            )}
+            <div className="min-w-0">
+              <strong className="block text-base font-black text-white">{price ? formatPrice(price) : "Ask"}</strong>
+              {original > price && <del className="block text-[10px] text-[#646b7b] font-semibold">{formatPrice(original)}</del>}
+            </div>
+          </div>
 
           <button
             suppressHydrationWarning={true}
@@ -182,14 +182,14 @@ function GameCardInner({
               add(game, platforms[0] ?? "Steam");
               toast.success(`${game.title} added to cart`);
             }}
-            className={`grid h-8.5 w-8.5 shrink-0 place-items-center rounded-lg border transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer ${
+            className={`grid h-8.5 w-8.5 shrink-0 place-items-center rounded-full border transition-all duration-200 hover:scale-110 active:scale-90 cursor-pointer ${
               game.out_of_stock
                 ? "border-red-500/30 text-red-500 hover:bg-red-500/10"
                 : "border-[#facc15]/40 bg-[#facc15]/10 text-[#facc15] hover:bg-[#facc15] hover:text-black hover:border-transparent shadow-sm"
             }`}
             aria-label={game.out_of_stock ? "Out of Stock" : `Add ${game.title} to cart`}
           >
-            {game.out_of_stock ? <X size={14} /> : <ShoppingCart size={15} />}
+            {game.out_of_stock ? <X size={14} /> : <ShoppingCart size={14} />}
           </button>
         </div>
       </div>
@@ -238,7 +238,7 @@ export function GameCard({
   return (
     <article
       onPointerMove={move}
-      className={`spotlight-card group relative flex h-full flex-col overflow-hidden rounded-md border transition-colors duration-200 md:transition-all md:duration-300 md:hover:-translate-y-1.5 transform-gpu ${themeClasses}`}
+      className={`spotlight-card group relative flex h-full flex-col overflow-hidden rounded-xl border transition-colors duration-200 md:transition-all md:duration-300 md:hover:-translate-y-1.5 transform-gpu shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] ${themeClasses}`}
     >
       <GameCardInner {...props} />
     </article>

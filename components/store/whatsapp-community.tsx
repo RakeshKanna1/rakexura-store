@@ -11,7 +11,7 @@ export function WhatsAppCommunity() {
         edgeSensitivity={35}
         glowColor="140 100 50"
         backgroundColor="#08080a"
-        borderRadius={6}
+        borderRadius={12}
         glowRadius={30}
         glowIntensity={1.0}
         colors={['#25d366', '#8b5cf6', '#1e1b4b']}
@@ -19,11 +19,11 @@ export function WhatsAppCommunity() {
       >
         <div className="flex flex-col justify-between gap-5 p-5 text-white sm:flex-row sm:items-center md:px-7 w-full h-full">
           <div className="flex items-start gap-4">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-[#25d366]/10 text-[#58e98d]">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#25d366]/10 text-[#58e98d] border border-[#25d366]/20">
               <MessageCircle size={22} />
             </span>
             <div>
-              <h2 className="flex items-center gap-2 text-lg font-black">
+              <h2 className="flex items-center gap-2 text-lg font-black text-white">
                 Join our WhatsApp Channel <BadgeCheck size={16} className="text-[#8b5cf6]" />
               </h2>
               <p className="mt-1 text-sm font-medium text-[#9da5b8]">
@@ -31,8 +31,13 @@ export function WhatsAppCommunity() {
               </p>
             </div>
           </div>
-          <a href={channel} target="_blank" rel="noreferrer" className="btn shrink-0 bg-[#25d366] text-[#07130b] hover:bg-[#55e88a]">
-            Open Official Channel <ArrowUpRight size={16} />
+          <a
+            href={channel}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex min-h-[40px] items-center justify-center gap-2 rounded-full bg-[#25d366] px-6 py-2.5 text-xs font-black uppercase tracking-wider text-[#07130b] hover:bg-[#55e88a] transition-all hover:scale-[1.02] active:scale-95 shadow-md shadow-[#25d366]/20 shrink-0"
+          >
+            <span>Open Official Channel</span> <ArrowUpRight size={15} />
           </a>
         </div>
       </BorderGlow>

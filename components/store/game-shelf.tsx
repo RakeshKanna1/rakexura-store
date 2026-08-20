@@ -27,11 +27,11 @@ export function GameShelf({
     <section className="section-space w-full max-w-full overflow-hidden">
       <div className="mb-5 flex items-end justify-between gap-4">
         <div>
-          <h2 className="section-title font-semibold tracking-tight">{title}</h2>
+          <h2 className="section-title font-black tracking-tight text-white">{title}</h2>
           {subtitle && <p className="muted mt-1 text-sm">{subtitle}</p>}
         </div>
-        <Link href={href} className="flex shrink-0 items-center gap-2 text-xs font-bold uppercase tracking-wide text-[#facc15] hover:text-white transition-colors">
-          View all <ArrowRight size={15} />
+        <Link href={href} className="flex shrink-0 items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-[#facc15] hover:text-white transition-colors">
+          <span>View all</span> <ArrowRight size={13} />
         </Link>
       </div>
       <div

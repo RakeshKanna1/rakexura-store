@@ -12,7 +12,7 @@ const stats = [
 
 export function TrustStats() {
   return (
-    <section className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-white/[.06] bg-white/[.04] lg:grid-cols-4">
+    <section className="my-8 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/[.08] bg-white/[.04] lg:grid-cols-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
       {stats.map(({ icon: Icon, value, suffix, label }) => (
         <article key={label} className="relative overflow-hidden border border-amber-500/5 backdrop-blur-md p-5 md:p-6 transition-all duration-300 hover:shadow-[inset_0_0_12px_rgba(250,204,21,0.04)] group" style={{ background: "linear-gradient(145deg, rgba(7, 7, 8, 0.95) 0%, rgba(22, 18, 10, 0.05) 100%)" }}>
           {/* Subtle neon purple tint background overlay */}

@@ -181,7 +181,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                               {game.preorder ? (
                                 <Link 
                                   href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-10 sm:h-12 items-center justify-center gap-2 sm:gap-2.5 rounded-md bg-[#facc15] px-4 sm:px-6 text-xs sm:text-sm font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] shrink-0 tracking-tight"
+                                  className="magnetic-button inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full bg-[#facc15] px-6 sm:px-8 text-xs sm:text-sm font-black uppercase tracking-wider text-black shadow-lg shadow-[#facc15]/20 transition-all hover:scale-[1.02] hover:bg-[#fde047] active:scale-95 shrink-0"
                                 >
                                   <span>Pre-order</span>
                                   <ArrowRight size={15} className="shrink-0" />
@@ -189,9 +189,9 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                               ) : (
                                 <Link 
                                   href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-10 sm:h-12 items-center justify-center gap-2 sm:gap-2.5 rounded-md bg-[#facc15] px-4 sm:px-6 text-xs sm:text-sm font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] shrink-0 tracking-tight"
+                                  className="magnetic-button inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full bg-[#facc15] px-6 sm:px-8 text-xs sm:text-sm font-black uppercase tracking-wider text-black shadow-lg shadow-[#facc15]/20 transition-all hover:scale-[1.02] hover:bg-[#fde047] active:scale-95 shrink-0"
                                 >
-                                  <span>View game</span>
+                                  <span>View Game</span>
                                   <ArrowRight size={15} className="shrink-0" />
                                 </Link>
                               )}
@@ -200,21 +200,21 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                                   suppressHydrationWarning={true}
                                   type="button"
                                   onClick={(e) => handlePlayTrailer(game, e)}
-                                  className="inline-flex h-10 sm:h-12 items-center justify-center gap-2 sm:gap-2.5 rounded-md border border-white/15 bg-black/65 px-4 sm:px-6 text-xs sm:text-sm font-extrabold backdrop-blur hover:bg-black/85 hover:border-[#facc15]/50 transition-all cursor-pointer text-white shrink-0 tracking-tight"
+                                  className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full border border-white/20 bg-black/60 px-5 sm:px-7 text-xs sm:text-sm font-bold uppercase tracking-wider backdrop-blur-md hover:bg-white/[0.1] hover:border-white/40 transition-all cursor-pointer text-white shrink-0 active:scale-95"
                                 >
-                                  <Play size={14} fill="currentColor" className="text-[#facc15] shrink-0" />
-                                  <span className="font-extrabold text-white">Trailer</span>
+                                  <Play size={13} fill="currentColor" className="text-[#facc15] shrink-0" />
+                                  <span>Watch Trailer</span>
                                 </button>
                               ) : (
                                 <Link
                                   href={gameUrl(game)}
-                                  className="inline-flex h-10 sm:h-12 items-center justify-center gap-2 sm:gap-2.5 rounded-md border border-white/15 bg-black/65 px-4 sm:px-6 text-xs sm:text-sm font-extrabold backdrop-blur hover:bg-black/85 transition-all text-white shrink-0 tracking-tight"
+                                  className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-full border border-white/20 bg-black/60 px-5 sm:px-7 text-xs sm:text-sm font-bold uppercase tracking-wider backdrop-blur-md hover:bg-white/[0.1] hover:border-white/40 transition-all text-white shrink-0 active:scale-95"
                                 >
-                                  <Play size={14} fill="currentColor" className="shrink-0" />
-                                  <span className="font-extrabold text-white">Trailer</span>
+                                  <Play size={13} fill="currentColor" className="shrink-0" />
+                                  <span>Watch Trailer</span>
                                 </Link>
                               )}
-                              <span className="inline-flex h-10 sm:h-12 items-center justify-center rounded-md border border-white/10 bg-black/65 px-4 sm:px-6 text-xs sm:text-sm font-black text-[#facc15] backdrop-blur shrink-0 tracking-tight">
+                              <span className="inline-flex h-11 sm:h-12 items-center justify-center rounded-full border border-white/10 bg-black/60 px-5 sm:px-6 text-xs sm:text-sm font-black text-[#facc15] backdrop-blur-md shrink-0">
                                 <span>From {formatPrice(lowestPrice(game))}</span>
                               </span>
                             </div>
@@ -234,8 +234,10 @@ export function HeroCarousel({ games }: { games: Game[] }) {
 
       <aside className="featured-now min-w-0" aria-label="Featured games">
         <div className="featured-now-heading mb-3 flex items-center justify-between">
-          <strong className="text-sm text-white">Featured now</strong>
-          <Link href="/games" className="text-xs text-[#b9a4ff] hover:underline">View all</Link>
+          <strong className="text-xs font-black uppercase tracking-wider text-white">Featured Now</strong>
+          <Link href="/games" className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-[#facc15] hover:text-white transition-colors">
+            View All <ArrowRight size={13} />
+          </Link>
         </div>
         <div className="featured-now-list hide-scrollbar">
           {games.map((game, index) => (
