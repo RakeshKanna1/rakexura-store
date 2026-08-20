@@ -120,7 +120,7 @@ export function Sleuth404() {
     function measure() {
       if (!scene || !bird) return;
       const r = scene.getBoundingClientRect();
-      const ground = parseFloat(getComputedStyle(scene).getPropertyValue("--ground")) || 78;
+      const ground = parseFloat(getComputedStyle(scene).getPropertyValue("--ground")) || 90;
       M.w = r.width;
       M.h = r.height;
       M.groundY = r.height - ground;
