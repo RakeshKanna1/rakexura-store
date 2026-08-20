@@ -37,7 +37,7 @@ function renderHighlightedMessage(message: string) {
       return (
         <span
           key={index}
-          className="mx-0.5 inline-block rounded bg-[#facc15]/10 px-1.5 py-0.5 font-bold tracking-widest text-[#facc15] border border-[#facc15]/25"
+          className="mx-1 inline-flex items-center rounded-md bg-[#facc15]/15 px-2 py-0.5 font-black tracking-widest text-[#facc15] border border-[#facc15]/35 shadow-[0_0_10px_rgba(250,204,21,0.15)]"
         >
           RAKE10
         </span>
@@ -45,21 +45,21 @@ function renderHighlightedMessage(message: string) {
     }
     if (upper === "COMBO DEALS" || upper === "10%" || upper === "FLASH SALE" || upper === "INSTANT DELIVERY" || upper === "DISCOUNT") {
       return (
-        <span key={index} className="font-bold text-[#facc15]">
+        <span key={index} className="font-black text-[#facc15]">
           {part}
         </span>
       );
     }
     if (upper === "PRE-ORDER") {
       return (
-        <span key={index} className="font-bold text-[#facc15] tracking-wider">
+        <span key={index} className="font-black text-[#facc15] tracking-wider">
           PRE-ORDER
         </span>
       );
     }
     if (upper === "ONIMUSHA") {
       return (
-        <span key={index} className="font-bold text-white tracking-wider">
+        <span key={index} className="font-black text-white tracking-wider">
           ONIMUSHA
         </span>
       );
@@ -76,16 +76,16 @@ export async function OfferMarquee() {
 
   return (
     <aside
-      className="offer-marquee relative flex h-9.5 sm:h-10 md:h-10.5 w-full items-center overflow-hidden border-b border-white/[0.08] bg-[#050505]/95 backdrop-blur-md select-none"
+      className="offer-marquee relative flex h-9.5 sm:h-10 md:h-10.5 w-full items-center overflow-hidden border-b border-white/[0.06] bg-[#07090e]/95 backdrop-blur-xl select-none after:absolute after:inset-x-0 after:bottom-0 after:h-[1px] after:bg-gradient-to-r after:from-transparent after:via-[#facc15]/20 after:to-transparent"
       aria-label="Store announcements and offers"
     >
       {/* Precision Left and Right Fade Masks */}
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 sm:w-28 bg-gradient-to-r from-[#050505] via-[#050505]/90 to-transparent"
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 sm:w-36 bg-gradient-to-r from-[#07090e] via-[#07090e]/95 to-transparent"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 sm:w-28 bg-gradient-to-l from-[#050505] via-[#050505]/90 to-transparent"
+        className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 sm:w-36 bg-gradient-to-l from-[#07090e] via-[#07090e]/95 to-transparent"
         aria-hidden="true"
       />
 
@@ -99,23 +99,23 @@ export async function OfferMarquee() {
               const isBundle = item.icon_key === "bundle" || item.message.toUpperCase().includes("COMBO") || item.message.toUpperCase().includes("BUNDLE");
 
               const content = (
-                <span className="inline-flex items-center gap-2 sm:gap-2.5 text-[12px] sm:text-[12.5px] font-bold uppercase tracking-[0.05em] text-zinc-300 transition-colors duration-150">
-                  {/* Refined LIVE Badge with gently pulsing gold dot */}
+                <span className="inline-flex items-center gap-2 sm:gap-2.5 text-[11px] sm:text-[12px] font-extrabold uppercase tracking-[0.12em] text-[#d4d8e6] transition-colors duration-150">
+                  {/* Refined LIVE Badge with pulsing emerald dot */}
                   {isWhatsApp && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#facc15]/15 border border-[#facc15]/40 px-2 py-0.5 text-[9px] font-black text-[#facc15] tracking-widest shadow-[0_0_8px_rgba(250,204,21,0.2)] shrink-0">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 text-[9px] font-black text-emerald-400 tracking-wider shadow-[0_0_8px_rgba(16,185,129,0.15)] shrink-0">
                       <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#facc15] opacity-75" />
-                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#facc15]" />
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
                       </span>
                       LIVE
                     </span>
                   )}
 
                   {/* Static, sharp Icon with subtle gold luster */}
-                  <Icon size={14} className="text-[#facc15] filter drop-shadow-[0_0_6px_rgba(250,204,21,0.4)] shrink-0" aria-hidden="true" />
+                  <Icon size={13} className="text-[#facc15] filter drop-shadow-[0_0_8px_rgba(250,204,21,0.35)] shrink-0" aria-hidden="true" />
 
                   {/* Clean announcement text with selective gold highlights */}
-                  <span className="text-zinc-200 font-bold">
+                  <span className="text-[#e2e5f0] font-extrabold">
                     {renderHighlightedMessage(item.message)}
                   </span>
                 </span>
@@ -148,12 +148,12 @@ export async function OfferMarquee() {
                     content
                   )}
 
-                  {/* Clean subtle bullet separator */}
+                  {/* Refined Glowing Gold Diamond Delimiter */}
                   <span
-                    className="mx-6 sm:mx-8 md:mx-10 text-white/20 font-black text-sm select-none shrink-0"
+                    className="mx-6 sm:mx-8 md:mx-10 text-[#facc15]/35 text-[10px] font-black select-none shrink-0"
                     aria-hidden="true"
                   >
-                    •
+                    ✦
                   </span>
                 </div>
               );

@@ -151,6 +151,10 @@ function GameCardInner({
               </span>
             ))}
           </div>
+
+          <div className="mt-2.5 rounded-md border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-center">
+            <p className="truncate text-[9px] font-medium text-[#8991a6]">Buy 3 games & get 10% off with RAKE10</p>
+          </div>
         </div>
 
         <div className="mt-3.5 flex items-end justify-between gap-2 border-t border-white/[0.06] pt-2.5">
