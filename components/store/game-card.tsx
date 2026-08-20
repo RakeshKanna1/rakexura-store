@@ -96,7 +96,7 @@ function GameCardInner({
         />
       </Link>
 
-      {/* Top Left Badge: Single Critical Status Badge */}
+      {/* Top Left Badges */}
       <div className="absolute left-2.5 top-2.5 flex flex-col gap-1 items-start z-10 pointer-events-none">
         {game.out_of_stock ? (
           <span className="rounded-full bg-red-600/90 backdrop-blur-sm px-2.5 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Out of Stock</span>
@@ -105,6 +105,9 @@ function GameCardInner({
         ) : game.is_premium ? (
           <span className="rounded-full bg-gradient-to-r from-[#b8860b] to-[#d4af37] px-2.5 py-0.5 text-[8px] font-black text-black uppercase tracking-wider shadow-md shadow-black/80">Premium</span>
         ) : null}
+        {discount > 0 && !game.out_of_stock && (
+          <span className="rounded-full bg-gradient-to-r from-[#facc15] to-[#eab308] px-2.5 py-0.5 text-[10px] font-black text-black shadow-md shadow-black/50">-{discount}%</span>
+        )}
       </div>
 
       <div className="absolute right-2.5 top-2.5 flex gap-1.5 z-10">
@@ -150,18 +153,11 @@ function GameCardInner({
           </div>
         </div>
 
-        <div className="mt-3.5 flex items-center justify-between gap-2 border-t border-white/[0.06] pt-2.5">
-          <div className="flex items-center gap-2 min-w-0">
-            {discount > 0 && !game.out_of_stock && (
-              <span className="inline-flex shrink-0 rounded-full bg-[#facc15] px-2 py-0.5 text-[10px] font-black text-black shadow-sm">
-                -{discount}%
-              </span>
-            )}
-            <div className="min-w-0">
-              <strong className="block text-base font-black text-white">{price ? formatPrice(price) : "Ask"}</strong>
-              {original > price && <del className="block text-[10px] text-[#646b7b] font-semibold">{formatPrice(original)}</del>}
-            </div>
-          </div>
+        <div className="mt-3.5 flex items-end justify-between gap-2 border-t border-white/[0.06] pt-2.5">
+          <span className="min-w-0">
+            <strong className="block text-base font-black text-[#facc15]">{price ? formatPrice(price) : "Ask"}</strong>
+            {original > price && <del className="block text-[10px] text-[#646b7b] font-semibold">{formatPrice(original)}</del>}
+          </span>
 
           <button
             suppressHydrationWarning={true}
