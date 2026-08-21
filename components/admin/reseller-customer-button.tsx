@@ -27,11 +27,14 @@ export function ResellerCustomerButton({
   const [mounted, setMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [modalOpen, setModalOpen] = useState(false);
+  const [activeReseller, setActiveReseller] = useState(isReseller);
   const [discount, setDiscount] = useState(currentDiscount || 25);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    setActiveReseller(isReseller);
+    setDiscount(currentDiscount || 25);
+  }, [isReseller, currentDiscount]);
 
   const handleToggle = (targetStatus: boolean) => {
     startTransition(async () => {
@@ -42,6 +45,7 @@ export function ResellerCustomerButton({
         formData.append("discount", String(discount));
 
         await toggleResellerStatus(formData);
+        setActiveReseller(targetStatus);
         toast.success(
           targetStatus
             ? `Granted Reseller Badge to ${customerName || "customer"} with ${discount}% discount.`
@@ -69,11 +73,11 @@ export function ResellerCustomerButton({
         <div className="flex items-start justify-between gap-4 pb-4 border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-white/10 bg-[#1a1a20] text-[#facc15]">
-              {isReseller ? <ShieldAlert className="w-6 h-6 text-amber-400" /> : <ResellerIcon className="w-6 h-6" />}
+              {activeReseller ? <ShieldAlert className="w-6 h-6 text-amber-400" /> : <ResellerIcon className="w-6 h-6" />}
             </div>
             <div>
               <h3 className="text-lg font-bold text-white tracking-tight">
-                {isReseller ? "Manage Reseller Access" : "Grant Reseller Access"}
+                {activeReseller ? "Manage Reseller Access" : "Grant Reseller Access"}
               </h3>
               <p className="text-xs text-[#8991a6] mt-0.5">
                 Account: <span className="text-white font-semibold">{customerName || "Customer"}</span>
@@ -91,11 +95,11 @@ export function ResellerCustomerButton({
           </button>
         </div>
 
-        {/* Description Info Banner - Proper Wrapping & Epic Dark Styling */}
+        {/* Description Info Banner */}
         <div className="rounded-lg border border-white/10 bg-[#18181e] p-3.5 text-xs text-[#b8bfd0] leading-relaxed break-words whitespace-normal">
-          {isReseller ? (
+          {activeReseller ? (
             <span>
-              This user is currently an active <strong className="text-[#facc15]">Verified Wholesale Reseller</strong> with a <strong className="text-white">{currentDiscount}%</strong> discount rate. You can revoke their access or change their discount below.
+              This user is currently an active <strong className="text-[#facc15]">Verified Wholesale Reseller</strong> with a <strong className="text-white">{discount}%</strong> discount rate. You can revoke their access or change their discount below.
             </span>
           ) : (
             <span>
@@ -134,41 +138,41 @@ export function ResellerCustomerButton({
             ))}
           </div>
 
-              {/* Custom Percentage Input Field */}
-              <div className="pt-2 border-t border-white/5 flex items-center gap-3">
-                <div className="relative w-28 shrink-0">
-                  <input
-                    type="number"
-                    min="0"
-                    max="90"
-                    value={discount === 0 ? "" : discount}
-                    placeholder="0"
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === "") {
-                        setDiscount(0);
-                        return;
-                      }
-                      const num = parseInt(val, 10);
-                      if (!isNaN(num)) {
-                        setDiscount(Math.max(0, Math.min(90, num)));
-                      }
-                    }}
-                    className="h-10 w-full rounded-md border border-white/15 bg-[#121216] px-3 pr-7 text-sm font-bold text-white outline-none focus:border-[#facc15] transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none font-mono"
-                  />
-                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8991a6]">
-                    %
-                  </span>
-                </div>
-                <p className="text-[11px] text-[#8991a6] leading-tight">
-                  Type any custom rate (e.g. 5%, 8%, 12%) or select a preset above.
-                </p>
-              </div>
+          {/* Custom Percentage Input Field */}
+          <div className="pt-2 border-t border-white/5 flex items-center gap-3">
+            <div className="relative w-28 shrink-0">
+              <input
+                type="number"
+                min="0"
+                max="90"
+                value={discount === 0 ? "" : discount}
+                placeholder="0"
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "") {
+                    setDiscount(0);
+                    return;
+                  }
+                  const num = parseInt(val, 10);
+                  if (!isNaN(num)) {
+                    setDiscount(Math.max(0, Math.min(90, num)));
+                  }
+                }}
+                className="h-10 w-full rounded-md border border-white/15 bg-[#121216] px-3 pr-7 text-sm font-bold text-white outline-none focus:border-[#facc15] transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none font-mono"
+              />
+              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8991a6]">
+                %
+              </span>
+            </div>
+            <p className="text-[11px] text-[#8991a6] leading-tight">
+              Type any custom rate (e.g. 5%, 8%, 12%) or select a preset above.
+            </p>
+          </div>
         </div>
 
         {/* Modal Actions Footer */}
         <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/10">
-          {isReseller ? (
+          {activeReseller ? (
             <button
               type="button"
               onClick={() => handleToggle(false)}
@@ -192,7 +196,7 @@ export function ResellerCustomerButton({
               Cancel
             </button>
 
-            {isReseller ? (
+            {activeReseller ? (
               <button
                 type="button"
                 onClick={() => handleToggle(true)}
@@ -227,21 +231,20 @@ export function ResellerCustomerButton({
         onClick={() => setModalOpen(true)}
         disabled={isPending}
         className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition whitespace-nowrap shrink-0 cursor-pointer select-none ${
-          isReseller
+          activeReseller
             ? "border border-amber-500/40 bg-amber-500/10 text-amber-300 hover:border-red-500/50 hover:bg-red-500/15 hover:text-red-300 shadow-[0_0_10px_rgba(245,158,11,0.15)]"
             : "border border-white/15 bg-white/[0.04] text-[#d4d9e8] hover:border-[#facc15]/40 hover:bg-[#facc15]/10 hover:text-[#facc15]"
         }`}
-        title={isReseller ? "Click to De-seller or update rate" : "Grant Reseller Badge"}
+        title={activeReseller ? "Click to De-seller or update rate" : "Grant Reseller Badge"}
       >
-        {isReseller ? (
+        {activeReseller ? (
           <ShieldX className="w-3.5 h-3.5 text-amber-400 shrink-0" />
         ) : (
           <ResellerIcon className="w-3.5 h-3.5 shrink-0" />
         )}
-        <span>{isReseller ? "De-seller" : "Make Reseller"}</span>
+        <span>{activeReseller ? "De-seller" : "Make Reseller"}</span>
       </button>
 
-      {/* Render via Portal directly to body */}
       {modalContent && typeof document !== "undefined" ? createPortal(modalContent, document.body) : null}
     </>
   );
