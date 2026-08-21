@@ -271,7 +271,7 @@ export function PremiumSearch() {
                             {resellerCalc ? (
                               resellerCalc.isDiscount ? (
                                 <div className="flex items-baseline gap-1.5">
-                                  <strong className="text-xs font-black text-[#e0ce9a] font-mono">
+                                  <strong className="text-xs font-black text-[#facc15] font-mono">
                                     {formatPrice(resellerCalc.price)}
                                   </strong>
                                   <del className="text-[10px] text-[#646b7b]">

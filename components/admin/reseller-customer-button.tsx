@@ -261,7 +261,7 @@ export function ResellerCustomerButton({
           </div>
 
           {/* Live Pricing Preview Simulation */}
-          <div className="rounded-xl border border-amber-400/25 bg-[#17140b] p-3.5 text-xs flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+          <div className="rounded-xl border border-[#facc15]/25 bg-[#facc15]/[0.04] p-3.5 text-xs flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
             <span className="text-[#a0a8c0] font-medium">
               Simulation on <strong className="text-white font-bold">₹500 Game</strong>:
             </span>
@@ -269,17 +269,17 @@ export function ResellerCustomerButton({
               {preview.isDiscount ? (
                 <>
                   <del className="text-[#646b7b] font-medium">₹500</del>
-                  <strong className="text-base font-black bg-gradient-to-r from-[#fff5d6] via-[#e8d59e] to-[#d6bd78] bg-clip-text text-transparent">
+                  <strong className="text-base font-black text-[#facc15] font-mono">
                     ₹{preview.price}
                   </strong>
-                  <span className="rounded-md bg-amber-400/15 border border-amber-400/30 px-2 py-0.5 text-[10px] font-black text-[#facc15]">
+                  <span className="rounded-md bg-[#facc15]/15 border border-[#facc15]/30 px-2 py-0.5 text-[10px] font-black text-[#facc15]">
                     {preview.label}
                   </span>
                 </>
               ) : (
                 <>
                   <span className="text-xs text-[#8991a6]">₹500 {preview.label} =</span>
-                  <strong className="text-base font-black bg-gradient-to-r from-[#fff5d6] via-[#e8d59e] to-[#d6bd78] bg-clip-text text-transparent">
+                  <strong className="text-base font-black text-[#facc15] font-mono">
                     ₹{preview.price}
                   </strong>
                   <span className="rounded-md bg-sky-400/15 border border-sky-400/30 px-2 py-0.5 text-[10px] font-black text-sky-300">
