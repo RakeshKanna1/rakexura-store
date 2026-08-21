@@ -95,6 +95,11 @@ function GameCardInner({
 
   const lines = useCartStore((state) => state.lines);
   const setDrawerOpen = useCartStore((state) => state.setDrawerOpen);
+  const isReseller = useCartStore((state) => state.isReseller);
+  const resellerDiscount = useCartStore((state) => state.resellerDiscount);
+
+  const isWholesaleActive = Boolean(isReseller && resellerDiscount > 0 && price > 0);
+  const wholesalePrice = isWholesaleActive ? Math.max(0, Math.round(price * (1 - resellerDiscount / 100))) : price;
 
   return (
     <>
@@ -118,27 +123,19 @@ function GameCardInner({
         <Image
           src={assetUrl(game.cover_image)}
           alt={game.title}
-          width={440}
-          height={586}
+          fill
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+          className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           priority={priority}
-          sizes="(max-width: 768px) 170px, 240px"
-          className="h-full w-full object-cover transition-transform duration-500 ease-out md:group-hover:scale-[1.06]"
         />
-      </Link>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#07090e] via-transparent to-transparent opacity-70" />
 
-      {/* Top Left Badges */}
-      <div className="absolute left-2.5 top-2.5 flex flex-col gap-1 items-start z-10 pointer-events-none">
-        {game.out_of_stock ? (
-          <span className="rounded-md bg-red-600/90 backdrop-blur-sm px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Out of Stock</span>
-        ) : game.preorder ? (
-          <span suppressHydrationWarning className="rounded-md bg-purple-600/90 backdrop-blur-sm px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Pre-order</span>
-        ) : game.is_premium ? (
-          <span className="rounded-md bg-gradient-to-r from-[#b8860b] to-[#d4af37] px-2 py-0.5 text-[8px] font-black text-black uppercase tracking-wider shadow-md shadow-black/80">Premium</span>
-        ) : null}
-        {discount > 0 && !game.out_of_stock && (
-          <span className="rounded-md bg-gradient-to-r from-[#facc15] to-[#eab308] px-2 py-0.5 text-[10px] font-black text-black shadow-md shadow-black/50">-{discount}%</span>
+        {discount > 0 && (
+          <span className="absolute left-2.5 top-2.5 rounded-md bg-[#8b5cf6] px-2 py-0.5 text-[10px] font-black uppercase text-white shadow-[0_0_12px_rgba(139,92,246,0.5)] z-10">
+            -{discount}%
+          </span>
         )}
-      </div>
+      </Link>
 
       <div className="absolute right-2.5 top-2.5 flex gap-1.5 z-10">
         <WishlistButton gameId={game.id} size={14} variant="card" />
@@ -183,15 +180,33 @@ function GameCardInner({
           </div>
 
           <div className="mt-2.5 rounded-md border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-center">
-            <p className="truncate text-[9px] font-medium text-[#8991a6]">Buy 3 games & get 10% off with RAKE10</p>
+            {isWholesaleActive ? (
+              <p className="truncate text-[9px] font-bold text-[#e0ce9a]">
+                ⚡ {resellerDiscount}% Wholesale Margin Active
+              </p>
+            ) : (
+              <p className="truncate text-[9px] font-medium text-[#8991a6]">Buy 3 games & get 10% off with RAKE10</p>
+            )}
           </div>
         </div>
 
         <div className="mt-3.5 flex items-end justify-between gap-2 border-t border-white/[0.06] pt-2.5">
-          <span className="min-w-0">
-            <strong className="block text-base font-black text-[#facc15]">{price ? formatPrice(price) : "Ask"}</strong>
-            {original > price && <del className="block text-[10px] text-[#646b7b] font-semibold">{formatPrice(original)}</del>}
-          </span>
+          {isWholesaleActive ? (
+            <span className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <strong className="block text-base font-black text-[#e0ce9a]">{formatPrice(wholesalePrice)}</strong>
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-400/10 border border-amber-400/25 text-[8.5px] font-black text-[#e0ce9a]">
+                  -{resellerDiscount}%
+                </span>
+              </div>
+              <del className="block text-[10px] text-[#646b7b] font-semibold">{formatPrice(price)} Retail</del>
+            </span>
+          ) : (
+            <span className="min-w-0">
+              <strong className="block text-base font-black text-[#facc15]">{price ? formatPrice(price) : "Ask"}</strong>
+              {original > price && <del className="block text-[10px] text-[#646b7b] font-semibold">{formatPrice(original)}</del>}
+            </span>
+          )}
 
           <button
             suppressHydrationWarning={true}

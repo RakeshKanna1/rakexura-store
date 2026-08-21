@@ -46,6 +46,8 @@ export function ProductActions({ game }: { game: Game }) {
   const lines = useCartStore((state) => state.lines);
   const coupon = useCartStore((state) => state.coupon);
   const setCoupon = useCartStore((state) => state.setCoupon);
+  const isReseller = useCartStore((state) => state.isReseller);
+  const resellerDiscount = useCartStore((state) => state.resellerDiscount);
   const [couponCode, setCouponCode] = useState("");
   const [checkingCoupon, setCheckingCoupon] = useState(false);
   const router = useRouter();
@@ -115,6 +117,8 @@ export function ProductActions({ game }: { game: Game }) {
   const activeCoupon = mounted ? coupon : null;
   const couponSavings = activeCoupon && gameSubtotal >= activeCoupon.minimum_order ? Math.min(gameSubtotal, activeCoupon.discount_type === "percentage" ? gameSubtotal * activeCoupon.discount_value / 100 : activeCoupon.discount_value) : 0;
   const discountedPrice = Math.max(0, gameSubtotal - couponSavings);
+  const isWholesaleActive = Boolean(isReseller && resellerDiscount > 0);
+  const wholesalePrice = isWholesaleActive ? Math.max(0, Math.round(gameSubtotal * (1 - resellerDiscount / 100))) : gameSubtotal;
 
   async function checkCoupon() {
     const normalized = couponCode.trim().toUpperCase();
@@ -241,14 +245,25 @@ export function ProductActions({ game }: { game: Game }) {
           </AnimatePresence>
 
           {/* High-end, low-intensity typographic promotional layout frame */}
-          <div className="mt-3 rounded-md bg-white/[0.02] border border-white/[0.05] p-3 text-center">
-            <p className="text-xs text-[#8991a8] font-semibold leading-relaxed">
-              Add three more games to attain a code
-            </p>
-            <p className="mt-1.5 text-[10px] text-[#70efbb]/90 font-bold uppercase tracking-wider">
-              Unlock 10% off with coupon: <span className="text-white bg-white/10 px-1.5 py-0.5 rounded font-mono font-black">RAKETHREE</span>
-            </p>
-          </div>
+          {isWholesaleActive ? (
+            <div className="mt-3 rounded-md bg-amber-400/10 border border-amber-400/25 p-3 text-center">
+              <p className="text-xs text-[#e0ce9a] font-bold">
+                👑 Verified Reseller Wholesale Rate Active
+              </p>
+              <p className="mt-1 text-[11px] text-[#8991a8]">
+                Your {resellerDiscount}% partner margin is automatically applied to this game and at checkout.
+              </p>
+            </div>
+          ) : (
+            <div className="mt-3 rounded-md bg-white/[0.02] border border-white/[0.05] p-3 text-center">
+              <p className="text-xs text-[#8991a8] font-semibold leading-relaxed">
+                Add three more games to attain a code
+              </p>
+              <p className="mt-1.5 text-[10px] text-[#70efbb]/90 font-bold uppercase tracking-wider">
+                Unlock 10% off with coupon: <span className="text-white bg-white/10 px-1.5 py-0.5 rounded font-mono font-black">RAKETHREE</span>
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex items-end justify-between border-t border-white/[.08] pt-5">
@@ -256,7 +271,25 @@ export function ProductActions({ game }: { game: Game }) {
             <span className="text-xs font-medium text-[#8991a8]">Current price</span>
             <div className="flex flex-wrap items-baseline gap-2.5 mt-1.5">
               <AnimatePresence mode="wait">
-                {couponSavings > 0 ? (
+                {isWholesaleActive ? (
+                  <motion.div
+                    key="wholesale"
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 5 }}
+                    className="flex flex-wrap items-baseline gap-2.5"
+                  >
+                    <del className="text-base font-medium text-[#8991a8] line-through select-none">
+                      {formatPrice(gameSubtotal)}
+                    </del>
+                    <strong className="text-3xl font-black text-[#e0ce9a] tracking-tight">
+                      {formatPrice(wholesalePrice)}
+                    </strong>
+                    <span className="inline-flex items-center gap-1 rounded-md bg-amber-400/10 border border-amber-400/25 px-2.5 py-0.5 text-xs font-black text-[#e0ce9a]">
+                      Wholesale (-{resellerDiscount}%)
+                    </span>
+                  </motion.div>
+                ) : couponSavings > 0 ? (
                   <motion.div 
                     key="discounted"
                     initial={{ opacity: 0, y: -5 }}
@@ -286,7 +319,7 @@ export function ProductActions({ game }: { game: Game }) {
                         <strong className="text-3xl font-black text-[#facc15] tracking-tight">
                           {formatPrice(gameSubtotal)}
                         </strong>
-                        <span className="inline-flex items-center rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-extrabold text-emerald-400 shadow-sm backdrop-blur-sm">
+                        <span className="inline-flex items-center rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-extrabold text-emerald-400 shadow-sm backdrop-blur-sm">
                           -{Math.round(((originalSubtotal - gameSubtotal) / originalSubtotal) * 100)}%
                         </span>
                       </>

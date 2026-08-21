@@ -10,6 +10,8 @@ import { LogoutButton } from "./logout-button";
 import { OWNER_EMAIL } from "@/lib/config";
 import { ResellerBadge, ResellerIcon } from "@/components/ui/reseller-badge";
 
+import { useCartStore } from "@/stores/cart-store";
+
 type Account = { email: string; name: string; role: string; avatarUrl?: string | null; isReseller?: boolean; resellerDiscount?: number } | null;
 
 export function AccountMenu() {
@@ -18,6 +20,7 @@ export function AccountMenu() {
   const [account, setAccount] = useState<Account>(null);
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
+  const setResellerStatus = useCartStore((state) => state.setResellerStatus);
 
   const load = useCallback(async () => {
     try {
@@ -26,25 +29,29 @@ export function AccountMenu() {
       const user = session?.user;
       if (!user) {
         setAccount(null);
+        setResellerStatus(false, 0);
         setReady(true);
         setOpen(false);
         return;
       }
       const { data: profile } = await supabase.from("profiles").select("display_name,role,avatar_url,is_reseller,reseller_discount").eq("id", user.id).maybeSingle();
+      const isReseller = Boolean(profile?.is_reseller);
+      const resellerDiscount = Number(profile?.reseller_discount || 0);
+      setResellerStatus(isReseller, resellerDiscount);
       setAccount({
         email: user.email ?? "Rakexura account",
         name: profile?.display_name || user.user_metadata?.display_name || user.user_metadata?.full_name || "Player",
         role: profile?.role ?? "customer",
         avatarUrl: profile?.avatar_url,
-        isReseller: Boolean(profile?.is_reseller),
-        resellerDiscount: Number(profile?.reseller_discount || 0),
+        isReseller,
+        resellerDiscount,
       });
       setReady(true);
     } catch {
       setAccount(null);
       setReady(true);
     }
-  }, []);
+  }, [setResellerStatus]);
 
   useEffect(() => {
     const supabase = createClient();

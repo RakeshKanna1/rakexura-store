@@ -8,6 +8,8 @@ type CartState = {
   lines: CartLine[];
   bundleLines: BundleCartLine[];
   wishlistIds: number[];
+  isReseller: boolean;
+  resellerDiscount: number;
   coupon: { 
     code: string; 
     discount_type: "percentage" | "flat"; 
@@ -27,6 +29,7 @@ type CartState = {
   toggleWishlist: (gameId: number) => void;
   replaceFromCloud: (lines: CartLine[], bundleLines: BundleCartLine[], wishlistIds: number[]) => void;
   setCoupon: (coupon: CartState["coupon"]) => void;
+  setResellerStatus: (isReseller: boolean, discount?: number) => void;
   setDrawerOpen: (open: boolean) => void;
 };
 
@@ -36,6 +39,8 @@ export const useCartStore = create<CartState>()(
       lines: [],
       bundleLines: [],
       wishlistIds: [],
+      isReseller: false,
+      resellerDiscount: 0,
       coupon: null,
       drawerOpen: false,
       add: (game, platform) => set((state) => {
@@ -50,7 +55,7 @@ export const useCartStore = create<CartState>()(
       })),
       removeBundle: (bundleId) => set((state) => ({ bundleLines: state.bundleLines.filter((line) => line.bundle.id !== bundleId) })),
       clear: () => set({ lines: [], bundleLines: [] }),
-      resetUserData: () => set({ lines: [], bundleLines: [], wishlistIds: [], coupon: null, drawerOpen: false }),
+      resetUserData: () => set({ lines: [], bundleLines: [], wishlistIds: [], coupon: null, isReseller: false, resellerDiscount: 0, drawerOpen: false }),
       toggleWishlist: (gameId) => set((state) => ({
         wishlistIds: state.wishlistIds.includes(gameId)
           ? state.wishlistIds.filter((id) => id !== gameId)
@@ -58,8 +63,9 @@ export const useCartStore = create<CartState>()(
       })),
       replaceFromCloud: (lines, bundleLines, wishlistIds) => set({ lines, bundleLines, wishlistIds }),
       setCoupon: (coupon) => set({ coupon }),
+      setResellerStatus: (isReseller, discount = 0) => set({ isReseller, resellerDiscount: discount }),
       setDrawerOpen: (drawerOpen) => set({ drawerOpen }),
     }),
-    { name: "rakexura-store", partialize: (state) => ({ lines: state.lines, bundleLines: state.bundleLines, wishlistIds: state.wishlistIds, coupon: state.coupon }) },
+    { name: "rakexura-store", partialize: (state) => ({ lines: state.lines, bundleLines: state.bundleLines, wishlistIds: state.wishlistIds, coupon: state.coupon, isReseller: state.isReseller, resellerDiscount: state.resellerDiscount }) },
   ),
 );
