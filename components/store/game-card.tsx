@@ -34,10 +34,11 @@ function gamePrice(game: Game) {
 }
 
 export function availablePlatforms(game: Game): Platform[] {
-  const custom = (game.available_platforms ?? []).filter(Boolean) as Platform[];
-  if (custom.length) return custom;
-
   if (game.is_subscription) {
+    const raw = (game.available_platforms ?? []).filter(Boolean) as Platform[];
+    const subOnly = raw.filter((p) => p.includes("Month") || p.includes("Year") || p.includes("Days"));
+    if (subOnly.length) return subOnly;
+
     const subPlans: Array<[Platform, unknown]> = [
       ["1 Month", game.price_1m ?? game.xbox_price ?? game.steam_price],
       ["2 Months", game.price_2m],
@@ -49,6 +50,9 @@ export function availablePlatforms(game: Game): Platform[] {
     if (subListed.length) return subListed;
     return ["1 Month"];
   }
+
+  const custom = (game.available_platforms ?? []).filter(Boolean) as Platform[];
+  if (custom.length) return custom;
 
   const legacy: Array<[Platform, unknown]> = [
     ["Steam", game.steam_price],

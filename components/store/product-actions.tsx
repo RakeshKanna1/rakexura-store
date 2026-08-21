@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, Check, Info, ShieldCheck, ShoppingBag, TicketPercent, Zap, Sparkles } from "lucide-react";
+import { BadgeCheck, Check, ShieldCheck, ShoppingBag, TicketPercent, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -173,80 +173,25 @@ export function ProductActions({ game }: { game: Game }) {
           </span>
           <div className="mt-2.5 flex flex-wrap gap-2">
             {platforms.map((platform) => {
-              const platformCost = price(game, platform);
-              const isSubPlan = platform.includes("Month") || platform.includes("Year");
-
               return (
                 <button
                   key={platform}
                   type="button"
                   suppressHydrationWarning
                   onClick={() => setSelected(platform)}
-                  className={`inline-flex h-10 min-h-[40px] items-center justify-center gap-2 rounded-md border px-3.5 py-2 text-xs font-bold transition whitespace-nowrap ${
+                  className={`inline-flex h-10 min-h-[40px] items-center justify-center gap-2 rounded-md border px-3.5 py-2 text-xs font-bold transition whitespace-nowrap cursor-pointer ${
                     selected === platform
                       ? "border-white bg-white text-black shadow-sm"
                       : "border-white/10 bg-black/20 text-[#bbc1d1] hover:border-white/25"
                   }`}
                 >
-                  <PlatformIcon platform={platform} active={selected === platform} className={`h-4 w-4 shrink-0 ${selected === platform ? "text-black" : "text-[#bbc1d1]"}`} />
+                  <PlatformIcon platform={platform} gameTitle={game.title} active={selected === platform} className={`h-3.5 w-3.5 shrink-0 ${selected === platform ? "text-black" : "text-[#bbc1d1]"}`} />
                   <span className="whitespace-nowrap">
-                    {isSubPlan
-                      ? `${platform}${platformCost > 0 ? ` • ${formatPrice(platformCost)}` : ""}`
-                      : game.is_subscription && game.duration
-                      ? `${platform} (${game.duration})`
-                      : platform}
+                    {platform}
                   </span>
-                  {platform === "3 Months" && (
-                    <span className="inline-flex items-center gap-1 rounded bg-[#facc15]/20 px-1.5 py-0.5 text-[9px] font-black text-[#facc15]">
-                      <Sparkles size={10} className="text-[#facc15]" />
-                      Best Value
-                    </span>
-                  )}
                 </button>
               );
             })}
-          </div>
-        </div>
-
-        {/* Dynamic Platform / Subscription Helper Tip */}
-        <div className="rounded-lg bg-white/[0.02] border border-white/[0.04] p-3.5 text-xs leading-relaxed text-[#a0a8c0] flex items-start gap-2.5">
-          <Info size={14} className="text-[#8b5cf6] shrink-0 mt-0.5" />
-          <div>
-          {(selected.includes("Month") || selected.includes("Year") || game.is_subscription) && (
-            <p>
-              <strong>{game.title} ({selected}):</strong> Immediate account credentials and setup assistance for your selected validity period. Full warranty, account protection, and WhatsApp support included for the entire duration!
-            </p>
-          )}
-          {selected === "Offline" && (
-            <p>
-              <strong>Offline Activation:</strong> Play the full single-player campaign offline via a verified account. Game progress and saves are kept locally on your PC. Heavily discounted!
-            </p>
-          )}
-          {selected === "Online" && (
-            <p>
-              <strong>Online Activation:</strong> Assisted game setup with support for online/multiplayer features where available.
-            </p>
-          )}
-          {selected === "Steam" && !game.is_subscription && (
-            <p>
-              <strong>Steam:</strong> Digital assisted delivery. The game is set up on your personal Steam client.
-            </p>
-          )}
-          {selected === "Epic" && !game.is_subscription && (
-            <p>
-              <strong>Epic:</strong> Digital assisted delivery. The game is set up on your personal Epic Games client.
-            </p>
-          )}
-          {selected === "Xbox" && !game.is_subscription && (
-            <p>
-              <strong>Xbox:</strong> Assisted setup for Xbox Play Anywhere or Microsoft Store game files.
-            </p>
-          )}
-          {selected === "Nvidia GeForce" && !game.is_subscription && (
-            <p>
-              <strong>Nvidia GeForce Now:</strong> Setup assistance for cloud gaming compatibility.
-            </p>
-          )}
           </div>
         </div>
 

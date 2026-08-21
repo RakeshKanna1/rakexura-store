@@ -6,12 +6,38 @@ export function PlatformIcon({
   platform,
   className = "h-2.5 w-2.5 shrink-0",
   active = false,
+  gameTitle = "",
 }: {
   platform: string;
   className?: string;
   active?: boolean;
+  gameTitle?: string;
 }) {
   const p = platform.toLowerCase();
+  const title = (gameTitle || "").toLowerCase();
+
+  if (title.includes("xbox") || p.includes("xbox")) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src="/Assets/xbox-logo-50.png"
+        alt="Xbox"
+        className={`${className} object-contain`}
+        style={{ filter: active ? "brightness(0)" : "invert(1)" }}
+      />
+    );
+  }
+
+  if (title.includes("geforce") || title.includes("nvidia") || p.includes("geforce") || p.includes("nvidia")) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src="/Assets/nvidia-logo-48.png"
+        alt="Nvidia GeForce"
+        className={`${className} object-contain`}
+      />
+    );
+  }
 
   if (p.includes("month") || p.includes("year") || p.includes("duration") || p.includes("days")) {
     return <Clock className={className} />;
