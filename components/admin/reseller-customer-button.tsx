@@ -134,25 +134,36 @@ export function ResellerCustomerButton({
             ))}
           </div>
 
-          {/* Custom Percentage Input Field */}
-          <div className="pt-2 border-t border-white/5 flex items-center gap-3">
-            <div className="relative w-28 shrink-0">
-              <input
-                type="number"
-                min="0"
-                max="90"
-                value={discount}
-                onChange={(e) => setDiscount(Math.max(0, Math.min(90, Number(e.target.value))))}
-                className="h-10 w-full rounded-md border border-white/15 bg-[#121216] px-3 pr-7 text-sm font-bold text-white outline-none focus:border-[#facc15] transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none font-mono"
-              />
-              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8991a6]">
-                %
-              </span>
-            </div>
-            <p className="text-[11px] text-[#8991a6] leading-tight">
-              Applies to all games and passes without custom fixed wholesale rates.
-            </p>
-          </div>
+              {/* Custom Percentage Input Field */}
+              <div className="pt-2 border-t border-white/5 flex items-center gap-3">
+                <div className="relative w-28 shrink-0">
+                  <input
+                    type="number"
+                    min="0"
+                    max="90"
+                    value={discount === 0 ? "" : discount}
+                    placeholder="0"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "") {
+                        setDiscount(0);
+                        return;
+                      }
+                      const num = parseInt(val, 10);
+                      if (!isNaN(num)) {
+                        setDiscount(Math.max(0, Math.min(90, num)));
+                      }
+                    }}
+                    className="h-10 w-full rounded-md border border-white/15 bg-[#121216] px-3 pr-7 text-sm font-bold text-white outline-none focus:border-[#facc15] transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none font-mono"
+                  />
+                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8991a6]">
+                    %
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#8991a6] leading-tight">
+                  Type any custom rate (e.g. 5%, 8%, 12%) or select a preset above.
+                </p>
+              </div>
         </div>
 
         {/* Modal Actions Footer */}
