@@ -2,11 +2,40 @@
 
 import { useState, useOptimistic, useTransition } from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, MessageCircle, Trash2 } from "lucide-react";
+import { ArrowLeft, Check, Copy, MessageCircle, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { approveMilestoneRequest, updateRequestStatus, deleteGameRequest, deleteSupportTicket } from "@/app/admin/actions";
 
 type GameRow = { id: number; game_name: string; platform: string; votes: number; status: string; created_at: string };
 type VoucherRow = { id: number; userId: string; username: string; email: string; whatsapp: string; rankStatus: string; points: number; timestamp: string; status: string };
+
+function CopyIdBadge({ id }: { id: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText(id);
+    setCopied(true);
+    toast.success("User ID copied to clipboard!");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const shortId = id.length > 12 ? `${id.slice(0, 8)}...` : id;
+
+  return (
+    <button
+      type="button"
+      suppressHydrationWarning
+      onClick={handleCopy}
+      title={`Click to copy full ID: ${id}`}
+      className="inline-flex items-center gap-1.5 rounded border border-white/10 bg-black/40 px-2 py-1 text-xs font-mono font-bold text-[#a3aed0] hover:text-white hover:border-white/30 transition cursor-pointer shrink-0"
+    >
+      <span>{shortId}</span>
+      {copied ? <Check size={12} className="text-green-400 shrink-0" /> : <Copy size={12} className="text-[#767e90] shrink-0" />}
+    </button>
+  );
+}
 
 function SubmitButton({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "positive" | "danger" }) {
   const color = tone === "positive" 
@@ -85,6 +114,7 @@ export function RequestsClientView({
       {/* Instant 0ms Client-Side Tab Switcher */}
       <div className="mt-8 flex gap-6 border-b border-white/10 pb-px">
         <button
+          suppressHydrationWarning={true}
           type="button"
           onClick={() => setActiveTab("games")}
           className={`pb-4 text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
@@ -96,6 +126,7 @@ export function RequestsClientView({
           Game Requests ({optimisticGames.length})
         </button>
         <button
+          suppressHydrationWarning={true}
           type="button"
           onClick={() => setActiveTab("coupons")}
           className={`pb-4 text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
@@ -138,7 +169,7 @@ export function RequestsClientView({
                       {row.status === "available" ? "Added" : row.status}
                     </span>
                   </td>
-                  <td className="p-4 text-xs text-[#8991a6]">
+                  <td suppressHydrationWarning={true} className="p-4 text-xs text-[#8991a6]">
                     {new Date(row.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}
                   </td>
                   <td className="p-4">
@@ -173,7 +204,7 @@ export function RequestsClientView({
         </div>
       ) : (
         <div className="mt-8 overflow-x-auto rounded-md border border-[#8b5cf6]/20 bg-[#0c0a1a]/80">
-          <table className="w-full min-w-[1000px] border-collapse text-left text-sm">
+          <table className="w-full min-w-[760px] border-collapse text-left text-sm">
             <thead className="bg-white/[.04] text-[#8991a6]">
               <tr>
                 <th className="p-4">User ID</th>
@@ -198,7 +229,9 @@ export function RequestsClientView({
 
                 return (
                   <tr key={row.id} className="border-t border-white/[.07] hover:bg-white/[.025] transition-colors">
-                    <td className="p-4 font-mono text-[10px] text-[#646b7b]">{row.userId}</td>
+                    <td className="p-4">
+                      <CopyIdBadge id={row.userId} />
+                    </td>
                     <td className="p-4 font-bold text-white">{row.username}</td>
                     <td className="p-4 text-[#8991a6]">{row.email}</td>
                     <td className="p-4">
@@ -207,7 +240,7 @@ export function RequestsClientView({
                       </span>
                     </td>
                     <td className="p-4 font-bold text-white">{row.points.toLocaleString()} pts</td>
-                    <td className="p-4 text-xs text-[#8991a6]">
+                    <td suppressHydrationWarning={true} className="p-4 text-xs text-[#8991a6]">
                       {new Date(row.timestamp).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
                     </td>
                     <td className="p-4">
@@ -230,6 +263,7 @@ export function RequestsClientView({
                                 Enter Authorized Code
                               </label>
                               <input
+                                suppressHydrationWarning={true}
                                 name="promo_code"
                                 required
                                 placeholder="DIAMONDFREE"
@@ -237,6 +271,7 @@ export function RequestsClientView({
                               />
                             </div>
                             <button
+                              suppressHydrationWarning={true}
                               type="submit"
                               className="inline-flex h-8 mt-auto items-center justify-center gap-1 rounded border border-[#00d68f] bg-[#00d68f]/10 px-3.5 text-xs font-bold text-[#70efbb] hover:bg-[#00d68f]/20 transition-all active:scale-[0.97] cursor-pointer"
                             >
