@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { assetUrl, formatPrice, gameUrl } from "@/lib/utils";
+import { assetUrl, calculateResellerPrice, formatPrice, gameUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { triggerFlyToCart } from "@/components/common/fly-to-cart-animator";
 import type { Game, Platform } from "@/types/store";
@@ -98,9 +98,11 @@ function GameCardInner({
   const setDrawerOpen = useCartStore((state) => state.setDrawerOpen);
   const isReseller = useCartStore((state) => state.isReseller);
   const resellerDiscount = useCartStore((state) => state.resellerDiscount);
+  const resellerDiscountType = useCartStore((state) => state.resellerDiscountType);
 
   const isWholesaleActive = Boolean(isReseller && resellerDiscount > 0 && price > 0);
-  const wholesalePrice = isWholesaleActive ? Math.max(0, Math.round(price * (1 - resellerDiscount / 100))) : price;
+  const resellerCalc = calculateResellerPrice(price, resellerDiscount, resellerDiscountType);
+  const wholesalePrice = isWholesaleActive ? resellerCalc.price : price;
 
   return (
     <>
@@ -190,10 +192,10 @@ function GameCardInner({
           </div>
 
           <div className="mt-2.5 rounded-md border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-center">
-            {isWholesaleActive ? (
+            {isWholesaleActive && resellerCalc.isDiscount ? (
               <p className="truncate text-[9px] font-bold text-[#e0ce9a] flex items-center justify-center gap-1">
                 <Zap size={11} className="text-[#e0ce9a] shrink-0" />
-                <span>{resellerDiscount}% Wholesale Margin Active</span>
+                <span>{resellerCalc.label} Wholesale Rate Active</span>
               </p>
             ) : (
               <p className="truncate text-[9px] font-medium text-[#8991a6]">Buy 3 games & get 10% off with RAKE10</p>
@@ -202,14 +204,14 @@ function GameCardInner({
         </div>
 
         <div className="mt-3.5 flex items-end justify-between gap-2 border-t border-white/[0.06] pt-2.5">
-          {isWholesaleActive ? (
+          {isWholesaleActive && resellerCalc.isDiscount ? (
             <span className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <strong className="block text-base font-black bg-gradient-to-r from-[#fff5d6] via-[#e8d59e] to-[#d6bd78] bg-clip-text text-transparent">{formatPrice(wholesalePrice)}</strong>
                 <span className="inline-flex items-center gap-1 rounded-md bg-gradient-to-b from-[#1a1722] to-[#0f0c18] border border-[#e0ce9a]/25 px-1.5 py-0.5 text-[8.5px] font-black tracking-tight shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] select-none">
                   <ResellerIcon className="w-2.5 h-2.5 shrink-0" />
                   <span className="bg-gradient-to-r from-[#fff5d6] via-[#e8d59e] to-[#d6bd78] bg-clip-text text-transparent font-bold">
-                    -{resellerDiscount}%
+                    {resellerCalc.label}
                   </span>
                 </span>
               </div>
@@ -217,8 +219,8 @@ function GameCardInner({
             </span>
           ) : (
             <span className="min-w-0">
-              <strong className="block text-base font-black text-[#facc15]">{price ? formatPrice(price) : "Ask"}</strong>
-              {original > price && <del className="block text-[10px] text-[#646b7b] font-semibold">{formatPrice(original)}</del>}
+              <strong className="block text-base font-black text-[#facc15]">{wholesalePrice ? formatPrice(wholesalePrice) : "Ask"}</strong>
+              {original > wholesalePrice && <del className="block text-[10px] text-[#646b7b] font-semibold">{formatPrice(original)}</del>}
             </span>
           )}
 

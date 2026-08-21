@@ -41,7 +41,7 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
   const [{ data: profile }, { data: orders, count: totalOrdersCount }, { data: rewards }, { data: notifications }, { count: libraryCount }, { count: referralCount }, { data: latestTicket }, { count: purchasedLibraryCount }] = await Promise.all([
-    supabase.from("profiles").select("display_name,role,avatar_url,last_request_date,is_reseller,reseller_discount").eq("id", user.id).maybeSingle(),
+    supabase.from("profiles").select("display_name,role,avatar_url,last_request_date,is_reseller,reseller_discount,reseller_discount_type").eq("id", user.id).maybeSingle(),
     supabase.from("orders").select("id,order_reference,order_status,total_price,created_at,cart_items,payment_reference,account_access,coupon_usage(coupons(code))", { count: "exact" }).eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
     supabase.from("user_rewards").select("points,level").eq("user_id", user.id).maybeSingle(),
     supabase.from("notifications").select("id,title,message").eq("user_id", user.id).eq("read", false),
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <h1 className="text-3xl font-black tracking-tight sm:text-4xl bg-gradient-to-r from-white via-[#e8e3ff] to-[#b9a4ff] bg-clip-text text-transparent">Hi, {name}</h1>
-              {profile?.is_reseller && <ResellerBadge size="md" discount={profile.reseller_discount} />}
+              {profile?.is_reseller && <ResellerBadge size="md" discount={profile.reseller_discount} discountType={profile.reseller_discount_type} />}
             </div>
             <p className="section-copy text-[#8991a6]">
               {isReseller

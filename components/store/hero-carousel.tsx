@@ -8,9 +8,10 @@ import { useEffect, useState, useRef } from "react";
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import { assetUrl, formatPrice, gameUrl, lowestPrice } from "@/lib/utils";
+import { assetUrl, calculateResellerPrice, formatPrice, gameUrl, lowestPrice } from "@/lib/utils";
 import type { Game } from "@/types/store";
 import { BlurText } from "@/components/animations/blur-text";
+import { useCartStore } from "@/stores/cart-store";
 
 const AUTOPLAY_DELAY = 6500;
 
@@ -25,6 +26,17 @@ export function HeroCarousel({ games }: { games: Game[] }) {
   const [mounted, setMounted] = useState(false);
   const [loadVideo, setLoadVideo] = useState(false);
   const [activeTrailerId, setActiveTrailerId] = useState<number | string | null>(null);
+  const isReseller = useCartStore((state) => state.isReseller);
+  const resellerDiscount = useCartStore((state) => state.resellerDiscount);
+  const resellerDiscountType = useCartStore((state) => state.resellerDiscountType);
+  const isWholesaleActive = Boolean(isReseller && resellerDiscount > 0);
+
+  const getDisplayPrice = (game: Game) => {
+    const rawLowest = lowestPrice(game);
+    if (!isWholesaleActive || rawLowest <= 0) return { price: rawLowest, label: "", isWholesale: false, isDiscount: false };
+    const calc = calculateResellerPrice(rawLowest, resellerDiscount, resellerDiscountType);
+    return { price: calc.price, label: calc.label, raw: rawLowest, isWholesale: true, isDiscount: calc.isDiscount };
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -223,8 +235,15 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                                   <span className="font-extrabold text-white truncate">Trailer</span>
                                 </Link>
                               )}
-                              <span className="inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center rounded-lg border border-white/10 bg-black/65 px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-black text-[#facc15] backdrop-blur tracking-tight">
-                                <span className="truncate">From {formatPrice(lowestPrice(game))}</span>
+                              <span className="inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center rounded-lg border border-white/10 bg-black/65 px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-black backdrop-blur tracking-tight">
+                                {(() => {
+                                  const p = getDisplayPrice(game);
+                                  return (
+                                    <span className={`truncate ${p.isWholesale && p.isDiscount ? "text-[#e0ce9a]" : "text-[#facc15]"}`}>
+                                      From {formatPrice(p.price)} {p.isWholesale && p.isDiscount && `(${p.label})`}
+                                    </span>
+                                  );
+                                })()}
                               </span>
                             </div>
                           </motion.div>
@@ -275,7 +294,17 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                   {game.title}
                 </strong>
                 <small className="mt-0.5 block text-[10px] text-[#8991a6]">
-                  From {formatPrice(lowestPrice(game))}
+                  {(() => {
+                    const p = getDisplayPrice(game);
+                    if (p.isWholesale && p.isDiscount) {
+                      return (
+                        <span className="text-[#e0ce9a] font-bold">
+                          From {formatPrice(p.price)} ({p.label})
+                        </span>
+                      );
+                    }
+                    return `From ${formatPrice(p.price)}`;
+                  })()}
                 </small>
               </span>
             </button>

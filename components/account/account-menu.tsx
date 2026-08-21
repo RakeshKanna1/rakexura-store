@@ -34,10 +34,11 @@ export function AccountMenu() {
         setOpen(false);
         return;
       }
-      const { data: profile } = await supabase.from("profiles").select("display_name,role,avatar_url,is_reseller,reseller_discount").eq("id", user.id).maybeSingle();
+      const { data: profile } = await supabase.from("profiles").select("display_name,role,avatar_url,is_reseller,reseller_discount,reseller_discount_type").eq("id", user.id).maybeSingle();
       const isReseller = Boolean(profile?.is_reseller);
       const resellerDiscount = Number(profile?.reseller_discount || 0);
-      setResellerStatus(isReseller, resellerDiscount);
+      const resellerDiscountType = String(profile?.reseller_discount_type || "percentage");
+      setResellerStatus(isReseller, resellerDiscount, resellerDiscountType);
       setAccount({
         email: user.email ?? "Rakexura account",
         name: profile?.display_name || user.user_metadata?.display_name || user.user_metadata?.full_name || "Player",

@@ -12,7 +12,7 @@ import { z } from "zod";
 import { Button } from "@/components/common/button";
 import { OnboardingHint } from "@/components/common/onboarding-hint";
 import { createClient } from "@/lib/supabase/client";
-import { formatPrice, gameUrl, isDiamondOrPlatinumCoupon } from "@/lib/utils";
+import { calculateResellerPrice, formatPrice, gameUrl, isDiamondOrPlatinumCoupon } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
 import type { Game } from "@/types/store";
@@ -179,6 +179,7 @@ export function CheckoutForm() {
   const [isPrintingReceiptScreen, setIsPrintingReceiptScreen] = useState(false);
   const [isReseller, setIsReseller] = useState(false);
   const [resellerDiscount, setResellerDiscount] = useState(0);
+  const [resellerDiscountType, setResellerDiscountType] = useState("percentage");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -195,13 +196,14 @@ export function CheckoutForm() {
       if (user) {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("display_name, whatsapp, is_reseller, reseller_discount")
+          .select("display_name, whatsapp, is_reseller, reseller_discount, reseller_discount_type")
           .eq("id", user.id)
           .maybeSingle();
 
         if (profile?.is_reseller) {
           setIsReseller(true);
           setResellerDiscount(Number(profile.reseller_discount || 25));
+          setResellerDiscountType(String(profile.reseller_discount_type || "percentage"));
         }
 
         const defaultName = profile?.display_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "";
@@ -336,7 +338,9 @@ export function CheckoutForm() {
       )
     : 0;
 
-  const resellerSavings = isReseller && resellerDiscount > 0 ? (subtotal * resellerDiscount) / 100 : 0;
+  const isWholesaleActive = Boolean(isReseller && resellerDiscount > 0);
+  const resellerSubtotalCalc = calculateResellerPrice(subtotal, resellerDiscount, resellerDiscountType);
+  const resellerSavings = isWholesaleActive ? -resellerSubtotalCalc.diff : 0;
   let total = Math.max(0, subtotal - couponDiscount - resellerSavings);
   
   if (isRankFreebie) {
@@ -800,11 +804,12 @@ export function CheckoutForm() {
               const gameTitle = line.game.title || "Unknown Game";
               const platform = line.platform || "Steam";
               const qty = line.quantity || 1;
-              const priceValue = getCheckoutLinePrice(line.game, platform);
+              const rawPriceValue = Number(getCheckoutLinePrice(line.game, platform) || 0);
+              const priceValue = isReseller && !resellerSubtotalCalc.isDiscount ? calculateResellerPrice(rawPriceValue, resellerDiscount, resellerDiscountType).price : rawPriceValue;
               return (
                 <div key={`${line.game.id || Math.random()}-${platform}`} className="flex justify-between gap-4 rounded-md bg-white/[.035] p-4 text-sm">
                   <span><b>{gameTitle}</b><small className="muted mt-1 block">{platform} x {qty}</small></span>
-                  <span>{formatPrice(Number(priceValue || 0) * qty)}</span>
+                  <span>{formatPrice(priceValue * qty)}</span>
                 </div>
               );
             })}
@@ -830,13 +835,13 @@ export function CheckoutForm() {
                 </motion.div>
               )}
             </AnimatePresence>
-            {isReseller && resellerSavings > 0 && (
+            {isReseller && resellerSubtotalCalc.diff !== 0 && resellerSubtotalCalc.isDiscount && (
               <div className="flex justify-between items-center text-[#e0ce9a] bg-[#16171d] border border-amber-400/25 px-2.5 py-1.5 rounded-lg text-xs font-bold">
                 <span className="flex items-center gap-1.5">
                   <ResellerIcon className="w-3.5 h-3.5" />
-                  Wholesale Partner Rate ({resellerDiscount}% OFF)
+                  Wholesale Partner Rate ({resellerSubtotalCalc.label})
                 </span>
-                <span>-{formatPrice(resellerSavings)}</span>
+                <span>-{formatPrice(Math.abs(resellerSubtotalCalc.diff))}</span>
               </div>
             )}
             <div className="flex justify-between text-xl font-black">

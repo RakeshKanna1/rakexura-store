@@ -3,25 +3,33 @@
 import { useState, useEffect, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Loader2, ShieldCheck, ShieldAlert, ShieldX, X, Percent } from "lucide-react";
+import { Loader2, ShieldCheck, ShieldAlert, ShieldX, X, Percent, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
 import { toggleResellerStatus } from "@/app/admin/actions";
 import { ResellerIcon } from "@/components/ui/reseller-badge";
+import { calculateResellerPrice, type ResellerAdjustmentType } from "@/lib/utils";
 
 type ResellerCustomerButtonProps = {
   userId: string;
   customerName?: string;
   isReseller: boolean;
   currentDiscount?: number;
+  currentDiscountType?: string;
 };
 
-const PRESET_DISCOUNTS = [15, 20, 25, 30, 35];
+const PRESETS: Record<ResellerAdjustmentType, number[]> = {
+  percentage: [15, 20, 25, 30, 35],
+  flat: [25, 50, 75, 100, 150],
+  markup_flat: [10, 20, 30, 50, 100],
+  markup_percentage: [5, 10, 15, 20, 25],
+};
 
 export function ResellerCustomerButton({
   userId,
   customerName,
   isReseller,
   currentDiscount = 25,
+  currentDiscountType = "percentage",
 }: ResellerCustomerButtonProps) {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -29,12 +37,18 @@ export function ResellerCustomerButton({
   const [modalOpen, setModalOpen] = useState(false);
   const [activeReseller, setActiveReseller] = useState(isReseller);
   const [discount, setDiscount] = useState(currentDiscount || 25);
+  const [discountType, setDiscountType] = useState<ResellerAdjustmentType>(
+    (currentDiscountType as ResellerAdjustmentType) || "percentage"
+  );
 
   useEffect(() => {
     setMounted(true);
     setActiveReseller(isReseller);
     setDiscount(currentDiscount || 25);
-  }, [isReseller, currentDiscount]);
+    setDiscountType((currentDiscountType as ResellerAdjustmentType) || "percentage");
+  }, [isReseller, currentDiscount, currentDiscountType]);
+
+  const preview = calculateResellerPrice(500, discount, discountType);
 
   const handleToggle = (targetStatus: boolean) => {
     startTransition(async () => {
@@ -43,12 +57,13 @@ export function ResellerCustomerButton({
         formData.append("userId", userId);
         formData.append("isReseller", String(targetStatus));
         formData.append("discount", String(discount));
+        formData.append("discountType", discountType);
 
         await toggleResellerStatus(formData);
         setActiveReseller(targetStatus);
         toast.success(
           targetStatus
-            ? `Granted Reseller Badge to ${customerName || "customer"} with ${discount}% discount.`
+            ? `Granted Reseller Badge to ${customerName || "customer"} with ${preview.label} wholesale rate.`
             : `Revoked Reseller Access for ${customerName || "customer"}.`
         );
         setModalOpen(false);
@@ -99,52 +114,134 @@ export function ResellerCustomerButton({
         <div className="rounded-lg border border-white/10 bg-[#18181e] p-3.5 text-xs text-[#b8bfd0] leading-relaxed break-words whitespace-normal">
           {activeReseller ? (
             <span>
-              This user is currently an active <strong className="text-[#facc15]">Verified Wholesale Reseller</strong> with a <strong className="text-white">{discount}%</strong> discount rate. You can revoke their access or change their discount below.
+              This user is currently an active <strong className="text-[#facc15]">Verified Wholesale Reseller</strong> with <strong className="text-white">{preview.label}</strong> rate. You can adjust the deduction type (+/-, % or ₹) or revoke access below.
             </span>
           ) : (
             <span>
-              Granting reseller status unlocks <strong className="text-[#facc15]">wholesale rates</strong> across the store and gives this user access to the Reseller Client Delivery Hub. Retail promo coupons cannot be stacked by resellers.
+              Granting reseller status unlocks <strong className="text-[#facc15]">custom wholesale pricing</strong> across the catalog and gives this user access to the Reseller Client Delivery Hub.
             </span>
           )}
         </div>
 
-        {/* Wholesale Rate Settings */}
+        {/* Deduction / Adjustment Type Selector */}
         <div className="space-y-3 rounded-lg border border-white/10 bg-[#18181e] p-4">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-bold uppercase tracking-wider text-[#8991a6] flex items-center gap-1.5">
-              <Percent size={13} className="text-[#facc15]" />
-              <span>Wholesale Discount Rate</span>
-            </label>
-            <span className="text-xs font-black text-[#facc15]">
-              {discount}% OFF Retail
-            </span>
+          <label className="text-xs font-bold uppercase tracking-wider text-[#8991a6] block">
+            Select Price Adjustment Type
+          </label>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setDiscountType("percentage");
+                setDiscount(25);
+              }}
+              className={`rounded-lg p-2.5 text-left border transition cursor-pointer ${
+                discountType === "percentage"
+                  ? "border-[#facc15] bg-[#facc15]/10 text-white shadow-sm"
+                  : "border-white/10 bg-[#121216] text-[#8991a6] hover:text-white hover:border-white/25"
+              }`}
+            >
+              <div className="flex items-center gap-1.5 text-xs font-bold">
+                <Percent size={13} className="text-[#facc15]" />
+                <span>% Discount</span>
+              </div>
+              <p className="mt-1 text-[10px] text-[#8991a6] font-medium">-25% OFF</p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setDiscountType("flat");
+                setDiscount(50);
+              }}
+              className={`rounded-lg p-2.5 text-left border transition cursor-pointer ${
+                discountType === "flat"
+                  ? "border-[#facc15] bg-[#facc15]/10 text-white shadow-sm"
+                  : "border-white/10 bg-[#121216] text-[#8991a6] hover:text-white hover:border-white/25"
+              }`}
+            >
+              <div className="flex items-center gap-1.5 text-xs font-bold">
+                <Minus size={13} className="text-emerald-400" />
+                <span>-₹ Cash Off</span>
+              </div>
+              <p className="mt-1 text-[10px] text-[#8991a6] font-medium">-₹50 OFF</p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setDiscountType("markup_flat");
+                setDiscount(30);
+              }}
+              className={`rounded-lg p-2.5 text-left border transition cursor-pointer ${
+                discountType === "markup_flat"
+                  ? "border-[#facc15] bg-[#facc15]/10 text-white shadow-sm"
+                  : "border-white/10 bg-[#121216] text-[#8991a6] hover:text-white hover:border-white/25"
+              }`}
+            >
+              <div className="flex items-center gap-1.5 text-xs font-bold">
+                <Plus size={13} className="text-sky-400" />
+                <span>+₹ Price Add</span>
+              </div>
+              <p className="mt-1 text-[10px] text-[#8991a6] font-medium">+₹30 Markup</p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setDiscountType("markup_percentage");
+                setDiscount(10);
+              }}
+              className={`rounded-lg p-2.5 text-left border transition cursor-pointer ${
+                discountType === "markup_percentage"
+                  ? "border-[#facc15] bg-[#facc15]/10 text-white shadow-sm"
+                  : "border-white/10 bg-[#121216] text-[#8991a6] hover:text-white hover:border-white/25"
+              }`}
+            >
+              <div className="flex items-center gap-1.5 text-xs font-bold">
+                <Plus size={13} className="text-amber-400" />
+                <span>+% Price Add</span>
+              </div>
+              <p className="mt-1 text-[10px] text-[#8991a6] font-medium">+10% Markup</p>
+            </button>
           </div>
 
-          {/* 5-Column Clean Preset Chips Grid */}
-          <div className="grid grid-cols-5 gap-2">
-            {PRESET_DISCOUNTS.map((rate) => (
-              <button
-                key={rate}
-                type="button"
-                onClick={() => setDiscount(rate)}
-                className={`rounded-md py-2 text-xs font-bold transition text-center cursor-pointer ${
-                  discount === rate
-                    ? "border border-[#8b5cf6]/60 bg-[#8b5cf6]/20 text-[#c4b5fd] font-bold shadow-sm"
-                    : "border border-white/10 bg-[#121216] text-[#8991a6] hover:text-white hover:border-white/30"
-                }`}
-              >
-                {rate}%
-              </button>
-            ))}
+          {/* Preset Buttons Grid */}
+          <div className="pt-2">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-bold text-[#8991a6] uppercase tracking-wide">
+                Quick Presets
+              </span>
+              <span className="text-xs font-black text-[#facc15]">
+                Current: {preview.label}
+              </span>
+            </div>
+            <div className="grid grid-cols-5 gap-2">
+              {PRESETS[discountType].map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setDiscount(val)}
+                  className={`rounded-md py-1.5 text-xs font-bold transition text-center cursor-pointer ${
+                    discount === val
+                      ? "border border-[#8b5cf6]/60 bg-[#8b5cf6]/25 text-[#e0ce9a] shadow-sm"
+                      : "border border-white/10 bg-[#121216] text-[#8991a6] hover:text-white hover:border-white/30"
+                  }`}
+                >
+                  {discountType.includes("percentage") ? `${val}%` : `₹${val}`}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Custom Percentage Input Field */}
+          {/* Custom Input Field */}
           <div className="pt-2 border-t border-white/5 flex items-center gap-3">
-            <div className="relative w-28 shrink-0">
+            <div className="relative w-32 shrink-0">
               <input
                 type="number"
                 min="0"
-                max="90"
+                max={discountType.includes("percentage") ? 90 : 5000}
                 value={discount === 0 ? "" : discount}
                 placeholder="0"
                 onChange={(e) => {
@@ -155,18 +252,34 @@ export function ResellerCustomerButton({
                   }
                   const num = parseInt(val, 10);
                   if (!isNaN(num)) {
-                    setDiscount(Math.max(0, Math.min(90, num)));
+                    setDiscount(Math.max(0, num));
                   }
                 }}
-                className="h-10 w-full rounded-md border border-white/15 bg-[#121216] px-3 pr-7 text-sm font-bold text-white outline-none focus:border-[#8b5cf6] transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none font-mono"
+                className="h-10 w-full rounded-md border border-white/15 bg-[#121216] px-3 pr-8 text-sm font-bold text-white outline-none focus:border-[#8b5cf6] transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none font-mono"
               />
               <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8991a6]">
-                %
+                {discountType.includes("percentage") ? "%" : "₹"}
               </span>
             </div>
             <p className="text-[11px] text-[#8991a6] leading-tight">
-              Type any custom rate (e.g. 5%, 8%, 12%) or select a preset above.
+              Type any exact amount or rate for this partner.
             </p>
+          </div>
+
+          {/* Live Pricing Preview Simulation */}
+          <div className="rounded-md border border-amber-400/20 bg-amber-400/5 p-3 text-xs flex items-center justify-between">
+            <span className="text-[#8991a6]">
+              Simulation for <strong className="text-white">₹500 Game</strong>:
+            </span>
+            <div className="flex items-center gap-2">
+              <del className="text-[#646b7b]">₹500</del>
+              <strong className="text-sm font-black text-[#e0ce9a]">
+                ₹{preview.price}
+              </strong>
+              <span className="rounded bg-amber-400/10 px-1.5 py-0.5 text-[10px] font-black text-[#e0ce9a]">
+                {preview.label}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -196,27 +309,15 @@ export function ResellerCustomerButton({
               Cancel
             </button>
 
-            {activeReseller ? (
-              <button
-                type="button"
-                onClick={() => handleToggle(true)}
-                disabled={isPending}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#8b5cf6] hover:bg-[#7c3aed] px-5 py-2.5 text-xs font-bold text-white shadow-[0_0_12px_rgba(139,92,246,0.3)] active:scale-[0.98] transition cursor-pointer"
-              >
-                {isPending ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
-                Update Rate
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => handleToggle(true)}
-                disabled={isPending}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#8b5cf6] hover:bg-[#7c3aed] px-5 py-2.5 text-xs font-bold text-white shadow-[0_0_12px_rgba(139,92,246,0.3)] active:scale-[0.98] transition cursor-pointer"
-              >
-                {isPending ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
-                Activate Reseller
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => handleToggle(true)}
+              disabled={isPending}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#8b5cf6] hover:bg-[#7c3aed] px-5 py-2.5 text-xs font-bold text-white shadow-[0_0_12px_rgba(139,92,246,0.3)] active:scale-[0.98] transition cursor-pointer"
+            >
+              {isPending ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
+              {activeReseller ? "Update Rate" : "Activate Reseller"}
+            </button>
           </div>
         </div>
 

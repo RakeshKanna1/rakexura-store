@@ -109,6 +109,7 @@ function RowActions({ section, row }: { section: string; row: AdminRow }) {
           customerName={customerName}
           isReseller={Boolean(row.is_reseller)}
           currentDiscount={Number(row.reseller_discount || 25)}
+          currentDiscountType={String(row.reseller_discount_type || "percentage")}
         />
         <DeleteCustomerButton userId={customerId} customerName={customerName} />
       </div>
@@ -430,7 +431,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                               Admin
                             </span>
                           ) : (row.is_reseller || (row.reseller_discount && Number(row.reseller_discount) > 0)) ? (
-                            <ResellerBadge size="sm" discount={row.reseller_discount as number} />
+                            <ResellerBadge size="sm" discount={row.reseller_discount as number} discountType={row.reseller_discount_type as string} />
                           ) : (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-white/5 text-[#8991a6] border border-white/10">
                               Customer
@@ -438,14 +439,20 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                           )
                         ) : isResellerColumn ? (
                           val ? (
-                            <ResellerBadge size="sm" discount={row.reseller_discount as number} />
+                            <ResellerBadge size="sm" discount={row.reseller_discount as number} discountType={row.reseller_discount_type as string} isAdmin={true} />
                           ) : (
                             <span className="text-xs text-[#646b7b]">Standard</span>
                           )
                         ) : isDiscountColumn ? (
                           val && Number(val) > 0 ? (
                             <span className="font-mono font-bold text-[#facc15] bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 rounded text-xs">
-                              {String(val)}% OFF
+                              {row.reseller_discount_type === "flat"
+                                ? `-₹${val}`
+                                : row.reseller_discount_type === "markup_flat"
+                                ? `+₹${val}`
+                                : row.reseller_discount_type === "markup_percentage"
+                                ? `+${val}%`
+                                : `-${val}%`}
                             </span>
                           ) : (
                             "-"

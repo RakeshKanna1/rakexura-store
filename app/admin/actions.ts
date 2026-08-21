@@ -2119,7 +2119,7 @@ export async function deleteSelectedOrders(formData: FormData) {
   const idsRaw = String(formData.get("order_ids") ?? "");
   const ids = idsRaw.split(",").map((s) => Number(s.trim())).filter((n) => !isNaN(n) && n > 0);
   if (!ids.length) throw new Error("No valid orders selected for deletion.");
-  
+
   const { error } = await supabase.from("orders").delete().in("id", ids);
   if (error) throw new Error(error.message);
 
@@ -2129,19 +2129,22 @@ export async function deleteSelectedOrders(formData: FormData) {
 }
 
 export async function toggleResellerStatus(formData: FormData) {
-  const userId = String(formData.get("userId") ?? "").trim();
+  const supabase = await getAdminClient();
+  const userId = formData.get("userId") as string;
   const isReseller = formData.get("isReseller") === "true";
-  const discount = Number(formData.get("discount") ?? 25);
-  if (!userId) throw new Error("User ID is required.");
+  const discount = Number(formData.get("discount"));
+  const discountType = (formData.get("discountType") as string) || "percentage";
+
+  if (!userId) throw new Error("User ID is required");
 
   await writeAuditLog("TOGGLE_RESELLER", "profiles", formData);
-  const supabase = await getAdminClient();
 
   const { error } = await supabase
     .from("profiles")
     .update({
       is_reseller: isReseller,
       reseller_discount: isReseller ? (isNaN(discount) ? 25 : discount) : 0,
+      reseller_discount_type: isReseller ? discountType : "percentage",
       reseller_approved_at: isReseller ? new Date().toISOString() : null,
     })
     .eq("id", userId);
@@ -2158,9 +2161,11 @@ export async function toggleResellerStatus(formData: FormData) {
   const userEmail = profile?.email;
   const userName = profile?.display_name || "Partner";
 
+  const badgeText = discountType === "flat" ? `-₹${discount} OFF` : discountType === "markup_flat" ? `+₹${discount}` : discountType === "markup_percentage" ? `+${discount}%` : `${discount}% OFF`;
+
   if (isReseller) {
     const notifTitle = "Verified Reseller Access Granted";
-    const notifMsg = `Congratulations! Your account is now verified as a Rakexura Reseller Partner with ${discount}% wholesale discount. Check your Reseller Portal now.`;
+    const notifMsg = `Congratulations! Your account is now verified as a Rakexura Reseller Partner with ${badgeText} wholesale rate. Check your Reseller Portal now.`;
 
     // 1. In-app Bell Notification
     try {

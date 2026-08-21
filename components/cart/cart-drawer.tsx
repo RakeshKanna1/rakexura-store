@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Minus, Package, Plus, ShoppingBag, Trash2, X } from "lucide-react";
-import { assetUrl, formatPrice, gameUrl } from "@/lib/utils";
+import { assetUrl, calculateResellerPrice, formatPrice, gameUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { DustDisintegration } from "@/components/common/dust-disintegration";
 
@@ -49,8 +49,15 @@ export function CartDrawer() {
   const removeBundle = useCartStore((state) => state.removeBundle);
   const setQuantity = useCartStore((state) => state.setQuantity);
   const setBundleQuantity = useCartStore((state) => state.setBundleQuantity);
+  const isReseller = useCartStore((state) => state.isReseller);
+  const resellerDiscount = useCartStore((state) => state.resellerDiscount);
+  const resellerDiscountType = useCartStore((state) => state.resellerDiscountType);
   const total = lines.reduce((sum, line) => sum + price(line) * line.quantity, 0) + bundles.reduce((sum, line) => sum + Number(line.bundle.bundle_price) * line.quantity, 0);
   const count = lines.reduce((sum, line) => sum + line.quantity, 0) + bundles.reduce((sum, line) => sum + line.quantity, 0);
+
+  const isWholesaleActive = Boolean(isReseller && resellerDiscount > 0);
+  const wholesaleCalc = calculateResellerPrice(total, resellerDiscount, resellerDiscountType);
+  const wholesaleTotal = isWholesaleActive ? wholesaleCalc.price : total;
 
   useEffect(() => {
     if (!open) return;
@@ -141,7 +148,27 @@ export function CartDrawer() {
                         <span className="mt-1 block text-xs text-[#8991a6]">
                           {getPlatformLabel(line.platform, line.game.is_subscription, line.game.duration)}
                         </span>
-                        <b className="mt-2 block text-sm font-black text-[#facc15]">{formatPrice(price(line) * line.quantity)}</b>
+                        {isWholesaleActive && wholesaleCalc.isDiscount ? (
+                          (() => {
+                            const rawLineTotal = price(line) * line.quantity;
+                            const lineCalc = calculateResellerPrice(rawLineTotal, resellerDiscount, resellerDiscountType);
+                            return (
+                              <div className="mt-2 flex items-baseline gap-2">
+                                <b className="text-sm font-black text-[#e0ce9a]">
+                                  {formatPrice(lineCalc.price)}
+                                </b>
+                                <del className="text-[10px] text-[#646b7b] font-medium">{formatPrice(rawLineTotal)}</del>
+                                <span className="rounded bg-amber-400/10 border border-amber-400/25 px-1 py-0.5 text-[8px] font-black text-[#e0ce9a]">
+                                  {lineCalc.label}
+                                </span>
+                              </div>
+                            );
+                          })()
+                        ) : (
+                          <b className="mt-2 block text-sm font-black text-[#facc15]">
+                            {formatPrice(calculateResellerPrice(price(line) * line.quantity, resellerDiscount, resellerDiscountType).price)}
+                          </b>
+                        )}
                         <Stepper value={line.quantity} down={() => setQuantity(line.game.id, line.platform, line.quantity - 1)} up={() => setQuantity(line.game.id, line.platform, line.quantity + 1)} />
                       </div>
                       <button onClick={triggerRemove} className="grid h-9 w-9 place-items-center rounded-md text-[#8991a6] hover:bg-white/[.06] hover:text-[#ff7373] cursor-pointer" aria-label={`Remove ${line.game.title}`}>
@@ -171,8 +198,17 @@ export function CartDrawer() {
 
             <footer className="border-t border-white/[.08] p-5">
               <div className="mb-4 flex items-center justify-between">
-                <span className="text-sm text-[#8991a6]">Subtotal</span>
-                <strong className="text-xl font-black text-[#facc15]">{formatPrice(total)}</strong>
+                <span className="text-sm text-[#8991a6]">
+                  {isWholesaleActive && wholesaleCalc.isDiscount ? "Wholesale Total" : "Subtotal"}
+                </span>
+                {isWholesaleActive && wholesaleCalc.isDiscount ? (
+                  <div className="text-right">
+                    <strong className="text-xl font-black text-[#e0ce9a]">{formatPrice(wholesaleTotal)}</strong>
+                    <del className="block text-xs text-[#646b7b] font-medium">{formatPrice(total)} Retail</del>
+                  </div>
+                ) : (
+                  <strong className="text-xl font-black text-[#facc15]">{formatPrice(wholesaleTotal)}</strong>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <Link href="/cart" onClick={() => close(false)} className="btn btn-secondary">View cart</Link>

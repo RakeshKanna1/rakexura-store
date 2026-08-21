@@ -10,6 +10,7 @@ type CartState = {
   wishlistIds: number[];
   isReseller: boolean;
   resellerDiscount: number;
+  resellerDiscountType: string;
   coupon: { 
     code: string; 
     discount_type: "percentage" | "flat"; 
@@ -29,7 +30,7 @@ type CartState = {
   toggleWishlist: (gameId: number) => void;
   replaceFromCloud: (lines: CartLine[], bundleLines: BundleCartLine[], wishlistIds: number[]) => void;
   setCoupon: (coupon: CartState["coupon"]) => void;
-  setResellerStatus: (isReseller: boolean, discount?: number) => void;
+  setResellerStatus: (isReseller: boolean, discount?: number, discountType?: string) => void;
   setDrawerOpen: (open: boolean) => void;
 };
 
@@ -41,6 +42,7 @@ export const useCartStore = create<CartState>()(
       wishlistIds: [],
       isReseller: false,
       resellerDiscount: 0,
+      resellerDiscountType: "percentage",
       coupon: null,
       drawerOpen: false,
       add: (game, platform) => set((state) => {
@@ -55,7 +57,7 @@ export const useCartStore = create<CartState>()(
       })),
       removeBundle: (bundleId) => set((state) => ({ bundleLines: state.bundleLines.filter((line) => line.bundle.id !== bundleId) })),
       clear: () => set({ lines: [], bundleLines: [] }),
-      resetUserData: () => set({ lines: [], bundleLines: [], wishlistIds: [], coupon: null, isReseller: false, resellerDiscount: 0, drawerOpen: false }),
+      resetUserData: () => set({ lines: [], bundleLines: [], wishlistIds: [], coupon: null, isReseller: false, resellerDiscount: 0, resellerDiscountType: "percentage", drawerOpen: false }),
       toggleWishlist: (gameId) => set((state) => ({
         wishlistIds: state.wishlistIds.includes(gameId)
           ? state.wishlistIds.filter((id) => id !== gameId)
@@ -63,9 +65,9 @@ export const useCartStore = create<CartState>()(
       })),
       replaceFromCloud: (lines, bundleLines, wishlistIds) => set({ lines, bundleLines, wishlistIds }),
       setCoupon: (coupon) => set({ coupon }),
-      setResellerStatus: (isReseller, discount = 0) => set({ isReseller, resellerDiscount: discount }),
+      setResellerStatus: (isReseller, discount = 0, discountType = "percentage") => set({ isReseller, resellerDiscount: discount, resellerDiscountType: discountType }),
       setDrawerOpen: (drawerOpen) => set({ drawerOpen }),
     }),
-    { name: "rakexura-store", partialize: (state) => ({ lines: state.lines, bundleLines: state.bundleLines, wishlistIds: state.wishlistIds, coupon: state.coupon, isReseller: state.isReseller, resellerDiscount: state.resellerDiscount }) },
+    { name: "rakexura-store", partialize: (state) => ({ lines: state.lines, bundleLines: state.bundleLines, wishlistIds: state.wishlistIds, coupon: state.coupon, isReseller: state.isReseller, resellerDiscount: state.resellerDiscount, resellerDiscountType: state.resellerDiscountType }) },
   ),
 );

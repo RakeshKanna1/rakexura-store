@@ -6,7 +6,7 @@ import { ArrowRight, Minus, Package, Plus, ShieldCheck, ShoppingBag, TicketPerce
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { assetUrl, formatPrice, gameUrl } from "@/lib/utils";
+import { assetUrl, calculateResellerPrice, formatPrice, gameUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { ResellerIcon } from "@/components/ui/reseller-badge";
 
@@ -51,6 +51,7 @@ export function CartView() {
 
   const [isReseller, setIsReseller] = useState(false);
   const [resellerDiscount, setResellerDiscount] = useState(0);
+  const [resellerDiscountType, setResellerDiscountType] = useState("percentage");
 
   useEffect(() => {
     setMounted(true);
@@ -60,10 +61,11 @@ export function CartView() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: profile } = await supabase.from("profiles").select("is_reseller, reseller_discount").eq("id", user.id).maybeSingle();
+        const { data: profile } = await supabase.from("profiles").select("is_reseller, reseller_discount, reseller_discount_type").eq("id", user.id).maybeSingle();
         if (profile?.is_reseller) {
           setIsReseller(true);
           setResellerDiscount(Number(profile.reseller_discount || 25));
+          setResellerDiscountType(String(profile.reseller_discount_type || "percentage"));
         }
       }
     }
@@ -74,7 +76,9 @@ export function CartView() {
   const catalogSavings = lines.reduce((sum, line) => sum + Math.max(0, Number(line.game.original_price ?? linePrice(line)) - linePrice(line)) * line.quantity, 0) + bundles.reduce((sum, line) => sum + Math.max(0, Number(line.bundle.original_price) - Number(line.bundle.bundle_price)) * line.quantity, 0);
   const quantity = lines.reduce((sum, line) => sum + line.quantity, 0) + bundles.reduce((sum, line) => sum + line.quantity, 0);
 
-  const resellerSavings = isReseller && resellerDiscount > 0 ? (subtotal * resellerDiscount) / 100 : 0;
+  const isWholesaleActive = Boolean(isReseller && resellerDiscount > 0);
+  const resellerSubtotalCalc = calculateResellerPrice(subtotal, resellerDiscount, resellerDiscountType);
+  const resellerSavings = isWholesaleActive ? -resellerSubtotalCalc.diff : 0;
 
   const hasSubItems = lines.some(line => line && line.game && line.game.is_subscription);
   const hasNormalItems = lines.some(line => line && line.game && !line.game.is_subscription) || bundles.length > 0;
@@ -295,7 +299,27 @@ export function CartView() {
                 <p className="mt-2 text-xs text-[#8991a6]">
                   {getPlatformLabel(line.platform, line.game.is_subscription, line.game.duration)} · Digital delivery
                 </p>
-                <strong className="mt-3 block text-[#facc15]">{formatPrice(linePrice(line) * line.quantity)}</strong>
+                {isReseller && resellerDiscount > 0 && resellerSubtotalCalc.isDiscount ? (
+                  (() => {
+                    const rawLineTotal = linePrice(line) * line.quantity;
+                    const lineCalc = calculateResellerPrice(rawLineTotal, resellerDiscount, resellerDiscountType);
+                    return (
+                      <div className="mt-3 flex items-baseline gap-2">
+                        <strong className="text-base font-black text-[#e0ce9a]">
+                          {formatPrice(lineCalc.price)}
+                        </strong>
+                        <del className="text-xs text-[#646b7b] font-medium">{formatPrice(rawLineTotal)}</del>
+                        <span className="rounded bg-amber-400/10 border border-amber-400/25 px-1.5 py-0.5 text-[9px] font-black text-[#e0ce9a]">
+                          {lineCalc.label}
+                        </span>
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <strong className="mt-3 block text-[#facc15]">
+                    {formatPrice(calculateResellerPrice(linePrice(line) * line.quantity, resellerDiscount, resellerDiscountType).price)}
+                  </strong>
+                )}
                 <Quantity
                   value={line.quantity}
                   decrease={() => setQuantity(line.game.id, line.platform, line.quantity - 1)}
@@ -364,7 +388,7 @@ export function CartView() {
           <div className="mt-5 space-y-3 text-sm">
             <div className="flex justify-between text-[#a0a8c0]">
               <span>{quantity} games</span>
-              <span>{formatPrice(subtotal)}</span>
+              <span>{formatPrice(isWholesaleActive && !resellerSubtotalCalc.isDiscount ? resellerSubtotalCalc.price : subtotal)}</span>
             </div>
             {catalogSavings > 0 && (
               <div className="flex justify-between text-[#70efbb]">
@@ -378,13 +402,13 @@ export function CartView() {
                 <span>-{formatPrice(couponSavings)}</span>
               </div>
             )}
-            {isReseller && resellerSavings > 0 && (
+            {isReseller && resellerSubtotalCalc.diff !== 0 && resellerSubtotalCalc.isDiscount && (
               <div className="flex justify-between items-center text-[#e0ce9a] bg-[#16171d] border border-amber-400/25 px-2.5 py-1.5 rounded-lg text-xs font-bold">
                 <span className="flex items-center gap-1.5">
                   <ResellerIcon className="w-3.5 h-3.5" />
-                  Wholesale Partner Rate ({resellerDiscount}% OFF)
+                  Wholesale Partner Rate ({resellerSubtotalCalc.label})
                 </span>
-                <span>-{formatPrice(resellerSavings)}</span>
+                <span>-{formatPrice(Math.abs(resellerSubtotalCalc.diff))}</span>
               </div>
             )}
           </div>

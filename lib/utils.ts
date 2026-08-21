@@ -176,3 +176,52 @@ export function isDiamondOrPlatinumCoupon(code: string): boolean {
     normalized.includes("PLATINUM")
   );
 }
+
+export type ResellerAdjustmentType = "percentage" | "flat" | "markup_flat" | "markup_percentage";
+
+export function calculateResellerPrice(
+  basePrice: number,
+  discountValue: number,
+  discountType: string = "percentage"
+): { price: number; label: string; diff: number; isDiscount: boolean } {
+  if (basePrice <= 0 || !discountValue) {
+    return { price: basePrice, label: "", diff: 0, isDiscount: true };
+  }
+
+  const numVal = Number(discountValue);
+
+  if (discountType === "flat") {
+    // - Flat cash discount (-₹X)
+    const finalPrice = Math.max(0, basePrice - numVal);
+    const diff = -(basePrice - finalPrice);
+    return { price: finalPrice, label: `-₹${numVal}`, diff, isDiscount: true };
+  }
+
+  if (discountType === "markup_flat") {
+    // + Flat cash addition (+₹X)
+    const finalPrice = basePrice + numVal;
+    return { price: finalPrice, label: `+₹${numVal}`, diff: numVal, isDiscount: false };
+  }
+
+  if (discountType === "markup_percentage") {
+    // + Percentage addition (+X%)
+    const addAmount = Math.round((basePrice * numVal) / 100);
+    const finalPrice = basePrice + addAmount;
+    return { price: finalPrice, label: `+${numVal}%`, diff: addAmount, isDiscount: false };
+  }
+
+  // Default: percentage discount (-X%)
+  const saveAmount = Math.round((basePrice * numVal) / 100);
+  const finalPrice = Math.max(0, basePrice - saveAmount);
+  return { price: finalPrice, label: `-${numVal}%`, diff: -saveAmount, isDiscount: true };
+}
+
+export function getResellerBadgeText(discountValue: number | string | null | undefined, discountType?: string | null, isAdmin: boolean = false): string {
+  if (!discountValue || Number(discountValue) === 0) return "Verified Reseller";
+  const num = Number(discountValue);
+  const type = discountType || "percentage";
+  if (type === "flat") return `Reseller (-₹${num})`;
+  if (type === "markup_flat") return isAdmin ? `Reseller (+₹${num})` : "Verified Reseller";
+  if (type === "markup_percentage") return isAdmin ? `Reseller (+${num}%)` : "Verified Reseller";
+  return `Reseller (${num}% OFF)`;
+}

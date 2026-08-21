@@ -10,7 +10,7 @@ import { ReviewForm } from "@/components/reviews/review-form";
 import { createClient } from "@/lib/supabase/client";
 import { AuthModal } from "@/components/auth/auth-modal";
 import type { User } from "@supabase/supabase-js";
-import { formatPrice, isDiamondOrPlatinumCoupon } from "@/lib/utils";
+import { calculateResellerPrice, formatPrice, isDiamondOrPlatinumCoupon } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import type { Game, Platform } from "@/types/store";
 import { availablePlatforms } from "./game-card";
@@ -118,8 +118,10 @@ export function ProductActions({ game }: { game: Game }) {
   const activeCoupon = mounted ? coupon : null;
   const couponSavings = activeCoupon && gameSubtotal >= activeCoupon.minimum_order ? Math.min(gameSubtotal, activeCoupon.discount_type === "percentage" ? gameSubtotal * activeCoupon.discount_value / 100 : activeCoupon.discount_value) : 0;
   const discountedPrice = Math.max(0, gameSubtotal - couponSavings);
+  const resellerDiscountType = useCartStore((state) => state.resellerDiscountType);
   const isWholesaleActive = Boolean(isReseller && resellerDiscount > 0);
-  const wholesalePrice = isWholesaleActive ? Math.max(0, Math.round(gameSubtotal * (1 - resellerDiscount / 100))) : gameSubtotal;
+  const resellerCalc = calculateResellerPrice(gameSubtotal, resellerDiscount, resellerDiscountType);
+  const wholesalePrice = isWholesaleActive ? resellerCalc.price : gameSubtotal;
 
   async function checkCoupon() {
     const normalized = couponCode.trim().toUpperCase();
@@ -246,14 +248,14 @@ export function ProductActions({ game }: { game: Game }) {
           </AnimatePresence>
 
           {/* High-end, low-intensity typographic promotional layout frame */}
-          {isWholesaleActive ? (
+          {isWholesaleActive && resellerCalc.isDiscount ? (
             <div className="mt-3 rounded-md bg-amber-400/10 border border-amber-400/25 p-3 text-center">
               <p className="text-xs text-[#e0ce9a] font-bold flex items-center justify-center gap-1.5">
                 <ShieldCheck size={14} className="text-[#e0ce9a] shrink-0" />
                 <span>Verified Reseller Wholesale Rate Active</span>
               </p>
               <p className="mt-1 text-[11px] text-[#8991a8]">
-                Your {resellerDiscount}% partner margin is automatically applied to this game and at checkout.
+                Your {resellerCalc.label} partner rate is automatically applied to this game and at checkout.
               </p>
             </div>
           ) : (
@@ -273,7 +275,7 @@ export function ProductActions({ game }: { game: Game }) {
             <span className="text-xs font-medium text-[#8991a8]">Current price</span>
             <div className="flex flex-wrap items-baseline gap-2.5 mt-1.5">
               <AnimatePresence mode="wait">
-                {isWholesaleActive ? (
+                {isWholesaleActive && resellerCalc.isDiscount ? (
                   <motion.div
                     key="wholesale"
                     initial={{ opacity: 0, y: -5 }}
@@ -290,7 +292,7 @@ export function ProductActions({ game }: { game: Game }) {
                     <span className="inline-flex items-center gap-1.5 rounded-md bg-gradient-to-b from-[#1a1722] to-[#0f0c18] border border-[#e0ce9a]/25 px-2.5 py-1 text-xs font-black tracking-tight shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_2px_6px_rgba(0,0,0,0.3)] select-none">
                       <ResellerIcon className="w-3.5 h-3.5 shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]" />
                       <span className="bg-gradient-to-r from-[#fff5d6] via-[#e8d59e] to-[#d6bd78] bg-clip-text text-transparent font-black">
-                        Wholesale (-{resellerDiscount}%)
+                        Wholesale ({resellerCalc.label})
                       </span>
                     </span>
                   </motion.div>
@@ -316,22 +318,22 @@ export function ProductActions({ game }: { game: Game }) {
                     exit={{ opacity: 0, y: 5 }}
                     className="flex flex-wrap items-baseline gap-2.5"
                   >
-                    {originalSubtotal > 0 && (
+                    {originalSubtotal > wholesalePrice && (
                       <>
                         <del className="text-base font-medium text-[#8991a8] line-through decoration-red-500/60 select-none">
                           {formatPrice(originalSubtotal)}
                         </del>
                         <strong className="text-3xl font-black text-[#facc15] tracking-tight">
-                          {formatPrice(gameSubtotal)}
+                          {formatPrice(wholesalePrice)}
                         </strong>
                         <span className="inline-flex items-center rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-extrabold text-emerald-400 shadow-sm backdrop-blur-sm">
-                          -{Math.round(((originalSubtotal - gameSubtotal) / originalSubtotal) * 100)}%
+                          -{Math.round(((originalSubtotal - wholesalePrice) / originalSubtotal) * 100)}%
                         </span>
                       </>
                     )}
-                    {originalSubtotal <= 0 && (
+                    {originalSubtotal <= wholesalePrice && (
                       <strong className="block text-3xl font-black text-[#facc15] tracking-tight">
-                        {formatPrice(gameSubtotal)}
+                        {formatPrice(wholesalePrice)}
                       </strong>
                     )}
                   </motion.div>
