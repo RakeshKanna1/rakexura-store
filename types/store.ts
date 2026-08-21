@@ -72,6 +72,18 @@ export interface Game {
   is_premium?: boolean | null;
   premium_theme?: string | null;
   out_of_stock?: boolean | null;
+  reseller_price?: number | null;
+}
+
+export interface Profile {
+  id: string;
+  email?: string | null;
+  display_name?: string | null;
+  whatsapp?: string | null;
+  role?: string | null;
+  is_reseller?: boolean | null;
+  reseller_discount?: number | null;
+  reseller_approved_at?: string | null;
 }
 
 export interface Bundle {

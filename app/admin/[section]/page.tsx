@@ -16,9 +16,9 @@ import { SmartOrdersManager, type OrderRow } from "@/components/admin/smart-orde
 import { purgeExpiredCoupons } from "@/lib/supabase/coupons";
 
 const sources = {
-  games: { title: "Game management", table: "games", select: "id,title,cover_image,steam_price,epic_price,offline_price,online_price,xbox_price,geforce_price,price_1m,price_2m,price_3m,price_6m,price_12m,is_subscription,online_activation,duration,archived", order: "id" },
+  games: { title: "Game management", table: "games", select: "id,title,cover_image,steam_price,epic_price,offline_price,online_price,xbox_price,geforce_price,price_1m,price_2m,price_3m,price_6m,price_12m,reseller_price,is_subscription,online_activation,duration,archived", order: "id" },
   orders: { title: "Customer orders", table: "orders", select: "id,order_reference,customer_name,customer_whatsapp,order_status,total_price,cart_items,screenshot_url,created_at,account_access", order: "created_at" },
-  customers: { title: "Customer list", table: "profiles", select: "id,display_name,whatsapp,role,created_at", order: "created_at" },
+  customers: { title: "Customer list", table: "profiles", select: "id,display_name,whatsapp,role,is_reseller,reseller_discount,created_at", order: "created_at" },
   reviews: { title: "Review moderation", table: "reviews", select: "id,customer_name,rating,message,media_urls,verified_purchase,approved,created_at", order: "created_at" },
   coupons: { title: "Coupon management", table: "coupons", select: "id,code,discount_type,discount_value,minimum_order,usage_limit,per_user_limit,expires_at,active", order: "id" },
   support: { title: "Support conversations", table: "support_tickets", select: "id,subject,status,user_id,created_at,updated_at", order: "updated_at" },

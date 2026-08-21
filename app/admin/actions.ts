@@ -780,6 +780,7 @@ export async function saveGame(formData: FormData) {
     duration: String(formData.get("duration") ?? "").trim() || null,
     original_price: optionalNumber(formData.get("original_price")),
     sale_price: optionalNumber(formData.get("sale_price")),
+    reseller_price: optionalNumber(formData.get("reseller_price")),
     activation_slots: optionalNumber(formData.get("activation_slots")),
     genres: formData.getAll("genres").map(String),
     available_platforms: platforms,
@@ -2121,5 +2122,30 @@ export async function deleteSelectedOrders(formData: FormData) {
   revalidatePath("/admin/orders");
   revalidatePath("/admin");
   revalidatePath("/dashboard/orders");
+}
+
+export async function toggleResellerStatus(formData: FormData) {
+  const userId = String(formData.get("userId") ?? "").trim();
+  const isReseller = formData.get("isReseller") === "true";
+  const discount = Number(formData.get("discount") ?? 25);
+  if (!userId) throw new Error("User ID is required.");
+
+  await writeAuditLog("TOGGLE_RESELLER", "profiles", formData);
+  const supabase = await getAdminClient();
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      is_reseller: isReseller,
+      reseller_discount: isReseller ? (isNaN(discount) ? 25 : discount) : 0,
+      reseller_approved_at: isReseller ? new Date().toISOString() : null,
+    })
+    .eq("id", userId);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/customers");
+  revalidatePath("/admin");
+  revalidatePath("/dashboard");
 }
 

@@ -4,7 +4,8 @@ export const revalidate = 0;
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, Bell, Gamepad2, Gift, Heart, LifeBuoy, PackageSearch, Send, Settings, ShieldCheck, ShoppingBag, TicketPercent, UserRound } from "lucide-react";
+import { ArrowRight, Bell, Gamepad2, Gift, Heart, LifeBuoy, PackageSearch, Send, Settings, ShieldCheck, ShoppingBag, TicketPercent, UserRound, Zap } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { LogoutButton } from "@/components/account/logout-button";
 import { EmptyState } from "@/components/common/empty-state";
 import { OnboardingHint } from "@/components/common/onboarding-hint";
@@ -12,6 +13,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
 import { RedeemFreebieButton } from "@/components/account/redeem-freebie-button";
 import { GiftCelebration } from "@/components/dashboard/gift-celebration";
+import { ResellerBadge } from "@/components/ui/reseller-badge";
 
 const modules = [
   ["orders", "My orders", "Payment and delivery history", PackageSearch],
@@ -24,20 +26,22 @@ const modules = [
   ["requests", "Game requests", "Track requested titles", Send],
 ] as const;
 
-const quickActions = [
+type QuickAction = [string, string, LucideIcon, string, string];
+
+const quickActions: QuickAction[] = [
   ["/games", "Continue shopping", ShoppingBag, "text-[#b9a4ff] filter drop-shadow-[0_0_4px_rgba(139,92,246,0.3)] hover:text-[#c4b5fd]", "hover:border-[#b9a4ff]/30 hover:shadow-[0_8px_20px_rgba(139,92,246,0.04)]"],
   ["/dashboard/orders", "Track orders", PackageSearch, "text-[#b9a4ff] filter drop-shadow-[0_0_4px_rgba(139,92,246,0.3)] hover:text-[#c4b5fd]", "hover:border-[#b9a4ff]/30 hover:shadow-[0_8px_20px_rgba(139,92,246,0.04)]"],
   ["/dashboard/library", "My library", Gamepad2, "text-[#8b5cf6] filter drop-shadow-[0_0_4px_rgba(139,92,246,0.3)] hover:text-[#a78bfa]", "hover:border-[#8b5cf6]/30 hover:shadow-[0_8px_20px_rgba(139,92,246,0.04)]"],
   ["/dashboard/rewards", "Redeem rewards", Gift, "text-[#facc15] filter drop-shadow-[0_0_4px_rgba(250,204,21,0.3)] hover:text-[#fde047]", "hover:border-[#facc15]/30 hover:shadow-[0_8px_20px_rgba(250,204,21,0.04)]"],
   ["/support", "Support", LifeBuoy, "text-[#facc15] filter drop-shadow-[0_0_4px_rgba(250,204,21,0.3)] hover:text-[#fde047]", "hover:border-[#facc15]/30 hover:shadow-[0_8px_20px_rgba(250,204,21,0.04)]"],
-] as const;
+];
 
 export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
   const [{ data: profile }, { data: orders, count: totalOrdersCount }, { data: rewards }, { data: notifications }, { count: libraryCount }, { count: referralCount }, { data: latestTicket }, { count: purchasedLibraryCount }] = await Promise.all([
-    supabase.from("profiles").select("display_name,role,avatar_url,last_request_date").eq("id", user.id).maybeSingle(),
+    supabase.from("profiles").select("display_name,role,avatar_url,last_request_date,is_reseller,reseller_discount").eq("id", user.id).maybeSingle(),
     supabase.from("orders").select("id,order_reference,order_status,total_price,created_at,cart_items,payment_reference,coupon_usage(coupons(code))", { count: "exact" }).eq("user_id", user.id).order("created_at", { ascending: false }).limit(5),
     supabase.from("user_rewards").select("points,level").eq("user_id", user.id).maybeSingle(),
     supabase.from("notifications").select("id,title,message").eq("user_id", user.id).eq("read", false),
@@ -79,12 +83,19 @@ export default async function DashboardPage() {
   const name = profile?.display_name || user.user_metadata.display_name || user.user_metadata.full_name || user.email?.split("@")[0] || "Player";
   const avatarUrl = profile?.avatar_url || user.user_metadata.avatar_url;
 
-  const visibleQuickActions = profile?.role === "admin"
+  const baseActions: QuickAction[] = profile?.is_reseller
     ? [
+        ["/dashboard/reseller", "Reseller portal", Zap, "text-[#facc15] filter drop-shadow-[0_0_4px_rgba(250,204,21,0.3)] hover:text-[#fde047]", "hover:border-[#facc15]/30 hover:shadow-[0_8px_20px_rgba(250,204,21,0.04)]"],
         ...quickActions,
-        ["/admin", "Admin dashboard", ShieldCheck, "text-[#8b5cf6] filter drop-shadow-[0_0_4px_rgba(139,92,246,0.3)] hover:text-[#a78bfa]", "hover:border-[#8b5cf6]/30 hover:shadow-[0_8px_20px_rgba(139,92,246,0.04)]"] as const
       ]
     : quickActions;
+
+  const visibleQuickActions: QuickAction[] = profile?.role === "admin"
+    ? [
+        ...baseActions,
+        ["/admin", "Admin dashboard", ShieldCheck, "text-[#8b5cf6] filter drop-shadow-[0_0_4px_rgba(139,92,246,0.3)] hover:text-[#a78bfa]", "hover:border-[#8b5cf6]/30 hover:shadow-[0_8px_20px_rgba(139,92,246,0.04)]"],
+      ]
+    : baseActions;
 
   const visibleModules = modules.filter(([href]) => href !== "coupons" || isApproved);
 
@@ -96,7 +107,10 @@ export default async function DashboardPage() {
         <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <div>
             <p className="eyebrow text-transparent bg-clip-text bg-gradient-to-r from-[#b9a4ff] to-[#8b5cf6] font-black">Customer dashboard</p>
-            <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl bg-gradient-to-r from-white via-[#e8e3ff] to-[#b9a4ff] bg-clip-text text-transparent">Hi, {name}</h1>
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl font-black tracking-tight sm:text-4xl bg-gradient-to-r from-white via-[#e8e3ff] to-[#b9a4ff] bg-clip-text text-transparent">Hi, {name}</h1>
+              {profile?.is_reseller && <ResellerBadge size="md" />}
+            </div>
             <p className="section-copy text-[#8991a6]">Your games, orders, rewards, and support in one secure place.</p>
           </div>
           

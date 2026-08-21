@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { assetUrl, matchesSearchQuery } from "@/lib/utils";
 import { OrderActions } from "@/components/admin/order-actions";
 import { DeleteCustomerButton } from "@/components/admin/delete-customer-button";
+import { ResellerCustomerButton } from "@/components/admin/reseller-customer-button";
+import { ResellerBadge } from "@/components/ui/reseller-badge";
 import { archiveGame, moderateProof, moderateReview, toggleCoupon, deleteCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale, toggleCampaign, deleteCampaign, deleteCampaignGame } from "@/app/admin/actions";
 
 type AdminRow = Record<string, unknown> & { id?: number | string; screenshot_url?: string; proof_url?: string; media_urls?: string[]; media_links?: string[] };
@@ -97,9 +99,20 @@ function RowActions({ section, row }: { section: string; row: AdminRow }) {
   const id = Number(row.id);
   if (section === "customers") {
     const customerId = String(row.id || "");
+    const customerName = String(row.display_name || "");
     const isAdmin = row.role === "admin";
     if (isAdmin) return <span className="text-[11px] font-bold text-[#b9a4ff]">Admin Profile</span>;
-    return <DeleteCustomerButton userId={customerId} customerName={String(row.display_name || "")} />;
+    return (
+      <div className="flex items-center gap-2">
+        <ResellerCustomerButton
+          userId={customerId}
+          customerName={customerName}
+          isReseller={Boolean(row.is_reseller)}
+          currentDiscount={Number(row.reseller_discount || 25)}
+        />
+        <DeleteCustomerButton userId={customerId} customerName={customerName} />
+      </div>
+    );
   }
   if (section === "orders") {
     const items = Array.isArray(row.cart_items) ? row.cart_items as Array<Record<string, unknown>> : [];
@@ -376,6 +389,8 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                     const isImageColumn = header === "image_url" || header === "screenshot_url" || header === "proof_url" || (header === "cover_image" && section !== "games");
                     const isProofTypeColumn = header === "proof_type";
                     const isApprovedColumn = header === "approved";
+                    const isResellerColumn = header === "is_reseller";
+                    const isDiscountColumn = header === "reseller_discount";
                     const val = row[header];
                     const lowerHeader = header.toLowerCase();
                     const isIdColumn = (lowerHeader === "id" || lowerHeader.endsWith("_id") || lowerHeader === "visitor_id") && typeof val === "string" && val.length > 10;
@@ -407,6 +422,20 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                               All Items (Both)
                             </span>
+                          )
+                        ) : isResellerColumn ? (
+                          val ? (
+                            <ResellerBadge size="sm" />
+                          ) : (
+                            <span className="text-xs text-[#8991a6]">Standard</span>
+                          )
+                        ) : isDiscountColumn ? (
+                          val && Number(val) > 0 ? (
+                            <span className="font-mono font-bold text-[#facc15] bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 rounded text-xs">
+                              {String(val)}% OFF
+                            </span>
+                          ) : (
+                            "-"
                           )
                         ) : isImageColumn && typeof val === "string" && val ? (
                           <a href={val} target="_blank" rel="noreferrer" className="group inline-flex items-center gap-2.5">

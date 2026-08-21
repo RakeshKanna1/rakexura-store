@@ -8,8 +8,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { LogoutButton } from "./logout-button";
 import { OWNER_EMAIL } from "@/lib/config";
+import { ResellerBadge, ResellerIcon } from "@/components/ui/reseller-badge";
 
-type Account = { email: string; name: string; role: string; avatarUrl?: string | null } | null;
+type Account = { email: string; name: string; role: string; avatarUrl?: string | null; isReseller?: boolean; resellerDiscount?: number } | null;
 
 export function AccountMenu() {
   const pathname = usePathname();
@@ -29,12 +30,14 @@ export function AccountMenu() {
         setOpen(false);
         return;
       }
-      const { data: profile } = await supabase.from("profiles").select("display_name,role,avatar_url").eq("id", user.id).maybeSingle();
+      const { data: profile } = await supabase.from("profiles").select("display_name,role,avatar_url,is_reseller,reseller_discount").eq("id", user.id).maybeSingle();
       setAccount({
         email: user.email ?? "Rakexura account",
         name: profile?.display_name || user.user_metadata?.display_name || user.user_metadata?.full_name || "Player",
         role: profile?.role ?? "customer",
         avatarUrl: profile?.avatar_url,
+        isReseller: Boolean(profile?.is_reseller),
+        resellerDiscount: Number(profile?.reseller_discount || 0),
       });
       setReady(true);
     } catch {
@@ -86,11 +89,24 @@ export function AccountMenu() {
     <button type="button" onClick={() => setOpen((value) => !value)} className="btn btn-secondary gap-2" aria-label="Open profile menu" aria-expanded={open}>
       <span className="relative grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-full bg-[#6d4aff]/20 text-xs font-black text-[#d4caff]">{account.avatarUrl ? <Image src={account.avatarUrl} alt="" fill sizes="28px" className="object-cover" unoptimized /> : account.name.slice(0, 1).toUpperCase()}</span>
       <span className="hidden max-w-24 truncate sm:inline">{account.name}</span>
+      {account.isReseller && <ResellerIcon className="w-3.5 h-3.5 text-[#facc15] shrink-0" />}
       <ChevronDown size={14} className={`hidden transition sm:block ${open ? "rotate-180" : ""}`} />
     </button>
     {open && <div className="absolute right-0 top-[calc(100%+10px)] z-50 w-72 overflow-hidden rounded-lg border border-white/10 bg-[#0b0f18]/98 p-2 shadow-2xl backdrop-blur-xl">
-      <div className="border-b border-white/[.07] px-3 py-3"><strong className="block truncate text-sm">{account.name}</strong><span className="mt-1 block truncate text-xs text-[#8991a6]">{account.email}</span></div>
+      <div className="border-b border-white/[.07] px-3 py-3">
+        <div className="flex items-center justify-between gap-2">
+          <strong className="block truncate text-sm">{account.name}</strong>
+          {account.isReseller && <ResellerBadge size="sm" />}
+        </div>
+        <span className="mt-1 block truncate text-xs text-[#8991a6]">{account.email}</span>
+      </div>
       {(account.role === "admin" || owner) && <Link href="/admin" className="mt-2 flex min-h-12 items-center gap-3 rounded-md border border-[#8b5cf6]/25 bg-[#8b5cf6]/[.08] px-3 text-sm font-black text-[#d4caff]"><ShieldCheck size={18} /> {account.role === "admin" ? "Admin dashboard" : "Activate admin access"}</Link>}
+      {account.isReseller && (
+        <Link href="/dashboard/reseller" className="mt-2 flex min-h-11 items-center gap-3 rounded-md border border-[#facc15]/30 bg-[#facc15]/10 px-3 text-sm font-bold text-[#facc15] transition hover:bg-[#facc15]/20">
+          <ResellerIcon className="w-4 h-4 text-[#facc15]" />
+          <span>Reseller Portal</span>
+        </Link>
+      )}
       <nav className="py-2">{links.map(([href, label, Icon]) => <Link key={href} href={href} className="flex min-h-11 items-center gap-3 rounded-md px-3 text-sm text-[#b8bfd0] transition hover:bg-white/[.06] hover:text-white"><Icon size={17} />{label}</Link>)}</nav>
       <LogoutButton compact className="flex min-h-11 w-full items-center gap-3 rounded-md px-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10" />
     </div>}

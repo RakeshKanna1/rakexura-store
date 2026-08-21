@@ -59,7 +59,8 @@ const GAME_CATALOG_COLUMNS = [
   "show_in_hero",
   "show_in_featured",
   "show_in_trending",
-  "show_in_recommended"
+  "show_in_recommended",
+  "reseller_price"
 ].join(",");
 
 /* -------------------------------------------------------------------------- */

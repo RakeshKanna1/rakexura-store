@@ -172,9 +172,13 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
               Featured Sale Price (Fallback)
               <input type="number" min="0" step="1" name="sale_price" defaultValue={String(game?.sale_price ?? "")} className={input} />
             </label>
+            <label className="text-sm font-bold capitalize">
+              Wholesale / Reseller Price (₹)
+              <input type="number" min="0" step="1" name="reseller_price" defaultValue={String((game as unknown as Record<string, unknown>)?.reseller_price ?? "")} placeholder="Optional wholesale rate" className={input} />
+            </label>
           </>
         ) : (
-          ["original_price", "sale_price", "steam_price", "epic_price", "offline_price", "online_price", "xbox_price", "geforce_price", "activation_slots"].map((field) => (
+          ["original_price", "sale_price", "reseller_price", "steam_price", "epic_price", "offline_price", "online_price", "xbox_price", "geforce_price", "activation_slots"].map((field) => (
             <label key={field} className="text-sm font-bold capitalize">
               {field.replaceAll("_", " ")}
               <input 
