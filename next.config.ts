@@ -23,9 +23,6 @@ const nextConfig: NextConfig = {
       "framer-motion",
       "recharts",
       "date-fns",
-      "sonner",
-      "swiper",
-      "zustand",
       "@tanstack/react-query",
     ],
   },
@@ -56,7 +53,7 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
   },
   poweredByHeader: false,
-  serverExternalPackages: ["@supabase/ssr", "@supabase/supabase-js", "@sentry/nextjs", "@sentry/node", "@opentelemetry/api"],
+  serverExternalPackages: ["@opentelemetry/api"],
   async headers() {
     return [
       {
@@ -96,9 +93,12 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
-  silent: true,
-  org: "rakexura",
-  project: "rakexura-store",
-  widenClientFileUpload: true,
-});
+export default process.env.NEXT_PUBLIC_SENTRY_DSN
+  ? withSentryConfig(nextConfig, {
+      silent: true,
+      org: "rakexura",
+      project: "rakexura-store",
+      widenClientFileUpload: true,
+      disableLogger: true,
+    })
+  : nextConfig;

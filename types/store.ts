@@ -1,4 +1,22 @@
-export type Platform = "Steam" | "Epic" | "Offline" | "Online" | "Xbox" | "Nvidia GeForce";
+export type Platform =
+  | "Steam"
+  | "Epic"
+  | "Offline"
+  | "Online"
+  | "Xbox"
+  | "Nvidia GeForce"
+  | "1 Month"
+  | "2 Months"
+  | "3 Months"
+  | "6 Months"
+  | "12 Months";
+
+export type SubscriptionDuration =
+  | "1 Month"
+  | "2 Months"
+  | "3 Months"
+  | "6 Months"
+  | "12 Months";
 
 export interface Game {
   id: number;
@@ -30,6 +48,11 @@ export interface Game {
   online_price?: number | null;
   xbox_price?: number | null;
   geforce_price?: number | null;
+  price_1m?: number | null;
+  price_2m?: number | null;
+  price_3m?: number | null;
+  price_6m?: number | null;
+  price_12m?: number | null;
   duration?: string | null;
   original_price?: number | null;
   sale_price?: number | null;

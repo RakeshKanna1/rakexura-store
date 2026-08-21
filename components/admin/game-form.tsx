@@ -82,32 +82,74 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
           />
         </label>
         
-        {["original_price", "sale_price", "steam_price", "epic_price", "offline_price", "online_price", "xbox_price", "geforce_price", "activation_slots"].map((field) => (
-          <label key={field} className="text-sm font-bold capitalize">
-            {field.replaceAll("_", " ")}
-            <input 
-              type="number" 
-              min="0" 
-              step="1" 
-              name={field} 
-              defaultValue={String(game?.[field as keyof Game] ?? "")} 
-              suppressHydrationWarning={true}
-              className={input} 
-            />
-          </label>
-        ))}
+        {isSubscription ? (
+          <>
+            <div className="md:col-span-2 rounded-lg border border-[#facc15]/30 bg-[#facc15]/5 p-4">
+              <h3 className="text-sm font-black text-[#facc15] uppercase tracking-wider">⚡ Subscription Duration Pricing (₹ INR)</h3>
+              <p className="text-xs text-[#8991a6] mt-1 mb-3">Set individual prices for each plan duration. Unfilled durations will not be offered to customers.</p>
+              <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+                <label className="text-xs font-bold text-white">
+                  1 Month Price (₹)
+                  <input type="number" min="0" step="1" name="price_1m" defaultValue={String(game?.price_1m ?? game?.xbox_price ?? "")} placeholder="e.g. 299" className={input} />
+                </label>
+                <label className="text-xs font-bold text-white">
+                  2 Months Price (₹)
+                  <input type="number" min="0" step="1" name="price_2m" defaultValue={String(game?.price_2m ?? "")} placeholder="e.g. 549" className={input} />
+                </label>
+                <label className="text-xs font-bold text-[#facc15]">
+                  3 Months Price (₹) ★ Best Value
+                  <input type="number" min="0" step="1" name="price_3m" defaultValue={String(game?.price_3m ?? "")} placeholder="e.g. 799" className={`${input} border-[#facc15]/40`} />
+                </label>
+                <label className="text-xs font-bold text-white">
+                  6 Months Price (₹)
+                  <input type="number" min="0" step="1" name="price_6m" defaultValue={String(game?.price_6m ?? "")} placeholder="e.g. 1499" className={input} />
+                </label>
+                <label className="text-xs font-bold text-white">
+                  12 Months Price (₹)
+                  <input type="number" min="0" step="1" name="price_12m" defaultValue={String(game?.price_12m ?? "")} placeholder="e.g. 2799" className={input} />
+                </label>
+                <label className="text-xs font-bold text-[#8991a6]">
+                  Original MRP / Compare Price (₹)
+                  <input type="number" min="0" step="1" name="original_price" defaultValue={String(game?.original_price ?? "")} placeholder="e.g. 499" className={input} />
+                </label>
+              </div>
+            </div>
+            <label className="text-sm font-bold capitalize">
+              Activation Slots / Accounts
+              <input type="number" min="0" step="1" name="activation_slots" defaultValue={String(game?.activation_slots ?? "")} className={input} />
+            </label>
+            <label className="text-sm font-bold capitalize">
+              Featured Sale Price (Fallback)
+              <input type="number" min="0" step="1" name="sale_price" defaultValue={String(game?.sale_price ?? "")} className={input} />
+            </label>
+          </>
+        ) : (
+          ["original_price", "sale_price", "steam_price", "epic_price", "offline_price", "online_price", "xbox_price", "geforce_price", "activation_slots"].map((field) => (
+            <label key={field} className="text-sm font-bold capitalize">
+              {field.replaceAll("_", " ")}
+              <input 
+                type="number" 
+                min="0" 
+                step="1" 
+                name={field} 
+                defaultValue={String(game?.[field as keyof Game] ?? "")} 
+                suppressHydrationWarning={true}
+                className={input} 
+              />
+            </label>
+          ))
+        )}
 
         {showDuration && (
           <label className="text-sm font-bold text-[#facc15] md:col-span-2 animate-fade-in">
-            Subscription Duration
+            Default Plan Label / Note
             <input 
               name="duration" 
               defaultValue={game?.duration ?? ""} 
-              placeholder="e.g. 1 Month, 3 Months, 12 Months, Lifetime" 
-              required={showDuration} 
+              placeholder="e.g. 1 Month, 3 Months, Instant Activation, Full Warranty" 
               className={`${input} border-[#facc15]/30 focus:border-[#facc15]`} 
             />
-            <span className="mt-2 block text-xs font-normal text-[#8991a6]">Specify the validity duration for this Xbox / GeForce / Custom subscription.</span>
+            <span className="mt-2 block text-xs font-normal text-[#8991a6]">Optional badge or subtitle note for this subscription.</span>
           </label>
         )}
 
@@ -144,9 +186,12 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
       </fieldset>
 
       <fieldset className="mt-6">
-        <legend className="text-sm font-bold">Available platforms</legend>
+        <legend className="text-sm font-bold">Available platforms / Plan Options</legend>
         <div className="mt-3 flex flex-wrap gap-3">
-          {["Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce"].map((platform) => (
+          {(isSubscription
+            ? ["1 Month", "2 Months", "3 Months", "6 Months", "12 Months", "Xbox", "Nvidia GeForce"]
+            : ["Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce"]
+          ).map((platform) => (
             <label key={platform} className="flex min-h-11 items-center gap-2 rounded-md border border-white/10 bg-black/20 px-4 text-sm cursor-pointer hover:border-white/20 transition-all select-none">
               <input 
                 type="checkbox" 

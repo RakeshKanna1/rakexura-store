@@ -2,16 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Heart, Minus, Package, Plus, ShieldCheck, ShoppingBag, TicketPercent, Trash2 } from "lucide-react";
+import { ArrowRight, Minus, Package, Plus, ShieldCheck, ShoppingBag, TicketPercent, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { EmptyState } from "@/components/common/empty-state";
 import { createClient } from "@/lib/supabase/client";
 import { assetUrl, formatPrice, gameUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 
 function linePrice(line: ReturnType<typeof useCartStore.getState>["lines"][number]) {
   const { game, platform } = line;
+  if (platform === "1 Month") return Number(game.price_1m ?? game.xbox_price ?? game.steam_price ?? game.sale_price ?? 0);
+  if (platform === "2 Months") return Number(game.price_2m ?? 0);
+  if (platform === "3 Months") return Number(game.price_3m ?? 0);
+  if (platform === "6 Months") return Number(game.price_6m ?? 0);
+  if (platform === "12 Months") return Number(game.price_12m ?? 0);
   if (platform === "Epic") return Number(game.epic_price ?? game.sale_price ?? 0);
   if (platform === "Offline") return Number(game.offline_price ?? 0);
   if (platform === "Online") return Number(game.online_price ?? 0);

@@ -345,6 +345,18 @@ export function BroadcastComposer({
         setShortMessage(template.shortMessage || template.title);
         setLink(template.link);
       }
+    } else if (key === "review") {
+      if (game) {
+        setTitle(`⭐ How is ${game.title}? Leave a review!`);
+        setMessage(`Hope you are enjoying ${game.title}! Please take 30 seconds to rate your experience and leave a review on Rakexura Store.`);
+        setShortMessage(`⭐ Leave a review for ${game.title}! Share your experience.`);
+        setLink(`${gameUrl(game)}#reviews`);
+      } else {
+        setTitle(template.title);
+        setMessage(template.message);
+        setShortMessage(template.shortMessage || template.title);
+        setLink("/reviews");
+      }
     } else {
       setTitle(template.title);
       setMessage(template.message);
@@ -385,7 +397,7 @@ export function BroadcastComposer({
       setTitle(`⭐ How is ${game.title}? Leave a review!`);
       setMessage(`Hope you are enjoying ${game.title}! Please take 30 seconds to rate your experience and leave a review on Rakexura Store.`);
       setShortMessage(`⭐ Leave a review for ${game.title}! Share your experience.`);
-      setLink(gameUrl(game));
+      setLink(`${gameUrl(game)}#reviews`);
     } else {
       setTitle(`🎮 ${game.title} is now available`);
       setMessage(`${game.title} has arrived at Rakexura. Check platforms, live pricing${priceStr !== "Special Price" ? ` (from ${priceStr})` : ''}, trailers, and current offers.`);
@@ -506,7 +518,23 @@ export function BroadcastComposer({
     if (!customer?.whatsapp) return toast.error("This customer has no saved WhatsApp number");
     const phone = customer.whatsapp.replace(/\D/g, "");
     const normalized = phone.length === 10 ? `91${phone}` : phone;
-    window.open(`https://wa.me/${normalized}?text=${encodeURIComponent(`${title}\n\n${message}\n\n${location.origin}${link}`)}`, "_blank", "noopener,noreferrer");
+
+    let actionLabel = "🎮 *ORDER GAME HERE:*";
+    if (selectedTemplateKey === "review" || title.toLowerCase().includes("review")) {
+      actionLabel = "⭐ *LEAVE YOUR REVIEW HERE:*";
+    } else if (selectedTemplateKey === "invoice") {
+      actionLabel = "🧾 *VIEW INVOICE & ORDER:*";
+    } else if (selectedTemplateKey === "activation") {
+      actionLabel = "🗝️ *VIEW ACTIVATION DETAILS:*";
+    } else if (selectedTemplateKey === "giveaway") {
+      actionLabel = "🎁 *JOIN GIVEAWAY HERE:*";
+    } else if (selectedTemplateKey === "support") {
+      actionLabel = "💬 *GET SUPPORT HERE:*";
+    } else if (selectedTemplateKey === "preorder") {
+      actionLabel = "⏳ *PRE-ORDER HERE:*";
+    }
+
+    window.open(`https://wa.me/${normalized}?text=${encodeURIComponent(`${title}\n\n${message}\n\n${actionLabel} ${location.origin}${link}`)}`, "_blank", "noopener,noreferrer");
   }
 
   async function copyWhatsAppBroadcastText() {
@@ -521,12 +549,27 @@ export function BroadcastComposer({
         : `${location.origin}${rawImg.startsWith("/") ? "" : "/"}${rawImg}`
       : "";
 
+    let actionLabel = "🎮 *ORDER GAME HERE:*";
+    if (selectedTemplateKey === "review" || title.toLowerCase().includes("review")) {
+      actionLabel = "⭐ *LEAVE YOUR REVIEW HERE:*";
+    } else if (selectedTemplateKey === "invoice") {
+      actionLabel = "🧾 *VIEW INVOICE & ORDER:*";
+    } else if (selectedTemplateKey === "activation") {
+      actionLabel = "🗝️ *VIEW ACTIVATION DETAILS:*";
+    } else if (selectedTemplateKey === "giveaway") {
+      actionLabel = "🎁 *JOIN GIVEAWAY HERE:*";
+    } else if (selectedTemplateKey === "support") {
+      actionLabel = "💬 *GET SUPPORT HERE:*";
+    } else if (selectedTemplateKey === "preorder") {
+      actionLabel = "⏳ *PRE-ORDER HERE:*";
+    }
+
     let waText = `*${title.toUpperCase()}*\n\n`;
-    if (imageUrl) {
+    if (imageUrl && selectedTemplateKey !== "invoice") {
       waText += `📸 *GAME COVER:* ${imageUrl}\n\n`;
     }
     waText += `${message}\n\n`;
-    waText += `🎮 *ORDER GAME HERE:* ${location.origin}${link}`;
+    waText += `${actionLabel} ${location.origin}${link}`;
 
     let copied = false;
     try {

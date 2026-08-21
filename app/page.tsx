@@ -26,7 +26,7 @@ export default async function Home() {
   const hero = games.filter((game) => game.show_in_hero && !game.is_subscription).slice(0, 10);
   const featured = games.filter((game) => (game.show_in_featured || game.featured_deal) && !game.is_subscription).slice(0, 12);
   const trending = games.filter((game) => game.show_in_trending && !game.is_subscription).slice(0, 12);
-  const bestSellers = games.filter((game) => (game.featured_deal || game.show_in_trending) && !game.is_subscription).slice(0, 12);
+  const bestSellers = trending.length ? trending : games.filter((game) => (game.featured_deal || game.show_in_trending) && !game.is_subscription).slice(0, 12);
   const budget = games.filter((game) => lowestPrice(game) > 0 && lowestPrice(game) <= 299 && !game.is_subscription).slice(0, 12);
   const subscriptions = games.filter((game) => game.is_subscription).slice(0, 12);
   const upcoming = games.filter((game) => game.preorder && !game.is_subscription).slice(0, 12);

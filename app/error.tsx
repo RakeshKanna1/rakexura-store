@@ -13,7 +13,11 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    Sentry.captureException(error);
+    try {
+      if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
+        Sentry.captureException(error);
+      }
+    } catch {}
   }, [error]);
 
   return (

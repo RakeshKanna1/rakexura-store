@@ -14,7 +14,19 @@ import { WishlistButton } from "./wishlist-button";
 import { PlatformIcon } from "./platform-icon";
 
 function gamePrice(game: Game) {
-  const prices = [game.steam_price, game.epic_price, game.offline_price, game.online_price, game.xbox_price, game.geforce_price]
+  const prices = [
+    game.price_1m,
+    game.price_2m,
+    game.price_3m,
+    game.price_6m,
+    game.price_12m,
+    game.steam_price,
+    game.epic_price,
+    game.offline_price,
+    game.online_price,
+    game.xbox_price,
+    game.geforce_price,
+  ]
     .map(Number)
     .filter((value) => value > 0);
 
@@ -24,6 +36,20 @@ function gamePrice(game: Game) {
 export function availablePlatforms(game: Game): Platform[] {
   const custom = (game.available_platforms ?? []).filter(Boolean) as Platform[];
   if (custom.length) return custom;
+
+  if (game.is_subscription) {
+    const subPlans: Array<[Platform, unknown]> = [
+      ["1 Month", game.price_1m ?? game.xbox_price ?? game.steam_price],
+      ["2 Months", game.price_2m],
+      ["3 Months", game.price_3m],
+      ["6 Months", game.price_6m],
+      ["12 Months", game.price_12m],
+    ];
+    const subListed = subPlans.filter(([, value]) => Number(value ?? 0) > 0).map(([platform]) => platform);
+    if (subListed.length) return subListed;
+    return ["1 Month"];
+  }
+
   const legacy: Array<[Platform, unknown]> = [
     ["Steam", game.steam_price],
     ["Epic", game.epic_price],

@@ -42,8 +42,33 @@ export function assetUrl(value?: string | null) {
   return `/${value.replace(/\\/g, "/")}`;
 }
 
-export function lowestPrice(game: { steam_price?: number | null; epic_price?: number | null; offline_price?: number | null; online_price?: number | null; xbox_price?: number | null; geforce_price?: number | null; sale_price?: number | null }) {
-  const prices = [game.steam_price, game.epic_price, game.offline_price, game.online_price, game.xbox_price, game.geforce_price]
+export function lowestPrice(game: {
+  steam_price?: number | null;
+  epic_price?: number | null;
+  offline_price?: number | null;
+  online_price?: number | null;
+  xbox_price?: number | null;
+  geforce_price?: number | null;
+  price_1m?: number | null;
+  price_2m?: number | null;
+  price_3m?: number | null;
+  price_6m?: number | null;
+  price_12m?: number | null;
+  sale_price?: number | null;
+}) {
+  const prices = [
+    game.price_1m,
+    game.price_2m,
+    game.price_3m,
+    game.price_6m,
+    game.price_12m,
+    game.steam_price,
+    game.epic_price,
+    game.offline_price,
+    game.online_price,
+    game.xbox_price,
+    game.geforce_price,
+  ]
     .map(Number)
     .filter((price) => price > 0);
   return prices.length ? Math.min(...prices) : Number(game.sale_price ?? 0);

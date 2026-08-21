@@ -1,6 +1,6 @@
 "use client";
 
-import { WifiOff, Globe, Monitor } from "lucide-react";
+import { WifiOff, Globe, Monitor, Clock } from "lucide-react";
 
 export function PlatformIcon({
   platform,
@@ -12,6 +12,10 @@ export function PlatformIcon({
   active?: boolean;
 }) {
   const p = platform.toLowerCase();
+
+  if (p.includes("month") || p.includes("year") || p.includes("duration") || p.includes("days")) {
+    return <Clock className={className} />;
+  }
 
   if (p.includes("steam")) {
     return (

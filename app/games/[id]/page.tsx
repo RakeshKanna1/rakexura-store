@@ -25,6 +25,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 function platformPrice(game: Game, platform: Platform) {
+  if (platform === "1 Month") return Number(game.price_1m ?? game.xbox_price ?? game.steam_price ?? 0);
+  if (platform === "2 Months") return Number(game.price_2m ?? 0);
+  if (platform === "3 Months") return Number(game.price_3m ?? 0);
+  if (platform === "6 Months") return Number(game.price_6m ?? 0);
+  if (platform === "12 Months") return Number(game.price_12m ?? 0);
   if (platform === "Epic") return Number(game.epic_price ?? 0);
   if (platform === "Offline") return Number(game.offline_price ?? 0);
   if (platform === "Online") return Number(game.online_price ?? 0);

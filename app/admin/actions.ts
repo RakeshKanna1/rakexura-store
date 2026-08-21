@@ -729,8 +729,25 @@ export async function saveGame(formData: FormData) {
   const rawId = String(formData.get("id") ?? "");
   const title = String(formData.get("title") ?? "").trim();
   if (title.length < 2) throw new Error("Game title is required");
-  const platforms = formData.getAll("platforms").map(String).filter((value) => ["Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce"].includes(value));
-  if (!platforms.length) throw new Error("Select at least one platform");
+  const platforms = formData
+    .getAll("platforms")
+    .map(String)
+    .filter((value) =>
+      [
+        "Steam",
+        "Epic",
+        "Offline",
+        "Online",
+        "Xbox",
+        "Nvidia GeForce",
+        "1 Month",
+        "2 Months",
+        "3 Months",
+        "6 Months",
+        "12 Months",
+      ].includes(value)
+    );
+  if (!platforms.length) throw new Error("Select at least one platform or duration plan");
   const keyFeaturesRaw = String(formData.get("key_features") ?? "");
   const key_features = keyFeaturesRaw
     .split("\n")
@@ -755,6 +772,11 @@ export async function saveGame(formData: FormData) {
     online_price: optionalNumber(formData.get("online_price")),
     xbox_price: optionalNumber(formData.get("xbox_price")),
     geforce_price: optionalNumber(formData.get("geforce_price")),
+    price_1m: optionalNumber(formData.get("price_1m")),
+    price_2m: optionalNumber(formData.get("price_2m")),
+    price_3m: optionalNumber(formData.get("price_3m")),
+    price_6m: optionalNumber(formData.get("price_6m")),
+    price_12m: optionalNumber(formData.get("price_12m")),
     duration: String(formData.get("duration") ?? "").trim() || null,
     original_price: optionalNumber(formData.get("original_price")),
     sale_price: optionalNumber(formData.get("sale_price")),
