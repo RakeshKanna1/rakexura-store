@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Save } from "lucide-react";
+import { Save, Gamepad2, Zap, Sparkles } from "lucide-react";
 import { saveGame } from "@/app/admin/actions";
 import { ImageUploader } from "@/components/admin/image-uploader";
 import type { Game } from "@/types/store";
@@ -29,14 +29,16 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
     }
   };
 
-  const showDuration = isSubscription || selectedPlatforms.includes("Xbox") || selectedPlatforms.includes("Nvidia GeForce");
+  const showDuration = isSubscription || selectedPlatforms.some((p) => p === "Xbox" || p === "Nvidia GeForce");
 
   return (
     <form
       key={game?.id ?? "new"}
-      action={saveGame}
+      action={async (formData) => {
+        setIsSubmitting(true);
+        await saveGame(formData);
+      }}
       onChange={() => setIsDirty(true)}
-      onSubmit={() => setIsSubmitting(true)}
       suppressHydrationWarning={true}
       className="premium-panel mt-8 rounded-md p-5 md:p-7"
     >
@@ -83,24 +85,23 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
         </label>
         
         {/* Product Type Switcher */}
-        <div className="md:col-span-2 rounded-xl border border-white/10 bg-[#0d0b1a]/90 p-4">
-          <span className="text-xs font-extrabold uppercase tracking-wider text-[#8991a6] block mb-2.5">
-            Product Category Type
-          </span>
-          <div className="grid grid-cols-2 gap-3">
+        <div className="md:col-span-2 rounded-md border border-white/10 bg-black/20 p-4">
+          <p className="eyebrow text-xs mb-3">Product category type</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
               onClick={() => {
                 setIsSubscription(false);
                 setSelectedPlatforms(["Steam", "Offline"]);
               }}
-              className={`flex items-center justify-center gap-2.5 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all border cursor-pointer ${
+              className={`flex items-center justify-center gap-2.5 h-11 px-4 rounded-md font-bold text-xs sm:text-sm transition-all border cursor-pointer ${
                 !isSubscription
-                  ? "bg-white/15 border-white/40 text-white shadow-md"
-                  : "bg-white/5 border-white/10 text-[#8991a6] hover:bg-white/10"
+                  ? "bg-[#6d4aff]/20 border-[#8b5cf6] text-white shadow-[0_0_15px_rgba(139,92,246,0.25)]"
+                  : "bg-black/25 border-white/10 text-[#8991a6] hover:bg-white/5 hover:text-white"
               }`}
             >
-              <span>🎮 Standard PC Game</span>
+              <Gamepad2 size={16} className={!isSubscription ? "text-[#b9a4ff]" : "text-[#8991a6]"} />
+              <span>Standard PC Game</span>
             </button>
             <button
               type="button"
@@ -108,13 +109,14 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
                 setIsSubscription(true);
                 setSelectedPlatforms(["1 Month", "2 Months", "3 Months"]);
               }}
-              className={`flex items-center justify-center gap-2.5 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all border cursor-pointer ${
+              className={`flex items-center justify-center gap-2.5 h-11 px-4 rounded-md font-bold text-xs sm:text-sm transition-all border cursor-pointer ${
                 isSubscription
-                  ? "bg-[#facc15]/20 border-[#facc15] text-[#facc15] shadow-md shadow-[#facc15]/10"
-                  : "bg-white/5 border-white/10 text-[#8991a6] hover:bg-white/10"
+                  ? "bg-[#6d4aff]/20 border-[#8b5cf6] text-white shadow-[0_0_15px_rgba(139,92,246,0.25)]"
+                  : "bg-black/25 border-white/10 text-[#8991a6] hover:bg-white/5 hover:text-white"
               }`}
             >
-              <span>⚡ Subscription / Pass (Xbox, Nvidia)</span>
+              <Zap size={16} className={isSubscription ? "text-[#b9a4ff]" : "text-[#8991a6]"} />
+              <span>Subscription / Pass (Xbox, Nvidia)</span>
             </button>
           </div>
           {/* Hidden input to ensure form submission includes is_subscription */}
@@ -123,33 +125,42 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
 
         {isSubscription ? (
           <>
-            <div className="md:col-span-2 rounded-lg border border-[#facc15]/30 bg-[#facc15]/5 p-4">
-              <h3 className="text-sm font-black text-[#facc15] uppercase tracking-wider">⚡ Subscription Duration Pricing (₹ INR)</h3>
-              <p className="text-xs text-[#8991a6] mt-1 mb-3">Set individual prices for each plan duration. Unfilled durations will not be offered to customers.</p>
-              <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+            <div className="md:col-span-2 rounded-md border border-[#8b5cf6]/20 bg-[#0f0c22]/80 p-5 shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
+              <div className="flex items-center gap-2 text-sm font-bold text-white">
+                <Zap size={16} className="text-[#b9a4ff] shrink-0" />
+                <span>Subscription Duration Pricing (₹ INR)</span>
+              </div>
+              <p className="text-xs text-[#8991a6] mt-1 mb-4">Set individual prices for each plan duration. Unfilled durations will not be offered to customers.</p>
+              <div className="grid gap-3.5 sm:grid-cols-2 md:grid-cols-3">
                 <label className="text-xs font-bold text-white">
                   1 Month Price (₹)
-                  <input type="number" min="0" step="1" name="price_1m" defaultValue={String(game?.price_1m ?? game?.xbox_price ?? "")} placeholder="e.g. 299" className={input} />
+                  <input type="number" min="0" step="1" name="price_1m" defaultValue={String(game?.price_1m ?? game?.xbox_price ?? "")} placeholder="e.g. 199" className={input} />
                 </label>
                 <label className="text-xs font-bold text-white">
                   2 Months Price (₹)
-                  <input type="number" min="0" step="1" name="price_2m" defaultValue={String(game?.price_2m ?? "")} placeholder="e.g. 549" className={input} />
+                  <input type="number" min="0" step="1" name="price_2m" defaultValue={String(game?.price_2m ?? "")} placeholder="e.g. 349" className={input} />
                 </label>
-                <label className="text-xs font-bold text-[#facc15]">
-                  3 Months Price (₹) ★ Best Value
-                  <input type="number" min="0" step="1" name="price_3m" defaultValue={String(game?.price_3m ?? "")} placeholder="e.g. 799" className={`${input} border-[#facc15]/40`} />
+                <label className="text-xs font-bold text-white flex flex-col">
+                  <span className="flex items-center justify-between">
+                    <span>3 Months Price (₹)</span>
+                    <span className="inline-flex items-center gap-1 rounded bg-[#8b5cf6]/20 border border-[#8b5cf6]/30 px-1.5 py-0.5 text-[10px] font-bold text-[#b9a4ff]">
+                      <Sparkles size={10} />
+                      Best Value
+                    </span>
+                  </span>
+                  <input type="number" min="0" step="1" name="price_3m" defaultValue={String(game?.price_3m ?? "")} placeholder="e.g. 499" className={input} />
                 </label>
                 <label className="text-xs font-bold text-white">
                   6 Months Price (₹)
-                  <input type="number" min="0" step="1" name="price_6m" defaultValue={String(game?.price_6m ?? "")} placeholder="e.g. 1499" className={input} />
+                  <input type="number" min="0" step="1" name="price_6m" defaultValue={String(game?.price_6m ?? "")} placeholder="e.g. 899" className={input} />
                 </label>
                 <label className="text-xs font-bold text-white">
                   12 Months Price (₹)
-                  <input type="number" min="0" step="1" name="price_12m" defaultValue={String(game?.price_12m ?? "")} placeholder="e.g. 2799" className={input} />
+                  <input type="number" min="0" step="1" name="price_12m" defaultValue={String(game?.price_12m ?? "")} placeholder="e.g. 1599" className={input} />
                 </label>
                 <label className="text-xs font-bold text-[#8991a6]">
                   Original MRP / Compare Price (₹)
-                  <input type="number" min="0" step="1" name="original_price" defaultValue={String(game?.original_price ?? "")} placeholder="e.g. 499" className={input} />
+                  <input type="number" min="0" step="1" name="original_price" defaultValue={String(game?.original_price ?? "")} placeholder="e.g. 1199" className={input} />
                 </label>
               </div>
             </div>

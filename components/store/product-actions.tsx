@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, Check, Info, ShieldCheck, ShoppingBag, TicketPercent, Zap } from "lucide-react";
+import { BadgeCheck, Check, Info, ShieldCheck, ShoppingBag, TicketPercent, Zap, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -197,7 +197,8 @@ export function ProductActions({ game }: { game: Game }) {
                       : platform}
                   </span>
                   {platform === "3 Months" && (
-                    <span className="rounded bg-[#facc15]/20 px-1.5 py-0.5 text-[9px] font-black text-[#facc15]">
+                    <span className="inline-flex items-center gap-1 rounded bg-[#facc15]/20 px-1.5 py-0.5 text-[9px] font-black text-[#facc15]">
+                      <Sparkles size={10} className="text-[#facc15]" />
                       Best Value
                     </span>
                   )}
