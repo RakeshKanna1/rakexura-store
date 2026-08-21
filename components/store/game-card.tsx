@@ -131,12 +131,21 @@ function GameCardInner({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#07090e] via-transparent to-transparent opacity-70" />
 
-        {discount > 0 && (
-          <span className="absolute left-2.5 top-2.5 rounded-md bg-[#8b5cf6] px-2 py-0.5 text-[10px] font-black uppercase text-white shadow-[0_0_12px_rgba(139,92,246,0.5)] z-10">
-            -{discount}%
-          </span>
-        )}
       </Link>
+
+      {/* Top Left Badges */}
+      <div className="absolute left-2.5 top-2.5 flex flex-col gap-1 items-start z-10 pointer-events-none">
+        {game.out_of_stock ? (
+          <span className="rounded-md bg-red-600/90 backdrop-blur-sm px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Out of Stock</span>
+        ) : game.preorder ? (
+          <span suppressHydrationWarning className="rounded-md bg-purple-600/90 backdrop-blur-sm px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Pre-order</span>
+        ) : game.is_premium ? (
+          <span className="rounded-md bg-gradient-to-r from-[#b8860b] to-[#d4af37] px-2 py-0.5 text-[8px] font-black text-black uppercase tracking-wider shadow-md shadow-black/80">Premium</span>
+        ) : null}
+        {discount > 0 && !game.out_of_stock && (
+          <span className="rounded-md bg-gradient-to-r from-[#facc15] to-[#eab308] px-2 py-0.5 text-[10px] font-black text-black shadow-md shadow-black/50">-{discount}%</span>
+        )}
+      </div>
 
       <div className="absolute right-2.5 top-2.5 flex gap-1.5 z-10">
         <WishlistButton gameId={game.id} size={14} variant="card" />
