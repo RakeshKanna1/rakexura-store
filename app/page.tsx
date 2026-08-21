@@ -23,7 +23,7 @@ export const revalidate = 60;
 
 export default async function Home() {
   const [games, bundles, reviews, sales, deliveries, proofs] = await Promise.all([getGames(), getBundles(), getReviews(10), getFlashSales(), getRecentDeliveries(), getCustomerProofs()]);
-  const hero = games.filter((game) => game.show_in_hero && !game.is_subscription).slice(0, 10);
+  const hero = games.filter((game) => game.show_in_hero).slice(0, 10);
   const featured = games.filter((game) => (game.show_in_featured || game.featured_deal) && !game.is_subscription).slice(0, 12);
   const trending = games.filter((game) => game.show_in_trending && !game.is_subscription).slice(0, 12);
   const bestSellers = trending.length ? trending : games.filter((game) => (game.featured_deal || game.show_in_trending) && !game.is_subscription).slice(0, 12);
