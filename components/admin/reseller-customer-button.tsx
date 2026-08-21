@@ -129,7 +129,7 @@ export function ResellerCustomerButton({
                 onClick={() => setDiscount(rate)}
                 className={`rounded-md py-2 text-xs font-bold transition text-center cursor-pointer ${
                   discount === rate
-                    ? "border border-[#facc15] bg-[#facc15] text-black font-black shadow-sm"
+                    ? "border border-[#8b5cf6]/60 bg-[#8b5cf6]/20 text-[#c4b5fd] font-bold shadow-sm"
                     : "border border-white/10 bg-[#121216] text-[#8991a6] hover:text-white hover:border-white/30"
                 }`}
               >
@@ -158,7 +158,7 @@ export function ResellerCustomerButton({
                     setDiscount(Math.max(0, Math.min(90, num)));
                   }
                 }}
-                className="h-10 w-full rounded-md border border-white/15 bg-[#121216] px-3 pr-7 text-sm font-bold text-white outline-none focus:border-[#facc15] transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none font-mono"
+                className="h-10 w-full rounded-md border border-white/15 bg-[#121216] px-3 pr-7 text-sm font-bold text-white outline-none focus:border-[#8b5cf6] transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none font-mono"
               />
               <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8991a6]">
                 %
@@ -201,7 +201,7 @@ export function ResellerCustomerButton({
                 type="button"
                 onClick={() => handleToggle(true)}
                 disabled={isPending}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#facc15] px-5 py-2.5 text-xs font-black text-black hover:bg-[#ffe45c] active:scale-[0.98] transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#8b5cf6] hover:bg-[#7c3aed] px-5 py-2.5 text-xs font-bold text-white shadow-[0_0_12px_rgba(139,92,246,0.3)] active:scale-[0.98] transition cursor-pointer"
               >
                 {isPending ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
                 Update Rate
@@ -211,7 +211,7 @@ export function ResellerCustomerButton({
                 type="button"
                 onClick={() => handleToggle(true)}
                 disabled={isPending}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#facc15] px-5 py-2.5 text-xs font-black text-black hover:bg-[#ffe45c] active:scale-[0.98] transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#8b5cf6] hover:bg-[#7c3aed] px-5 py-2.5 text-xs font-bold text-white shadow-[0_0_12px_rgba(139,92,246,0.3)] active:scale-[0.98] transition cursor-pointer"
               >
                 {isPending ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
                 Activate Reseller

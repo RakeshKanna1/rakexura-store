@@ -14,6 +14,7 @@ import { formatPrice } from "@/lib/utils";
 import { RedeemFreebieButton } from "@/components/account/redeem-freebie-button";
 import { GiftCelebration } from "@/components/dashboard/gift-celebration";
 import { ResellerBadge } from "@/components/ui/reseller-badge";
+import { ResellerClientDeliveryCard } from "@/components/dashboard/reseller-client-delivery-card";
 
 const modules = [
   ["orders", "My orders", "Payment and delivery history", PackageSearch],
@@ -42,7 +43,7 @@ export default async function DashboardPage() {
   if (!user) redirect("/login");
   const [{ data: profile }, { data: orders, count: totalOrdersCount }, { data: rewards }, { data: notifications }, { count: libraryCount }, { count: referralCount }, { data: latestTicket }, { count: purchasedLibraryCount }] = await Promise.all([
     supabase.from("profiles").select("display_name,role,avatar_url,last_request_date,is_reseller,reseller_discount").eq("id", user.id).maybeSingle(),
-    supabase.from("orders").select("id,order_reference,order_status,total_price,created_at,cart_items,payment_reference,coupon_usage(coupons(code))", { count: "exact" }).eq("user_id", user.id).order("created_at", { ascending: false }).limit(5),
+    supabase.from("orders").select("id,order_reference,order_status,total_price,created_at,cart_items,payment_reference,account_access,coupon_usage(coupons(code))", { count: "exact" }).eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
     supabase.from("user_rewards").select("points,level").eq("user_id", user.id).maybeSingle(),
     supabase.from("notifications").select("id,title,message").eq("user_id", user.id).eq("read", false),
     supabase.from("customer_library").select("id", { count: "exact", head: true }).eq("user_id", user.id),
@@ -168,6 +169,63 @@ export default async function DashboardPage() {
           <RedeemFreebieButton points={totalPoints} initialLastRequestDate={profile?.last_request_date || null} isApproved={isApproved} />
         </div>
       </section>
+
+      {/* Reseller Partner Hub (Embedded directly in Dashboard) */}
+      {profile?.is_reseller && (
+        <section id="reseller" className="mt-8 rounded-2xl border border-amber-400/25 bg-[#0e0c1a]/90 p-6 shadow-xl space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <ResellerBadge size="md" discount={profile.reseller_discount} />
+                <span className="text-[11px] font-bold text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 rounded-full">
+                  Partner Active
+                </span>
+              </div>
+              <p className="text-xs text-[#8991a6]">
+                Your account is verified for wholesale pricing across the entire catalog. Retail promo coupons cannot be stacked by resellers.
+              </p>
+            </div>
+
+            <Link
+              href="/games"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#8b5cf6] hover:bg-[#7c3aed] px-4 py-2.5 text-xs font-bold text-white shadow-[0_0_12px_rgba(139,92,246,0.3)] transition cursor-pointer"
+            >
+              <ShoppingBag size={14} />
+              <span>Shop Wholesale Catalog</span>
+            </Link>
+          </div>
+
+          {/* 1-Click Client Delivery Tool */}
+          <div className="space-y-3">
+            <div>
+              <h3 className="text-xs font-black uppercase tracking-wider text-white">
+                1-Click Client Delivery Hub
+              </h3>
+              <p className="text-[11px] text-[#8991a6] mt-0.5">
+                Quickly copy delivered game login credentials formatted for your buyer on WhatsApp.
+              </p>
+            </div>
+
+            {(() => {
+              const deliveredOrders = (orders ?? []).filter((o) => o.order_status === "Delivered" && o.account_access);
+              if (deliveredOrders.length === 0) {
+                return (
+                  <div className="rounded-xl border border-white/10 bg-[#161922]/60 p-4 text-center text-xs text-[#8991a6]">
+                    When your wholesale orders are delivered, your client-ready WhatsApp delivery keys will appear here.
+                  </div>
+                );
+              }
+              return (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {deliveredOrders.slice(0, 4).map((order) => (
+                    <ResellerClientDeliveryCard key={order.id} order={order} />
+                  ))}
+                </div>
+              );
+            })()}
+          </div>
+        </section>
+      )}
 
       {/* Quick Actions Panel */}
       <section className="mt-8">

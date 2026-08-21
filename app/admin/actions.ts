@@ -2164,18 +2164,18 @@ export async function toggleResellerStatus(formData: FormData) {
       title: notifTitle,
       message: notifMsg,
       type: "reward",
-      link: "/dashboard/reseller",
+      link: "/dashboard#reseller",
     });
 
     // 2. Device Lock-Screen Push Notification
-    void sendPushNotification(userId, notifTitle, notifMsg, "/dashboard/reseller");
+    void sendPushNotification(userId, notifTitle, notifMsg, "/dashboard#reseller");
 
     // 3. Official Partner Email Dispatch
     if (userEmail) {
       void sendEmail({
         to: userEmail,
         subject: "Verified Reseller Access Activated - Rakexura Store",
-        text: `Hi ${userName},\n\nYour account has been officially approved as a Verified Rakexura Reseller Partner with ${discount}% wholesale discount!\n\nOpen your Reseller Portal: https://rakexura.com/dashboard/reseller\n\nHappy selling!\nRakexura Team`,
+        text: `Hi ${userName},\n\nYour account has been officially approved as a Verified Rakexura Reseller Partner with ${discount}% wholesale discount!\n\nOpen your Dashboard: https://rakexura.com/dashboard\n\nHappy selling!\nRakexura Team`,
         html: `
           <div style="background-color: #0b0717; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 32px; border-radius: 16px; max-width: 580px; margin: auto; border: 1px solid rgba(139,92,246,0.35);">
             <div style="text-align: center; margin-bottom: 24px;">
@@ -2200,7 +2200,7 @@ export async function toggleResellerStatus(formData: FormData) {
             </p>
 
             <div style="text-align: center; margin-top: 30px;">
-              <a href="https://rakexura.com/dashboard/reseller" style="background: linear-gradient(135deg, #ffe45c, #facc15, #f59e0b); color: #000000; padding: 14px 28px; border-radius: 10px; font-weight: 900; font-size: 14px; text-decoration: none; display: inline-block; box-shadow: 0 4px 20px rgba(250, 204, 21, 0.3);">Open Reseller Portal</a>
+              <a href="https://rakexura.com/dashboard" style="background: linear-gradient(135deg, #ffe45c, #facc15, #f59e0b); color: #000000; padding: 14px 28px; border-radius: 10px; font-weight: 900; font-size: 14px; text-decoration: none; display: inline-block; box-shadow: 0 4px 20px rgba(250, 204, 21, 0.3);">Open Dashboard</a>
             </div>
 
             <p style="text-align: center; font-size: 11px; color: #64748b; margin-top: 32px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
