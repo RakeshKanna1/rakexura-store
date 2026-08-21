@@ -369,15 +369,15 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
         </div>
       ) : (
         <div className="overflow-x-auto rounded-md border border-[#8b5cf6]/20">
-          <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+          <table className="w-full min-w-[700px] border-collapse text-left text-sm">
             <thead className="bg-white/[.04] text-[#8991a6]">
               <tr>
                 {headers.map((header) => (
-                  <th key={header} className="p-4 capitalize">
-                    {header === "usage_limit" ? "Global Limit" : header === "per_user_limit" ? "Limit Per User" : header === "used_count" ? "Times Used" : header === "created_at" ? "Created At (12h)" : header === "applicable_to" ? "Scope / Target" : header.replaceAll("_", " ")}
+                  <th key={header} className="px-3.5 py-3 capitalize text-xs font-bold">
+                    {header === "is_reseller" ? "Partner Status" : header === "usage_limit" ? "Global Limit" : header === "per_user_limit" ? "Limit Per User" : header === "used_count" ? "Times Used" : header === "created_at" ? "Joined Date" : header === "applicable_to" ? "Scope / Target" : header.replaceAll("_", " ")}
                   </th>
                 ))}
-                {hasActions && <th className="p-4">Actions</th>}
+                {hasActions && <th className="px-3.5 py-3 text-xs font-bold">Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -396,7 +396,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                     const isIdColumn = (lowerHeader === "id" || lowerHeader.endsWith("_id") || lowerHeader === "visitor_id") && typeof val === "string" && val.length > 10;
 
                     return (
-                      <td key={header} className="max-w-72 truncate p-4">
+                      <td key={header} className="max-w-72 truncate px-3.5 py-3">
                         {isCodeColumn ? (
                           <div className="flex items-center gap-2">
                             <code className="font-mono font-bold text-white bg-black/40 px-2 py-1 rounded border border-white/10">
@@ -475,7 +475,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                     );
                   })}
                   {hasActions && (
-                    <td className="p-4">
+                    <td className="px-3.5 py-3">
                       <RowActions section={section} row={row} />
                     </td>
                   )}
