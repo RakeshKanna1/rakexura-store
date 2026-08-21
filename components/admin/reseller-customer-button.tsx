@@ -230,10 +230,10 @@ export function ResellerCustomerButton({
         type="button"
         onClick={() => setModalOpen(true)}
         disabled={isPending}
-        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition whitespace-nowrap shrink-0 cursor-pointer select-none ${
+        className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-bold transition whitespace-nowrap shrink-0 cursor-pointer select-none ${
           activeReseller
-            ? "border border-amber-500/40 bg-amber-500/10 text-amber-300 hover:border-red-500/50 hover:bg-red-500/15 hover:text-red-300 shadow-[0_0_10px_rgba(245,158,11,0.15)]"
-            : "border border-white/15 bg-white/[0.04] text-[#d4d9e8] hover:border-[#facc15]/40 hover:bg-[#facc15]/10 hover:text-[#facc15]"
+            ? "border border-amber-400/30 bg-[#16171d] text-[#e0ce9a] hover:border-amber-400/60 hover:bg-amber-500/10 shadow-sm"
+            : "border border-white/10 bg-white/[0.03] text-[#8f96a8] hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
         }`}
         title={activeReseller ? "Click to De-seller or update rate" : "Grant Reseller Badge"}
       >

@@ -1,15 +1,15 @@
 import React from "react";
 import Image from "next/image";
 
-export function ResellerIcon({ className = "w-5 h-5" }: { className?: string }) {
+export function ResellerIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <span className={`relative inline-block shrink-0 aspect-[824/732] ${className}`}>
       <Image
         src="/Assets/reseller-badge.png"
         alt="Rakexura Reseller"
         fill
-        sizes="120px"
-        className="object-contain drop-shadow-[0_2px_8px_rgba(250,204,21,0.3)]"
+        sizes="80px"
+        className="object-contain drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"
         priority
       />
     </span>
@@ -18,10 +18,12 @@ export function ResellerIcon({ className = "w-5 h-5" }: { className?: string }) 
 
 export function ResellerBadge({
   size = "md",
+  discount,
   showLabel = true,
   className = "",
 }: {
   size?: "sm" | "md" | "lg";
+  discount?: number | string | null;
   showLabel?: boolean;
   className?: string;
 }) {
@@ -32,20 +34,22 @@ export function ResellerBadge({
   };
 
   const iconSizes = {
-    sm: "w-4 h-4",
-    md: "w-5 h-5",
-    lg: "w-7 h-7",
+    sm: "w-3.5 h-3.5",
+    md: "w-4 h-4",
+    lg: "w-6 h-6",
   };
+
+  const label = discount && Number(discount) > 0 ? `Reseller (${discount}% OFF)` : "Verified Reseller";
 
   return (
     <span
-      className={`inline-flex items-center rounded-full font-black tracking-wide bg-gradient-to-r from-[#facc15]/15 via-[#ffe45c]/25 to-[#f59e0b]/15 text-[#facc15] border border-[#facc15]/50 shadow-[0_0_15px_rgba(250,204,21,0.25)] select-none backdrop-blur-sm ${sizeClasses[size]} ${className}`}
-      title="Verified Rakexura Wholesale Reseller"
+      className={`inline-flex items-center rounded-md font-bold tracking-wide bg-[#16171d] text-[#e0ce9a] border border-amber-400/25 select-none ${sizeClasses[size]} ${className}`}
+      title={`Verified Rakexura Reseller${discount ? ` - ${discount}% Wholesale Rate` : ""}`}
     >
       <ResellerIcon className={`${iconSizes[size]} shrink-0`} />
       {showLabel && (
-        <span className="bg-gradient-to-r from-[#fff9db] via-[#facc15] to-[#f59e0b] bg-clip-text text-transparent uppercase tracking-wider font-extrabold">
-          Verified Reseller
+        <span className="text-[#e0ce9a] font-bold">
+          {label}
         </span>
       )}
     </span>

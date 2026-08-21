@@ -425,9 +425,9 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                           )
                         ) : isResellerColumn ? (
                           val ? (
-                            <ResellerBadge size="sm" />
+                            <ResellerBadge size="sm" discount={row.reseller_discount as number} />
                           ) : (
-                            <span className="text-xs text-[#8991a6]">Standard</span>
+                            <span className="text-xs text-[#646b7b]">Standard</span>
                           )
                         ) : isDiscountColumn ? (
                           val && Number(val) > 0 ? (

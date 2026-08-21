@@ -105,10 +105,10 @@ export function DeleteCustomerButton({ userId, customerName }: DeleteCustomerBut
         type="button"
         onClick={() => setConfirmOpen(true)}
         disabled={isPending}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-bold text-red-400 transition hover:bg-red-500/20 hover:text-red-300 disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
+        className="inline-flex items-center gap-1 rounded-md border border-red-500/25 bg-red-500/10 px-2.5 py-1 text-[11px] font-bold text-red-400 transition hover:bg-red-500/20 hover:text-red-300 disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
         title="Delete customer profile"
       >
-        <Trash2 size={13} /> Delete
+        <Trash2 size={12} /> Delete
       </button>
 
       {modalContent && typeof document !== "undefined" ? createPortal(modalContent, document.body) : null}
