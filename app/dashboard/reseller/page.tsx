@@ -10,6 +10,7 @@ import { formatPrice } from "@/lib/utils";
 import { ResellerBadge, ResellerIcon } from "@/components/ui/reseller-badge";
 import { ResellerClientDeliveryCard } from "@/components/dashboard/reseller-client-delivery-card";
 import { getGames } from "@/lib/supabase/queries";
+import { WHATSAPP_NUMBER } from "@/lib/config";
 
 export default async function ResellerDashboardPage() {
   const supabase = await createClient();
@@ -22,8 +23,10 @@ export default async function ResellerDashboardPage() {
     getGames(),
   ]);
 
-  // If user is not a verified reseller, show clean centered Epic-styled onboarding card
-  if (!profile?.is_reseller) {
+  const hasResellerAccess = Boolean(profile?.is_reseller || profile?.role === "admin");
+
+  // If user is not a verified reseller or admin, show clean centered Epic-styled onboarding card
+  if (!hasResellerAccess) {
     return (
       <main className="page-shell flex min-h-[calc(100vh-140px)] items-center justify-center py-6">
         <div className="w-full max-w-xl rounded-2xl border border-white/15 bg-[#11131a] p-6 sm:p-10 text-center shadow-2xl space-y-6">
@@ -64,7 +67,7 @@ export default async function ResellerDashboardPage() {
 
           <div className="pt-2 border-t border-white/10 flex flex-wrap items-center justify-center gap-3">
             <a
-              href={`https://wa.me/919488941014?text=${encodeURIComponent(
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
                 `Hi Rakexura! I would like to apply for a Verified Reseller account for email: ${user.email}`
               )}`}
               target="_blank"
@@ -86,7 +89,7 @@ export default async function ResellerDashboardPage() {
     );
   }
 
-  const discount = Number(profile.reseller_discount || 25);
+  const discount = Number(profile?.reseller_discount || 25);
   const deliveredOrders = (orders ?? []).filter((o) => o.order_status === "Delivered" && o.account_access);
 
   return (
@@ -108,7 +111,7 @@ export default async function ResellerDashboardPage() {
               Reseller Partner Portal
             </h1>
             <p className="text-xs md:text-sm text-[#8f96a8] max-w-xl leading-relaxed">
-              Welcome back, <strong className="text-white">{profile.display_name || "Partner"}</strong>. Your account is verified for wholesale pricing across the catalog.
+              Welcome back, <strong className="text-white">{profile?.display_name || "Partner"}</strong>. Your account is verified for wholesale pricing across the catalog.
             </p>
           </div>
 

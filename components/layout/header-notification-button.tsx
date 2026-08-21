@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Bell, Check, CheckCheck, ExternalLink, Package, ShieldCheck, AlertTriangle, Info, Megaphone } from "lucide-react";
+import { Bell, Check, ExternalLink, Package, ShieldCheck, AlertTriangle, Info, Megaphone, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
@@ -246,10 +246,10 @@ export function HeaderNotificationButton() {
               <button
                 type="button"
                 onClick={markAllAsRead}
-                className="group inline-flex items-center gap-1.5 rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 hover:bg-[#8b5cf6]/20 hover:border-[#b9a4ff]/50 px-2.5 py-1 text-[11px] font-bold text-[#c4b5fd] hover:text-white transition-all cursor-pointer select-none active:scale-[0.97] shadow-[0_0_10px_rgba(139,92,246,0.12)]"
+                className="group inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-[#a0a8c0] hover:text-white hover:bg-white/[0.06] transition-all cursor-pointer select-none active:scale-[0.97]"
               >
-                <CheckCheck size={13} className="text-[#b9a4ff] group-hover:text-white transition-colors shrink-0" />
-                <span>Mark all read</span>
+                <MessageSquare size={13} className="text-[#a0a8c0] group-hover:text-white transition-colors shrink-0" />
+                <span>Mark all as read</span>
               </button>
             )}
           </div>
