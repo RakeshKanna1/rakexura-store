@@ -202,7 +202,7 @@ export default async function DashboardPage() {
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2.5">
                 <ResellerBadge size="md" discount={profile.reseller_discount} />
-                <span className="text-[11px] font-bold text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 rounded-full">
+                <span className="text-[11px] font-bold text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 rounded-md">
                   Partner Active
                 </span>
               </div>

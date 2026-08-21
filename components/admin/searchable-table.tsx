@@ -313,12 +313,12 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                     </td>
                     <td className="p-4">
                       {isSub ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/10 text-white border border-white/20">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-white/10 text-white border border-white/20">
                           <Zap size={12} className="text-[#facc15]" />
                           Subscription
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-black/40 text-[#8991a6] border border-white/10">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-black/40 text-[#8991a6] border border-white/10">
                           <Gamepad2 size={12} />
                           PC Game
                         </span>
@@ -411,15 +411,15 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                           </div>
                         ) : isApplicableToColumn ? (
                           val === "subscription" ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-purple-500/15 text-purple-300 border border-purple-500/30">
                               Subscriptions Only
                             </span>
                           ) : val === "normal" ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-blue-500/15 text-blue-300 border border-blue-500/30">
                               Normal Games Only
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                               All Items (Both)
                             </span>
                           )
