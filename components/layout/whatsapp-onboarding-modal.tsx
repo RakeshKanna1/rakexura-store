@@ -67,12 +67,12 @@ export function WhatsAppOnboardingModal() {
         // Query profiles table
         const { data: profile } = await supabase
           .from("profiles")
-          .select("whatsapp, phone")
+          .select("whatsapp")
           .eq("id", user.id)
           .maybeSingle();
 
         const metaWhatsapp = String(user.user_metadata?.whatsapp || user.user_metadata?.phone || user.phone || "");
-        const existingPhone = (profile?.whatsapp || profile?.phone || metaWhatsapp || localPhone || "").trim();
+        const existingPhone = (profile?.whatsapp || metaWhatsapp || localPhone || "").trim();
 
         if (existingPhone || localLinked === "true") {
           if (existingPhone) {
