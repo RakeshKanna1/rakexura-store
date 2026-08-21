@@ -28,6 +28,7 @@ const GenerativeQr = dynamic(
 );
 
 import { ThermalReceiptPrinter } from "@/components/checkout/thermal-receipt-printer";
+import { ResellerIcon } from "@/components/ui/reseller-badge";
 
 const schema = z.object({ name: z.string().min(2), whatsapp: z.string().regex(/^\+?[0-9 ]{10,16}$/, "Enter a valid WhatsApp number"), paymentReference: z.string().optional() });
 type Data = z.infer<typeof schema>;
@@ -176,6 +177,8 @@ export function CheckoutForm() {
   const [purchasedItemsSnapshot, setPurchasedItemsSnapshot] = useState<Array<{ name: string; platform?: string; price: number; quantity?: number }>>([]);
   const [postPurchasePhone, setPostPurchasePhone] = useState("");
   const [isPrintingReceiptScreen, setIsPrintingReceiptScreen] = useState(false);
+  const [isReseller, setIsReseller] = useState(false);
+  const [resellerDiscount, setResellerDiscount] = useState(0);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -192,9 +195,14 @@ export function CheckoutForm() {
       if (user) {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("display_name, whatsapp")
+          .select("display_name, whatsapp, is_reseller, reseller_discount")
           .eq("id", user.id)
           .maybeSingle();
+
+        if (profile?.is_reseller) {
+          setIsReseller(true);
+          setResellerDiscount(Number(profile.reseller_discount || 25));
+        }
 
         const defaultName = profile?.display_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "";
         const defaultWhatsApp = profile?.whatsapp || user.user_metadata?.whatsapp || "";
@@ -328,7 +336,8 @@ export function CheckoutForm() {
       )
     : 0;
 
-  let total = Math.max(0, subtotal - couponDiscount);
+  const resellerSavings = isReseller && resellerDiscount > 0 ? (subtotal * resellerDiscount) / 100 : 0;
+  let total = Math.max(0, subtotal - couponDiscount - resellerSavings);
   
   if (isRankFreebie) {
     if (isPlatinumFreebie) {
@@ -821,6 +830,15 @@ export function CheckoutForm() {
                 </motion.div>
               )}
             </AnimatePresence>
+            {isReseller && resellerSavings > 0 && (
+              <div className="flex justify-between items-center text-[#e0ce9a] bg-[#16171d] border border-amber-400/25 px-2.5 py-1.5 rounded-lg text-xs font-bold">
+                <span className="flex items-center gap-1.5">
+                  <ResellerIcon className="w-3.5 h-3.5" />
+                  Wholesale Partner Rate ({resellerDiscount}% OFF)
+                </span>
+                <span>-{formatPrice(resellerSavings)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-xl font-black">
               <span>Total</span>
               <span className="text-[#facc15]">{formatPrice(total)}</span>

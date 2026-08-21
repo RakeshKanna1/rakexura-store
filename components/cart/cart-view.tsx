@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { assetUrl, formatPrice, gameUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
+import { ResellerIcon } from "@/components/ui/reseller-badge";
 
 function linePrice(line: ReturnType<typeof useCartStore.getState>["lines"][number]) {
   const { game, platform } = line;
@@ -48,14 +49,32 @@ export function CartView() {
   const [checking, setChecking] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  const [isReseller, setIsReseller] = useState(false);
+  const [resellerDiscount, setResellerDiscount] = useState(0);
+
   useEffect(() => {
     setMounted(true);
     if (coupon) setCode(coupon.code);
+
+    async function loadReseller() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase.from("profiles").select("is_reseller, reseller_discount").eq("id", user.id).maybeSingle();
+        if (profile?.is_reseller) {
+          setIsReseller(true);
+          setResellerDiscount(Number(profile.reseller_discount || 25));
+        }
+      }
+    }
+    void loadReseller();
   }, [coupon]);
 
   const subtotal = lines.reduce((sum, line) => sum + linePrice(line) * line.quantity, 0) + bundles.reduce((sum, line) => sum + Number(line.bundle.bundle_price) * line.quantity, 0);
   const catalogSavings = lines.reduce((sum, line) => sum + Math.max(0, Number(line.game.original_price ?? linePrice(line)) - linePrice(line)) * line.quantity, 0) + bundles.reduce((sum, line) => sum + Math.max(0, Number(line.bundle.original_price) - Number(line.bundle.bundle_price)) * line.quantity, 0);
   const quantity = lines.reduce((sum, line) => sum + line.quantity, 0) + bundles.reduce((sum, line) => sum + line.quantity, 0);
+
+  const resellerSavings = isReseller && resellerDiscount > 0 ? (subtotal * resellerDiscount) / 100 : 0;
 
   const hasSubItems = lines.some(line => line && line.game && line.game.is_subscription);
   const hasNormalItems = lines.some(line => line && line.game && !line.game.is_subscription) || bundles.length > 0;
@@ -80,7 +99,7 @@ export function CartView() {
     coupon.applicable_to === "subscription" ? hasSubItems : coupon.applicable_to === "normal" ? hasNormalItems : true
   );
   const couponSavings = couponEligible ? Math.min(discountableBase, coupon.discount_type === "percentage" ? discountableBase * coupon.discount_value / 100 : coupon.discount_value) : 0;
-  const total = Math.max(0, subtotal - couponSavings);
+  const total = Math.max(0, subtotal - couponSavings - resellerSavings);
   const gamesNeeded = Math.max(0, 3 - quantity);
 
   async function checkCoupon() {
@@ -357,6 +376,15 @@ export function CartView() {
               <div className="flex justify-between text-[#70efbb]">
                 <span>Coupon savings</span>
                 <span>-{formatPrice(couponSavings)}</span>
+              </div>
+            )}
+            {isReseller && resellerSavings > 0 && (
+              <div className="flex justify-between items-center text-[#e0ce9a] bg-[#16171d] border border-amber-400/25 px-2.5 py-1.5 rounded-lg text-xs font-bold">
+                <span className="flex items-center gap-1.5">
+                  <ResellerIcon className="w-3.5 h-3.5" />
+                  Wholesale Partner Rate ({resellerDiscount}% OFF)
+                </span>
+                <span>-{formatPrice(resellerSavings)}</span>
               </div>
             )}
           </div>
