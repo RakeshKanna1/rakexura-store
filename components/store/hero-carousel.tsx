@@ -163,7 +163,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                             className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-4 pb-14 pt-6 sm:p-6 sm:pb-16 md:pb-24 md:pt-14 md:px-14 lg:px-16"
                           >
                             <p className="mb-1.5 sm:mb-2 text-xs sm:text-sm font-extrabold uppercase tracking-[0.16em] text-[#b9a4ff]">
-                              {game.is_subscription ? "⚡ Subscription spotlight" : game.preorder ? "Pre-order spotlight" : "Rakexura spotlight"}
+                              {game.preorder ? "Pre-order spotlight" : "Rakexura spotlight"}
                             </p>
                             <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-[62px] font-black tracking-tight leading-[1.06] drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
                               <BlurText 
