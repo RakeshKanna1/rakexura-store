@@ -21,22 +21,22 @@ export function ResellerClientDeliveryCard({ order }: { order: ResellerOrder }) 
   const gameTitles = items.length ? items.map((i) => String(i.title || i.name || "Game")).join(", ") : "Game Activation";
   const access = order.account_access || "";
 
-  // Format client-ready message for WhatsApp
-  const clientMessage = `🎮 *YOUR GAME ACTIVATION & DOWNLOAD DETAILS* 🎮\n\n` +
-    `📦 *Title:* ${gameTitles}\n` +
-    `🔖 *Order Ref:* ${order.order_reference || `#${order.id}`}\n\n` +
-    `🔑 *Activation / Access Details:*\n${access}\n\n` +
-    `🛡️ *Support & Warranty:* Full activation warranty included. If you have any questions, message us anytime!`;
+  // Format clean professional client message for WhatsApp (No emojis)
+  const clientMessage = `*YOUR GAME ACTIVATION & DOWNLOAD DETAILS*\n\n` +
+    `*Game:* ${gameTitles}\n` +
+    `*Order Reference:* ${order.order_reference || `#${order.id}`}\n\n` +
+    `*Activation & Login Details:*\n${access}\n\n` +
+    `*Support & Warranty:* Full activation warranty included. If you need any assistance, message us anytime!`;
 
   const handleCopyClientMessage = () => {
     navigator.clipboard.writeText(clientMessage);
     setCopied(true);
-    toast.success("Client WhatsApp message copied to clipboard!");
+    toast.success("Client message copied to clipboard");
     setTimeout(() => setCopied(false), 2500);
   };
 
   return (
-    <article className="rounded-xl border border-white/10 bg-black/40 p-4 md:p-5 space-y-4 hover:border-white/20 transition">
+    <article className="rounded-xl border border-white/10 bg-[#161922] p-4 md:p-5 space-y-4 hover:border-white/20 transition">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500/10 text-emerald-400">
@@ -44,7 +44,7 @@ export function ResellerClientDeliveryCard({ order }: { order: ResellerOrder }) 
           </div>
           <div>
             <strong className="text-sm font-bold text-white block">{gameTitles}</strong>
-            <span className="text-[11px] font-mono text-[#8991a6]">
+            <span className="text-[11px] font-mono text-[#8f96a8]">
               {order.order_reference || `Order #${order.id}`} · {new Date(order.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}
             </span>
           </div>
@@ -62,8 +62,8 @@ export function ResellerClientDeliveryCard({ order }: { order: ResellerOrder }) 
       </div>
 
       {/* Access Preview Box */}
-      <div className="rounded-lg border border-white/5 bg-black/60 p-3">
-        <span className="text-[10px] font-mono uppercase tracking-wider text-[#8991a6] block mb-1">
+      <div className="rounded-lg border border-white/5 bg-[#11131a] p-3">
+        <span className="text-[10px] font-mono uppercase tracking-wider text-[#8f96a8] block mb-1">
           Stored Client Credentials &amp; Link
         </span>
         <pre className="font-mono text-xs text-[#d8dce8] whitespace-pre-wrap break-words leading-relaxed max-h-28 overflow-y-auto custom-scrollbar">

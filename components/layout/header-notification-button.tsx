@@ -24,6 +24,14 @@ type Announcement = {
 
 const getNotificationTheme = (title: string) => {
   const t = title.toLowerCase();
+  if (t.includes("reseller")) {
+    return {
+      borderClass: "border-l-[#facc15] bg-yellow-950/[0.02] hover:bg-yellow-950/[0.06] hover:border-l-[#fde047]",
+      textClass: "text-[#facc15]",
+      iconColor: "text-[#facc15] bg-[#facc15]/10",
+      icon: ShieldCheck
+    };
+  }
   if (t.includes("deliver") || t.includes("success") || t.includes("complete")) {
     return {
       borderClass: "border-l-[#00d68f] bg-emerald-950/[0.02] hover:bg-emerald-950/[0.06] hover:border-l-[#00ffaa]",
@@ -238,9 +246,9 @@ export function HeaderNotificationButton() {
               <button
                 type="button"
                 onClick={markAllAsRead}
-                className="group inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] hover:border-[#00bb7f]/40 px-2 py-1 text-[11px] font-medium text-[#8d95aa] hover:text-white transition-all cursor-pointer select-none active:scale-[0.97]"
+                className="group inline-flex items-center gap-1.5 rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 hover:bg-[#8b5cf6]/20 hover:border-[#b9a4ff]/50 px-2.5 py-1 text-[11px] font-bold text-[#c4b5fd] hover:text-white transition-all cursor-pointer select-none active:scale-[0.97] shadow-[0_0_10px_rgba(139,92,246,0.12)]"
               >
-                <CheckCheck size={12} className="text-[#00d68f]/80 group-hover:text-[#00d68f] transition-colors shrink-0" />
+                <CheckCheck size={13} className="text-[#b9a4ff] group-hover:text-white transition-colors shrink-0" />
                 <span>Mark all read</span>
               </button>
             )}
@@ -255,8 +263,8 @@ export function HeaderNotificationButton() {
                   return (
                     <div
                       key={n.id}
-                      className={`group relative flex gap-3 p-3.5 transition rounded-lg border border-white/[0.04] border-l-2 ${theme.borderClass} ${
-                        !n.read ? "bg-white/[0.02]" : ""
+                      className={`group relative flex gap-3 p-3.5 transition rounded-lg border border-white/[0.06] border-l-2 ${theme.borderClass} ${
+                        !n.read ? "bg-[#0f0c22]/60" : "bg-black/20"
                       }`}
                     >
                       <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${theme.iconColor}`}>
@@ -264,7 +272,7 @@ export function HeaderNotificationButton() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
-                          <strong className={`text-xs font-black leading-tight tracking-wide ${!n.read ? "text-[#facc15]" : "text-[#d8dce6]"}`}>
+                          <strong className={`text-xs font-black leading-tight tracking-wide ${!n.read ? "text-white" : "text-[#d8dce6]"}`}>
                             {n.title}
                           </strong>
                           {!n.read && (
@@ -273,7 +281,7 @@ export function HeaderNotificationButton() {
                                 e.stopPropagation();
                                 markAsRead(n.id);
                               }}
-                              className="inline-flex items-center justify-center h-6 w-6 shrink-0 rounded-full border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#c4b5fd] hover:bg-[#00d68f]/20 hover:border-[#00d68f]/50 hover:text-[#00d68f] transition-all cursor-pointer shadow-[0_0_8px_rgba(139,92,246,0.12)]"
+                              className="inline-flex items-center justify-center h-6 w-6 shrink-0 rounded-full border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#c4b5fd] hover:bg-[#8b5cf6]/25 hover:border-[#b9a4ff]/60 hover:text-white transition-all cursor-pointer shadow-[0_0_8px_rgba(139,92,246,0.15)]"
                               title="Mark as read"
                               aria-label="Mark as read"
                             >
@@ -286,9 +294,9 @@ export function HeaderNotificationButton() {
                           <Link
                             href={n.link}
                             onClick={() => setOpen(false)}
-                            className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-bold text-[#b9a4ff] hover:text-white transition-colors bg-white/[0.03] hover:bg-white/[0.08] px-2 py-0.5 rounded border border-white/5"
+                            className="mt-2.5 inline-flex items-center gap-1.5 text-[11px] font-bold text-[#b9a4ff] hover:text-white transition-colors bg-[#8b5cf6]/10 hover:bg-[#8b5cf6]/20 px-2.5 py-1 rounded-md border border-[#8b5cf6]/25 hover:border-[#b9a4ff]/40"
                           >
-                            Details <ExternalLink size={9} />
+                            Details <ExternalLink size={11} />
                           </Link>
                         )}
                         <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-white/[0.04] pt-2">
@@ -296,8 +304,8 @@ export function HeaderNotificationButton() {
                             {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                           {!n.read ? (
-                            <span className="text-[9px] font-bold text-[#00d68f] flex items-center gap-1">
-                              <span className="h-1.5 w-1.5 rounded-full bg-[#00d68f] animate-pulse" /> Unread
+                            <span className="text-[9px] font-bold text-[#facc15] flex items-center gap-1">
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#facc15] animate-pulse" /> Unread
                             </span>
                           ) : (
                             <span className="text-[9px] font-medium text-[#545c6e]">Read</span>

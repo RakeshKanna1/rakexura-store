@@ -1,9 +1,10 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, ArrowRight, ExternalLink, PackageSearch, ShieldCheck, ShoppingBag, Zap } from "lucide-react";
+import { ArrowRight, ExternalLink, PackageSearch, ShieldCheck, ShoppingBag, Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
 import { ResellerBadge, ResellerIcon } from "@/components/ui/reseller-badge";
@@ -21,58 +22,62 @@ export default async function ResellerDashboardPage() {
     getGames(),
   ]);
 
-  // If user is not a verified reseller, show onboarding / access request
+  // If user is not a verified reseller, show clean centered Epic-styled onboarding card
   if (!profile?.is_reseller) {
     return (
-      <main className="page-shell py-12 md:py-16">
-        <Link href="/dashboard" className="inline-flex min-h-11 items-center gap-2 text-sm text-[#8991a6] hover:text-white transition">
-          <ArrowLeft size={16} /> Back to dashboard
-        </Link>
-
-        <div className="mt-8 max-w-2xl mx-auto rounded-2xl border border-white/10 bg-[#0c0919]/90 p-8 md:p-12 text-center backdrop-blur-xl shadow-2xl">
-          <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#facc15]/10 text-[#facc15] shadow-[0_0_24px_rgba(250,204,21,0.2)]">
+      <main className="page-shell flex min-h-[calc(100vh-140px)] items-center justify-center py-6">
+        <div className="w-full max-w-xl rounded-2xl border border-white/15 bg-[#11131a] p-6 sm:p-10 text-center shadow-2xl space-y-6">
+          <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-amber-500/30 bg-amber-500/10 text-amber-400 shadow-[0_0_24px_rgba(245,158,11,0.2)]">
             <ResellerIcon className="w-9 h-9" />
           </div>
 
-          <h1 className="mt-6 text-3xl md:text-4xl font-black text-white">
-            Rakexura Reseller Network
-          </h1>
-          <p className="mt-3 text-sm md:text-base text-[#a0a8c0] leading-relaxed">
-            Sell PC games and Game Passes to your own customers with exclusive wholesale pricing and instant delivery.
-          </p>
+          <div>
+            <span className="text-[11px] font-black uppercase tracking-widest text-[#facc15] block mb-1">
+              Official Partner Program
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Rakexura Reseller Network
+            </h1>
+            <p className="mt-2 text-xs sm:text-sm text-[#8f96a8] leading-relaxed max-w-md mx-auto">
+              Supply PC games and Game Passes directly to your customers with exclusive wholesale pricing, instant delivery, and full warranty.
+            </p>
+          </div>
 
-          <div className="mt-8 grid gap-3 text-left sm:grid-cols-2">
-            <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-              <div className="flex items-center gap-2 text-[#facc15] font-bold text-sm">
-                <Zap size={16} /> Wholesale Pricing
+          <div className="grid gap-3 text-left sm:grid-cols-2">
+            <div className="rounded-xl border border-white/10 bg-[#161922] p-4">
+              <div className="flex items-center gap-2 text-[#facc15] font-bold text-xs">
+                <Zap size={15} /> Wholesale Discounts
               </div>
-              <p className="mt-1.5 text-xs text-[#8991a6]">
-                Get 20% to 35% discount on top titles and passes.
+              <p className="mt-1 text-[11px] text-[#8f96a8] leading-normal">
+                Dedicated margin discounts on catalog games, passes, and combo packages.
               </p>
             </div>
-            <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-              <div className="flex items-center gap-2 text-[#70efbb] font-bold text-sm">
-                <ShieldCheck size={16} /> Full Warranty
+            <div className="rounded-xl border border-white/10 bg-[#161922] p-4">
+              <div className="flex items-center gap-2 text-[#00d68f] font-bold text-xs">
+                <ShieldCheck size={15} /> Full Warranty
               </div>
-              <p className="mt-1.5 text-xs text-[#8991a6]">
-                Complete activation support and guarantees for your buyers.
+              <p className="mt-1 text-[11px] text-[#8f96a8] leading-normal">
+                Instant activation support and full replacement guarantees for your buyers.
               </p>
             </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center justify-center gap-4">
+          <div className="pt-2 border-t border-white/10 flex flex-wrap items-center justify-center gap-3">
             <a
               href={`https://wa.me/919488941014?text=${encodeURIComponent(
                 `Hi Rakexura! I would like to apply for a Verified Reseller account for email: ${user.email}`
               )}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#facc15] px-6 py-3 text-sm font-black text-black transition hover:bg-[#ffe45c] hover:shadow-[0_0_20px_rgba(250,204,21,0.3)] cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#facc15] px-5 py-2.5 text-xs font-black text-black transition hover:bg-[#ffe45c] active:scale-[0.98] shadow-lg cursor-pointer"
             >
-              <span>Apply for Reseller Badge</span>
-              <ArrowRight size={16} />
+              <span>Apply for Reseller Access</span>
+              <ArrowRight size={14} />
             </a>
-            <Link href="/dashboard" className="btn btn-secondary text-xs">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center rounded-lg border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-bold text-[#8f96a8] hover:text-white hover:bg-white/10 transition"
+            >
               Return to Dashboard
             </Link>
           </div>
@@ -85,14 +90,10 @@ export default async function ResellerDashboardPage() {
   const deliveredOrders = (orders ?? []).filter((o) => o.order_status === "Delivered" && o.account_access);
 
   return (
-    <main className="page-shell py-10 md:py-14 space-y-8">
-      <Link href="/dashboard" className="inline-flex min-h-11 items-center gap-2 text-sm text-[#8991a6] hover:text-white transition">
-        <ArrowLeft size={16} /> Back to dashboard
-      </Link>
-
+    <main className="page-shell py-6 md:py-10 space-y-8">
       {/* RESELLER HERO STATUS CARD */}
-      <section className="relative overflow-hidden rounded-2xl border border-[#facc15]/30 bg-gradient-to-b from-[#15102a] via-[#0c081e] to-black p-6 md:p-8 backdrop-blur-xl shadow-[0_0_40px_rgba(250,204,21,0.08)]">
-        <div className="pointer-events-none absolute -right-10 -top-10 h-64 w-64 rounded-full bg-[#facc15]/10 filter blur-3xl" />
+      <section className="relative overflow-hidden rounded-2xl border border-white/15 bg-[#11131a] p-6 md:p-8 shadow-2xl">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-64 w-64 rounded-full bg-[#facc15]/5 filter blur-3xl" />
         
         <div className="relative z-10 flex flex-wrap items-start justify-between gap-6">
           <div className="space-y-3">
@@ -103,128 +104,151 @@ export default async function ResellerDashboardPage() {
               </span>
             </div>
             
-            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+            <h1 className="text-2xl md:text-4xl font-black text-white tracking-tight">
               Reseller Partner Portal
             </h1>
-            <p className="text-sm md:text-base text-[#a0a8c0] max-w-xl">
+            <p className="text-xs md:text-sm text-[#8f96a8] max-w-xl leading-relaxed">
               Welcome back, <strong className="text-white">{profile.display_name || "Partner"}</strong>. Your account is verified for wholesale pricing across the catalog.
             </p>
           </div>
 
           {/* Wholesale Discount Stat Badge */}
-          <div className="rounded-xl border border-[#facc15]/40 bg-black/50 p-4 sm:p-5 text-right space-y-1">
-            <span className="text-[11px] font-black uppercase tracking-wider text-[#8991a6] block">
-              Wholesale Discount Rate
+          <div className="rounded-xl border border-white/10 bg-[#161922] p-4 sm:p-5 text-right space-y-1">
+            <span className="text-[11px] font-black uppercase tracking-wider text-[#8f96a8] block">
+              Active Wholesale Margin
             </span>
-            <span className="text-3xl sm:text-4xl font-black text-[#facc15]">
-              {discount}% OFF
+            <span className="text-2xl sm:text-3xl font-black text-[#facc15]">
+              {discount}% OFF Retail
             </span>
-            <span className="text-[11px] text-[#a0a8c0] block">
+            <span className="text-[11px] text-[#8f96a8] block">
               Applied automatically at checkout
             </span>
           </div>
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-3 pt-6 border-t border-white/10">
+        {/* Quick Shortcut Navigation Tabs */}
+        <div className="mt-6 flex flex-wrap gap-2 border-t border-white/10 pt-4">
+          <a
+            href="#client-delivery"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#161922] px-3 py-1.5 text-xs font-bold text-white hover:border-[#facc15]/40 hover:text-[#facc15] transition"
+          >
+            <PackageSearch size={14} /> Client Delivery Tool
+          </a>
+          <a
+            href="#wholesale-catalog"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#161922] px-3 py-1.5 text-xs font-bold text-white hover:border-[#facc15]/40 hover:text-[#facc15] transition"
+          >
+            <ShoppingBag size={14} /> Wholesale Store Catalog
+          </a>
           <Link
             href="/games"
-            className="inline-flex items-center gap-2 rounded-xl bg-[#facc15] px-5 py-2.5 text-xs font-black text-black hover:bg-[#ffe45c] transition cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#161922] px-3 py-1.5 text-xs font-bold text-[#8f96a8] hover:text-white transition"
           >
-            <ShoppingBag size={15} />
-            <span>Browse Wholesale Games</span>
+            Browse Full Store <ExternalLink size={13} />
           </Link>
-          <a
-            href="https://wa.me/919488941014?text=Hi%20Rakexura!%20I%20am%20a%20Verified%20Reseller%20and%20need%20priority%20support."
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-secondary text-xs inline-flex items-center gap-1.5"
-          >
-            <ExternalLink size={14} /> Priority WhatsApp Support
-          </a>
         </div>
       </section>
 
-      {/* QUICK CLIENT DELIVERY TOOL */}
-      <section className="space-y-4">
-        <div>
-          <p className="eyebrow text-xs font-bold uppercase tracking-wider text-[#facc15]">
-            Client Fulfillment Tool
-          </p>
-          <h2 className="mt-1 text-2xl font-black text-white">
-            Purchased Game Credentials &amp; Guides
-          </h2>
-          <p className="text-xs sm:text-sm text-[#8991a6]">
-            One-click copy formatted download &amp; activation instructions ready to send directly to your buyers on WhatsApp.
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          {deliveredOrders.map((order) => (
-            <ResellerClientDeliveryCard key={order.id} order={order} />
-          ))}
-
-          {!deliveredOrders.length && (
-            <div className="rounded-xl border border-white/10 bg-black/30 p-8 text-center text-[#8991a6]">
-              <PackageSearch className="mx-auto mb-2 opacity-50" size={32} />
-              <p className="text-sm font-semibold">No delivered orders with activation details yet.</p>
-              <p className="text-xs mt-1">Once your wholesale orders are delivered by Rakexura, their client-ready instructions will appear here.</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* QUICK WHOLESALE CATALOG PREVIEW */}
-      <section className="space-y-4 pt-4 border-t border-white/10">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+      {/* 1-CLICK CLIENT DELIVERY HUB */}
+      <section id="client-delivery" className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="eyebrow text-xs font-bold uppercase tracking-wider text-[#8991a6]">
-              Wholesale Rates
-            </p>
-            <h2 className="mt-1 text-2xl font-black text-white">
-              Instant Re-Order Catalog
+            <h2 className="text-xl font-black text-white flex items-center gap-2">
+              <PackageSearch className="text-[#facc15] h-5 w-5" /> 1-Click Client Delivery Tool
             </h2>
-            <p className="text-xs sm:text-sm text-[#8991a6]">
-              Popular titles and Game Passes with your wholesale rate applied.
+            <p className="text-xs text-[#8f96a8] mt-0.5">
+              Instantly format activation keys and download instructions ready to send to your buyers on WhatsApp.
             </p>
           </div>
-          <Link href="/games" className="text-xs font-bold text-[#facc15] hover:underline inline-flex items-center gap-1">
-            View all {games.length} catalog games <ArrowRight size={13} />
+        </div>
+
+        {deliveredOrders.length > 0 ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {deliveredOrders.map((order) => (
+              <ResellerClientDeliveryCard key={order.id} order={order} />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-white/10 bg-[#11131a] p-8 text-center space-y-3">
+            <PackageSearch className="mx-auto h-8 w-8 text-[#8f96a8]" />
+            <p className="text-sm font-bold text-white">No delivered keys yet</p>
+            <p className="text-xs text-[#8f96a8] max-w-sm mx-auto">
+              When you purchase games using your wholesale reseller account, keys and credentials will appear here for 1-click buyer forwarding.
+            </p>
+          </div>
+        )}
+      </section>
+
+      {/* WHOLESALE QUICK RE-ORDER CATALOG */}
+      <section id="wholesale-catalog" className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-black text-white flex items-center gap-2">
+              <ShoppingBag className="text-[#facc15] h-5 w-5" /> Instant Wholesale Catalog
+            </h2>
+            <p className="text-xs text-[#8f96a8] mt-0.5">
+              Order directly at wholesale reseller rates. Pricing reflects your verified partner discount.
+            </p>
+          </div>
+          <Link
+            href="/games"
+            className="text-xs font-bold text-[#b9a4ff] hover:underline inline-flex items-center gap-1"
+          >
+            View all games <ExternalLink size={12} />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {games.slice(0, 8).map((game) => {
-            const retailPrice = Number(game.sale_price || game.offline_price || game.steam_price || 299);
-            const wholesalePrice = Number(
-              game.reseller_price || Math.round(retailPrice * (1 - discount / 100))
-            );
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {games.slice(0, 15).map((game) => {
+            const retail = Number(game.sale_price || game.original_price || game.steam_price || 0);
+            const customResellerPrice = game.reseller_price ? Number(game.reseller_price) : null;
+            const resellerPrice = customResellerPrice !== null
+              ? customResellerPrice
+              : Math.max(0, Math.round(retail * (1 - discount / 100)));
+            const platformStr = game.available_platforms?.length ? game.available_platforms.slice(0, 2).join(", ") : "Steam / Epic";
 
             return (
-              <article key={game.id} className="rounded-xl border border-white/10 bg-black/40 p-4 space-y-3 flex flex-col justify-between hover:border-[#facc15]/30 transition">
+              <div
+                key={game.id}
+                className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-[#11131a] p-3.5 hover:border-white/20 transition"
+              >
                 <div>
-                  <span className="text-[11px] font-bold text-[#8991a6] block">#{game.id}</span>
-                  <strong className="text-sm font-bold text-white block truncate">{game.title}</strong>
+                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-[#161922]">
+                    <Image
+                      src={game.cover_image || "/Assets/placeholder.png"}
+                      alt={game.title}
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                      className="object-cover transition duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                  <strong className="mt-2.5 block text-xs font-bold text-white line-clamp-1">
+                    {game.title}
+                  </strong>
+                  <span className="text-[10px] text-[#8f96a8] block">
+                    {platformStr}
+                  </span>
                 </div>
 
-                <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between gap-2">
                   <div>
-                    <span className="text-[11px] text-[#8991a6] line-through block">
-                      Retail: {formatPrice(retailPrice)}
+                    <span className="text-[10px] text-[#8f96a8] line-through block leading-none">
+                      {formatPrice(retail)}
                     </span>
-                    <span className="text-base font-black text-[#facc15]">
-                      {formatPrice(wholesalePrice)}
+                    <span className="text-xs font-black text-[#facc15] block leading-tight">
+                      {formatPrice(resellerPrice)}
                     </span>
                   </div>
 
                   <Link
                     href={`/games/${game.slug || game.id}`}
-                    className="inline-flex items-center gap-1 rounded-lg bg-white/10 hover:bg-[#facc15] hover:text-black px-3 py-1.5 text-xs font-bold text-white transition"
+                    className="rounded-lg bg-white/10 hover:bg-[#facc15] hover:text-black p-2 text-white transition cursor-pointer"
+                    title={`Buy ${game.title} at wholesale`}
                   >
-                    <span>Order</span>
-                    <ArrowRight size={13} />
+                    <ShoppingBag size={14} />
                   </Link>
                 </div>
-              </article>
+              </div>
             );
           })}
         </div>

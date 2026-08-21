@@ -2155,7 +2155,7 @@ export async function toggleResellerStatus(formData: FormData) {
   const userName = profile?.display_name || "Partner";
 
   if (isReseller) {
-    const notifTitle = "Verified Reseller Access Granted! 🛡️";
+    const notifTitle = "Verified Reseller Access Granted";
     const notifMsg = `Congratulations! Your account is now verified as a Rakexura Reseller Partner with ${discount}% wholesale discount. Check your Reseller Portal now.`;
 
     // 1. In-app Bell Notification
@@ -2174,12 +2174,12 @@ export async function toggleResellerStatus(formData: FormData) {
     if (userEmail) {
       void sendEmail({
         to: userEmail,
-        subject: "🎉 Verified Reseller Access Activated - Rakexura Store",
+        subject: "Verified Reseller Access Activated - Rakexura Store",
         text: `Hi ${userName},\n\nYour account has been officially approved as a Verified Rakexura Reseller Partner with ${discount}% wholesale discount!\n\nOpen your Reseller Portal: https://rakexura.com/dashboard/reseller\n\nHappy selling!\nRakexura Team`,
         html: `
           <div style="background-color: #0b0717; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 32px; border-radius: 16px; max-width: 580px; margin: auto; border: 1px solid rgba(139,92,246,0.35);">
             <div style="text-align: center; margin-bottom: 24px;">
-              <h2 style="color: #facc15; font-size: 24px; font-weight: 900; margin: 0;">Verified Reseller Access Activated! 🛡️</h2>
+              <h2 style="color: #facc15; font-size: 24px; font-weight: 900; margin: 0;">Verified Reseller Access Activated</h2>
               <p style="color: #a0a8c0; font-size: 13px; margin: 6px 0 0 0;">Official Rakexura Wholesale Partner</p>
             </div>
             
@@ -2193,7 +2193,7 @@ export async function toggleResellerStatus(formData: FormData) {
             </div>
 
             <p style="font-size: 13px; line-height: 1.6; color: #a0a8c0;">
-              ✨ <strong>What you can do now:</strong><br>
+              <strong>What you can do now:</strong><br>
               • Browse exclusive wholesale rates on the storefront.<br>
               • Use the 1-Click Client Delivery Tool to forward game keys directly to your buyers on WhatsApp.<br>
               • Enjoy priority activation support and full warranty for your customers.
