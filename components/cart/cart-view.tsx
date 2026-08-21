@@ -89,10 +89,19 @@ export function CartView() {
     
     setChecking(true);
     const supabase = createClient();
+
+    // Resellers cannot use retail coupons
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase.from("profiles").select("is_reseller").eq("id", user.id).maybeSingle();
+      if (profile?.is_reseller) {
+        setChecking(false);
+        return toast.error("Retail coupons cannot be combined with your active wholesale reseller pricing.");
+      }
+    }
     
     // 1. DIAMOND FREEBIE check
     if (normalized === "DIAMONDFREE" || normalized === "DIAMOND-FREEBIE") {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         setChecking(false);
         return toast.error("Sign in to redeem Diamond loyalty perks");
@@ -110,7 +119,6 @@ export function CartView() {
     // 2. Milestone Loyalty Coupon check
     const isMilestoneCoupon = normalized.startsWith("MILE") || normalized.startsWith("LOYAL") || normalized.startsWith("STAGE") || normalized.startsWith("PLAT");
     if (isMilestoneCoupon) {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         setChecking(false);
         return toast.error("Sign in to apply milestone loyalty coupons");
@@ -164,7 +172,6 @@ export function CartView() {
       }
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const { count } = await supabase
         .from("coupon_usage")

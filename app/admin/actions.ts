@@ -2144,6 +2144,85 @@ export async function toggleResellerStatus(formData: FormData) {
 
   if (error) throw new Error(error.message);
 
+  // Fetch customer profile to notify via Email & In-App Notification
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("email, display_name")
+    .eq("id", userId)
+    .maybeSingle();
+
+  const userEmail = profile?.email;
+  const userName = profile?.display_name || "Partner";
+
+  if (isReseller) {
+    const notifTitle = "Verified Reseller Access Granted! 🛡️";
+    const notifMsg = `Congratulations! Your account is now verified as a Rakexura Reseller Partner with ${discount}% wholesale discount. Check your Reseller Portal now.`;
+
+    // 1. In-app Bell Notification
+    await supabase.from("notifications").insert({
+      user_id: userId,
+      title: notifTitle,
+      message: notifMsg,
+      type: "reward",
+      link: "/dashboard/reseller",
+    });
+
+    // 2. Device Lock-Screen Push Notification
+    void sendPushNotification(userId, notifTitle, notifMsg, "/dashboard/reseller");
+
+    // 3. Official Partner Email Dispatch
+    if (userEmail) {
+      void sendEmail({
+        to: userEmail,
+        subject: "🎉 Verified Reseller Access Activated - Rakexura Store",
+        text: `Hi ${userName},\n\nYour account has been officially approved as a Verified Rakexura Reseller Partner with ${discount}% wholesale discount!\n\nOpen your Reseller Portal: https://rakexura.com/dashboard/reseller\n\nHappy selling!\nRakexura Team`,
+        html: `
+          <div style="background-color: #0b0717; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 32px; border-radius: 16px; max-width: 580px; margin: auto; border: 1px solid rgba(139,92,246,0.35);">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <h2 style="color: #facc15; font-size: 24px; font-weight: 900; margin: 0;">Verified Reseller Access Activated! 🛡️</h2>
+              <p style="color: #a0a8c0; font-size: 13px; margin: 6px 0 0 0;">Official Rakexura Wholesale Partner</p>
+            </div>
+            
+            <p style="font-size: 15px; line-height: 1.6; color: #e2e8f0;">Hi <strong>${userName}</strong>,</p>
+            <p style="font-size: 14px; line-height: 1.6; color: #c8cedc;">Congratulations! Your account has been officially granted the <strong>Verified Reseller Badge</strong> on Rakexura Store.</p>
+            
+            <div style="background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.35); border-radius: 12px; padding: 18px; margin: 24px 0; text-align: center;">
+              <span style="display: block; color: #8991a6; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Your Active Wholesale Rate</span>
+              <span style="display: block; color: #facc15; font-size: 28px; font-weight: 900; margin-top: 4px;">${discount}% OFF Retail</span>
+              <span style="display: block; color: #a0a8c0; font-size: 12px; margin-top: 4px;">Applied automatically at checkout across catalog games and passes.</span>
+            </div>
+
+            <p style="font-size: 13px; line-height: 1.6; color: #a0a8c0;">
+              ✨ <strong>What you can do now:</strong><br>
+              • Browse exclusive wholesale rates on the storefront.<br>
+              • Use the 1-Click Client Delivery Tool to forward game keys directly to your buyers on WhatsApp.<br>
+              • Enjoy priority activation support and full warranty for your customers.
+            </p>
+
+            <div style="text-align: center; margin-top: 30px;">
+              <a href="https://rakexura.com/dashboard/reseller" style="background: linear-gradient(135deg, #ffe45c, #facc15, #f59e0b); color: #000000; padding: 14px 28px; border-radius: 10px; font-weight: 900; font-size: 14px; text-decoration: none; display: inline-block; box-shadow: 0 4px 20px rgba(250, 204, 21, 0.3);">Open Reseller Portal</a>
+            </div>
+
+            <p style="text-align: center; font-size: 11px; color: #64748b; margin-top: 32px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
+              Rakexura Games Store · Dedicated B2B Wholesale Network
+            </p>
+          </div>
+        `,
+      });
+    }
+  } else {
+    // Revocation notification
+    const notifTitle = "Reseller Status Deactivated";
+    const notifMsg = "Your Reseller Partner status has been deactivated. If you have questions, please reach out to our team.";
+    await supabase.from("notifications").insert({
+      user_id: userId,
+      title: notifTitle,
+      message: notifMsg,
+      type: "support",
+      link: "/dashboard",
+    });
+  }
+
   revalidatePath("/admin/customers");
   revalidatePath("/admin");
   revalidatePath("/dashboard");

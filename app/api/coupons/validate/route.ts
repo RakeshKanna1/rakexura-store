@@ -81,6 +81,28 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
+    // Resellers cannot stack retail coupons on top of wholesale discounts
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_reseller")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profile?.is_reseller) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              message: "Retail promo coupons cannot be combined with your active wholesale reseller pricing.",
+              code: "RESELLER_COUPON_DISABLED"
+            }
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     // 3. Database query for coupons
     let { data: coupon, error } = await supabase
       .from("coupons")
