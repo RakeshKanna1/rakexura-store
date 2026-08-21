@@ -130,10 +130,11 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                             suppressHydrationWarning={true}
                             type="button"
                             onClick={handleCloseTrailer}
-                            className="absolute top-3 right-3 sm:top-4 sm:right-4 z-40 flex items-center gap-2 px-3.5 py-2 rounded-lg bg-black/35 hover:bg-black/75 hover:text-[#facc15] hover:border-[#facc15]/50 text-white transition-all border border-white/20 shadow-2xl backdrop-blur-xl text-xs font-extrabold tracking-wide cursor-pointer active:scale-95"
+                            className="absolute top-3 left-3 sm:top-4 sm:left-4 z-40 flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full bg-black/80 hover:bg-black text-white hover:text-[#facc15] hover:border-[#facc15]/50 transition-all border border-white/25 shadow-2xl backdrop-blur-xl text-xs font-bold tracking-wide cursor-pointer active:scale-95"
                             aria-label="Close trailer video"
                           >
-                            <X size={15} /> Close Banner Trailer
+                            <X size={14} className="shrink-0" />
+                            <span>Close Trailer</span>
                           </button>
                         </div>
                       ) : (
