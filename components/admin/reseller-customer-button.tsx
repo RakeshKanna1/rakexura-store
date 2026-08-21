@@ -82,16 +82,16 @@ export function ResellerCustomerButton({
         if (e.target === e.currentTarget) setModalOpen(false);
       }}
     >
-      <div className="relative my-auto w-full max-w-lg overflow-hidden rounded-xl border border-white/15 bg-[#121216] p-6 shadow-2xl space-y-5 text-left">
+      <div className="relative my-auto w-full max-w-lg overflow-hidden rounded-2xl border border-white/15 bg-[#0d0f17] p-6 shadow-2xl space-y-5 text-left">
         
         {/* Header */}
         <div className="flex items-start justify-between gap-4 pb-4 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-white/10 bg-[#1a1a20] text-[#facc15]">
-              {activeReseller ? <ShieldAlert className="w-6 h-6 text-amber-400" /> : <ResellerIcon className="w-6 h-6" />}
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-[#facc15] shadow-sm">
+              {activeReseller ? <ShieldAlert className="w-6 h-6 text-[#facc15]" /> : <ResellerIcon className="w-6 h-6" />}
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white tracking-tight">
+              <h3 className="text-lg font-black text-white tracking-tight">
                 {activeReseller ? "Manage Reseller Access" : "Grant Reseller Access"}
               </h3>
               <p className="text-xs text-[#8991a6] mt-0.5">
@@ -103,7 +103,7 @@ export function ResellerCustomerButton({
           <button
             type="button"
             onClick={() => setModalOpen(false)}
-            className="grid h-8 w-8 place-items-center rounded-md border border-white/10 bg-white/5 text-[#8991a6] hover:text-white hover:border-white/20 transition cursor-pointer"
+            className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/5 text-[#8991a6] hover:text-white hover:border-white/20 transition cursor-pointer"
             title="Close"
           >
             <X size={15} />
@@ -111,7 +111,7 @@ export function ResellerCustomerButton({
         </div>
 
         {/* Description Info Banner */}
-        <div className="rounded-xl border border-white/10 bg-[#16161c] p-3.5 text-xs text-[#b8bfd0] leading-relaxed break-words whitespace-normal">
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3.5 text-xs text-[#b8bfd0] leading-relaxed break-words whitespace-normal">
           {activeReseller ? (
             <span>
               This user is currently an active <strong className="text-[#facc15]">Verified Wholesale Reseller</strong> with <strong className="text-white font-mono">{preview.label}</strong> rate. You can adjust the deduction/markup mode or revoke access below.
@@ -124,7 +124,7 @@ export function ResellerCustomerButton({
         </div>
 
         {/* Deduction / Adjustment Type Selector */}
-        <div className="space-y-4 rounded-xl border border-white/10 bg-[#16161c] p-4">
+        <div className="space-y-4 rounded-xl border border-white/10 bg-white/[0.02] p-4">
           <div>
             <label className="text-[11px] font-bold uppercase tracking-wider text-[#8991a6] block">
               Price Adjustment Mode
@@ -177,7 +177,7 @@ export function ResellerCustomerButton({
                   className={`relative flex flex-col justify-between rounded-xl p-3 text-left transition duration-150 cursor-pointer border ${
                     isSelected
                       ? "border-[#facc15] bg-[#facc15]/10 shadow-[0_0_12px_rgba(250,204,21,0.12)] ring-1 ring-[#facc15]/40"
-                      : "border-white/10 bg-[#0f0f14] hover:border-white/20 hover:bg-[#14141a]"
+                      : "border-white/10 bg-[#090b10] hover:border-white/20 hover:bg-white/[0.04]"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1">
@@ -220,7 +220,7 @@ export function ResellerCustomerButton({
                   className={`rounded-lg py-2 text-xs font-bold transition text-center cursor-pointer ${
                     discount === val
                       ? "border border-[#facc15] bg-[#facc15]/20 text-[#facc15] font-black shadow-sm"
-                      : "border border-white/10 bg-[#0f0f14] text-[#8991a6] hover:text-white hover:border-white/25"
+                      : "border border-white/10 bg-[#090b10] text-[#8991a6] hover:text-white hover:border-white/25"
                   }`}
                 >
                   {discountType.includes("percentage") ? `${val}%` : `₹${val}`}
@@ -249,7 +249,7 @@ export function ResellerCustomerButton({
                     setDiscount(Math.max(0, num));
                   }
                 }}
-                className="h-10 w-full rounded-lg border border-white/15 bg-[#0f0f14] px-3 pr-8 text-sm font-bold text-white outline-none focus:border-[#facc15] transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none font-mono"
+                className="h-10 w-full rounded-lg border border-white/15 bg-[#090b10] px-3 pr-8 text-sm font-bold text-white outline-none focus:border-[#facc15] transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none font-mono"
               />
               <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8991a6]">
                 {discountType.includes("percentage") ? "%" : "₹"}
@@ -261,7 +261,7 @@ export function ResellerCustomerButton({
           </div>
 
           {/* Live Pricing Preview Simulation */}
-          <div className="rounded-xl border border-amber-400/25 bg-[#1f1a0e] p-3.5 text-xs flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+          <div className="rounded-xl border border-amber-400/25 bg-[#17140b] p-3.5 text-xs flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
             <span className="text-[#a0a8c0] font-medium">
               Simulation on <strong className="text-white font-bold">₹500 Game</strong>:
             </span>

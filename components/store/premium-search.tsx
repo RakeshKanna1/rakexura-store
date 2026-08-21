@@ -119,7 +119,7 @@ export function PremiumSearch() {
     <div className="relative w-full">
       <label
         htmlFor="premium-search-input"
-        className="flex h-11 w-full items-center gap-2.5 rounded-xl border border-white/10 bg-[#0e1017]/90 px-3.5 text-sm shadow-inner transition-all duration-200 focus-within:border-[#facc15]/60 focus-within:bg-[#141722] focus-within:shadow-[0_0_15px_rgba(250,204,21,0.12)] cursor-text"
+        className="flex h-11 w-full items-center gap-2.5 rounded-xl border border-white/10 bg-[#10131b] px-3.5 text-sm shadow-inner transition-all duration-200 focus-within:border-[#facc15]/60 focus-within:bg-[#141823] focus-within:shadow-[0_0_15px_rgba(250,204,21,0.12)] cursor-text"
       >
         <Search size={16} className="shrink-0 text-[#8991a6] group-focus-within:text-[#facc15] transition-colors" />
         <span className="sr-only">Search games</span>
@@ -296,14 +296,14 @@ export function PremiumSearch() {
                             {platforms.slice(0, 3).map((plat) => (
                               <span
                                 key={plat}
-                                className="rounded bg-white/[0.05] border border-white/[0.08] px-1.5 py-0.5 text-[9px] font-bold text-[#8991a6]"
+                                className="rounded bg-white/[0.04] border border-white/10 px-1.5 py-0.5 text-[9px] font-bold text-[#a7adbb]"
                               >
                                 {plat}
                               </span>
                             ))}
 
                             {game.is_subscription && game.duration && (
-                              <span className="rounded bg-[#8b5cf6]/15 border border-[#8b5cf6]/25 px-1.5 py-0.5 text-[9px] font-bold text-[#c4b5fd]">
+                              <span className="rounded bg-[#facc15]/10 border border-[#facc15]/20 px-1.5 py-0.5 text-[9px] font-bold text-[#facc15]">
                                 {game.duration}
                               </span>
                             )}
@@ -317,7 +317,7 @@ export function PremiumSearch() {
                         type="button"
                         onMouseDown={(event) => event.preventDefault()}
                         onClick={() => quickAdd(game)}
-                        className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.04] text-[#8991a6] hover:border-[#facc15] hover:bg-[#facc15] hover:text-black transition-all shadow-sm active:scale-95 cursor-pointer"
+                        className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[#facc15]/40 bg-[#facc15]/10 text-[#facc15] hover:bg-[#facc15] hover:text-black hover:border-transparent transition-all shadow-sm active:scale-95 cursor-pointer"
                         title={`Quick add ${game.title} to cart`}
                         aria-label={`Add ${game.title} to cart`}
                       >
