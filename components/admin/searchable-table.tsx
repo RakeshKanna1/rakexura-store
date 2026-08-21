@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
-import { Search, ExternalLink, ChevronLeft, ChevronRight, Copy, Check, Gamepad2, Zap } from "lucide-react";
+import { Search, ExternalLink, ChevronLeft, ChevronRight, Copy, Check, Gamepad2, Zap, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -373,6 +373,9 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                   {headers.map((header) => {
                     const isCodeColumn = section === "coupons" && header === "code";
                     const isApplicableToColumn = section === "coupons" && header === "applicable_to";
+                    const isImageColumn = header === "image_url" || header === "screenshot_url" || header === "proof_url" || (header === "cover_image" && section !== "games");
+                    const isProofTypeColumn = header === "proof_type";
+                    const isApprovedColumn = header === "approved";
                     const val = row[header];
                     const lowerHeader = header.toLowerCase();
                     const isIdColumn = (lowerHeader === "id" || lowerHeader.endsWith("_id") || lowerHeader === "visitor_id") && typeof val === "string" && val.length > 10;
@@ -403,6 +406,35 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                           ) : (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                               All Items (Both)
+                            </span>
+                          )
+                        ) : isImageColumn && typeof val === "string" && val ? (
+                          <a href={val} target="_blank" rel="noreferrer" className="group inline-flex items-center gap-2.5">
+                            <div className="relative h-10 w-14 shrink-0 overflow-hidden rounded border border-white/10 bg-black/40 group-hover:border-white/40 transition">
+                              <Image src={assetUrl(val)} alt="" fill sizes="56px" className="object-cover" />
+                            </div>
+                            <span className="text-xs text-[#8991a6] group-hover:text-white inline-flex items-center gap-1 font-medium transition">
+                              View <ExternalLink size={11} />
+                            </span>
+                          </a>
+                        ) : isProofTypeColumn && typeof val === "string" && val ? (
+                          val === "whatsapp" ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#20c763]/10 text-[#20c763] border border-[#20c763]/25">
+                              <MessageCircle size={11} /> WhatsApp
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-white border border-white/20 capitalize">
+                              {val}
+                            </span>
+                          )
+                        ) : isApprovedColumn ? (
+                          val === true || val === "true" || val === "Yes" ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                              Approved
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                              Pending
                             </span>
                           )
                         ) : isIdColumn ? (
