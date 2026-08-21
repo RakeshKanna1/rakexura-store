@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { sendEmail, buildProfessionalEmailHtml, buildCleanInvoiceEmailHtml, buildReviewRequestEmailHtml } from "@/lib/email";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 import { gameUrl } from "@/lib/utils";
 
@@ -15,7 +15,7 @@ async function getAdminClient() {
   if (!user) redirect("/login");
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
   if (profile?.role !== "admin") redirect("/dashboard");
-  return supabase;
+  return createAdminClient();
 }
 
 async function writeAuditLog(action: string, affectedEntity: string, formData: FormData) {

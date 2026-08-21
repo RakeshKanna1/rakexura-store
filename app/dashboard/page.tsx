@@ -74,20 +74,32 @@ export default async function DashboardPage() {
     void supabase.from("user_rewards").upsert({ user_id: user.id, points: totalPoints, level: currentLevel });
   }
 
-  const stats = [
-    { label: "Orders", value: totalOrdersCount ?? 0, icon: PackageSearch, color: "text-[#b9a4ff] filter drop-shadow-[0_0_8px_rgba(139,92,246,0.4)]", hover: "hover:border-[#b9a4ff]/25 hover:shadow-[0_12px_28px_rgba(139,92,246,0.05)]" },
-    { label: "Games owned", value: libraryCount ?? 0, icon: Gamepad2, color: "text-[#8b5cf6] filter drop-shadow-[0_0_8px_rgba(139,92,246,0.4)]", hover: "hover:border-[#8b5cf6]/25 hover:shadow-[0_12px_28px_rgba(139,92,246,0.05)]" },
-    { label: "Reward points", value: totalPoints, icon: Gift, color: "text-[#facc15] filter drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]", hover: "hover:border-[#facc15]/25 hover:shadow-[0_12px_28px_rgba(250,204,21,0.05)]" },
-    { label: "Level", value: currentLevel, icon: TicketPercent, color: "text-[#facc15] filter drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]", hover: "hover:border-[#facc15]/25 hover:shadow-[0_12px_28px_rgba(250,204,21,0.05)]" }
-  ];
+  const discount = Number(profile?.reseller_discount || 25);
+  const isReseller = Boolean(profile?.is_reseller);
+
+  const stats = isReseller
+    ? [
+        { label: "Orders", value: totalOrdersCount ?? 0, icon: PackageSearch, color: "text-[#b9a4ff] filter drop-shadow-[0_0_8px_rgba(139,92,246,0.4)]", hover: "hover:border-[#b9a4ff]/25 hover:shadow-[0_12px_28px_rgba(139,92,246,0.05)]" },
+        { label: "Games owned", value: libraryCount ?? 0, icon: Gamepad2, color: "text-[#8b5cf6] filter drop-shadow-[0_0_8px_rgba(139,92,246,0.4)]", hover: "hover:border-[#8b5cf6]/25 hover:shadow-[0_12px_28px_rgba(139,92,246,0.05)]" },
+        { label: "Wholesale Margin", value: `${discount}% OFF`, icon: Zap, color: "text-[#e0ce9a] filter drop-shadow-[0_0_8px_rgba(250,204,21,0.3)]", hover: "hover:border-amber-400/25 hover:shadow-[0_12px_28px_rgba(250,204,21,0.05)]" },
+        { label: "Partner Tier", value: "Verified", icon: ShieldCheck, color: "text-emerald-400 filter drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]", hover: "hover:border-emerald-500/25 hover:shadow-[0_12px_28px_rgba(16,185,129,0.05)]" }
+      ]
+    : [
+        { label: "Orders", value: totalOrdersCount ?? 0, icon: PackageSearch, color: "text-[#b9a4ff] filter drop-shadow-[0_0_8px_rgba(139,92,246,0.4)]", hover: "hover:border-[#b9a4ff]/25 hover:shadow-[0_12px_28px_rgba(139,92,246,0.05)]" },
+        { label: "Games owned", value: libraryCount ?? 0, icon: Gamepad2, color: "text-[#8b5cf6] filter drop-shadow-[0_0_8px_rgba(139,92,246,0.4)]", hover: "hover:border-[#8b5cf6]/25 hover:shadow-[0_12px_28px_rgba(139,92,246,0.05)]" },
+        { label: "Reward points", value: totalPoints, icon: Gift, color: "text-[#facc15] filter drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]", hover: "hover:border-[#facc15]/25 hover:shadow-[0_12px_28px_rgba(250,204,21,0.05)]" },
+        { label: "Level", value: currentLevel, icon: TicketPercent, color: "text-[#facc15] filter drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]", hover: "hover:border-[#facc15]/25 hover:shadow-[0_12px_28px_rgba(250,204,21,0.05)]" }
+      ];
 
   const name = profile?.display_name || user.user_metadata.display_name || user.user_metadata.full_name || user.email?.split("@")[0] || "Player";
   const avatarUrl = profile?.avatar_url || user.user_metadata.avatar_url;
 
-  const baseActions: QuickAction[] = profile?.is_reseller
+  const baseActions: QuickAction[] = isReseller
     ? [
-        ["/dashboard/reseller", "Reseller portal", Zap, "text-[#facc15] filter drop-shadow-[0_0_4px_rgba(250,204,21,0.3)] hover:text-[#fde047]", "hover:border-[#facc15]/30 hover:shadow-[0_8px_20px_rgba(250,204,21,0.04)]"],
-        ...quickActions,
+        ["/games", "Wholesale Catalog", ShoppingBag, "text-[#e0ce9a] filter drop-shadow-[0_0_4px_rgba(250,204,21,0.3)] hover:text-[#fde047]", "hover:border-amber-400/30 hover:shadow-[0_8px_20px_rgba(250,204,21,0.04)]"],
+        ["/dashboard/orders", "Track orders", PackageSearch, "text-[#b9a4ff] filter drop-shadow-[0_0_4px_rgba(139,92,246,0.3)] hover:text-[#c4b5fd]", "hover:border-[#b9a4ff]/30 hover:shadow-[0_8px_20px_rgba(139,92,246,0.04)]"],
+        ["/dashboard/library", "My library", Gamepad2, "text-[#8b5cf6] filter drop-shadow-[0_0_4px_rgba(139,92,246,0.3)] hover:text-[#a78bfa]", "hover:border-[#8b5cf6]/30 hover:shadow-[0_8px_20px_rgba(139,92,246,0.04)]"],
+        ["/support", "Support", LifeBuoy, "text-[#facc15] filter drop-shadow-[0_0_4px_rgba(250,204,21,0.3)] hover:text-[#fde047]", "hover:border-[#facc15]/30 hover:shadow-[0_8px_20px_rgba(250,204,21,0.04)]"],
       ]
     : quickActions;
 
@@ -98,7 +110,10 @@ export default async function DashboardPage() {
       ]
     : baseActions;
 
-  const visibleModules = modules.filter(([href]) => href !== "coupons" || isApproved);
+  const visibleModules = modules.filter(([href]) => {
+    if (isReseller) return href !== "rewards" && href !== "coupons";
+    return href !== "coupons" || isApproved;
+  });
 
   return (
     <div className="page-shell py-8 sm:py-10">
@@ -139,36 +154,38 @@ export default async function DashboardPage() {
         </OnboardingHint>
       </div>
 
-      {/* Dynamic Rank Progression Progress Bar (Capped at exactly 10,000 points for Platinum Rank Milestone) */}
-      <section className="mt-6 premium-panel bg-[#0f0c22]/80 border-[#8b5cf6]/20 rounded-xl p-5 shadow-[0_12px_36px_rgba(0,0,0,0.3)]">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h3 className="text-sm font-black text-white tracking-wide uppercase">Rank Progression</h3>
-            <p className="mt-1 text-xs text-[#aeb5c6]">
-              Current Tier: <span className="text-[#b9a4ff] font-black uppercase tracking-wider">{currentLevel}</span>
-            </p>
+      {/* Dynamic Rank Progression Progress Bar (Only for standard retail customers) */}
+      {!isReseller && (
+        <section className="mt-6 premium-panel bg-[#0f0c22]/80 border-[#8b5cf6]/20 rounded-xl p-5 shadow-[0_12px_36px_rgba(0,0,0,0.3)]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-black text-white tracking-wide uppercase">Rank Progression</h3>
+              <p className="mt-1 text-xs text-[#aeb5c6]">
+                Current Tier: <span className="text-[#b9a4ff] font-black uppercase tracking-wider">{currentLevel}</span>
+              </p>
+            </div>
+            <div className="text-left sm:text-right">
+              <span className="text-xs text-[#e2e8f0] font-bold">{totalPoints.toLocaleString()} / 10,000 pts</span>
+            </div>
           </div>
-          <div className="text-left sm:text-right">
-            <span className="text-xs text-[#e2e8f0] font-bold">{totalPoints.toLocaleString()} / 10,000 pts</span>
+          <div className="mt-4">
+            <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-black/45 border border-white/5">
+              <div 
+                style={{ width: `${Math.min(100, (totalPoints / 10000) * 100)}%` }} 
+                className="absolute left-0 top-0 bottom-0 rounded-full bg-gradient-to-r from-[#8b5cf6] via-[#a78bfa] to-[#facc15] shadow-[0_0_10px_rgba(139,92,246,0.4)] transition-all duration-500" 
+              />
+            </div>
+            <div className="mt-2.5 flex justify-between text-[9px] font-black tracking-wider text-[#646b7b] uppercase">
+              <span>Bronze (0)</span>
+              <span>Silver (1K)</span>
+              <span>Gold (2K)</span>
+              <span>Diamond (4K)</span>
+              <span>Platinum (10K)</span>
+            </div>
+            <RedeemFreebieButton points={totalPoints} initialLastRequestDate={profile?.last_request_date || null} isApproved={isApproved} />
           </div>
-        </div>
-        <div className="mt-4">
-          <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-black/45 border border-white/5">
-            <div 
-              style={{ width: `${Math.min(100, (totalPoints / 10000) * 100)}%` }} 
-              className="absolute left-0 top-0 bottom-0 rounded-full bg-gradient-to-r from-[#8b5cf6] via-[#a78bfa] to-[#facc15] shadow-[0_0_10px_rgba(139,92,246,0.4)] transition-all duration-500" 
-            />
-          </div>
-          <div className="mt-2.5 flex justify-between text-[9px] font-black tracking-wider text-[#646b7b] uppercase">
-            <span>Bronze (0)</span>
-            <span>Silver (1K)</span>
-            <span>Gold (2K)</span>
-            <span>Diamond (4K)</span>
-            <span>Platinum (10K)</span>
-          </div>
-          <RedeemFreebieButton points={totalPoints} initialLastRequestDate={profile?.last_request_date || null} isApproved={isApproved} />
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Reseller Partner Hub (Embedded directly in Dashboard) */}
       {profile?.is_reseller && (
