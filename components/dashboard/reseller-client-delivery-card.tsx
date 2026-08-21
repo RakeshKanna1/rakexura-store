@@ -53,11 +53,13 @@ export function ResellerClientDeliveryCard({ order }: { order: ResellerOrder }) 
         <button
           type="button"
           onClick={handleCopyClientMessage}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300 transition cursor-pointer select-none"
+          className="btn btn-secondary h-9 min-h-9 px-3 text-xs gap-2 hover:border-[#8b5cf6]/40 transition"
           title="Copy formatted message ready to send to your buyer"
         >
-          {copied ? <Check size={14} /> : <MessageCircle size={14} />}
-          <span>{copied ? "Copied for WhatsApp!" : "Copy for Client (WhatsApp)"}</span>
+          {copied ? <Check size={14} className="text-emerald-400 shrink-0" /> : <MessageCircle size={14} className="text-emerald-400 shrink-0" />}
+          <span className={copied ? "text-emerald-300 font-bold" : "text-white font-bold"}>
+            {copied ? "Copied for WhatsApp!" : "Copy for Client (WhatsApp)"}
+          </span>
         </button>
       </div>
 
