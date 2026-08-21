@@ -96,11 +96,11 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
               }}
               className={`flex items-center justify-center gap-2.5 h-11 px-4 rounded-md font-bold text-xs sm:text-sm transition-all border cursor-pointer ${
                 !isSubscription
-                  ? "bg-[#6d4aff]/20 border-[#8b5cf6] text-white shadow-[0_0_15px_rgba(139,92,246,0.25)]"
+                  ? "bg-white/10 border-white/40 text-white shadow-sm"
                   : "bg-black/25 border-white/10 text-[#8991a6] hover:bg-white/5 hover:text-white"
               }`}
             >
-              <Gamepad2 size={16} className={!isSubscription ? "text-[#b9a4ff]" : "text-[#8991a6]"} />
+              <Gamepad2 size={16} className={!isSubscription ? "text-white" : "text-[#8991a6]"} />
               <span>Standard PC Game</span>
             </button>
             <button
@@ -111,11 +111,11 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
               }}
               className={`flex items-center justify-center gap-2.5 h-11 px-4 rounded-md font-bold text-xs sm:text-sm transition-all border cursor-pointer ${
                 isSubscription
-                  ? "bg-[#6d4aff]/20 border-[#8b5cf6] text-white shadow-[0_0_15px_rgba(139,92,246,0.25)]"
+                  ? "bg-white/10 border-white/40 text-white shadow-sm"
                   : "bg-black/25 border-white/10 text-[#8991a6] hover:bg-white/5 hover:text-white"
               }`}
             >
-              <Zap size={16} className={isSubscription ? "text-[#b9a4ff]" : "text-[#8991a6]"} />
+              <Zap size={16} className={isSubscription ? "text-white" : "text-[#8991a6]"} />
               <span>Subscription / Pass (Xbox, Nvidia)</span>
             </button>
           </div>
@@ -125,9 +125,9 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
 
         {isSubscription ? (
           <>
-            <div className="md:col-span-2 rounded-md border border-[#8b5cf6]/20 bg-[#0f0c22]/80 p-5 shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
+            <div className="md:col-span-2 rounded-md border border-white/10 bg-black/20 p-5">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
-                <Zap size={16} className="text-[#b9a4ff] shrink-0" />
+                <Zap size={16} className="text-white shrink-0" />
                 <span>Subscription Duration Pricing (₹ INR)</span>
               </div>
               <p className="text-xs text-[#8991a6] mt-1 mb-4">Set individual prices for each plan duration. Unfilled durations will not be offered to customers.</p>
@@ -143,7 +143,7 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
                 <label className="text-xs font-bold text-white flex flex-col">
                   <span className="flex items-center justify-between">
                     <span>3 Months Price (₹)</span>
-                    <span className="inline-flex items-center gap-1 rounded bg-[#8b5cf6]/20 border border-[#8b5cf6]/30 px-1.5 py-0.5 text-[10px] font-bold text-[#b9a4ff]">
+                    <span className="inline-flex items-center gap-1 rounded bg-white/10 border border-white/20 px-1.5 py-0.5 text-[10px] font-bold text-white">
                       <Sparkles size={10} />
                       Best Value
                     </span>
@@ -182,8 +182,7 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
                 min="0" 
                 step="1" 
                 name={field} 
-                defaultValue={String(game?.[field as keyof Game] ?? "")} 
-                suppressHydrationWarning={true}
+                defaultValue={String((game as unknown as Record<string, unknown>)?.[field] ?? "")} 
                 className={input} 
               />
             </label>
@@ -191,13 +190,13 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
         )}
 
         {showDuration && (
-          <label className="text-sm font-bold text-[#facc15] md:col-span-2 animate-fade-in">
+          <label className="text-sm font-bold md:col-span-2">
             Default Plan Label / Note
             <input 
               name="duration" 
               defaultValue={game?.duration ?? ""} 
               placeholder="e.g. 1 Month, 3 Months, Instant Activation, Full Warranty" 
-              className={`${input} border-[#facc15]/30 focus:border-[#facc15]`} 
+              className={input} 
             />
             <span className="mt-2 block text-xs font-normal text-[#8991a6]">Optional badge or subtitle note for this subscription.</span>
           </label>

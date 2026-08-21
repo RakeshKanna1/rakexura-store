@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
-import { Search, ExternalLink, ChevronLeft, ChevronRight, Copy, Check } from "lucide-react";
+import { Search, ExternalLink, ChevronLeft, ChevronRight, Copy, Check, Gamepad2, Zap } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
-import { matchesSearchQuery } from "@/lib/utils";
+import { assetUrl, matchesSearchQuery } from "@/lib/utils";
 import { OrderActions } from "@/components/admin/order-actions";
 import { DeleteCustomerButton } from "@/components/admin/delete-customer-button";
 import { archiveGame, moderateProof, moderateReview, toggleCoupon, deleteCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale, toggleCampaign, deleteCampaign, deleteCampaignGame } from "@/app/admin/actions";
@@ -167,7 +168,23 @@ function RowActions({ section, row }: { section: string; row: AdminRow }) {
     </div>
   );
   if (section === "support") return <Link href={`/dashboard/support/${id}`} className="inline-flex min-h-9 items-center gap-2 rounded border border-white/10 bg-black/20 px-3 text-xs font-bold text-[#f8e38a]"><ExternalLink size={13} /> Open conversation</Link>;
-  if (section === "games") return <div className="flex gap-2"><Link href={`/admin/games?edit=${id}`} className="rounded border border-white/10 bg-black/20 px-3 py-2 text-xs font-bold text-[#c8cedc]">Edit</Link><form action={archiveGame}><input type="hidden" name="id" value={id} /><input type="hidden" name="archived" value={String(!row.archived)} /><SubmitButton tone={row.archived ? "positive" : "danger"}>{row.archived ? "Restore" : "Archive"}</SubmitButton></form></div>;
+  if (section === "games") return (
+    <div className="flex items-center gap-2">
+      <Link href={`/admin/games?edit=${id}`} className="rounded border border-white/10 bg-black/20 px-3 py-2 text-xs font-bold text-[#c8cedc] hover:text-white transition">
+        Edit
+      </Link>
+      <form action={archiveGame}>
+        <input type="hidden" name="id" value={id} />
+        <input type="hidden" name="archived" value={String(!row.archived)} />
+        <SubmitButton tone={row.archived ? "positive" : "danger"}>
+          {row.archived ? "Restore" : "Archive"}
+        </SubmitButton>
+      </form>
+      <Link href={`/games/${id}`} target="_blank" className="rounded border border-white/10 bg-black/20 p-2 text-xs font-bold text-[#8991a6] hover:text-white hover:border-white/30 transition" title="View live game on store">
+        <ExternalLink size={13} />
+      </Link>
+    </div>
+  );
   if (section === "media") return <div className="flex gap-2">{!row.approved && <form action={moderateProof}><input type="hidden" name="id" value={id} /><input type="hidden" name="decision" value="approve" /><SubmitButton tone="positive">Approve</SubmitButton></form>}<form action={moderateProof}><input type="hidden" name="id" value={id} /><input type="hidden" name="decision" value="delete" /><SubmitButton tone="danger">Delete</SubmitButton></form></div>;
   if (section === "flash-sales") return <div className="flex gap-2"><Link href={`/admin/flash-sales?edit=${id}`} className="rounded border border-white/10 bg-black/20 px-3 py-2 text-xs font-bold text-[#c8cedc]">Edit</Link><form action={toggleFlashSale}><input type="hidden" name="id" value={id} /><input type="hidden" name="active" value={String(!row.active)} /><SubmitButton tone={row.active ? "danger" : "positive"}>{row.active ? "Disable" : "Enable"}</SubmitButton></form><form action={deleteFlashSale}><input type="hidden" name="id" value={id} /><SubmitButton tone="danger">Delete</SubmitButton></form></div>;
   if (section === "campaigns") return <div className="flex gap-2"><Link href={`/admin/campaigns?edit=${id}`} className="rounded border border-white/10 bg-black/20 px-3 py-2 text-xs font-bold text-[#c8cedc]">Edit</Link><form action={toggleCampaign}><input type="hidden" name="id" value={id} /><input type="hidden" name="active" value={String(!row.active)} /><SubmitButton tone={row.active ? "danger" : "positive"}>{row.active ? "Disable" : "Enable"}</SubmitButton></form><form action={deleteCampaign}><input type="hidden" name="id" value={id} /><SubmitButton tone="danger">Delete</SubmitButton></form></div>;
@@ -219,7 +236,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
 
   return (
     <div className="space-y-4">
-      <div className="flex max-w-md items-center gap-3 rounded-md border border-white/10 bg-black/25 px-4 py-1 text-sm outline-none focus-within:border-[#8b5cf6]">
+      <div className="flex max-w-md items-center gap-3 rounded-md border border-white/10 bg-black/25 px-4 py-1 text-sm outline-none focus-within:border-white/30">
         <Search size={16} className="text-[#8991a6] shrink-0" />
         <input
           value={query}
@@ -233,74 +250,180 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
         />
       </div>
 
-      <div className="overflow-x-auto rounded-md border border-[#8b5cf6]/20">
-        <table className="w-full min-w-[760px] border-collapse text-left text-sm">
-          <thead className="bg-white/[.04] text-[#8991a6]">
-            <tr>
-              {headers.map((header) => (
-                <th key={header} className="p-4 capitalize">
-                  {header === "usage_limit" ? "Global Limit" : header === "per_user_limit" ? "Limit Per User" : header === "used_count" ? "Times Used" : header === "created_at" ? "Created At (12h)" : header === "applicable_to" ? "Scope / Target" : header.replaceAll("_", " ")}
-                </th>
-              ))}
-              {hasActions && <th className="p-4">Actions</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.map((row, index) => (
-              <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
-                {headers.map((header) => {
-                  const isCodeColumn = section === "coupons" && header === "code";
-                  const isApplicableToColumn = section === "coupons" && header === "applicable_to";
-                  const val = row[header];
-                  const lowerHeader = header.toLowerCase();
-                  const isIdColumn = (lowerHeader === "id" || lowerHeader.endsWith("_id") || lowerHeader === "visitor_id") && typeof val === "string" && val.length > 10;
+      {section === "games" ? (
+        <div className="overflow-x-auto rounded-md border border-white/10">
+          <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+            <thead className="bg-white/[.04] text-[#8991a6]">
+              <tr>
+                <th className="p-4 w-16">ID</th>
+                <th className="p-4">Game</th>
+                <th className="p-4">Category</th>
+                <th className="p-4">Pricing & Plans</th>
+                <th className="p-4">Status</th>
+                <th className="p-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginated.map((row, index) => {
+                const isSub = Boolean(row.is_subscription);
+                const isArchived = Boolean(row.archived);
 
-                  return (
-                    <td key={header} className="max-w-72 truncate p-4">
-                      {isCodeColumn ? (
-                        <div className="flex items-center gap-2">
-                          <code className="font-mono font-bold text-white bg-black/40 px-2 py-1 rounded border border-white/10">
-                            {String(row[header])}
-                          </code>
-                          <CopyCouponBadge
-                            code={String(row.code || "")}
-                            discountType={String(row.discount_type || "percentage")}
-                            discountValue={Number(row.discount_value || 0)}
-                            minimumOrder={Number(row.minimum_order || 0)}
-                          />
+                return (
+                  <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
+                    <td className="p-4 font-mono font-bold text-[#8991a6]">
+                      #{String(row.id)}
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        {row.cover_image ? (
+                          <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-black/40 border border-white/10">
+                            <Image
+                              src={assetUrl(String(row.cover_image))}
+                              alt=""
+                              fill
+                              sizes="36px"
+                              className="object-cover"
+                            />
+                          </div>
+                        ) : null}
+                        <div className="min-w-0">
+                          <strong className="block text-sm font-bold text-white leading-tight">
+                            {String(row.title || "Untitled")}
+                          </strong>
+                          {row.duration ? (
+                            <span className="text-[11px] text-[#8991a6] block mt-0.5">
+                              {String(row.duration)}
+                            </span>
+                          ) : null}
                         </div>
-                      ) : isApplicableToColumn ? (
-                        val === "subscription" ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-purple-500/15 text-purple-300 border border-purple-500/30">
-                            Subscriptions Only
-                          </span>
-                        ) : val === "normal" ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-blue-500/15 text-blue-300 border border-blue-500/30">
-                            Normal Games Only
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                            All Items (Both)
-                          </span>
-                        )
-                      ) : isIdColumn ? (
-                        <CopyIdBadge id={String(val)} />
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      {isSub ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/10 text-white border border-white/20">
+                          <Zap size={12} className="text-[#facc15]" />
+                          Subscription
+                        </span>
                       ) : (
-                        display(val)
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-black/40 text-[#8991a6] border border-white/10">
+                          <Gamepad2 size={12} />
+                          PC Game
+                        </span>
                       )}
                     </td>
-                  );
-                })}
-                {hasActions && (
-                  <td className="p-4">
-                    <RowActions section={section} row={row} />
-                  </td>
-                )}
+                    <td className="p-4">
+                      {isSub ? (
+                        <div className="flex flex-wrap gap-1.5 text-xs">
+                          {row.price_1m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">1M: ₹{String(row.price_1m)}</span> : null}
+                          {row.price_2m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">2M: ₹{String(row.price_2m)}</span> : null}
+                          {row.price_3m ? <span className="rounded bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 font-bold text-[#facc15]">3M: ₹{String(row.price_3m)}</span> : null}
+                          {row.price_6m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">6M: ₹{String(row.price_6m)}</span> : null}
+                          {row.price_12m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">12M: ₹{String(row.price_12m)}</span> : null}
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-1.5 text-xs">
+                          {row.steam_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Steam: <b className="text-white">₹{String(row.steam_price)}</b></span> : null}
+                          {row.epic_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Epic: <b className="text-white">₹{String(row.epic_price)}</b></span> : null}
+                          {row.offline_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Offline: <b className="text-white">₹{String(row.offline_price)}</b></span> : null}
+                          {row.online_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Online: <b className="text-white">₹{String(row.online_price)}</b></span> : null}
+                          {row.xbox_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Xbox: <b className="text-white">₹{String(row.xbox_price)}</b></span> : null}
+                          {row.geforce_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">GFN: <b className="text-white">₹{String(row.geforce_price)}</b></span> : null}
+                          {!row.steam_price && !row.epic_price && !row.offline_price && !row.online_price && !row.xbox_price && !row.geforce_price && row.sale_price ? (
+                            <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">Sale: ₹{String(row.sale_price)}</span>
+                          ) : null}
+                        </div>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      {isArchived ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">
+                          Archived
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">
+                          Active
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <RowActions section={section} row={row} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-md border border-[#8b5cf6]/20">
+          <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+            <thead className="bg-white/[.04] text-[#8991a6]">
+              <tr>
+                {headers.map((header) => (
+                  <th key={header} className="p-4 capitalize">
+                    {header === "usage_limit" ? "Global Limit" : header === "per_user_limit" ? "Limit Per User" : header === "used_count" ? "Times Used" : header === "created_at" ? "Created At (12h)" : header === "applicable_to" ? "Scope / Target" : header.replaceAll("_", " ")}
+                  </th>
+                ))}
+                {hasActions && <th className="p-4">Actions</th>}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {paginated.map((row, index) => (
+                <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
+                  {headers.map((header) => {
+                    const isCodeColumn = section === "coupons" && header === "code";
+                    const isApplicableToColumn = section === "coupons" && header === "applicable_to";
+                    const val = row[header];
+                    const lowerHeader = header.toLowerCase();
+                    const isIdColumn = (lowerHeader === "id" || lowerHeader.endsWith("_id") || lowerHeader === "visitor_id") && typeof val === "string" && val.length > 10;
+
+                    return (
+                      <td key={header} className="max-w-72 truncate p-4">
+                        {isCodeColumn ? (
+                          <div className="flex items-center gap-2">
+                            <code className="font-mono font-bold text-white bg-black/40 px-2 py-1 rounded border border-white/10">
+                              {String(row[header])}
+                            </code>
+                            <CopyCouponBadge
+                              code={String(row.code || "")}
+                              discountType={String(row.discount_type || "percentage")}
+                              discountValue={Number(row.discount_value || 0)}
+                              minimumOrder={Number(row.minimum_order || 0)}
+                            />
+                          </div>
+                        ) : isApplicableToColumn ? (
+                          val === "subscription" ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                              Subscriptions Only
+                            </span>
+                          ) : val === "normal" ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                              Normal Games Only
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                              All Items (Both)
+                            </span>
+                          )
+                        ) : isIdColumn ? (
+                          <CopyIdBadge id={String(val)} />
+                        ) : (
+                          display(val)
+                        )}
+                      </td>
+                    );
+                  })}
+                  {hasActions && (
+                    <td className="p-4">
+                      <RowActions section={section} row={row} />
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       {!filtered.length && (
         <p className="p-10 text-center text-[#8991a6]">
           No records found matching &quot;{query}&quot;.
