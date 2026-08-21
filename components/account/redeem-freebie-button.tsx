@@ -4,9 +4,11 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useCartStore } from "@/stores/cart-store";
 
 export function RedeemFreebieButton({ points, initialLastRequestDate, isApproved }: { points: number; initialLastRequestDate: string | null; isApproved?: boolean }) {
   const router = useRouter();
+  const setCoupon = useCartStore((state) => state.setCoupon);
   const [working, setWorking] = useState(false);
   const [cooldown, setCooldown] = useState(false);
 
@@ -21,6 +23,18 @@ export function RedeemFreebieButton({ points, initialLastRequestDate, isApproved
   }, [initialLastRequestDate]);
 
   const hasAccess = points >= 4000;
+
+  function handleClaimApprovedFreebie() {
+    setCoupon({
+      code: "DIAMONDFREE",
+      discount_type: "percentage",
+      discount_value: 100,
+      minimum_order: 0,
+      applicable_to: "both"
+    });
+    toast.success("🎉 Free Game Reward Activated (DIAMONDFREE)! Choose any game to checkout for ₹0.");
+    router.push("/games");
+  }
 
   async function handleRedeem() {
     if (!hasAccess || cooldown || working) return;
@@ -49,11 +63,11 @@ export function RedeemFreebieButton({ points, initialLastRequestDate, isApproved
   if (isApproved) {
     return (
       <button
-        onClick={() => router.push("/games")}
+        onClick={handleClaimApprovedFreebie}
         className="mt-4 w-full py-3 px-4 rounded-md text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 select-none border-2 border-[#facc15] bg-[#b89412]/10 text-white hover:bg-[#facc15] hover:text-black shadow-[0_0_15px_rgba(250,204,21,0.25)] hover:shadow-[0_0_25px_rgba(250,204,21,0.45)] cursor-pointer animate-pulse"
       >
         <Sparkles size={14} className="animate-bounce" />
-        <span>Claim Your Free Game Reward</span>
+        <span>Claim Free Game Reward (Auto-Applies Voucher)</span>
       </button>
     );
   }

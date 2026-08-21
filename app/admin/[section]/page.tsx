@@ -143,7 +143,7 @@ export default async function AdminSection({ params, searchParams }: { params: P
     return <SmartOrdersManager initialOrders={rows as unknown as OrderRow[]} />;
   }
 
-  const hidden = new Set(["screenshot_url", "proof_url", "media_urls", "media_links", "reseller_discount", "role"]);
+  const hidden = new Set(["screenshot_url", "proof_url", "media_urls", "media_links", "reseller_discount", "is_reseller"]);
   const headers = (rows[0] ? Object.keys(rows[0]) : source.select.split(",")).filter((header) => !hidden.has(header));
   const hasActions = ["games", "orders", "customers", "reviews", "coupons", "requests", "support", "media", "flash-sales", "campaigns", "campaign-games"].includes(section);
 

@@ -14,7 +14,6 @@ import { formatPrice } from "@/lib/utils";
 import { RedeemFreebieButton } from "@/components/account/redeem-freebie-button";
 import { GiftCelebration } from "@/components/dashboard/gift-celebration";
 import { ResellerBadge } from "@/components/ui/reseller-badge";
-import { ResellerClientDeliveryCard } from "@/components/dashboard/reseller-client-delivery-card";
 
 const modules = [
   ["orders", "My orders", "Payment and delivery history", PackageSearch],
@@ -197,8 +196,8 @@ export default async function DashboardPage() {
 
       {/* Reseller Partner Hub (Embedded directly in Dashboard) */}
       {profile?.is_reseller && (
-        <section id="reseller" className="mt-8 rounded-2xl border border-[#8b5cf6]/25 bg-[#0e0a1f]/85 p-6 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-5">
+        <section id="reseller" className="mt-8 rounded-2xl border border-[#8b5cf6]/25 bg-[#0e0a1f]/85 p-6 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2.5">
                 <ResellerBadge size="md" discount={profile.reseller_discount} />
@@ -211,43 +210,22 @@ export default async function DashboardPage() {
               </p>
             </div>
 
-            <Link
-              href="/games"
-              className="btn btn-primary min-h-10 px-4 text-xs font-black shadow-[0_0_15px_rgba(139,92,246,0.35)]"
-            >
-              <ShoppingBag size={15} />
-              <span>Shop Wholesale Catalog</span>
-            </Link>
-          </div>
-
-          {/* 1-Click Client Delivery Tool */}
-          <div className="space-y-3">
-            <div>
-              <h3 className="text-xs font-black uppercase tracking-wider text-white">
-                1-Click Client Delivery Hub
-              </h3>
-              <p className="text-[11px] text-[#8991a6] mt-0.5">
-                Quickly copy delivered game login credentials formatted for your buyer on WhatsApp.
-              </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/dashboard/orders"
+                className="btn btn-secondary min-h-10 px-4 text-xs font-bold gap-2"
+              >
+                <PackageSearch size={15} />
+                <span>My Orders &amp; Delivery Keys</span>
+              </Link>
+              <Link
+                href="/games"
+                className="btn btn-primary min-h-10 px-4 text-xs font-black shadow-[0_0_15px_rgba(139,92,246,0.35)] gap-2"
+              >
+                <ShoppingBag size={15} />
+                <span>Shop Wholesale Catalog</span>
+              </Link>
             </div>
-
-            {(() => {
-              const deliveredOrders = (orders ?? []).filter((o) => o.order_status === "Delivered" && o.account_access);
-              if (deliveredOrders.length === 0) {
-                return (
-                  <div className="rounded-xl border border-white/[0.08] bg-[#070912]/80 p-5 text-center text-xs text-[#8991a6] leading-relaxed">
-                    When your wholesale orders are delivered, your client-ready WhatsApp delivery keys will appear here.
-                  </div>
-                );
-              }
-              return (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {deliveredOrders.slice(0, 4).map((order) => (
-                    <ResellerClientDeliveryCard key={order.id} order={order} />
-                  ))}
-                </div>
-              );
-            })()}
           </div>
         </section>
       )}

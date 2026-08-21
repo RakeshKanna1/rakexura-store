@@ -386,6 +386,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                   {headers.map((header) => {
                     const isCodeColumn = section === "coupons" && header === "code";
                     const isApplicableToColumn = section === "coupons" && header === "applicable_to";
+                    const isRoleColumn = section === "customers" && header === "role";
                     const isImageColumn = header === "image_url" || header === "screenshot_url" || header === "proof_url" || (header === "cover_image" && section !== "games");
                     const isProofTypeColumn = header === "proof_type";
                     const isApprovedColumn = header === "approved";
@@ -421,6 +422,18 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                           ) : (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                               All Items (Both)
+                            </span>
+                          )
+                        ) : isRoleColumn ? (
+                          val === "admin" ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-[#8b5cf6]/15 text-[#b9a4ff] border border-[#8b5cf6]/30">
+                              Admin
+                            </span>
+                          ) : (row.is_reseller || (row.reseller_discount && Number(row.reseller_discount) > 0)) ? (
+                            <ResellerBadge size="sm" discount={row.reseller_discount as number} />
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-white/5 text-[#8991a6] border border-white/10">
+                              Customer
                             </span>
                           )
                         ) : isResellerColumn ? (
