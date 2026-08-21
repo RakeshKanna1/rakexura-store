@@ -1,203 +1,235 @@
-# 🛍️ Rakexura 2026
-### 🚀 Production-Oriented Next.js Rebuild of the Rakexura Game Marketplace
+# 🛍️ Rakexura Store
 
-[![Next.js 15](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
-[![React 19](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react&logoColor=%2361DAFB)](https://react.dev/)
-[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Supabase](https://img.shields.io/badge/Supabase-DB_%26_Auth-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+<div align="center">
 
-The retired static HTML frontend has been removed after its assets were verified inside this app.
+![Rakexura Logo](public/Assets/RakeLogo.png)
+
+### **Next-Generation Digital PC Gaming & Subscription Marketplace**
+*High-performance, cinematic e-commerce platform built with Next.js 15, React 19, TypeScript, Tailwind CSS v4, and Supabase.*
+
+[![Next.js 15](https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![React 19](https://img.shields.io/badge/React-19.1-blue?style=for-the-badge&logo=react&logoColor=%2361DAFB)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.1-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth_%26_Postgres-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Sentry](https://img.shields.io/badge/Sentry-Observability-362D59?style=for-the-badge&logo=sentry&logoColor=white)](https://sentry.io/)
+[![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+
+[Explore Features](#-key-features) • [Quickstart](#-local-development) • [Architecture](#-architecture--tech-stack) • [Database Setup](#-database--migrations) • [Security](#-security--anti-fraud)
+
+</div>
 
 ---
 
-## 🛠️ Tech Stack
+## 📖 Overview
 
-* **Core:** Next.js 15 App Router & React 19
-* **Styling & Typing:** TypeScript & Tailwind CSS v4
-* **Backend Services:** Supabase Auth, PostgreSQL, Storage, Realtime-ready tables, and Row Level Security (RLS)
-* **Libraries:** Framer Motion, Lenis, Swiper, Zustand, React Query, Zod, and React Hook Form
+**Rakexura Store** is a digital gaming commerce platform tailored for PC gamers. It delivers authentic PC game licenses (Steam, Epic Games, Rockstar, Ubisoft, EA) and cloud gaming subscriptions (Xbox Game Pass Ultimate, Nvidia GeForce NOW) with transparent INR pricing, frictionless UPI checkout, automated order tracking, and instant delivery verification.
+
+Built on **Next.js 15 App Router** and **Supabase SSR**, Rakexura Store combines a cinematic dark gaming aesthetic with enterprise-grade security, rate-limited APIs, real-time database channels, and an intuitive administrative command center.
 
 ---
 
-## 💻 Local Setup
+## ✨ Key Features
 
-1. Copy `.env.example` to `.env.local`
-2. Add the Supabase project URL and publishable/anon key
-3. Install dependencies and run:
+### 🎮 Cinematic Storefront & Discovery
+* **Interactive Hero & Marquee:** Spotlights trending releases, curated bundles, and flash deals with smooth hardware-accelerated transitions.
+* **Smart Catalog & Dynamic Filters:** Instant client-side search with platform filtering (Steam, Epic Games, Rockstar), genre categories, price range sorting, and badge indicators (*Featured Deal*, *Best Seller*, *Flash Offer*).
+* **Live Offer Countdown Timers:** Synchronized real-time countdown clocks for limited-time price drops and weekend events.
 
-```powershell
+### ⚡ Game Editions & Multi-Tier Subscriptions
+* **Flexible Game Variants:** Granular pricing and delivery instructions for **Steam Accounts**, **Epic Accounts**, and **Offline Activation**.
+* **Subscription Duration Tiers:** Seamless support for cloud gaming services (Xbox Game Pass, Nvidia GeForce NOW) with separate **1 Month**, **2 Months**, and **3 Months** duration plans.
+
+### 💳 Instant UPI Checkout & Order Verification
+* **Dynamic UPI QR Code Generation:** Real-time GPay / PhonePe / Paytm payment QR generation based on exact cart totals.
+* **Proof Verification Pipeline:** Secure client-side upload of payment screenshots to encrypted private Supabase Storage buckets.
+* **Unique Tracking Reference:** Instant issuance of verifiable order tracking codes (`RKX-YYYY-XXXX`) accessible at `/track` without mandatory login.
+
+### 🛠️ Administrator Command Center (`/admin`)
+* **Real-time Order Workflow:** Kanban pipeline (*Pending* ➔ *Approved* ➔ *Delivered* ➔ *Rejected*) with instant WhatsApp dispatch integrations.
+* **Full Product & Deal Management:** Create, edit, toggle visibility, schedule discounts, and configure multi-platform pricing with live preview cards.
+* **Review Moderation Wall:** Approve, reject, or feature verified customer reviews and award loyalty points.
+* **Analytics & Broadcast Composer:** View live sales volume, conversion metrics, and broadcast announcement banners to all active store sessions.
+
+### 🎁 Loyalty Points, Coupons & Community
+* **Rewards Wallet:** Gamers earn points on approved orders, redeemable for discounts on future game purchases.
+* **Server-Validated Coupons:** Rate-limited backend coupon engine (`/api/coupons/validate`) verifying usage limits, minimum spend, and milestone criteria.
+* **Verified Customer Reviews:** Community ratings with photo proof and verified buyer badges.
+* **Game Request Portal:** Direct user submission system for unlisted game requests.
+
+---
+
+## 🏗 Architecture & Tech Stack
+
+```mermaid
+graph TD
+    Client[Next.js 15 Frontend<br/>React 19 + Tailwind v4 + Framer Motion] -->|SSR / Hydration| API[Next.js Server Routes & Middleware]
+    API -->|Rate Limiting| Upstash[Upstash Redis / In-Memory Bucket]
+    API -->|Telemetry & Errors| Sentry[Sentry Observability Logger]
+    API -->|RPC / SQL Queries| SupabaseDB[(Supabase PostgreSQL + RLS)]
+    API -->|Encrypted Storage| SupabaseStorage[(Supabase Private Buckets)]
+    API -->|Authentication| SupabaseAuth[Supabase Auth SSR<br/>OTP / OAuth / Magic Link]
+```
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Framework** | Next.js 15 (App Router) | High-performance hybrid SSR/SSG rendering, React Server Components |
+| **UI Library** | React 19 & TypeScript | Strict type-safety, concurrent rendering, modern hooks |
+| **Styling** | Tailwind CSS v4 & Lucide Icons | Dark obsidian gaming aesthetic (`#050505`, `#facc15`, `#8b5cf6`) |
+| **Animations** | Framer Motion, GSAP & Lenis | Smooth 60/120fps micro-interactions and inertia scrolling |
+| **Backend & DB** | Supabase (PostgreSQL + RLS) | Relational schemas, Row Level Security, Realtime channels |
+| **Auth** | Supabase SSR Auth | Google OAuth, Discord OAuth, 6-digit Email OTP, Magic Links |
+| **Storage** | Supabase Storage | Private buckets for payment screenshots and customer review media |
+| **State Management** | Zustand & React Query | Persistent cart/wishlist state and optimized client cache |
+| **Observability** | Sentry & Winston-style Logger | Structured JSON logs, route performance tracking, PII redaction |
+| **Security** | Custom Rate Limiters + Zod | Token-bucket rate limiting on checkout, auth, and notifications |
+
+---
+
+## 📁 Project Structure
+
+```text
+rakexura-store/
+├── app/                           # Next.js 15 App Router
+│   ├── (auth)/                    # Login, Register, OTP & OAuth Callbacks
+│   ├── (store)/                   # Public Storefront, Catalog, Game Details
+│   ├── admin/                     # Protected Admin Management Suite
+│   ├── api/                       # Secure Server Routes (Checkout, Coupons, Health)
+│   ├── dashboard/                 # User Account & Purchased Library Hub
+│   ├── track/                     # Public Order Tracking Portal
+│   ├── layout.tsx                 # Global Root Shell & Navigation
+│   └── page.tsx                   # Main Storefront Landing Page
+├── components/                    # Reusable React Component Hierarchy
+│   ├── admin/                     # Admin Dashboard Controls & Data Tables
+│   ├── checkout/                  # Cart Drawer, Payment QR & Proof Upload
+│   ├── game/                      # Game Cards, Badges, Media Swipers & Tiers
+│   ├── shared/                    # Navigation, Footer, Modals, Trust Badges
+│   └── ui/                        # Low-level Design System Primitives
+├── lib/                           # Utility Services & Integrations
+│   ├── security/                  # Rate Limiters, Input Sanitizers, Sentry Logger
+│   ├── supabase/                  # SSR Client, Browser Client & Admin Handlers
+│   └── utils/                     # Formatters, Currency & Price Calculation
+├── stores/                        # Zustand Store Implementations (Cart, Wishlist)
+├── supabase/                      # Database Infrastructure
+│   ├── migrations/                # Versioned SQL Migrations & RLS Policies
+│   └── seed.sql                   # Initial Catalog & Testing Seed Data
+├── types/                         # Global TypeScript Schemas & Database Types
+└── public/                        # Static Assets, Game Covers & Platform Logos
+```
+
+---
+
+## 🚀 Local Development
+
+### 1. Prerequisites
+* **Node.js**: `v20.x` or higher
+* **npm** or **pnpm**
+* Active **Supabase** account / local Supabase CLI
+
+### 2. Clone and Install
+```bash
+git clone https://github.com/RakeshKanna1/rakexura-store.git
+cd rakexura-store
 npm install
+```
+
+### 3. Configure Environment Variables
+Create `.env.local` in the project root:
+```bash
+cp .env.example .env.local
+```
+
+Populate the required configuration keys:
+```env
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Application Settings
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_WHATSAPP_NUMBER=918317416695
+NEXT_PUBLIC_OWNER_EMAIL=your-email@example.com
+OWNER_EMAIL=your-email@example.com
+
+# Optional Integrations
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+SENTRY_AUTH_TOKEN=
+```
+
+### 4. Run Development Server
+```bash
 npm run dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) to view the application.
-
----
-
-## 💾 Database Cutover
-
-> [!CAUTION]
-> **Important Cutover Rule:** Do not run the new migration against production until the new app is ready to replace the static admin.
-
-1. Back up the Supabase database.
-2. Run existing Phase 4 and Phase 5 migrations if they have not already been applied.
-3. Run the following migrations in order in the **Supabase SQL Editor**:
-   * `supabase/migrations/202606210001_ultimate_rebuild.sql`
-   * `supabase/migrations/202606220001_phase9_security_and_modules.sql`
-   * `supabase/migrations/202606220002_phase10_store_polish.sql`
-   * `supabase/migrations/202606220003_phase11_owner_storage_and_profiles.sql` *(Fixes the checkout proof bucket, enables avatars, and activates the verified owner account).*
-4. Create or sign in to the owner account through `/register` or `/login`.
-5. Configure authentication using the checklists below.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 🔐 Supabase Authentication Checklist
+## 💾 Database & Migrations
 
-### 🌐 URL Configuration
-In **Authentication > URL Configuration**:
-* **Site URL:** Set to the deployed Rakexura origin (e.g., `https://rakeon-store.vercel.app`).
-* **Redirect URLs:**
-  * `http://localhost:3000/auth/callback` (for local development)
-  * `https://your-domain.example/auth/callback` (for production/preview origins)
+All database schemas, constraints, and Row Level Security (RLS) policies are managed via versioned SQL migrations located in `supabase/migrations/`.
 
-### 📧 Email Provider Setup
-In **Authentication > Providers > Email**:
-* **Enable Email sign-in.**
-* **Confirm email:** Keep enabled for production. Registration will display inbox/spam instruction instead of immediate sign-in. For local testing, this can be disabled.
-* **Email Templates:** Use `{{ .ConfirmationURL }}` in confirmation and magic-link email templates. *Do not hardcode a localhost URL in a production template.*
-* **SMTP:** Configure custom SMTP before public launch to improve delivery.
-* **Capabilities:** The login screen supports password login, resend confirmation, and passwordless magic links. The callback validates and sends admin accounts to `/admin` by default.
+1. Open your **Supabase Project Dashboard > SQL Editor**.
+2. Run the migration files sequentially:
+   - `supabase/migrations/202606210001_ultimate_rebuild.sql`
+   - `supabase/migrations/202606220001_phase9_security_and_modules.sql`
+   - `supabase/migrations/202606220002_phase10_store_polish.sql`
+   - `supabase/migrations/202606220003_phase11_owner_storage_and_profiles.sql`
+   - `supabase/migrations/202607130001_additional_scalability_indexes.sql`
 
----
-
-## 🛡️ Admin & Owner Access
-
-> [!NOTE]
-> Passwords remain inside Supabase Auth and must not be stored in source code. There is no shared or hardcoded admin password.
-
-### 1. Promoting an Administrator
-1. Register or create the admin user in Supabase Authentication.
-2. Run this once in the **Supabase SQL Editor** (replace with your email):
-   ```sql
-   update public.profiles
-   set role = 'admin'
-   where id = (select id from auth.users where email = 'YOUR_ADMIN_EMAIL');
-   ```
-3. Sign in at `/login` with that account, then open `/admin`.
-
-### 2. Owner Activation
-Phase 11 adds a secure **Activate Admin Access** button for the verified owner account. The database RPC checks the authenticated JWT email before changing the role. No service-role key or shared admin password is used by the application.
-
-Keep these values in Vercel and local `.env.local`:
-```env
-NEXT_PUBLIC_OWNER_EMAIL=12k21rakeshkannam@gmail.com
-OWNER_EMAIL=12k21rakeshkannam@gmail.com
-```
-
-* **Usage:** Sign in with `12k21rakeshkannam@gmail.com`, open `/admin`, and click **Activate Admin Access** if the migration did not already promote the account.
+### Storage Buckets Setup
+Ensure the following Supabase Storage buckets are initialized:
+* `game-images` *(Public Read, Admin Write)* — Store game covers, banners, screenshots.
+* `payment-screenshots` *(Private, Admin/Owner Read)* — Customer payment proof screenshots.
+* `review-images` *(Public Read, Authenticated Write)* — Customer review attachments.
 
 ---
 
-## 🌐 Google and Discord OAuth Setup
+## 🛡️ Security & Anti-Fraud
 
-The login UI already supports both OAuth providers. To enable them:
+Rakexura Store incorporates multi-layer security hardening:
 
-1. Open Supabase **Authentication > Providers**.
-2. **Google Setup:** Enable and paste the Google OAuth client ID and secret.
-3. **Discord Setup:** Enable and paste the Discord application client ID and secret.
-4. In both provider consoles, configure the callback URL to the Supabase callback URL.
-5. In Supabase **URL Configuration > Redirect URLs**, ensure the production callback is set:
-   * `https://rakeon-store.vercel.app/auth/callback`
-
-> [!NOTE]
-> The database migration is additive, but it enables RLS and removes the old assumption of unrestricted browser writes. This is the security cutover point.
+* **Zero-Trust Pricing:** Checkout prices are recalculated server-side against the database catalog; client totals are never trusted.
+* **Strict Row Level Security (RLS):** All user orders, library items, loyalty points, and support tickets are strictly isolated by `auth.uid()`.
+* **Private Proof Storage:** Payment screenshots are stored in private buckets and accessed only via short-lived signed URLs in the admin portal.
+* **Rate Limiting:** Protects `/api/checkout`, `/api/coupons/validate`, and authentication endpoints against credential stuffing and brute-force traffic.
+* **PII Redaction:** Sentry and application loggers automatically scrub email addresses, phone numbers, payment proof URLs, and API tokens.
 
 ---
 
-## ☁️ Vercel Deployment
+## 🧪 Quality Assurance & Scripts
 
-Create a new Vercel project or set the existing project Root Directory to `rakexura-2026` when the repository root is the parent folder.
+Ensure all strict TypeScript compilation and lint rules pass:
 
-### 🔑 Environment Variables
-* `NEXT_PUBLIC_SUPABASE_URL`
-* `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-* `NEXT_PUBLIC_SITE_URL=https://your-domain.example`
-* `NEXT_PUBLIC_WHATSAPP_NUMBER=918317416695`
-* `NEXT_PUBLIC_OWNER_EMAIL`
-* `OWNER_EMAIL`
-* `NEXT_PUBLIC_OFFER_MARQUEE` *(optional, separate messages with `|`)*
-
-### ⚙️ Build Settings
-* **Build Command:** `npm run build`
-* **Output Framework:** Next.js (automatic)
-* *After deployment, add `https://your-domain.example/auth/callback` to Supabase Auth redirect URLs.*
-
----
-
-## 🔒 Security Model
-
-* **Public Read:** Catalog and approved reviews are public read-only.
-* **Customer Scopes:** Cart, wishlist, orders, notifications, rewards, library, and tickets are scoped to `auth.uid()`.
-* **Atomic State:** Cart, bundle cart, and wishlist cloud state is replaced atomically through a validated, authenticated RPC.
-* **Claims Validation:** Admin access is a `profiles.role = 'admin'` database claim checked by RLS and server routes.
-* **Guest Tracking:** Guest tracking uses a security-definer RPC requiring both order reference and a 10+ digit matching phone value.
-* **Checkout Security:** Checkout recalculates prices from the games table instead of trusting browser totals.
-* **Media Buckets:** Payment proofs and review media use private Storage buckets with owner/admin policies and short-lived admin links.
-* **Artwork Bucket:** Public game artwork uses the `game-images` bucket with admin-only write/delete policies.
-* **Activation Rules:** Admin activation is restricted by a database function that verifies the authenticated owner email.
-
----
-
-## 🏗️ Production Hardening & Stability
-
-A production hardening pass has been performed to enhance security, observability, performance, and developer experience.
-
-### 1. Server-Side Rate Limiting
-Lightweight rate limiting has been integrated for key endpoints (using Upstash Redis in production, falling back to an in-memory token bucket locally):
-* **Checkout API** (`/api/checkout`): Max 5 requests per 60 seconds per IP.
-* **Coupon Validation** (`/api/coupons/validate`): Max 15 requests per 60 seconds per IP.
-* **Review notifications** (`/api/notifications/review`): Max 5 requests per 60 seconds per IP.
-* **Support / Request notifications** (`/api/notifications/request`): Max 5 requests per 60 seconds per IP.
-* **Signup notifications** (`/api/notifications/new-user`): Max 5 requests per 60 seconds per IP.
-* **Loyalty Freebie Request** (`/api/rewards/request-freebie`): Max 3 requests per 60 seconds per IP.
-
-### 2. Sentry & Observability
-The observability logger (`lib/security/logger.ts`) is integrated with Sentry:
-* Context metadata automatically publishes tags for `route`, `request_id`, `order_id`, `operation_name`, and scopes to the authenticated `user_id`.
-* Safe redaction is extended to prevent leaks of passwords, API keys, credentials, tokens, PII (name/email/phone), and **payment proofs / screenshots / URL paths**.
-
-### 3. Server-Side Coupon Validation
-A new rate-limited server-side coupon validation API (`/api/coupons/validate`) checks all coupon attributes (e.g. minimum order price rules, loyalty points thresholds, global/user usage caps, and milestone eligibility) securely on the backend before checkout.
-
-### 4. Database Scaling
-Optimized database indexes on foreign keys have been added (`supabase/migrations/202607130001_additional_scalability_indexes.sql`):
-* `customer_library(user_id)`
-* `referrals(referrer_id)`
-* `coupon_usage(user_id, coupon_id)`
-* `reward_transactions(user_id)`
-* `support_tickets(user_id)`
-
-### 5. API Response Consistency
-All endpoints (checkout, health, status, notifications, rewards) return a unified response format wrapper:
-* **Success:** `{ success: true, data: { ... } }`
-* **Failure:** `{ success: false, error: { message: "...", code: "..." } }`
-* Stack traces are safely withheld from production clients.
-
-### 6. Health & Status
-* **Health API** (`/api/health`): Performs a strict database probe query with a 3s timeout and returns explicit `database: "connected" | "disconnected"` statuses.
-* **Status API** (`/api/status`): Standardized JSON response tracking active Git hashes and environment regions.
-
----
-
-## ✅ Verification & Testing
-
-Before deploying, ensure all strict checks pass successfully:
-
-```powershell
+```bash
+# Type check all TypeScript files
 npm run typecheck
+
+# Lint codebase with ESLint
 npm run lint
+
+# Build production bundle
 npm run build
 ```
 
-*All three commands must pass before deployment.*
+---
+
+## ☁️ Deployment
+
+### Deploying to Vercel
+1. Push your repository to GitHub.
+2. Import the project into [Vercel](https://vercel.com/).
+3. Set Framework Preset to **Next.js**.
+4. Configure all environment variables from `.env.local`.
+5. Under Supabase **Authentication > URL Configuration**, add your Vercel production domain to **Redirect URLs**:
+   ```text
+   https://your-store.vercel.app/auth/callback
+   ```
+
+---
+
+## 📄 License & Maintainer
+
+Maintained and developed by **Rakesh Kanna** ([@RakeshKanna1](https://github.com/RakeshKanna1)).  
+All rights reserved © 2026 Rakexura Store.
