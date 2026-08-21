@@ -101,12 +101,6 @@ export function AccountMenu() {
         <span className="mt-1 block truncate text-xs text-[#8991a6]">{account.email}</span>
       </div>
       {(account.role === "admin" || owner) && <Link href="/admin" className="mt-2 flex min-h-12 items-center gap-3 rounded-md border border-[#8b5cf6]/25 bg-[#8b5cf6]/[.08] px-3 text-sm font-black text-[#d4caff]"><ShieldCheck size={18} /> {account.role === "admin" ? "Admin dashboard" : "Activate admin access"}</Link>}
-      {account.isReseller && (
-        <Link href="/dashboard/reseller" className="mt-2 flex min-h-11 items-center gap-3 rounded-md border border-[#facc15]/30 bg-[#facc15]/10 px-3 text-sm font-bold text-[#facc15] transition hover:bg-[#facc15]/20">
-          <ResellerIcon className="w-4 h-4 text-[#facc15]" />
-          <span>Reseller Portal</span>
-        </Link>
-      )}
       <nav className="py-2">{links.map(([href, label, Icon]) => <Link key={href} href={href} className="flex min-h-11 items-center gap-3 rounded-md px-3 text-sm text-[#b8bfd0] transition hover:bg-white/[.06] hover:text-white"><Icon size={17} />{label}</Link>)}</nav>
       <LogoutButton compact className="flex min-h-11 w-full items-center gap-3 rounded-md px-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10" />
     </div>}

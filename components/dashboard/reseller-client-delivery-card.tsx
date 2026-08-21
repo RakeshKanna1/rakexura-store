@@ -36,15 +36,15 @@ export function ResellerClientDeliveryCard({ order }: { order: ResellerOrder }) 
   };
 
   return (
-    <article className="rounded-xl border border-white/10 bg-[#161922] p-4 md:p-5 space-y-4 hover:border-white/20 transition">
+    <article className="rounded-xl border border-white/[0.08] bg-[#070912]/80 p-4 md:p-5 space-y-3.5 hover:border-[#8b5cf6]/30 transition-all duration-300">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500/10 text-emerald-400">
+          <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             <PackageCheck size={18} />
           </div>
           <div>
             <strong className="text-sm font-bold text-white block">{gameTitles}</strong>
-            <span className="text-[11px] font-mono text-[#8f96a8]">
+            <span className="text-[11px] font-mono text-[#8991a6]">
               {order.order_reference || `Order #${order.id}`} · {new Date(order.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}
             </span>
           </div>
@@ -53,7 +53,7 @@ export function ResellerClientDeliveryCard({ order }: { order: ResellerOrder }) 
         <button
           type="button"
           onClick={handleCopyClientMessage}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[#20c763]/15 border border-[#20c763]/40 px-3 py-1.5 text-xs font-bold text-[#20c763] hover:bg-[#20c763]/25 transition cursor-pointer select-none"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300 transition cursor-pointer select-none"
           title="Copy formatted message ready to send to your buyer"
         >
           {copied ? <Check size={14} /> : <MessageCircle size={14} />}
@@ -62,8 +62,8 @@ export function ResellerClientDeliveryCard({ order }: { order: ResellerOrder }) 
       </div>
 
       {/* Access Preview Box */}
-      <div className="rounded-lg border border-white/5 bg-[#11131a] p-3">
-        <span className="text-[10px] font-mono uppercase tracking-wider text-[#8f96a8] block mb-1">
+      <div className="rounded-lg border border-white/[0.06] bg-black/40 p-3">
+        <span className="text-[10px] font-mono uppercase tracking-wider text-[#8991a6] block mb-1.5 font-bold">
           Stored Client Credentials &amp; Link
         </span>
         <pre className="font-mono text-xs text-[#d8dce8] whitespace-pre-wrap break-words leading-relaxed max-h-28 overflow-y-auto custom-scrollbar">

@@ -189,8 +189,8 @@ export default async function DashboardPage() {
 
       {/* Reseller Partner Hub (Embedded directly in Dashboard) */}
       {profile?.is_reseller && (
-        <section id="reseller" className="mt-8 rounded-2xl border border-amber-400/25 bg-[#0e0c1a]/90 p-6 shadow-xl space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
+        <section id="reseller" className="mt-8 rounded-2xl border border-[#8b5cf6]/25 bg-[#0e0a1f]/85 p-6 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-5">
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2.5">
                 <ResellerBadge size="md" discount={profile.reseller_discount} />
@@ -205,9 +205,9 @@ export default async function DashboardPage() {
 
             <Link
               href="/games"
-              className="inline-flex items-center gap-2 rounded-lg bg-[#8b5cf6] hover:bg-[#7c3aed] px-4 py-2.5 text-xs font-bold text-white shadow-[0_0_12px_rgba(139,92,246,0.3)] transition cursor-pointer"
+              className="btn btn-primary min-h-10 px-4 text-xs font-black shadow-[0_0_15px_rgba(139,92,246,0.35)]"
             >
-              <ShoppingBag size={14} />
+              <ShoppingBag size={15} />
               <span>Shop Wholesale Catalog</span>
             </Link>
           </div>
