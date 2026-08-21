@@ -203,18 +203,16 @@ export function RequestsClientView({
           </table>
         </div>
       ) : (
-        <div className="mt-8 overflow-x-auto rounded-md border border-[#8b5cf6]/20 bg-[#0c0a1a]/80">
-          <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+        <div className="mt-8 overflow-x-auto rounded-md border border-white/10 bg-black/20">
+          <table className="w-full min-w-[840px] border-collapse text-left text-sm">
             <thead className="bg-white/[.04] text-[#8991a6]">
               <tr>
-                <th className="p-4">User ID</th>
-                <th className="p-4">Username</th>
-                <th className="p-4">Email</th>
-                <th className="p-4">Current Rank Status</th>
-                <th className="p-4">Current Points</th>
-                <th className="p-4">Requested Date</th>
+                <th className="p-4 w-28">User ID</th>
+                <th className="p-4">Customer</th>
+                <th className="p-4">Loyalty Status</th>
+                <th className="p-4">Requested On</th>
                 <th className="p-4">Status</th>
-                <th className="p-4">Coupon Authorization & Delete</th>
+                <th className="p-4">Voucher Authorization &amp; Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -232,15 +230,23 @@ export function RequestsClientView({
                     <td className="p-4">
                       <CopyIdBadge id={row.userId} />
                     </td>
-                    <td className="p-4 font-bold text-white">{row.username}</td>
-                    <td className="p-4 text-[#8991a6]">{row.email}</td>
                     <td className="p-4">
-                      <span className="inline-flex rounded bg-white/[0.05] px-2.5 py-1 text-xs font-semibold text-[#b9a4ff] border border-[#8b5cf6]/20">
-                        {row.rankStatus}
+                      <strong className="block text-sm font-bold text-white leading-tight">
+                        {row.username}
+                      </strong>
+                      <span className="text-xs text-[#8991a6] block mt-0.5 max-w-[200px] truncate">
+                        {row.email}
                       </span>
                     </td>
-                    <td className="p-4 font-bold text-white">{row.points.toLocaleString()} pts</td>
-                    <td suppressHydrationWarning={true} className="p-4 text-xs text-[#8991a6]">
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex rounded bg-white/[0.05] px-2.5 py-0.5 text-xs font-bold text-[#b9a4ff] border border-[#8b5cf6]/20">
+                          {row.rankStatus}
+                        </span>
+                        <span className="font-bold text-white text-xs">{row.points.toLocaleString()} pts</span>
+                      </div>
+                    </td>
+                    <td suppressHydrationWarning={true} className="p-4 text-xs text-[#8991a6] whitespace-nowrap">
                       {new Date(row.timestamp).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
                     </td>
                     <td className="p-4">
@@ -253,34 +259,34 @@ export function RequestsClientView({
                       </span>
                     </td>
                     <td className="p-4">
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-2 flex-nowrap">
                         {!isResolved ? (
-                          <form action={approveMilestoneRequest} className="flex items-center gap-2 bg-black/40 p-2 rounded border border-white/10">
+                          <form action={approveMilestoneRequest} className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-white/10 shrink-0">
                             <input type="hidden" name="ticket_id" value={row.id} />
                             <input type="hidden" name="unlock_access" value="true" />
-                            <div className="flex flex-col gap-1">
+                            <div className="flex flex-col gap-0.5">
                               <label className="text-[9px] font-black uppercase tracking-wider text-[#8991a6]">
-                                Enter Authorized Code
+                                Authorized Code
                               </label>
                               <input
                                 suppressHydrationWarning={true}
                                 name="promo_code"
                                 required
                                 placeholder="DIAMONDFREE"
-                                className="h-8 w-28 rounded border border-white/10 bg-black/60 px-2 text-xs text-white outline-none focus:border-[#8b5cf6]"
+                                className="h-8 w-32 rounded border border-white/10 bg-black/60 px-2.5 text-xs font-mono font-bold text-white outline-none focus:border-white/30"
                               />
                             </div>
                             <button
                               suppressHydrationWarning={true}
                               type="submit"
-                              className="inline-flex h-8 mt-auto items-center justify-center gap-1 rounded border border-[#00d68f] bg-[#00d68f]/10 px-3.5 text-xs font-bold text-[#70efbb] hover:bg-[#00d68f]/20 transition-all active:scale-[0.97] cursor-pointer"
+                              className="inline-flex h-8 mt-auto items-center justify-center gap-1 rounded border border-[#00d68f]/40 bg-[#00d68f]/15 px-3 text-xs font-bold text-[#70efbb] hover:bg-[#00d68f]/25 transition-all active:scale-[0.97] cursor-pointer whitespace-nowrap"
                             >
-                              Approve & Unlock
+                              Approve &amp; Unlock
                             </button>
                           </form>
                         ) : (
-                          <span className="text-xs text-[#646b7b] font-medium flex items-center gap-1">
-                            <Check size={14} className="text-[#00d68f]" /> Authorized & Approved
+                          <span className="text-xs text-[#00d68f] font-bold inline-flex items-center gap-1.5 bg-[#00d68f]/10 border border-[#00d68f]/20 px-3 py-1.5 rounded-lg shrink-0">
+                            <Check size={14} className="text-[#00d68f]" /> Authorized &amp; Approved
                           </span>
                         )}
 
@@ -289,19 +295,20 @@ export function RequestsClientView({
                             href={whatsappLink}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex h-9 w-9 items-center justify-center rounded border border-white/10 bg-[#20c763]/10 text-[#20c763] hover:bg-[#20c763]/20 transition-all"
-                            title="Chat on WhatsApp"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded border border-white/10 bg-[#20c763]/10 text-[#20c763] hover:bg-[#20c763]/20 transition-all shrink-0"
+                            title="Chat with customer on WhatsApp"
                           >
                             <MessageCircle size={15} />
                           </a>
                         )}
 
-                        <form action={handleDeleteVoucher}>
+                        <form action={handleDeleteVoucher} className="shrink-0">
                           <input type="hidden" name="id" value={row.id} />
                           <button
+                            suppressHydrationWarning={true}
                             type="submit"
                             title="Delete request entry"
-                            className="inline-flex h-9 w-9 items-center justify-center rounded border border-red-500/30 bg-red-950/20 text-red-300 hover:bg-red-950/40 transition-all cursor-pointer"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded border border-red-500/30 bg-red-950/20 text-red-300 hover:bg-red-950/40 transition-all cursor-pointer"
                           >
                             <Trash2 size={14} />
                           </button>
