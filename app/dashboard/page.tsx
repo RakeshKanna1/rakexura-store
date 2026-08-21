@@ -122,12 +122,18 @@ export default async function DashboardPage() {
 
         <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <div>
-            <p className="eyebrow text-transparent bg-clip-text bg-gradient-to-r from-[#b9a4ff] to-[#8b5cf6] font-black">Customer dashboard</p>
+            <p className="eyebrow text-transparent bg-clip-text bg-gradient-to-r from-[#b9a4ff] to-[#8b5cf6] font-black">
+              {isReseller ? "Reseller Partner Dashboard" : "Customer dashboard"}
+            </p>
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <h1 className="text-3xl font-black tracking-tight sm:text-4xl bg-gradient-to-r from-white via-[#e8e3ff] to-[#b9a4ff] bg-clip-text text-transparent">Hi, {name}</h1>
-              {profile?.is_reseller && <ResellerBadge size="md" />}
+              {profile?.is_reseller && <ResellerBadge size="md" discount={profile.reseller_discount} />}
             </div>
-            <p className="section-copy text-[#8991a6]">Your games, orders, rewards, and support in one secure place.</p>
+            <p className="section-copy text-[#8991a6]">
+              {isReseller
+                ? "Your wholesale catalog, client deliveries, orders, and partner support in one secure place."
+                : "Your games, orders, rewards, and support in one secure place."}
+            </p>
           </div>
           
           <div className="flex items-center gap-3.5 rounded-xl border border-white/[0.08] bg-[#070912]/80 p-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] hover:border-[#b9a4ff]/20 transition-all duration-300">
@@ -149,8 +155,10 @@ export default async function DashboardPage() {
       </header>
 
       <div className="mt-6">
-        <OnboardingHint id="first-login" title="Welcome to your Rakexura account">
-          Start with My Orders after checkout. Delivered purchases automatically appear in My Library with activation guidance.
+        <OnboardingHint id="first-login" title={isReseller ? "Welcome to your Reseller Partner Account" : "Welcome to your Rakexura account"}>
+          {isReseller
+            ? "Access your active wholesale discounts at checkout and copy formatted credentials for your buyers from the Client Delivery Hub."
+            : "Start with My Orders after checkout. Delivered purchases automatically appear in My Library with activation guidance."}
         </OnboardingHint>
       </div>
 
