@@ -235,7 +235,7 @@ export default async function DashboardPage() {
               const deliveredOrders = (orders ?? []).filter((o) => o.order_status === "Delivered" && o.account_access);
               if (deliveredOrders.length === 0) {
                 return (
-                  <div className="rounded-xl border border-white/10 bg-[#161922]/60 p-4 text-center text-xs text-[#8991a6]">
+                  <div className="rounded-xl border border-white/[0.08] bg-[#070912]/80 p-5 text-center text-xs text-[#8991a6] leading-relaxed">
                     When your wholesale orders are delivered, your client-ready WhatsApp delivery keys will appear here.
                   </div>
                 );
