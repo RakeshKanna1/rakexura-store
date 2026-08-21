@@ -37,8 +37,8 @@ export default async function Home() {
   return <>
     <OfferMarquee />
     <div className="crystal-grid-bg bg-black overflow-hidden pb-12 relative">
-      {/* Subtle brand color gradient glows to match logo signature colors */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(139,92,246,0.015),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(250,204,21,0.005),transparent_50%)]" />
+      {/* Signature atmospheric ambient aura behind the hero and storefront */}
+      <div className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[520px] bg-[radial-gradient(ellipse_75%_50%_at_50%_0%,rgba(139,92,246,0.18),transparent_70%),radial-gradient(ellipse_40%_35%_at_80%_10%,rgba(250,204,21,0.08),transparent_60%)] filter blur-2xl" />
       
       {/* Dynamic Animated Sparkles, Shimmering Diamonds & Fireflies Canvas */}
       <FireflyCanvas />

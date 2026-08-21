@@ -368,9 +368,9 @@ html {
   .section-copy { font-size: .92rem; }
   .hero-with-featured { display: flex; flex-direction: column; gap: 22px; }
   .featured-now { border: 0; border-radius: 0; background: transparent; padding: 0; }
-  .featured-now-list { display: grid; grid-auto-flow: column; grid-auto-columns: min(58vw, 190px); gap: 9px; overflow-x: auto; overflow-y: visible; max-height: none; overscroll-behavior-inline: contain; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
-  .featured-now-item { min-height: 64px; border-color: rgba(255,255,255,.07); background: #0c0f16; padding: 7px; scroll-snap-align: start; }
-  .featured-now-item:hover, .featured-now-item.is-active { transform: none; animation: none; }
+  .featured-now-list { display: grid; grid-auto-flow: column; grid-auto-columns: min(58vw, 195px); gap: 10px; overflow-x: auto; overflow-y: visible; max-height: none; overscroll-behavior-inline: contain; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .featured-now-item { min-height: 66px; border: 1px solid rgba(255,255,255,.09); border-radius: 10px; background: rgba(15, 18, 29, 0.85); backdrop-filter: blur(12px); padding: 8px 10px; scroll-snap-align: start; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+  .featured-now-item:hover, .featured-now-item.is-active { transform: none; animation: none; border-color: rgba(139, 92, 246, 0.5); background: rgba(22, 26, 42, 0.95); box-shadow: 0 0 16px rgba(139, 92, 246, 0.2); }
   .game-page-theme { width: min(100% - 24px, 640px); padding: 10px 0 92px; }
   .game-page-theme::before { opacity: .28; animation: none; }
   .game-page-theme::after { opacity: .04; animation: none; }
