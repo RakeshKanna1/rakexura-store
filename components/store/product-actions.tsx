@@ -19,6 +19,7 @@ import { Confetti } from "@/components/common/confetti";
 import { ButtonPopRocks } from "@/components/common/button-pop-rocks";
 import { WishlistButton } from "./wishlist-button";
 import { PlatformIcon } from "./platform-icon";
+import { ResellerIcon } from "@/components/ui/reseller-badge";
 
 function price(game: Game, platform: Platform) {
   if (platform === "1 Month") return Number(game.price_1m ?? game.xbox_price ?? game.steam_price ?? 0);
@@ -247,8 +248,9 @@ export function ProductActions({ game }: { game: Game }) {
           {/* High-end, low-intensity typographic promotional layout frame */}
           {isWholesaleActive ? (
             <div className="mt-3 rounded-md bg-amber-400/10 border border-amber-400/25 p-3 text-center">
-              <p className="text-xs text-[#e0ce9a] font-bold">
-                👑 Verified Reseller Wholesale Rate Active
+              <p className="text-xs text-[#e0ce9a] font-bold flex items-center justify-center gap-1.5">
+                <ShieldCheck size={14} className="text-[#e0ce9a] shrink-0" />
+                <span>Verified Reseller Wholesale Rate Active</span>
               </p>
               <p className="mt-1 text-[11px] text-[#8991a8]">
                 Your {resellerDiscount}% partner margin is automatically applied to this game and at checkout.
@@ -282,11 +284,14 @@ export function ProductActions({ game }: { game: Game }) {
                     <del className="text-base font-medium text-[#8991a8] line-through select-none">
                       {formatPrice(gameSubtotal)}
                     </del>
-                    <strong className="text-3xl font-black text-[#e0ce9a] tracking-tight">
+                    <strong className="text-3xl font-black bg-gradient-to-r from-[#fff5d6] via-[#e8d59e] to-[#d6bd78] bg-clip-text text-transparent tracking-tight">
                       {formatPrice(wholesalePrice)}
                     </strong>
-                    <span className="inline-flex items-center gap-1 rounded-md bg-amber-400/10 border border-amber-400/25 px-2.5 py-0.5 text-xs font-black text-[#e0ce9a]">
-                      Wholesale (-{resellerDiscount}%)
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-gradient-to-b from-[#1a1722] to-[#0f0c18] border border-[#e0ce9a]/25 px-2.5 py-1 text-xs font-black tracking-tight shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_2px_6px_rgba(0,0,0,0.3)] select-none">
+                      <ResellerIcon className="w-3.5 h-3.5 shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]" />
+                      <span className="bg-gradient-to-r from-[#fff5d6] via-[#e8d59e] to-[#d6bd78] bg-clip-text text-transparent font-black">
+                        Wholesale (-{resellerDiscount}%)
+                      </span>
                     </span>
                   </motion.div>
                 ) : couponSavings > 0 ? (

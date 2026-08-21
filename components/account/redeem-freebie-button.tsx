@@ -32,7 +32,7 @@ export function RedeemFreebieButton({ points, initialLastRequestDate, isApproved
       minimum_order: 0,
       applicable_to: "both"
     });
-    toast.success("🎉 Free Game Reward Activated (DIAMONDFREE)! Choose any game to checkout for ₹0.");
+    toast.success("Free Game Reward Voucher (DIAMONDFREE) activated! Choose any game to checkout for ₹0.");
     router.push("/games");
   }
 

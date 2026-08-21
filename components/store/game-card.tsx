@@ -1,7 +1,7 @@
 "use client";
 
 import { PointerEvent } from "react";
-import { Eye, ShoppingCart, X } from "lucide-react";
+import { Eye, ShoppingCart, X, Zap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,7 @@ import { triggerFlyToCart } from "@/components/common/fly-to-cart-animator";
 import type { Game, Platform } from "@/types/store";
 import { WishlistButton } from "./wishlist-button";
 import { PlatformIcon } from "./platform-icon";
+import { ResellerIcon } from "@/components/ui/reseller-badge";
 
 function gamePrice(game: Game) {
   const prices = [
@@ -181,8 +182,9 @@ function GameCardInner({
 
           <div className="mt-2.5 rounded-md border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-center">
             {isWholesaleActive ? (
-              <p className="truncate text-[9px] font-bold text-[#e0ce9a]">
-                ⚡ {resellerDiscount}% Wholesale Margin Active
+              <p className="truncate text-[9px] font-bold text-[#e0ce9a] flex items-center justify-center gap-1">
+                <Zap size={11} className="text-[#e0ce9a] shrink-0" />
+                <span>{resellerDiscount}% Wholesale Margin Active</span>
               </p>
             ) : (
               <p className="truncate text-[9px] font-medium text-[#8991a6]">Buy 3 games & get 10% off with RAKE10</p>
@@ -194,9 +196,12 @@ function GameCardInner({
           {isWholesaleActive ? (
             <span className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <strong className="block text-base font-black text-[#e0ce9a]">{formatPrice(wholesalePrice)}</strong>
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-400/10 border border-amber-400/25 text-[8.5px] font-black text-[#e0ce9a]">
-                  -{resellerDiscount}%
+                <strong className="block text-base font-black bg-gradient-to-r from-[#fff5d6] via-[#e8d59e] to-[#d6bd78] bg-clip-text text-transparent">{formatPrice(wholesalePrice)}</strong>
+                <span className="inline-flex items-center gap-1 rounded-md bg-gradient-to-b from-[#1a1722] to-[#0f0c18] border border-[#e0ce9a]/25 px-1.5 py-0.5 text-[8.5px] font-black tracking-tight shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] select-none">
+                  <ResellerIcon className="w-2.5 h-2.5 shrink-0" />
+                  <span className="bg-gradient-to-r from-[#fff5d6] via-[#e8d59e] to-[#d6bd78] bg-clip-text text-transparent font-bold">
+                    -{resellerDiscount}%
+                  </span>
                 </span>
               </div>
               <del className="block text-[10px] text-[#646b7b] font-semibold">{formatPrice(price)} Retail</del>
