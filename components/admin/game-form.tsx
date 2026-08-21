@@ -82,6 +82,45 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
           />
         </label>
         
+        {/* Product Type Switcher */}
+        <div className="md:col-span-2 rounded-xl border border-white/10 bg-[#0d0b1a]/90 p-4">
+          <span className="text-xs font-extrabold uppercase tracking-wider text-[#8991a6] block mb-2.5">
+            Product Category Type
+          </span>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setIsSubscription(false);
+                setSelectedPlatforms(["Steam", "Offline"]);
+              }}
+              className={`flex items-center justify-center gap-2.5 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all border cursor-pointer ${
+                !isSubscription
+                  ? "bg-white/15 border-white/40 text-white shadow-md"
+                  : "bg-white/5 border-white/10 text-[#8991a6] hover:bg-white/10"
+              }`}
+            >
+              <span>🎮 Standard PC Game</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsSubscription(true);
+                setSelectedPlatforms(["1 Month", "2 Months", "3 Months"]);
+              }}
+              className={`flex items-center justify-center gap-2.5 py-3 px-4 rounded-lg font-bold text-xs sm:text-sm transition-all border cursor-pointer ${
+                isSubscription
+                  ? "bg-[#facc15]/20 border-[#facc15] text-[#facc15] shadow-md shadow-[#facc15]/10"
+                  : "bg-white/5 border-white/10 text-[#8991a6] hover:bg-white/10"
+              }`}
+            >
+              <span>⚡ Subscription / Pass (Xbox, Nvidia)</span>
+            </button>
+          </div>
+          {/* Hidden input to ensure form submission includes is_subscription */}
+          {isSubscription && <input type="hidden" name="is_subscription" value="on" />}
+        </div>
+
         {isSubscription ? (
           <>
             <div className="md:col-span-2 rounded-lg border border-[#facc15]/30 bg-[#facc15]/5 p-4">
@@ -216,16 +255,6 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
               {label}
             </label>
           ))}
-          <label className="flex min-h-11 items-center gap-2 rounded-md border border-[#facc15]/20 bg-[#facc15]/5 px-4 text-sm text-[#facc15] cursor-pointer select-none">
-            <input 
-              type="checkbox" 
-              name="is_subscription" 
-              checked={isSubscription} 
-              onChange={(e) => setIsSubscription(e.target.checked)} 
-              className="cursor-pointer"
-            />
-            Is Subscription / Membership
-          </label>
           <label className="flex min-h-11 items-center gap-2 rounded-md border border-[#00d68f]/20 bg-[#00d68f]/5 px-4 text-sm text-[#00d68f] cursor-pointer select-none">
             <input 
               type="checkbox" 
