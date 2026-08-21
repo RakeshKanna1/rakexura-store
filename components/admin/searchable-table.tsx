@@ -103,7 +103,7 @@ function RowActions({ section, row }: { section: string; row: AdminRow }) {
     const isAdmin = row.role === "admin";
     if (isAdmin) return <span className="text-[11px] font-bold text-[#b9a4ff]">Admin Profile</span>;
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 whitespace-nowrap shrink-0">
         <ResellerCustomerButton
           userId={customerId}
           customerName={customerName}

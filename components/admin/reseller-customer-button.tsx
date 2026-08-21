@@ -54,14 +54,14 @@ export function ResellerCustomerButton({
         type="button"
         onClick={() => setModalOpen(true)}
         disabled={isPending}
-        className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-bold transition cursor-pointer select-none ${
+        className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition whitespace-nowrap shrink-0 cursor-pointer select-none ${
           isReseller
-            ? "bg-[#facc15]/15 border border-[#facc15]/40 text-[#facc15] hover:bg-[#facc15]/25"
-            : "bg-white/5 border border-white/10 text-[#8991a6] hover:text-white hover:border-white/20"
+            ? "border border-[#facc15]/40 bg-[#facc15]/15 text-[#facc15] hover:bg-[#facc15]/25 shadow-[0_0_10px_rgba(250,204,21,0.15)]"
+            : "border border-white/15 bg-white/[0.04] text-[#d4d9e8] hover:border-[#facc15]/40 hover:bg-[#facc15]/10 hover:text-[#facc15]"
         }`}
         title={isReseller ? "Manage Reseller Access" : "Grant Reseller Badge"}
       >
-        <ResellerIcon className="w-3.5 h-3.5" />
+        <ResellerIcon className="w-3.5 h-3.5 shrink-0" />
         <span>{isReseller ? "Reseller Active" : "Make Reseller"}</span>
       </button>
 
