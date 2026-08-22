@@ -39,16 +39,16 @@ export function CustomerProofWall({ proofs }: { proofs: CustomerProof[] }) {
         <div className="max-w-2xl">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#00d68f]/10 text-[#00d68f] text-[10px] font-black uppercase tracking-wider border border-[#00d68f]/20 mb-2.5">
             <BadgeCheck size={13} />
-            Verified Customer Proofs
+            Verified Delivery Proofs
           </span>
-          <h2 className="section-title">Trusted by real gamers</h2>
-          <p className="section-copy mt-1.5">Real purchase screenshots & WhatsApp delivery receipts from genuine Rakexura customers.</p>
+          <h2 className="section-title">Real Customer Proofs & Receipts</h2>
+          <p className="section-copy mt-1.5">WhatsApp delivery screenshots & order completion photos from verified buyers.</p>
         </div>
         <Link
           href="/proofs"
           className="inline-flex items-center gap-2 rounded-lg bg-[#facc15] px-4 py-2.5 text-xs font-black text-black transition-all duration-300 hover:bg-[#ffe45c] hover:shadow-[0_0_24px_rgba(250,204,21,0.35)] hover:-translate-y-0.5"
         >
-          <span>See all proofs ({proofs.length})</span>
+          <span>View All Delivery Proofs ({proofs.length})</span>
           <ArrowRight size={14} />
         </Link>
       </div>
