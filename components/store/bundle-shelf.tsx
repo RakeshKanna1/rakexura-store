@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { assetUrl, formatPrice } from "@/lib/utils";
 import type { Bundle } from "@/types/store";
 
@@ -29,8 +30,16 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
         {bundles.map((bundle, index) => {
           const isSecond = index === 1;
           return (
-            <div
+            <motion.div
               key={bundle.id}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{
+                duration: 0.45,
+                delay: index * 0.08,
+                ease: [0.21, 0.47, 0.32, 0.98],
+              }}
               className="snap-start min-w-0"
             >
               <Link
@@ -61,7 +70,7 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
                   </div>
                 </div>
               </Link>
-            </div>
+            </motion.div>
           );
         })}
       </div>

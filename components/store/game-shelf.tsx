@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import type { Game } from "@/types/store";
 import { GameCard } from "./game-card";
 
@@ -46,12 +47,20 @@ export function GameShelf({
         }}
       >
         {displayGames.map((game, index) => (
-          <div
+          <motion.div
             key={game.id}
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.05 }}
+            transition={{
+              duration: 0.38,
+              delay: (index % 6) * 0.04,
+              ease: [0.21, 0.47, 0.32, 0.98],
+            }}
             className="min-w-0 h-full flex flex-col snap-start"
           >
             <GameCard game={game} priority={index < 2} />
-          </div>
+          </motion.div>
         ))}
       </div>
     </section>
