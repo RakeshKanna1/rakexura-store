@@ -61,11 +61,20 @@ function TrackOrderContent() {
 
   const [showConfetti, setShowConfetti] = useState(false);
   const [showPointsAnimation, setShowPointsAnimation] = useState(false);
+  const [orderCoupon, setOrderCoupon] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [hasSubscription, setHasSubscription] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
+
+  const handleDismissPoints = () => {
+    setShowPointsAnimation(false);
+    const el = document.getElementById("credentials-section") || document.getElementById("order-tracking-result");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
 
   async function handleSendEmailInvoice(targetEmail?: string) {
     const emailToSend = targetEmail || currentUser?.email || "registered customer email";
@@ -82,9 +91,6 @@ function TrackOrderContent() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
-
-  useEffect(() => {
     async function loadCurrentUser() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -161,6 +167,34 @@ function TrackOrderContent() {
     }
     setHasSubscription(isSub);
 
+    // Retrieve any attached coupon code or loyalty reward information
+    let couponName: string | null = null;
+    if (casted.order_id) {
+      try {
+        const { data: usage } = await supabase
+          .from("coupon_usage")
+          .select("coupon_id, coupons(code)")
+          .eq("order_id", casted.order_id)
+          .maybeSingle();
+        if (usage?.coupons) {
+          const c = usage.coupons as unknown;
+          if (typeof c === "object" && c !== null && "code" in c) {
+            couponName = String((c as { code: string }).code);
+          }
+        }
+      } catch {
+        // Optional coupon check
+      }
+    }
+    if (!couponName && Number(casted.total_price) === 0) {
+      if (casted.customer_rank === "Diamond" || casted.customer_rank === "Platinum") {
+        couponName = `${casted.customer_rank.toUpperCase()} FREEBIE`;
+      } else {
+        couponName = "LOYALTY COUPON";
+      }
+    }
+    setOrderCoupon(couponName);
+
     setTimeout(() => {
       const el = document.getElementById("order-tracking-result");
       if (el) {
@@ -175,12 +209,6 @@ function TrackOrderContent() {
         setShowPointsAnimation(true);
         sessionStorage.setItem(key, "true");
       }
-      setTimeout(() => {
-        const el = document.getElementById("credentials-section");
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-      }, 800);
     }
   }, [order, phone, currentUser]);
 
@@ -344,15 +372,23 @@ function TrackOrderContent() {
                 isPaid={["delivered", "completed", "payment verified", "processing", "approved"].some((s) => (result.status || "").toLowerCase().includes(s))}
                 isGift={result.order_ref.toUpperCase().includes("GIFT") || result.order_ref.toUpperCase().includes("GIVEAWAY") || (result.status || "").toLowerCase().includes("gift")}
                 paymentStatus={result.status}
+                couponCode={orderCoupon || (isFreebie ? "LOYALTY RANK FREEBIE" : undefined)}
+                couponDiscount={
+                  Number(result.total_price) === 0
+                    ? result.items && result.items.length > 0
+                      ? result.items.reduce((acc, item) => acc + Number(item.unit_price || item.price || 199) * (item.quantity || 1), 0)
+                      : 199
+                    : 0
+                }
                 items={
                   result.items && result.items.length > 0
                     ? result.items.map((i) => ({
                         name: i.title,
                         platform: i.platform || "Steam",
-                        price: Number(result.total_price || 0) / (result.items.length || 1),
-                        quantity: 1,
+                        price: Number(i.unit_price || i.price || (Number(result.total_price) > 0 ? Number(result.total_price) / (result.items?.length || 1) : 199)),
+                        quantity: Number(i.quantity || 1),
                       }))
-                    : [{ name: gamesText || "PC Game", price: Number(result.total_price || 0) }]
+                    : [{ name: gamesText || "PC Game", price: Number(result.total_price > 0 ? result.total_price : 199) }]
                 }
                 autoPrint={true}
                 statusHeading="Official Invoice"
@@ -573,14 +609,14 @@ function TrackOrderContent() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[110] grid place-items-center bg-black/80 p-4 backdrop-blur-md"
-            onClick={() => setShowPointsAnimation(false)}
+            className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto"
+            onClick={handleDismissPoints}
           >
             <motion.div
-              initial={{ scale: 0.8, y: 20 }}
+              initial={{ scale: 0.85, y: 15 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.8, y: 10 }}
-              className="relative w-full max-w-sm rounded-2xl border border-amber-400/30 bg-gradient-to-b from-[#110e29] to-[#070514] p-6 text-center shadow-[0_0_50px_rgba(251,191,36,0.25)]"
+              exit={{ scale: 0.85, y: 10 }}
+              className="relative my-auto w-full max-w-sm rounded-2xl border border-amber-400/30 bg-gradient-to-b from-[#110e29] to-[#070514] p-6 text-center shadow-[0_0_50px_rgba(251,191,36,0.35)]"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Floating Glow */}
@@ -603,7 +639,7 @@ function TrackOrderContent() {
 
               <button
                 type="button"
-                onClick={() => setShowPointsAnimation(false)}
+                onClick={handleDismissPoints}
                 className="mt-5 w-full rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 py-2.5 text-xs font-black text-black shadow-lg shadow-amber-500/20 transition active:scale-95 cursor-pointer"
               >
                 Claim & Continue

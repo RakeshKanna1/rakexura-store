@@ -410,8 +410,15 @@ export function ThermalReceiptPrinter({
 
                   {/* Amount Display */}
                   <div className="mb-2 font-sans">
-                    <div className="text-xl font-black text-[#05070f] leading-none font-sans">
-                      {grandTotal === 0 ? "₹0" : formatPrice(grandTotal)}
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xl font-black text-[#05070f] leading-none font-sans">
+                        {grandTotal === 0 ? "₹0" : formatPrice(grandTotal)}
+                      </span>
+                      {grandTotal === 0 && (
+                        <span className="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          {isOrderGift ? "GIFTED" : "100% OFF"}
+                        </span>
+                      )}
                     </div>
                     <div className="text-[8px] text-[#6a7282] uppercase mt-0.5 font-sans">
                       {formattedDate} | {orderReference}
@@ -459,8 +466,8 @@ export function ThermalReceiptPrinter({
                     {/* Dynamic Coupon Code Discount Row */}
                     {!isOrderGift && (couponCode || effectiveDiscount > 0) && (
                       <div className="flex justify-between text-emerald-700 font-bold">
-                        <span>Coupon {couponCode ? `(${couponCode.toUpperCase()})` : "Discount"}</span>
-                        <span>-{formatPrice(effectiveDiscount)}</span>
+                        <span className="truncate max-w-[130px]">Coupon {couponCode ? `(${couponCode.toUpperCase()})` : "Discount"}</span>
+                        <span>-{formatPrice(effectiveDiscount > 0 ? effectiveDiscount : subtotal)}</span>
                       </div>
                     )}
 
@@ -474,7 +481,7 @@ export function ThermalReceiptPrinter({
                     <div className="flex justify-between font-black text-[11px] pt-1 border-t border-[#05070f] text-[#05070f]">
                       <span>TOTAL</span>
                       <span className={grandTotal === 0 ? "text-emerald-700 font-black" : ""}>
-                        {grandTotal === 0 ? "₹0" : formatPrice(grandTotal)}
+                        {grandTotal === 0 ? "₹0 (FREE)" : formatPrice(grandTotal)}
                       </span>
                     </div>
                   </div>
