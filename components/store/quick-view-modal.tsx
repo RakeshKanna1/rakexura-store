@@ -48,12 +48,6 @@ export function QuickViewModal({ game, onClose }: { game: Game | null; onClose: 
   const [couponCode, setCouponCode] = useState("");
   const [checkingCoupon, setCheckingCoupon] = useState(false);
 
-  useEffect(() => {
-    if (mounted && coupon) {
-      setCouponCode(coupon.code);
-    }
-  }, [mounted, coupon]);
-
   const activeCoupon = mounted ? coupon : null;
 
   const lowest = game ? lowestPrice(game) : 0;

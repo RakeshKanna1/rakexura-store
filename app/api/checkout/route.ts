@@ -19,11 +19,22 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     
+    let isAdmin = false;
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      isAdmin = profile?.role === "admin" || profile?.role === "owner" || user.email === "12k21rakeshkannam@gmail.com";
+    }
+
     const body = await request.json();
     const { name, whatsapp, items, bundles, paymentReference, couponCode, paymentProofPath } = body;
 
     // Validate coupon code eligibility
-    if (couponCode) {
+    if (couponCode && !isAdmin) {
       const normalized = couponCode.trim().toUpperCase();
 
       // Check game price restriction for general coupons (non-Diamond/Platinum)

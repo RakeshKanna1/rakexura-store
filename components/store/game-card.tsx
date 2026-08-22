@@ -121,7 +121,7 @@ function GameCardInner({
         href={gameUrl(game)} 
         prefetch={false} 
         onMouseEnter={handleMouseEnter}
-        className="block aspect-[3/4] w-full shrink-0 overflow-hidden bg-[#08090c] relative touch-pan-y"
+        className="block aspect-[3/4] w-full shrink-0 overflow-hidden bg-[#08090c] relative"
       >
         <Image
           src={assetUrl(game.cover_image)}
@@ -298,8 +298,8 @@ export function GameCard({
   return (
     <article
       onPointerMove={move}
-      style={{ touchAction: "pan-y" }}
-      className={`spotlight-card group relative flex h-full flex-col overflow-hidden rounded-xl border transition-colors duration-200 md:transition-all md:duration-300 md:hover:-translate-y-1.5 transform-gpu shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] touch-pan-y ${themeClasses}`}
+      style={{ touchAction: "pan-x pan-y" }}
+      className={`spotlight-card group relative flex h-full flex-col overflow-hidden rounded-xl border transition-colors duration-200 md:transition-all md:duration-300 md:hover:-translate-y-1.5 transform-gpu shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] ${themeClasses}`}
     >
       <GameCardInner {...props} />
     </article>

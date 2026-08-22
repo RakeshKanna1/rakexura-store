@@ -48,6 +48,7 @@ export function CartView() {
   const [code, setCode] = useState("");
   const [checking, setChecking] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [isReseller, setIsReseller] = useState(false);
   const [resellerDiscount, setResellerDiscount] = useState(0);
@@ -57,11 +58,13 @@ export function CartView() {
     setMounted(true);
     if (coupon) setCode(coupon.code);
 
-    async function loadReseller() {
+    async function loadUserData() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: profile } = await supabase.from("profiles").select("is_reseller, reseller_discount, reseller_discount_type").eq("id", user.id).maybeSingle();
+        const { data: profile } = await supabase.from("profiles").select("role, is_reseller, reseller_discount, reseller_discount_type").eq("id", user.id).maybeSingle();
+        const adminCheck = profile?.role === "admin" || profile?.role === "owner" || user.email === "12k21rakeshkannam@gmail.com";
+        setIsAdmin(adminCheck);
         if (profile?.is_reseller) {
           setIsReseller(true);
           setResellerDiscount(Number(profile.reseller_discount || 25));
@@ -69,7 +72,7 @@ export function CartView() {
         }
       }
     }
-    void loadReseller();
+    void loadUserData();
   }, [coupon]);
 
   const subtotal = lines.reduce((sum, line) => sum + linePrice(line) * line.quantity, 0) + bundles.reduce((sum, line) => sum + Number(line.bundle.bundle_price) * line.quantity, 0);
@@ -99,9 +102,11 @@ export function CartView() {
     ? nonSubscriptionSubtotal
     : subtotal;
 
-  const couponEligible = coupon && subtotal >= coupon.minimum_order && (coupon.code !== "RAKE10" || quantity >= 3) && (coupon.code !== "RAKETHREE" || quantity >= 3) && (
-    coupon.applicable_to === "subscription" ? hasSubItems : coupon.applicable_to === "normal" ? hasNormalItems : true
-  );
+  const couponEligible = coupon && (isAdmin || (
+    subtotal >= coupon.minimum_order && (coupon.code !== "RAKE10" || quantity >= 3) && (coupon.code !== "RAKETHREE" || quantity >= 3) && (
+      coupon.applicable_to === "subscription" ? hasSubItems : coupon.applicable_to === "normal" ? hasNormalItems : true
+    )
+  ));
   const couponSavings = couponEligible ? Math.min(discountableBase, coupon.discount_type === "percentage" ? discountableBase * coupon.discount_value / 100 : coupon.discount_value) : 0;
   const total = Math.max(0, subtotal - couponSavings - resellerSavings);
   const gamesNeeded = Math.max(0, 3 - quantity);
@@ -113,9 +118,9 @@ export function CartView() {
     setChecking(true);
     const supabase = createClient();
 
-    // Resellers cannot use retail coupons
+    // Resellers cannot use retail coupons (bypassed for admin)
     const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
+    if (user && !isAdmin) {
       const { data: profile } = await supabase.from("profiles").select("is_reseller").eq("id", user.id).maybeSingle();
       if (profile?.is_reseller) {
         setChecking(false);
@@ -125,14 +130,16 @@ export function CartView() {
     
     // 1. DIAMOND FREEBIE check
     if (normalized === "DIAMONDFREE" || normalized === "DIAMOND-FREEBIE") {
-      if (!user) {
-        setChecking(false);
-        return toast.error("Sign in to redeem Diamond loyalty perks");
-      }
-      const { data: reward } = await supabase.from("user_rewards").select("points").eq("user_id", user.id).maybeSingle();
-      if ((reward?.points ?? 0) < 4000) {
-        setChecking(false);
-        return toast.error("Diamond loyalty freebies require Diamond rank (4,000+ points).");
+      if (!isAdmin) {
+        if (!user) {
+          setChecking(false);
+          return toast.error("Sign in to redeem Diamond loyalty perks");
+        }
+        const { data: reward } = await supabase.from("user_rewards").select("points").eq("user_id", user.id).maybeSingle();
+        if ((reward?.points ?? 0) < 4000) {
+          setChecking(false);
+          return toast.error("Diamond loyalty freebies require Diamond rank (4,000+ points).");
+        }
       }
       setCoupon({ code: "DIAMONDFREE", discount_type: "percentage", discount_value: 100, minimum_order: 0, applicable_to: "both" });
       setChecking(false);
@@ -141,7 +148,7 @@ export function CartView() {
 
     // 2. Milestone Loyalty Coupon check
     const isMilestoneCoupon = normalized.startsWith("MILE") || normalized.startsWith("LOYAL") || normalized.startsWith("STAGE") || normalized.startsWith("PLAT");
-    if (isMilestoneCoupon) {
+    if (!isAdmin && isMilestoneCoupon) {
       if (!user) {
         setChecking(false);
         return toast.error("Sign in to apply milestone loyalty coupons");
@@ -153,12 +160,12 @@ export function CartView() {
       }
     }
 
-    if (normalized === "RAKE10" && quantity < 3) {
+    if (!isAdmin && normalized === "RAKE10" && quantity < 3) {
       setChecking(false);
       return toast.error(`Add ${3 - quantity} more ${3 - quantity === 1 ? "game" : "games"} to use RAKE10`);
     }
 
-    if (normalized === "RAKETHREE" && quantity < 3) {
+    if (!isAdmin && normalized === "RAKETHREE" && quantity < 3) {
       setChecking(false);
       return toast.error("This code requires a minimum selection of 3 games to unlock your 10% discount.");
     }

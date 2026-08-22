@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
 import { assetUrl, formatPrice } from "@/lib/utils";
 import type { Bundle } from "@/types/store";
 
@@ -21,23 +20,18 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
         </Link>
       </div>
       <div
-        className="hide-scrollbar grid w-full max-w-full auto-cols-[85%] grid-flow-col gap-4 overflow-x-auto overscroll-x-contain scroll-smooth snap-x snap-proximity md:grid-flow-row md:grid-cols-2 md:overflow-visible"
+        data-lenis-prevent="true"
+        data-lenis-prevent-wheel="true"
+        data-lenis-prevent-touch="true"
+        className="hide-scrollbar grid w-full max-w-full auto-cols-[85%] grid-flow-col gap-4 overflow-x-auto overscroll-x-contain sm:auto-cols-[70%] md:grid-flow-row md:grid-cols-2 md:overflow-visible"
         style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}
       >
         {bundles.map((bundle, index) => {
           const isSecond = index === 1;
           return (
-            <motion.div
+            <div
               key={bundle.id}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.1 }}
-              transition={{
-                duration: 0.45,
-                delay: index * 0.08,
-                ease: [0.21, 0.47, 0.32, 0.98],
-              }}
-              className="snap-start will-change-transform transform-gpu"
+              className="snap-start min-w-0"
             >
               <Link
                 href={`/bundles/${bundle.id}`}
@@ -67,7 +61,7 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
                   </div>
                 </div>
               </Link>
-            </motion.div>
+            </div>
           );
         })}
       </div>

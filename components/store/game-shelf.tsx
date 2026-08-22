@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
 import type { Game } from "@/types/store";
 import { GameCard } from "./game-card";
 
@@ -35,7 +34,10 @@ export function GameShelf({
         </Link>
       </div>
       <div
-        className={`hide-scrollbar grid w-full max-w-full auto-cols-[170px] grid-flow-col gap-4 overflow-x-auto pb-3 overscroll-x-contain sm:auto-cols-[210px] md:auto-cols-[240px] lg:grid-flow-row lg:grid-cols-6 lg:overflow-visible lg:pb-0 scroll-smooth snap-x snap-proximity ${
+        data-lenis-prevent="true"
+        data-lenis-prevent-wheel="true"
+        data-lenis-prevent-touch="true"
+        className={`hide-scrollbar grid w-full max-w-full auto-cols-[170px] grid-flow-col gap-4 overflow-x-auto pb-3 overscroll-x-contain sm:auto-cols-[210px] md:auto-cols-[240px] lg:grid-flow-row lg:grid-cols-6 lg:overflow-visible lg:pb-0 ${
           rows === 2 ? "lg:gap-y-6" : ""
         }`}
         style={{
@@ -44,20 +46,12 @@ export function GameShelf({
         }}
       >
         {displayGames.map((game, index) => (
-          <motion.div
+          <div
             key={game.id}
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.05 }}
-            transition={{
-              duration: 0.38,
-              delay: (index % 6) * 0.04,
-              ease: [0.21, 0.47, 0.32, 0.98],
-            }}
-            className="min-w-0 h-full flex flex-col snap-start will-change-transform transform-gpu"
+            className="min-w-0 h-full flex flex-col snap-start"
           >
             <GameCard game={game} priority={index < 2} />
-          </motion.div>
+          </div>
         ))}
       </div>
     </section>

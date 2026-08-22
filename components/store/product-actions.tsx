@@ -56,38 +56,39 @@ export function ProductActions({ game }: { game: Game }) {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [checkedAuth, setCheckedAuth] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }: { data: { user: User | null } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }: { data: { user: User | null } }) => {
       setUser(user);
       setCheckedAuth(true);
+      if (user) {
+        const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+        setIsAdmin(profile?.role === "admin" || profile?.role === "owner" || user.email === "12k21rakeshkannam@gmail.com");
+      }
     });
   }, []);
 
+  // Dynamic validation check for RAKETHREE quantity constraints on the game details page (bypassed for admin)
   useEffect(() => {
-    if (mounted && coupon) {
-      setCouponCode(coupon.code);
+    if (!isAdmin && coupon?.code === "RAKETHREE") {
+      const totalSelected = lines.filter((l) => l.game.id !== game.id).length;
+      const activeCount = quantity + totalSelected;
+      if (activeCount < 3) {
+        setCoupon(null);
+        setCouponCode("");
+        toast.error("Coupon RAKETHREE removed: This code requires a minimum selection of 3 games.");
+      }
     }
-  }, [mounted, coupon]);
+  }, [coupon, quantity, lines, game.id, isAdmin, setCoupon]);
 
-  // Dynamic validation check for RAKETHREE quantity constraints on the game details page
+  // Dynamic validation check for general coupon game price constraints and scope (bypassed for admin)
   useEffect(() => {
-    const totalSelected = lines.filter((l) => l.game.id !== game.id).length;
-    const activeCount = quantity + totalSelected;
-    if (coupon?.code === "RAKETHREE" && activeCount < 3) {
-      setCoupon(null);
-      setCouponCode("");
-      toast.error("Coupon RAKETHREE removed: This code requires a minimum selection of 3 games.");
-    }
-  }, [coupon, quantity, lines, game.id, setCoupon]);
-
-  // Dynamic validation check for general coupon game price constraints and scope
-  useEffect(() => {
-    if (coupon) {
+    if (!isAdmin && coupon) {
       if (coupon.applicable_to === "subscription" && !game.is_subscription) {
         setCoupon(null);
         setCouponCode("");
@@ -109,7 +110,7 @@ export function ProductActions({ game }: { game: Game }) {
         }
       }
     }
-  }, [selected, coupon, game, quantity, setCoupon]);
+  }, [selected, coupon, game, quantity, isAdmin, setCoupon]);
 
   const basePrice = price(game, selected);
   const gameSubtotal = basePrice * quantity;

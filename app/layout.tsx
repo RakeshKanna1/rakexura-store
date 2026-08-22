@@ -33,8 +33,11 @@ export const metadata: Metadata = {
   openGraph: { title: "Rakexura Store", description: "Your next game, for less.", url: siteUrl, siteName: "Rakexura", type: "website" },
   robots: { index: true, follow: true },
   icons: {
-    icon: "/Assets/RakeLogo.png",
-    shortcut: "/Assets/RakeLogo.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/Assets/RakeLogo.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
     apple: "/Assets/RakeLogo.png",
   },
 };

@@ -44,11 +44,40 @@ export async function POST(request: Request) {
     const normalized = code.trim().toUpperCase();
     const isDiamondOrPlat = isDiamondOrPlatinumCoupon(normalized);
 
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    let isAdmin = false;
+    let isReseller = false;
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role, is_reseller")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      isAdmin = profile?.role === "admin" || profile?.role === "owner" || user.email === "12k21rakeshkannam@gmail.com";
+      isReseller = Boolean(profile?.is_reseller);
+    }
+
+    if (!isAdmin && isReseller) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "Retail promo coupons cannot be combined with your active wholesale reseller pricing.",
+            code: "RESELLER_COUPON_DISABLED"
+          }
+        },
+        { status: 400 }
+      );
+    }
+
     // 1. General coupon single-item check
     const totalSubtotal = subtotal !== undefined ? Number(subtotal) : (gamePrice !== undefined ? Number(gamePrice) : 0);
     const itemsCount = cartItemsCount !== undefined ? Number(cartItemsCount) : (quantity !== undefined ? Number(quantity) : 1);
 
-    if (!isDiamondOrPlat && normalized !== "RAKETHREE" && itemsCount === 1 && totalSubtotal < 99) {
+    if (!isAdmin && !isDiamondOrPlat && normalized !== "RAKETHREE" && itemsCount === 1 && totalSubtotal < 99) {
       return NextResponse.json(
         {
           success: false,
@@ -62,7 +91,7 @@ export async function POST(request: Request) {
     }
 
     // 2. RAKETHREE quantity check
-    if (normalized === "RAKETHREE") {
+    if (!isAdmin && normalized === "RAKETHREE") {
       const itemsCount = cartItemsCount !== undefined ? Number(cartItemsCount) : (quantity !== undefined ? Number(quantity) : 1);
       if (itemsCount < 3) {
         return NextResponse.json(
@@ -71,32 +100,6 @@ export async function POST(request: Request) {
             error: {
               message: "This code requires a minimum selection of 3 games to unlock your 10% discount.",
               code: "QUANTITY_RESTRICTION"
-            }
-          },
-          { status: 400 }
-        );
-      }
-    }
-
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    let isAdmin = false;
-    if (user) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role, is_reseller")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      isAdmin = profile?.role === "admin" || profile?.role === "owner" || user.email === "12k21rakeshkannam@gmail.com";
-      if (!isAdmin && profile?.is_reseller) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              message: "Retail promo coupons cannot be combined with your active wholesale reseller pricing.",
-              code: "RESELLER_COUPON_DISABLED"
             }
           },
           { status: 400 }
@@ -123,8 +126,8 @@ export async function POST(request: Request) {
       error = fallbackQuery.error;
     }
 
-    // If the coupon has expired, return coupon expired error
-    if (coupon && coupon.expires_at && new Date(coupon.expires_at) <= new Date()) {
+    // If the coupon has expired, return coupon expired error (bypassed for admin)
+    if (!isAdmin && coupon && coupon.expires_at && new Date(coupon.expires_at) <= new Date()) {
       return NextResponse.json(
         {
           success: false,
@@ -137,7 +140,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (error || !coupon || (coupon.starts_at && new Date(coupon.starts_at) > new Date())) {
+    if (error || !coupon || (!isAdmin && coupon.starts_at && new Date(coupon.starts_at) > new Date())) {
       return NextResponse.json(
         {
           success: false,
@@ -152,7 +155,7 @@ export async function POST(request: Request) {
 
     // 3b. Validate Applicable Scope (Subscription vs Normal vs Both)
     const applicableTo = (coupon as unknown as { applicable_to?: string })?.applicable_to || "both";
-    if (applicableTo === "subscription") {
+    if (!isAdmin && applicableTo === "subscription") {
       const hasAnySub = isSubscription !== undefined ? Boolean(isSubscription) : Boolean(hasSubscription);
       if (!hasAnySub) {
         return NextResponse.json(
@@ -166,7 +169,7 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
-    } else if (applicableTo === "normal") {
+    } else if (!isAdmin && applicableTo === "normal") {
       const isSub = isSubscription !== undefined ? Boolean(isSubscription) : (Boolean(hasSubscription) && !Boolean(hasNormal));
       if (isSub) {
         return NextResponse.json(
@@ -184,7 +187,7 @@ export async function POST(request: Request) {
 
     // 4. Milestone / Loyalty points check
     const isRestrictedCode = normalized === "RAKE20" || normalized === "DIAMONDFREE" || normalized === "DIAMOND-FREEBIE" || normalized === "PLATINUMFREE" || normalized === "PLATINUM-FREEBIE";
-    if (isRestrictedCode) {
+    if (!isAdmin && isRestrictedCode) {
       if (!user) {
         return NextResponse.json(
           {
@@ -231,7 +234,7 @@ export async function POST(request: Request) {
     }
 
     const isMilestoneCoupon = normalized.startsWith("MILE") || normalized.startsWith("LOYAL") || normalized.startsWith("STAGE") || (normalized.startsWith("PLAT") && normalized !== "PLATINUMFREE" && normalized !== "PLATINUM-FREEBIE");
-    if (isMilestoneCoupon) {
+    if (!isAdmin && isMilestoneCoupon) {
       if (!user) {
         return NextResponse.json(
           {
@@ -260,7 +263,7 @@ export async function POST(request: Request) {
     }
 
     // 5. Global usage limit check
-    if (coupon.usage_limit !== null) {
+    if (!isAdmin && coupon.usage_limit !== null) {
       const { count: globalUses } = await supabase
         .from("coupon_usage")
         .select("id", { count: "exact", head: true })
@@ -280,7 +283,7 @@ export async function POST(request: Request) {
     }
 
     // 6. Per-user limit check
-    if (user) {
+    if (!isAdmin && user) {
       const { count } = await supabase
         .from("coupon_usage")
         .select("id", { count: "exact", head: true })
@@ -311,7 +314,7 @@ export async function POST(request: Request) {
     }
 
     // 7. Minimum order check (if subtotal is passed)
-    if (subtotal !== undefined && Number(subtotal) < Number(coupon.minimum_order ?? 0)) {
+    if (!isAdmin && subtotal !== undefined && Number(subtotal) < Number(coupon.minimum_order ?? 0)) {
       return NextResponse.json(
         {
           success: false,

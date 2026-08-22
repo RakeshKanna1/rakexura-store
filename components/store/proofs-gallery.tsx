@@ -3,12 +3,18 @@
 import Image from "next/image";
 import { BadgeCheck, X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { assetUrl } from "@/lib/utils";
 import type { CustomerProof } from "@/types/store";
 
 export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
   const [selectedProofIndex, setSelectedProofIndex] = useState<number | null>(null);
   const [activeFilter, setActiveFilter] = useState<"all" | "whatsapp" | "payment">("all");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const filteredProofs = proofs.filter((p) => {
     if (activeFilter === "all") return true;
@@ -17,14 +23,20 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
   });
 
   useEffect(() => {
+    if (selectedProofIndex === null) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (selectedProofIndex === null) return;
       if (e.key === "Escape") setSelectedProofIndex(null);
       if (e.key === "ArrowLeft") setSelectedProofIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : filteredProofs.length - 1));
       if (e.key === "ArrowRight") setSelectedProofIndex((prev) => (prev !== null && prev < filteredProofs.length - 1 ? prev + 1 : 0));
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [selectedProofIndex, filteredProofs.length]);
 
   if (!proofs.length) {
@@ -108,23 +120,26 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
         ))}
       </div>
 
-      {/* Fullscreen Modal Lightbox */}
-      {currentSelectedProof && (
+      {/* Fullscreen Modal Lightbox - Portaled directly to document.body */}
+      {mounted && currentSelectedProof && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/92 p-3 sm:p-6 backdrop-blur-md animate-in fade-in duration-200"
+          data-lenis-prevent="true"
+          data-lenis-prevent-wheel="true"
+          data-lenis-prevent-touch="true"
+          className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 p-3 sm:p-6 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto"
           onClick={() => setSelectedProofIndex(null)}
         >
           <div
-            className="relative flex max-h-[94vh] max-w-4xl w-full flex-col overflow-hidden rounded-2xl border border-white/15 bg-[#0e111a] shadow-[0_25px_60px_rgba(0,0,0,0.9)]"
+            className="relative flex max-h-[92vh] max-w-4xl w-full flex-col overflow-hidden rounded-2xl border border-white/15 bg-[#0e111a] shadow-[0_25px_70px_rgba(0,0,0,0.95)] my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/10 px-5 py-3.5 bg-black/50">
+            <div className="flex items-center justify-between border-b border-white/10 px-5 py-3.5 bg-black/60 shrink-0">
               <div className="flex items-center gap-2">
                 <BadgeCheck size={18} className="text-[#00d68f]" />
                 <div>
                   <span className="text-sm font-bold text-white block">Verified Customer Delivery Proof</span>
-                  <span className="text-[11px] text-[#8991a6]">
+                  <span className="text-[11px] text-[#8991a8]">
                     Photo {(selectedProofIndex ?? 0) + 1} of {filteredProofs.length}
                   </span>
                 </div>
@@ -132,7 +147,7 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
               <button
                 type="button"
                 onClick={() => setSelectedProofIndex(null)}
-                className="rounded-full p-1 text-[#8991a6] hover:bg-white/10 hover:text-white transition-colors"
+                className="rounded-full p-1.5 text-[#8991a6] hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
                 aria-label="Close"
               >
                 <X size={20} />
@@ -140,12 +155,12 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
             </div>
 
             {/* Display Image */}
-            <div className="relative flex items-center justify-center bg-black/90 p-2 min-h-[300px] max-h-[70vh] overflow-auto">
+            <div className="relative flex flex-1 items-center justify-center bg-black/95 p-3 min-h-[300px] max-h-[68vh] overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={assetUrl(currentSelectedProof.image_url)}
                 alt={currentSelectedProof.caption || "Customer proof screenshot"}
-                className="max-h-[68vh] w-auto object-contain rounded"
+                className="max-h-[64vh] w-auto max-w-full object-contain rounded select-none"
               />
 
               {/* Prev / Next controls */}
@@ -157,10 +172,10 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
                       e.stopPropagation();
                       setSelectedProofIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : filteredProofs.length - 1));
                     }}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/70 p-2 text-white hover:bg-black transition"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/75 p-2 text-white hover:bg-black hover:scale-110 active:scale-95 transition cursor-pointer"
                     aria-label="Previous"
                   >
-                    <ChevronLeft size={20} />
+                    <ChevronLeft size={22} />
                   </button>
                   <button
                     type="button"
@@ -168,10 +183,10 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
                       e.stopPropagation();
                       setSelectedProofIndex((prev) => (prev !== null && prev < filteredProofs.length - 1 ? prev + 1 : 0));
                     }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/70 p-2 text-white hover:bg-black transition"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/75 p-2 text-white hover:bg-black hover:scale-110 active:scale-95 transition cursor-pointer"
                     aria-label="Next"
                   >
-                    <ChevronRight size={20} />
+                    <ChevronRight size={22} />
                   </button>
                 </>
               )}
@@ -179,12 +194,13 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
 
             {/* Footer Caption */}
             {currentSelectedProof.caption && (
-              <div className="border-t border-white/10 px-5 py-3 bg-black/40 text-xs text-[#d8dce7] leading-relaxed">
+              <div className="border-t border-white/10 px-5 py-3 bg-black/50 text-xs text-[#d8dce7] leading-relaxed shrink-0">
                 {currentSelectedProof.caption}
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

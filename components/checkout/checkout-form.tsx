@@ -185,6 +185,7 @@ export function CheckoutForm() {
   const [isReseller, setIsReseller] = useState(false);
   const [resellerDiscount, setResellerDiscount] = useState(0);
   const [resellerDiscountType, setResellerDiscountType] = useState("percentage");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -201,9 +202,12 @@ export function CheckoutForm() {
       if (user) {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("display_name, whatsapp, is_reseller, reseller_discount, reseller_discount_type")
+          .select("display_name, whatsapp, role, is_reseller, reseller_discount, reseller_discount_type")
           .eq("id", user.id)
           .maybeSingle();
+
+        const adminCheck = profile?.role === "admin" || profile?.role === "owner" || user.email === "12k21rakeshkannam@gmail.com";
+        setIsAdmin(adminCheck);
 
         if (profile?.is_reseller) {
           setIsReseller(true);
@@ -260,18 +264,18 @@ export function CheckoutForm() {
   const subtotal = gamesTotal + bundleTotal;
   const quantity = lines.reduce((sum, line) => sum + (line?.quantity || 1), 0) + bundleLines.reduce((sum, line) => sum + (line?.quantity || 1), 0);
 
-  // Dynamic validation check for RAKETHREE quantity loopholes
+  // Dynamic validation check for RAKETHREE quantity loopholes (bypassed for admin)
   useEffect(() => {
-    if (coupon?.code === "RAKETHREE" && quantity < 3) {
+    if (!isAdmin && coupon?.code === "RAKETHREE" && quantity < 3) {
       setCoupon(null);
       setCouponCode("");
       toast.error("Coupon RAKETHREE removed: This code requires a minimum selection of 3 games.");
     }
-  }, [coupon, quantity, setCoupon]);
+  }, [coupon, quantity, isAdmin, setCoupon]);
 
-  // Dynamic validation check for general coupon game price constraints
+  // Dynamic validation check for general coupon game price constraints (bypassed for admin)
   useEffect(() => {
-    if (coupon) {
+    if (!isAdmin && coupon) {
       const hasSubItems = lines.some(line => line && line.game && line.game.is_subscription);
       const hasNormalItems = lines.some(line => line && line.game && !line.game.is_subscription) || bundleLines.length > 0;
       
@@ -298,7 +302,7 @@ export function CheckoutForm() {
         }
       }
     }
-  }, [coupon, lines, bundleLines, subtotal, setCoupon]);
+  }, [coupon, lines, bundleLines, subtotal, isAdmin, setCoupon]);
 
   const isRankFreebie = coupon && (
     coupon.code === "DIAMONDFREE" || 
@@ -308,7 +312,7 @@ export function CheckoutForm() {
   );
 
   const couponEligible = coupon && 
-    (isRankFreebie || (
+    (isAdmin || isRankFreebie || (
       subtotal >= coupon.minimum_order && 
       (coupon.code !== "RAKE10" || quantity >= 3) && 
       (coupon.code !== "RAKETHREE" || quantity >= 3)
@@ -488,9 +492,9 @@ export function CheckoutForm() {
         toast.dismiss();
         toast.error(resData.error?.message || "This coupon is invalid or not active");
       } else {
-        // Verify if the coupon would result in free game (total = 0) for ranks below Diamond
+        // Verify if the coupon would result in free game (total = 0) for ranks below Diamond (bypassed for admin)
         const tempDiscount = Math.min(subtotal, resData.data.discount_type === "percentage" ? subtotal * Number(resData.data.discount_value) / 100 : Number(resData.data.discount_value));
-        if (subtotal - tempDiscount <= 0) {
+        if (!isAdmin && subtotal - tempDiscount <= 0) {
           const supabase = createClient();
           const { data: { user } } = await supabase.auth.getUser();
           const points = user ? (await supabase.from("user_rewards").select("points").eq("user_id", user.id).maybeSingle()).data?.points ?? 0 : 0;
@@ -523,8 +527,8 @@ export function CheckoutForm() {
   async function submit(values: Data) {
     if ((!lines.length && !bundleLines.length) || (total > 0 && !proof)) return toast.error(lines.length || bundleLines.length ? "Upload your payment screenshot" : "Your cart is empty");
     
-    // Strict RAKETHREE quantity check before checkout submission
-    if (coupon?.code === "RAKETHREE" && quantity < 3) {
+    // Strict RAKETHREE quantity check before checkout submission (bypassed for admin)
+    if (!isAdmin && coupon?.code === "RAKETHREE" && quantity < 3) {
       setCoupon(null);
       setCouponCode("");
       toast.error("This code requires a minimum selection of 3 games.");
