@@ -388,6 +388,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                     const isCodeColumn = section === "coupons" && header === "code";
                     const isApplicableToColumn = section === "coupons" && header === "applicable_to";
                     const isRoleColumn = section === "customers" && header === "role";
+                    const isWhatsappColumn = header === "whatsapp" || header === "customer_whatsapp";
                     const isImageColumn = header === "image_url" || header === "screenshot_url" || header === "proof_url" || (header === "cover_image" && section !== "games");
                     const isProofTypeColumn = header === "proof_type";
                     const isApprovedColumn = header === "approved";
@@ -424,6 +425,21 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                               All Items (Both)
                             </span>
+                          )
+                        ) : isWhatsappColumn ? (
+                          val && String(val).trim() !== "" && String(val).trim() !== "-" ? (
+                            <a
+                              href={`https://wa.me/${String(val).replace(/\D/g, "").length === 10 ? `91${String(val).replace(/\D/g, "")}` : String(val).replace(/\D/g, "")}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              title="Click to open chat on WhatsApp"
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-[#20c763]/10 text-[#20c763] border border-[#20c763]/25 hover:bg-[#20c763]/20 hover:border-[#20c763]/50 transition cursor-pointer"
+                            >
+                              <MessageCircle size={13} className="shrink-0" />
+                              <span>{String(val)}</span>
+                            </a>
+                          ) : (
+                            <span className="text-xs text-[#646b7b]">-</span>
                           )
                         ) : isRoleColumn ? (
                           val === "admin" ? (
