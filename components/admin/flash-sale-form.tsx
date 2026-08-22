@@ -14,6 +14,10 @@ type FlashSaleValue = {
   id: number; 
   game_id: number; 
   sale_price: number; 
+  price_2m?: number | null;
+  price_3m?: number | null;
+  price_6m?: number | null;
+  price_12m?: number | null;
   starts_at: string; 
   ends_at: string; 
   active: boolean; 
@@ -27,6 +31,11 @@ type FullGameInfo = {
   cover_image?: string | null;
   duration?: string | null;
   is_subscription?: boolean | null;
+  price_1m?: number | null;
+  price_2m?: number | null;
+  price_3m?: number | null;
+  price_6m?: number | null;
+  price_12m?: number | null;
 };
 
 export function FlashSaleForm({ 
@@ -40,6 +49,8 @@ export function FlashSaleForm({
   
   // Tab mode: single or bulk
   const [activeTab, setActiveTab] = useState<"single" | "bulk">(flashSale ? "single" : "bulk");
+  const [singleGameId, setSingleGameId] = useState<number | string>(flashSale?.game_id ?? (games[0]?.id ?? ""));
+  const selectedSingleGame = useMemo(() => games.find((g) => g.id === Number(singleGameId)), [games, singleGameId]);
   
   // Bulk state
   const [selectedGameIds, setSelectedGameIds] = useState<number[]>([]);
@@ -435,12 +446,21 @@ export function FlashSaleForm({
           {flashSale && <input type="hidden" name="id" value={flashSale.id} />}
           
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <label className="flex flex-col text-sm font-bold">
-              <span>Game</span>
+            <label className="flex flex-col text-sm font-bold sm:col-span-2 lg:col-span-3">
+              <span>Game / Subscription</span>
               <span className="mt-1 text-[11px] font-normal text-[#8991a8] leading-relaxed">
-                Select the game you want to place on flash sale.
+                Select the game or subscription pass you want to place on flash sale.
               </span>
-              <select name="game_id" required defaultValue={flashSale?.game_id ?? ""} className={input}>
+              <select 
+                name="game_id" 
+                required 
+                value={singleGameId} 
+                onChange={(e) => {
+                  setSingleGameId(e.target.value);
+                  setIsDirty(true);
+                }} 
+                className={input}
+              >
                 <option value="" disabled>Select a game or subscription...</option>
                 {games.map((g) => (
                   <option key={g.id} value={g.id}>
@@ -449,14 +469,103 @@ export function FlashSaleForm({
                 ))}
               </select>
             </label>
-            
-            <label className="flex flex-col text-sm font-bold">
-              <span>Sale Price (Rs.)</span>
-              <span className="mt-1 text-[11px] font-normal text-[#8991a8] leading-relaxed">
-                The temporary discounted price displayed on the storefront.
-              </span>
-              <input name="sale_price" type="number" min="0" required defaultValue={flashSale?.sale_price} className={input} />
-            </label>
+
+            {selectedSingleGame?.is_subscription ? (
+              <div className="sm:col-span-2 lg:col-span-3 rounded-lg border border-amber-500/25 bg-gradient-to-b from-amber-500/10 to-transparent p-5">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Zap size={16} className="text-[#facc15]" />
+                  <span className="text-sm font-bold text-white">Subscription Duration Flash Pricing (₹ INR)</span>
+                </div>
+                <p className="text-xs text-[#8991a6] mb-4">
+                  Set flash sale prices for each subscription duration. 1 Month sets the primary flash sale price shown on storefront cards.
+                </p>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                  <label className="flex flex-col text-xs font-bold">
+                    <span>1 Month Flash Price (₹) *</span>
+                    <span className="text-[10px] font-normal text-[#8991a8] mt-0.5 mb-1">
+                      Regular: {formatPrice(selectedSingleGame.price_1m ?? selectedSingleGame.sale_price ?? selectedSingleGame.original_price ?? 0)}
+                    </span>
+                    <input 
+                      name="sale_price" 
+                      type="number" 
+                      min="0" 
+                      required 
+                      defaultValue={flashSale?.sale_price} 
+                      placeholder="e.g. 199" 
+                      className={input} 
+                    />
+                  </label>
+
+                  <label className="flex flex-col text-xs font-bold">
+                    <span>2 Months Flash Price (₹)</span>
+                    <span className="text-[10px] font-normal text-[#8991a8] mt-0.5 mb-1">
+                      Regular: {formatPrice(selectedSingleGame.price_2m ?? 0)}
+                    </span>
+                    <input 
+                      name="price_2m" 
+                      type="number" 
+                      min="0" 
+                      defaultValue={flashSale?.price_2m ?? ""} 
+                      placeholder="e.g. 349" 
+                      className={input} 
+                    />
+                  </label>
+
+                  <label className="flex flex-col text-xs font-bold">
+                    <span>3 Months Flash Price (₹)</span>
+                    <span className="text-[10px] font-normal text-[#8991a8] mt-0.5 mb-1">
+                      Regular: {formatPrice(selectedSingleGame.price_3m ?? 0)}
+                    </span>
+                    <input 
+                      name="price_3m" 
+                      type="number" 
+                      min="0" 
+                      defaultValue={flashSale?.price_3m ?? ""} 
+                      placeholder="e.g. 499" 
+                      className={input} 
+                    />
+                  </label>
+
+                  <label className="flex flex-col text-xs font-bold">
+                    <span>6 Months Flash Price (₹)</span>
+                    <span className="text-[10px] font-normal text-[#8991a8] mt-0.5 mb-1">
+                      Regular: {formatPrice(selectedSingleGame.price_6m ?? 0)}
+                    </span>
+                    <input 
+                      name="price_6m" 
+                      type="number" 
+                      min="0" 
+                      defaultValue={flashSale?.price_6m ?? ""} 
+                      placeholder="e.g. 899" 
+                      className={input} 
+                    />
+                  </label>
+
+                  <label className="flex flex-col text-xs font-bold">
+                    <span>12 Months Flash Price (₹)</span>
+                    <span className="text-[10px] font-normal text-[#8991a8] mt-0.5 mb-1">
+                      Regular: {formatPrice(selectedSingleGame.price_12m ?? 0)}
+                    </span>
+                    <input 
+                      name="price_12m" 
+                      type="number" 
+                      min="0" 
+                      defaultValue={flashSale?.price_12m ?? ""} 
+                      placeholder="e.g. 1599" 
+                      className={input} 
+                    />
+                  </label>
+                </div>
+              </div>
+            ) : (
+              <label className="flex flex-col text-sm font-bold">
+                <span>Sale Price (Rs.)</span>
+                <span className="mt-1 text-[11px] font-normal text-[#8991a8] leading-relaxed">
+                  The temporary discounted price displayed on the storefront.
+                </span>
+                <input name="sale_price" type="number" min="0" required defaultValue={flashSale?.sale_price} className={input} />
+              </label>
+            )}
             
             <label className="flex flex-col text-sm font-bold">
               <span>Starts at</span>

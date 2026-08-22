@@ -1565,6 +1565,10 @@ export async function saveFlashSale(formData: FormData) {
   const rawId = String(formData.get("id") ?? "");
   const game_id = Number(formData.get("game_id"));
   const sale_price = Number(formData.get("sale_price"));
+  const price_2m = formData.get("price_2m") ? Number(formData.get("price_2m")) : null;
+  const price_3m = formData.get("price_3m") ? Number(formData.get("price_3m")) : null;
+  const price_6m = formData.get("price_6m") ? Number(formData.get("price_6m")) : null;
+  const price_12m = formData.get("price_12m") ? Number(formData.get("price_12m")) : null;
   const starts_at = String(formData.get("starts_at") ?? "");
   const ends_at = String(formData.get("ends_at") ?? "");
   const active = formData.get("active") === "on" || formData.get("active") === "true";
@@ -1576,6 +1580,10 @@ export async function saveFlashSale(formData: FormData) {
   const payload = {
     game_id,
     sale_price,
+    price_2m: price_2m && price_2m > 0 ? price_2m : null,
+    price_3m: price_3m && price_3m > 0 ? price_3m : null,
+    price_6m: price_6m && price_6m > 0 ? price_6m : null,
+    price_12m: price_12m && price_12m > 0 ? price_12m : null,
     starts_at: new Date(starts_at).toISOString(),
     ends_at: new Date(ends_at).toISOString(),
     active,

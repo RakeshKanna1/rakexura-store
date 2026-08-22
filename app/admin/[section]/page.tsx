@@ -84,12 +84,12 @@ export default async function AdminSection({ params, searchParams }: { params: P
   }
 
   let editingFlashSale = null;
-  let gamesList: Array<{ id: number; title: string; original_price?: number | null; sale_price?: number | null; cover_image?: string | null; duration?: string | null; is_subscription?: boolean | null }> = [];
+  let gamesList: Array<{ id: number; title: string; original_price?: number | null; sale_price?: number | null; cover_image?: string | null; duration?: string | null; is_subscription?: boolean | null; price_1m?: number | null; price_2m?: number | null; price_3m?: number | null; price_6m?: number | null; price_12m?: number | null }> = [];
   if (section === "flash-sales") {
-    const { data: dbGames } = await supabase.from("games").select("id,title,original_price,sale_price,cover_image,duration,is_subscription").eq("archived", false).order("title");
+    const { data: dbGames } = await supabase.from("games").select("id,title,original_price,sale_price,cover_image,duration,is_subscription,price_1m,price_2m,price_3m,price_6m,price_12m").eq("archived", false).order("title");
     gamesList = dbGames || [];
     if (query.edit && /^\d+$/.test(query.edit)) {
-      const { data: flashSale } = await supabase.from("flash_sales").select("id,game_id,sale_price,starts_at,ends_at,active").eq("id", Number(query.edit)).maybeSingle();
+      const { data: flashSale } = await supabase.from("flash_sales").select("id,game_id,sale_price,price_2m,price_3m,price_6m,price_12m,starts_at,ends_at,active").eq("id", Number(query.edit)).maybeSingle();
       editingFlashSale = flashSale;
     }
   }

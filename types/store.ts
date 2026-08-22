@@ -124,6 +124,10 @@ export interface FlashSale {
   id: number;
   game_id: number;
   sale_price: number;
+  price_2m?: number | null;
+  price_3m?: number | null;
+  price_6m?: number | null;
+  price_12m?: number | null;
   starts_at: string;
   ends_at: string;
   active: boolean;
