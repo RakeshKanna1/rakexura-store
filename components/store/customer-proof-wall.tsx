@@ -39,42 +39,39 @@ export function CustomerProofWall({ proofs }: { proofs: CustomerProof[] }) {
     <section className="section-space">
       {/* Header */}
       <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
-        <div className="max-w-2xl">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#00d68f]/10 text-[#00d68f] text-[10px] font-black uppercase tracking-wider border border-[#00d68f]/20 mb-2.5">
-            <BadgeCheck size={13} />
-            Verified Delivery Proofs
-          </span>
-          <h2 className="section-title">Real Customer Proofs & Receipts</h2>
-          <p className="section-copy mt-1.5">WhatsApp delivery screenshots & order completion photos from verified buyers.</p>
+        <div>
+          <p className="eyebrow">Real customer proof</p>
+          <h2 className="section-title mt-2">Verified delivery proofs</h2>
+          <p className="section-copy">Real purchase screenshots & WhatsApp delivery receipts from verified Rakexura customers.</p>
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Scroll arrow buttons */}
+          {/* Scroll arrow controls */}
           <div className="hidden sm:flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => scroll("left")}
-              className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-[#11131a] text-[#8991a6] hover:text-white hover:border-[#facc15]/40 transition"
+              className="grid h-8 w-8 place-items-center rounded border border-white/10 bg-white/[0.03] text-[#8991a6] hover:text-white hover:border-[#facc15]/40 transition"
               aria-label="Scroll left"
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft size={16} />
             </button>
             <button
               type="button"
               onClick={() => scroll("right")}
-              className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-[#11131a] text-[#8991a6] hover:text-white hover:border-[#facc15]/40 transition"
+              className="grid h-8 w-8 place-items-center rounded border border-white/10 bg-white/[0.03] text-[#8991a6] hover:text-white hover:border-[#facc15]/40 transition"
               aria-label="Scroll right"
             >
-              <ChevronRight size={18} />
+              <ChevronRight size={16} />
             </button>
           </div>
 
           <Link
             href="/proofs"
-            className="inline-flex items-center gap-2 rounded-lg bg-[#facc15] px-4 py-2.5 text-xs font-black text-black transition-all duration-300 hover:bg-[#ffe45c] hover:shadow-[0_0_24px_rgba(250,204,21,0.35)] hover:-translate-y-0.5"
+            className="flex shrink-0 items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-[#facc15] hover:text-white transition-colors"
           >
-            <span>View All Delivery Proofs ({proofs.length})</span>
-            <ArrowRight size={14} />
+            <span>View all proofs</span>
+            <ArrowRight size={13} />
           </Link>
         </div>
       </div>
@@ -82,7 +79,7 @@ export function CustomerProofWall({ proofs }: { proofs: CustomerProof[] }) {
       {/* Smooth Horizontal Scrolling Carousel */}
       <div
         ref={scrollContainerRef}
-        className="hide-scrollbar grid w-full max-w-full auto-cols-[200px] grid-flow-col gap-4 overflow-x-auto pb-4 overscroll-x-contain sm:auto-cols-[230px] md:auto-cols-[260px] scroll-smooth snap-x snap-mandatory"
+        className="hide-scrollbar grid w-full max-w-full auto-cols-[190px] grid-flow-col gap-4 overflow-x-auto pb-3 overscroll-x-contain sm:auto-cols-[220px] md:auto-cols-[240px] scroll-smooth snap-x snap-proximity"
         style={{
           WebkitOverflowScrolling: "touch",
           touchAction: "pan-x pan-y",
@@ -92,53 +89,39 @@ export function CustomerProofWall({ proofs }: { proofs: CustomerProof[] }) {
           <article
             key={proof.id}
             onClick={() => setSelectedProofIndex(idx)}
-            className="group cursor-pointer snap-start flex flex-col overflow-hidden rounded-xl border border-white/[.08] bg-[#0e111a] transition-all duration-300 hover:border-[#facc15]/60 hover:-translate-y-1.5 hover:shadow-[0_16px_36px_rgba(0,0,0,0.8)]"
+            className="group cursor-pointer snap-start flex flex-col overflow-hidden rounded-md border border-white/[.08] bg-[#11131a] transition-all hover:border-[#facc15]/40 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)]"
           >
-            {/* Image Container with phone-screen framing */}
-            <div className="relative aspect-[4/5] overflow-hidden bg-[#06080d] border-b border-white/[0.06]">
-              {/* Top Verified Badge Overlay */}
-              <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md border border-white/10 text-[10px] font-bold text-[#00d68f]">
-                <BadgeCheck size={12} className="text-[#00d68f]" />
-                <span>Verified</span>
-              </div>
-
+            {/* Image Container */}
+            <div className="relative aspect-[4/5] overflow-hidden bg-black/60">
               <Image
                 src={assetUrl(proof.image_url)}
                 alt={proof.caption || "Verified customer proof"}
                 fill
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 260px"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 240px"
                 className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
               />
 
-              {/* Bottom gradient fade */}
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0e111a] via-transparent to-transparent opacity-80" />
-
               {/* Hover Zoom Overlay */}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/90 text-white font-bold text-xs border border-white/25 backdrop-blur-md shadow-xl transform group-hover:scale-105 transition-transform">
-                  <ZoomIn size={14} className="text-[#facc15]" />
-                  <span>View Proof</span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/85 text-white font-bold text-xs border border-white/20 backdrop-blur-md">
+                  <ZoomIn size={13} className="text-[#facc15]" />
+                  <span>View Full</span>
                 </span>
               </div>
             </div>
 
             {/* Card Footer Details */}
-            <div className="p-3.5 flex-1 flex flex-col justify-between bg-[#0e111a]">
-              <div>
-                <h4 className="text-xs font-black text-white truncate">
-                  {proof.caption || "Verified Game Delivery"}
-                </h4>
-                <p className="mt-1 text-[11px] leading-tight text-[#8991a6] truncate">
-                  WhatsApp Delivery Screenshot
-                </p>
-              </div>
-
-              <div className="mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between text-[10px] text-[#6b7280]">
-                <span className="font-mono text-[#00d68f] font-bold flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#00d68f]" />
-                  Delivered
-                </span>
-                <span className="text-[#8991a6] font-medium">Rakexura Order</span>
+            <div className="p-3 flex-1 flex flex-col justify-between">
+              <div className="flex items-start gap-2">
+                <BadgeCheck size={16} className="mt-0.5 shrink-0 text-[#00d68f]" />
+                <div className="min-w-0 flex-1">
+                  <strong className="block text-xs font-bold text-white truncate">
+                    {proof.caption || "Verified Proof"}
+                  </strong>
+                  <p className="mt-0.5 line-clamp-1 text-[11px] leading-tight text-[#8991a6]">
+                    WhatsApp Delivery
+                  </p>
+                </div>
               </div>
             </div>
           </article>
