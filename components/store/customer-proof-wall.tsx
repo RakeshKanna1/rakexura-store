@@ -9,7 +9,30 @@ import type { CustomerProof } from "@/types/store";
 
 export function CustomerProofWall({ proofs }: { proofs: CustomerProof[] }) {
   const [selectedProofIndex, setSelectedProofIndex] = useState<number | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Smooth continuous auto-scrolling loop animation
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el || isPaused || selectedProofIndex !== null) return;
+    let animationFrameId: number;
+    const speed = 0.6; // smooth pixels per frame
+
+    const step = () => {
+      if (el) {
+        el.scrollLeft += speed;
+        // Loop back seamlessly once reached near end
+        if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 2) {
+          el.scrollLeft = 0;
+        }
+      }
+      animationFrameId = requestAnimationFrame(step);
+    };
+
+    animationFrameId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isPaused, selectedProofIndex]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -36,7 +59,13 @@ export function CustomerProofWall({ proofs }: { proofs: CustomerProof[] }) {
   const currentSelectedProof = selectedProofIndex !== null ? proofs[selectedProofIndex] : null;
 
   return (
-    <section className="section-space">
+    <section 
+      className="section-space"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={() => setIsPaused(true)}
+      onTouchEnd={() => setIsPaused(false)}
+    >
       {/* Header */}
       <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
         <div>
