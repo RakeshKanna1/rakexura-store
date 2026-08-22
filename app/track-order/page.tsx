@@ -24,7 +24,7 @@ type TrackedOrder = {
   status: string; 
   total_price: number; 
   created_at: string; 
-  items: Array<{ title: string; platform: string; game_id?: number; type?: string }>; 
+  items: Array<{ title: string; platform: string; game_id?: number; type?: string; unit_price?: number; price?: number; quantity?: number }>; 
   customer_name: string;
   customer_rank: string;
   customer_email?: string;
