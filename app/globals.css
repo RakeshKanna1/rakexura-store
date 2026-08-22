@@ -362,7 +362,8 @@ html {
   backface-visibility: hidden;
   animation: proof-marquee 42s linear infinite;
 }
-.proof-marquee-container:hover .proof-marquee-track {
+.proof-marquee-container:hover .proof-marquee-track,
+.proof-marquee-container:active .proof-marquee-track {
   animation-play-state: paused;
 }
 @media (prefers-reduced-motion: reduce) {
