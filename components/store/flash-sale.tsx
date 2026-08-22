@@ -92,9 +92,15 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                 colors={['#facc15', '#eab308', '#8b5cf6']}
                 className="w-full h-full"
               >
-                <Link href={gameUrl(game)} className="group grid min-h-56 grid-cols-[40%_1fr] overflow-hidden w-full h-full">
-                  <div className="relative">
-                    <Image src={assetUrl(game.cover_image)} alt="" fill className="object-cover transition duration-500 group-hover:scale-105" />
+                <Link href={gameUrl(game)} className="group grid min-h-56 grid-cols-[140px_1fr] sm:grid-cols-[180px_1fr] overflow-hidden w-full h-full">
+                  <div className="relative w-full h-full min-h-[190px] overflow-hidden bg-[#07090e] border-r border-white/10 flex items-center justify-center">
+                    <Image 
+                      src={assetUrl(game.cover_image)} 
+                      alt={game.title} 
+                      fill 
+                      sizes="(max-width: 640px) 140px, 180px"
+                      className="object-cover object-center transition duration-500 group-hover:scale-105" 
+                    />
                   </div>
                   <div className="flex flex-col justify-center p-5">
                     <div className="flex items-center gap-2 flex-wrap">
