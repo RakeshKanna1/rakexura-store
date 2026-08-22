@@ -535,7 +535,7 @@ export function CheckoutForm() {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     const customerEmail = user?.email || undefined;
-    let proofPath = "FREEBIE-LOYALTY-REWARD";
+    let proofPath = `FREEBIE-LOYALTY-${crypto.randomUUID()}`;
 
     if (proof) {
       const safeName = proof.name.replace(/[^a-zA-Z0-9._-]/g, "-");
