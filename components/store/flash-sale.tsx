@@ -94,9 +94,16 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                     <Image src={assetUrl(game.cover_image)} alt="" fill className="object-cover transition duration-500 group-hover:scale-105" />
                   </div>
                   <div className="flex flex-col justify-center p-5">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#facc15]">
-                      Limited deal
-                    </span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-[#facc15]">
+                        Limited deal
+                      </span>
+                      {game.duration && (
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-1.5 py-0.5 rounded">
+                          {game.duration}
+                        </span>
+                      )}
+                    </div>
                     <h3 className="mt-2 line-clamp-2 font-black text-white group-hover:text-[#facc15] transition-colors">{game.title}</h3>
                     {resellerCalc ? (
                       <div className="mt-4 flex items-baseline gap-2 flex-wrap">

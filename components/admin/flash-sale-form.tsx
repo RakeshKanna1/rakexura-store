@@ -25,6 +25,8 @@ type FullGameInfo = {
   original_price?: number | null;
   sale_price?: number | null;
   cover_image?: string | null;
+  duration?: string | null;
+  is_subscription?: boolean | null;
 };
 
 export function FlashSaleForm({ 
@@ -352,8 +354,15 @@ export function FlashSaleForm({
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className="truncate text-xs font-bold text-white">{game.title}</p>
-                          <div className="flex items-center gap-1.5 text-[11px]">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <p className="truncate text-xs font-bold text-white">{game.title}</p>
+                            {game.duration && (
+                              <span className="shrink-0 text-[10px] font-bold text-[#facc15] bg-[#facc15]/10 border border-[#facc15]/30 rounded px-1.5 py-0.2">
+                                {game.duration}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-[11px] mt-0.5">
                             <span className="text-[#8991a8]">Current:</span>
                             <span className="font-semibold text-white">{formatPrice(currentPrice)}</span>
                             {hasSeparateMrp && (
@@ -432,9 +441,11 @@ export function FlashSaleForm({
                 Select the game you want to place on flash sale.
               </span>
               <select name="game_id" required defaultValue={flashSale?.game_id ?? ""} className={input}>
-                <option value="" disabled>Select a game...</option>
+                <option value="" disabled>Select a game or subscription...</option>
                 {games.map((g) => (
-                  <option key={g.id} value={g.id}>{g.title}</option>
+                  <option key={g.id} value={g.id}>
+                    {g.title}{g.duration ? ` [${g.duration}]` : ""} — (Current: {formatPrice(g.sale_price ?? g.original_price ?? 0)})
+                  </option>
                 ))}
               </select>
             </label>
