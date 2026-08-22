@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Clock3, Flame, Gamepad2, Plus, Search, Sparkles, TrendingUp, X } from "lucide-react";
+import { Clock3, Gamepad2, Plus, Search, Sparkles, TrendingUp, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

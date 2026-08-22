@@ -121,18 +121,17 @@ function GameCardInner({
         href={gameUrl(game)} 
         prefetch={false} 
         onMouseEnter={handleMouseEnter}
-        className="block aspect-[3/4] w-full shrink-0 overflow-hidden bg-[#08090c] relative"
+        className="block aspect-[3/4] w-full shrink-0 overflow-hidden bg-[#08090c] relative touch-pan-y"
       >
         <Image
           src={assetUrl(game.cover_image)}
           alt={game.title}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-          className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+          className="object-cover pointer-events-none transition-transform duration-500 ease-out md:group-hover:scale-105"
           priority={priority}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#07090e] via-transparent to-transparent opacity-70" />
-
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#07090e] via-transparent to-transparent opacity-70" />
       </Link>
 
       {/* Top Left Badges */}
@@ -299,7 +298,8 @@ export function GameCard({
   return (
     <article
       onPointerMove={move}
-      className={`spotlight-card group relative flex h-full flex-col overflow-hidden rounded-xl border transition-colors duration-200 md:transition-all md:duration-300 md:hover:-translate-y-1.5 transform-gpu shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] ${themeClasses}`}
+      style={{ touchAction: "pan-y" }}
+      className={`spotlight-card group relative flex h-full flex-col overflow-hidden rounded-xl border transition-colors duration-200 md:transition-all md:duration-300 md:hover:-translate-y-1.5 transform-gpu shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] touch-pan-y ${themeClasses}`}
     >
       <GameCardInner {...props} />
     </article>

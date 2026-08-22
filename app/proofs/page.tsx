@@ -1,7 +1,7 @@
 import { getCustomerProofs } from "@/lib/supabase/queries";
 import { ProofsGallery } from "@/components/store/proofs-gallery";
 import Link from "next/link";
-import { ArrowLeft, Star, ShieldCheck } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { 

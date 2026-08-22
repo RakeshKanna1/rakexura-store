@@ -346,12 +346,33 @@ html {
 .offer-marquee:hover .offer-marquee-track {
   animation-play-state: paused;
 }
+@keyframes proof-marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.proof-marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  animation: proof-marquee 42s linear infinite;
+}
+.proof-marquee-container:hover .proof-marquee-track {
+  animation-play-state: paused;
+}
 @media (prefers-reduced-motion: reduce) {
-  .offer-marquee-track {
+  .offer-marquee-track,
+  .proof-marquee-track {
     animation: none !important;
     transform: none !important;
   }
-  .offer-marquee {
+  .offer-marquee,
+  .proof-marquee-container {
     overflow-x: auto;
     scrollbar-width: none;
   }
