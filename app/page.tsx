@@ -23,7 +23,14 @@ export const revalidate = 60;
 
 export default async function Home() {
   const [games, bundles, reviews, sales, deliveries, proofs] = await Promise.all([getGames(), getBundles(), getReviews(10), getFlashSales(), getRecentDeliveries(), getCustomerProofs()]);
-  const hero = games.filter((game) => game.show_in_hero).slice(0, 10);
+  
+  // 1. Identify active Flash Sale games & prioritize them at the front of the Spotlight Banner
+  const flashGameIds = new Set(sales.filter((s) => s.active).map((s) => s.game_id));
+  const flashGames = games.filter((g) => flashGameIds.has(g.id));
+  const hero = games.filter((game) => game.show_in_hero && !flashGameIds.has(game.id));
+  const fallbackHero = games.filter((g) => !g.is_subscription && !flashGameIds.has(g.id));
+  const heroGames = [...flashGames, ...(hero.length ? hero : fallbackHero)].slice(0, 10);
+
   const featured = games.filter((game) => (game.show_in_featured || game.featured_deal) && !game.is_subscription).slice(0, 12);
   const trending = games.filter((game) => game.show_in_trending && !game.is_subscription).slice(0, 12);
   const bestSellers = trending.length ? trending : games.filter((game) => (game.featured_deal || game.show_in_trending) && !game.is_subscription).slice(0, 12);
@@ -31,7 +38,6 @@ export default async function Home() {
   const subscriptions = games.filter((game) => game.is_subscription).slice(0, 12);
   const upcoming = games.filter((game) => game.preorder && !game.is_subscription).slice(0, 12);
   const arrivals = [...games].filter((game) => !game.is_subscription).sort((a, b) => b.id - a.id).slice(0, 12);
-  const heroGames = hero.length ? hero : games.filter((g) => !g.is_subscription).slice(0, 8);
   const highlightGames = featured.length ? featured : games.filter((g) => !g.is_subscription);
 
   return <>
@@ -44,14 +50,14 @@ export default async function Home() {
       <FireflyCanvas />
 
       <div className="shell pt-5 md:pt-8">
-        <HeroCarousel games={heroGames} />
+        <HeroCarousel games={heroGames} flashSales={sales} />
         <LiveDeliveryTicker deliveries={deliveries} />
         <WhatsAppCommunity />
         <TrustStats />
+        <Reveal><FlashSaleBlock sales={sales} /></Reveal>
         {upcoming.length > 0 && <Reveal><GameShelf title="Pre-order games" subtitle="Secure your copy of upcoming titles" games={upcoming} href="/games?category=Pre-order" rows={1} /></Reveal>}
         <Reveal><GameShelf title="Gamer's choice" subtitle="Popular picks selected by Rakexura players" games={highlightGames} href="/games?sort=featured" rows={2} /></Reveal>
         <Reveal><CategoryRail /></Reveal>
-        <Reveal><FlashSaleBlock sales={sales} /></Reveal>
         <Reveal><GameShelf title="Deals under ₹299" subtitle="Strong games without stretching your budget" games={budget} href="/games?maxPrice=299" rows={1} /></Reveal>
         {subscriptions.length > 0 && <Reveal><GameShelf title="Game Pass and subscriptions" subtitle="Memberships and gaming services" games={subscriptions} href="/subscriptions" rows={1} /></Reveal>}
         <Reveal><GameShelf title="Best sellers" subtitle="The titles players keep choosing" games={bestSellers.length ? bestSellers : games} href="/games?sort=bestselling" rows={2} /></Reveal>

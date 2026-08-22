@@ -3,13 +3,13 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Play, X } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Play, X, Zap, Clock3 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { assetUrl, calculateResellerPrice, formatPrice, gameUrl, lowestPrice } from "@/lib/utils";
-import type { Game } from "@/types/store";
+import type { FlashSale, Game } from "@/types/store";
 import { BlurText } from "@/components/animations/blur-text";
 import { useCartStore } from "@/stores/cart-store";
 
@@ -19,11 +19,21 @@ function getYoutubeId(url: string) {
   return url.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?/]+)/i)?.[1] || "";
 }
 
-export function HeroCarousel({ games }: { games: Game[] }) {
+function formatRemainingTime(end: string, now: number) {
+  const diff = Math.max(0, new Date(end).getTime() - now);
+  const h = Math.floor(diff / (1000 * 60 * 60));
+  const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const s = Math.floor((diff % (1000 * 60)) / 1000);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(h)}h : ${pad(m)}m : ${pad(s)}s`;
+}
+
+export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashSales?: FlashSale[] }) {
   const [active, setActive] = useState(0);
   const swiperRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [isMobile, setIsMobile] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [now, setNow] = useState(Date.now());
   const [loadVideo, setLoadVideo] = useState(false);
   const [activeTrailerId, setActiveTrailerId] = useState<number | string | null>(null);
   const isReseller = useCartStore((state) => state.isReseller);
@@ -31,7 +41,10 @@ export function HeroCarousel({ games }: { games: Game[] }) {
   const resellerDiscountType = useCartStore((state) => state.resellerDiscountType);
   const isWholesaleActive = Boolean(isReseller && resellerDiscount > 0);
 
-  const getDisplayPrice = (game: Game) => {
+  const getDisplayPrice = (game: Game, flashSale?: FlashSale | null) => {
+    if (flashSale && flashSale.sale_price) {
+      return { price: flashSale.sale_price, label: "Flash Sale", raw: flashSale.sale_price, isWholesale: false, isDiscount: true };
+    }
     const rawLowest = lowestPrice(game);
     if (!isWholesaleActive || rawLowest <= 0) return { price: rawLowest, label: "", isWholesale: false, isDiscount: false };
     const calc = calculateResellerPrice(rawLowest, resellerDiscount, resellerDiscountType);
@@ -40,6 +53,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
 
   useEffect(() => {
     setMounted(true);
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -57,6 +71,7 @@ export function HeroCarousel({ games }: { games: Game[] }) {
     }
 
     return () => {
+      window.clearInterval(timer);
       window.removeEventListener("resize", checkMobile);
       window.removeEventListener("load", handleLoad);
     };
@@ -107,6 +122,9 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                 const isTrailerActive = activeTrailerId === game.id && game.trailer_url;
                 const youtubeId = game.trailer_url ? getYoutubeId(game.trailer_url) : "";
                 const isDirectVideo = game.trailer_url?.match(/\.(mp4|webm)(\?.*)?$/i);
+
+                const matchingFlashSale = flashSales.find((s) => s.game_id === game.id && s.active);
+                const isFlashActive = Boolean(matchingFlashSale && (!mounted || (new Date(matchingFlashSale.starts_at).getTime() <= now && new Date(matchingFlashSale.ends_at).getTime() > now)));
 
                 return (
                   <SwiperSlide key={game.id}>
@@ -174,9 +192,24 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                             transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} 
                             className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-4 pb-14 pt-6 sm:p-6 sm:pb-16 md:pb-24 md:pt-14 md:px-14 lg:px-16"
                           >
-                            <p className="mb-1.5 sm:mb-2 text-xs sm:text-sm font-extrabold uppercase tracking-[0.16em] text-[#b9a4ff]">
-                              {game.preorder ? "Pre-order spotlight" : "Rakexura spotlight"}
-                            </p>
+                            {isFlashActive ? (
+                              <div className="mb-1.5 sm:mb-2 flex flex-wrap items-center gap-2">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#facc15] text-black font-black text-[11px] sm:text-xs uppercase tracking-wider shadow-[0_0_15px_rgba(250,204,21,0.6)]">
+                                  <Zap size={13} className="fill-black" />
+                                  Flash Sale Live
+                                </span>
+                                {matchingFlashSale && (
+                                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/75 border border-[#facc15]/40 text-[#facc15] font-extrabold text-[11px] sm:text-xs backdrop-blur-md">
+                                    <Clock3 size={13} />
+                                    Ends in {formatRemainingTime(matchingFlashSale.ends_at, now)}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <p className="mb-1.5 sm:mb-2 text-xs sm:text-sm font-extrabold uppercase tracking-[0.16em] text-[#b9a4ff]">
+                                {game.preorder ? "Pre-order spotlight" : "Rakexura spotlight"}
+                              </p>
+                            )}
                             <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-[62px] font-black tracking-tight leading-[1.06] drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
                               <BlurText 
                                 key={`${game.id}-${active === index}`}
@@ -191,7 +224,16 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                               {game.tagline || game.description || "A standout PC experience, ready for your library."}
                             </p>
                             <div className="mt-4 sm:mt-6 grid grid-cols-3 sm:flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                              {game.is_subscription ? (
+                              {isFlashActive ? (
+                                <Link 
+                                  href={gameUrl(game)} 
+                                  className="magnetic-button inline-flex h-10 sm:h-12 w-full sm:w-[155px] items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#facc15] px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] tracking-tight shadow-[0_0_20px_rgba(250,204,21,0.4)]"
+                                >
+                                  <Zap size={14} className="fill-black shrink-0" />
+                                  <span className="truncate">{game.is_subscription ? "View Deal" : "Buy Flash Deal"}</span>
+                                  <ArrowRight size={15} className="shrink-0" />
+                                </Link>
+                              ) : game.is_subscription ? (
                                 <Link 
                                   href={gameUrl(game)} 
                                   className="magnetic-button inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#facc15] px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] tracking-tight shadow-lg"
@@ -235,12 +277,12 @@ export function HeroCarousel({ games }: { games: Game[] }) {
                                   <span className="font-extrabold text-white truncate">Trailer</span>
                                 </Link>
                               )}
-                              <span className="inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center rounded-lg border border-white/10 bg-black/65 px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-black backdrop-blur tracking-tight">
+                              <span className={`inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center rounded-lg border ${isFlashActive ? "border-[#facc15]/40 bg-black/80 shadow-[0_0_15px_rgba(250,204,21,0.2)]" : "border-white/10 bg-black/65"} px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-black backdrop-blur tracking-tight`}>
                                 {(() => {
-                                  const p = getDisplayPrice(game);
+                                  const p = getDisplayPrice(game, matchingFlashSale);
                                   return (
-                                    <span className={`truncate ${p.isWholesale && p.isDiscount ? "text-[#e0ce9a]" : "text-[#facc15]"}`}>
-                                      From {formatPrice(p.price)} {p.isWholesale && p.isDiscount && `(${p.label})`}
+                                    <span className={`truncate ${isFlashActive ? "text-[#facc15] font-black" : p.isWholesale && p.isDiscount ? "text-[#e0ce9a]" : "text-[#facc15]"}`}>
+                                      {isFlashActive ? "Deal " : "From "}{formatPrice(p.price)} {p.isWholesale && p.isDiscount && `(${p.label})`}
                                     </span>
                                   );
                                 })()}
