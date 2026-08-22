@@ -220,6 +220,27 @@ function formatDate12h(isoString: string): string {
   }
 }
 
+function formatWhatsApp(val: unknown): { display: string; linkUrl: string } | null {
+  if (!val) return null;
+  const digits = String(val).replace(/\D/g, "");
+  if (!digits || digits.length < 7) return null;
+
+  let coreNumber = digits;
+  if (digits.length === 12 && digits.startsWith("91")) {
+    coreNumber = digits.slice(2);
+  } else if (digits.length === 11 && digits.startsWith("0")) {
+    coreNumber = digits.slice(1);
+  }
+
+  let displayText = `+${digits}`;
+  if (coreNumber.length === 10) {
+    displayText = `+91 ${coreNumber.slice(0, 5)} ${coreNumber.slice(5)}`;
+  }
+
+  const linkDigits = coreNumber.length === 10 ? `91${coreNumber}` : digits;
+  return { display: displayText, linkUrl: `https://wa.me/${linkDigits}` };
+}
+
 function display(value: unknown) {
   if (value === null || value === undefined || value === "") return "-";
   if (typeof value === "boolean") return value ? "Yes" : "No";
@@ -441,20 +462,22 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                             </span>
                           )
                         ) : isWhatsappColumn ? (
-                          val && String(val).trim() !== "" && String(val).trim() !== "-" ? (
-                            <a
-                              href={`https://wa.me/${String(val).replace(/\D/g, "").length === 10 ? `91${String(val).replace(/\D/g, "")}` : String(val).replace(/\D/g, "")}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              title="Click to open chat on WhatsApp"
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-[#20c763]/10 text-[#20c763] border border-[#20c763]/25 hover:bg-[#20c763]/20 hover:border-[#20c763]/50 transition cursor-pointer"
-                            >
-                              <MessageCircle size={13} className="shrink-0" />
-                              <span>{String(val)}</span>
-                            </a>
-                          ) : (
-                            <span className="text-xs text-[#646b7b]">-</span>
-                          )
+                          (() => {
+                            const parsed = formatWhatsApp(val);
+                            if (!parsed) return <span className="text-xs text-[#646b7b]">-</span>;
+                            return (
+                              <a
+                                href={parsed.linkUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                title={`Click to chat with ${parsed.display} on WhatsApp`}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-[#20c763]/10 text-[#20c763] border border-[#20c763]/25 hover:bg-[#20c763]/20 hover:border-[#20c763]/50 transition cursor-pointer whitespace-nowrap"
+                              >
+                                <MessageCircle size={13} className="shrink-0" />
+                                <span>{parsed.display}</span>
+                              </a>
+                            );
+                          })()
                         ) : isRoleColumn ? (
                           val === "admin" ? (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-[#8b5cf6]/15 text-[#b9a4ff] border border-[#8b5cf6]/30">
