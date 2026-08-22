@@ -81,15 +81,16 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Resellers cannot stack retail coupons on top of wholesale discounts
+    let isAdmin = false;
     if (user) {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("is_reseller")
+        .select("role, is_reseller")
         .eq("id", user.id)
         .maybeSingle();
 
-      if (profile?.is_reseller) {
+      isAdmin = profile?.role === "admin" || profile?.role === "owner" || user.email === "12k21rakeshkannam@gmail.com";
+      if (!isAdmin && profile?.is_reseller) {
         return NextResponse.json(
           {
             success: false,
@@ -183,7 +184,7 @@ export async function POST(request: Request) {
 
     // 4. Milestone / Loyalty points check
     const isRestrictedCode = normalized === "RAKE20" || normalized === "DIAMONDFREE" || normalized === "DIAMOND-FREEBIE" || normalized === "PLATINUMFREE" || normalized === "PLATINUM-FREEBIE";
-    if (isRestrictedCode) {
+    if (isRestrictedCode && !isAdmin) {
       if (!user) {
         return NextResponse.json(
           {
@@ -230,7 +231,7 @@ export async function POST(request: Request) {
     }
 
     const isMilestoneCoupon = normalized.startsWith("MILE") || normalized.startsWith("LOYAL") || normalized.startsWith("STAGE") || (normalized.startsWith("PLAT") && normalized !== "PLATINUMFREE" && normalized !== "PLATINUM-FREEBIE");
-    if (isMilestoneCoupon) {
+    if (isMilestoneCoupon && !isAdmin) {
       if (!user) {
         return NextResponse.json(
           {
@@ -279,7 +280,7 @@ export async function POST(request: Request) {
     }
 
     // 6. Per-user limit check
-    if (user) {
+    if (user && !isAdmin) {
       const { count } = await supabase
         .from("coupon_usage")
         .select("id", { count: "exact", head: true })

@@ -351,33 +351,30 @@ export function CheckoutForm() {
   if (isRankFreebie) {
     if (isPlatinumFreebie) {
       let platinumTotal = 0;
+      let freeItemsRemaining = 3;
       lines.forEach((line) => {
         if (!line || !line.game) return;
         const platform = line.platform || "Steam";
         const gamePriceValue = getCheckoutLinePrice(line.game, platform);
         const price = Number(gamePriceValue ?? 0);
         const qty = line.quantity || 1;
-        if (line.game.is_subscription) {
-          // Subscriptions are fully charged and do not qualify for the first 3 free count
-          platinumTotal += qty * price;
-        } else {
-          if (qty > 3) {
-            platinumTotal += (qty - 3) * price;
-          }
-        }
+        const freeCount = Math.min(qty, freeItemsRemaining);
+        const paidCount = qty - freeCount;
+        freeItemsRemaining -= freeCount;
+        platinumTotal += paidCount * price;
       });
       bundleLines.forEach((line) => {
         if (!line || !line.bundle) return;
         const qty = line.quantity || 1;
-        if (qty > 3) {
-          platinumTotal += (qty - 3) * Number(line.bundle.bundle_price || 0);
-        }
+        const freeCount = Math.min(qty, freeItemsRemaining);
+        const paidCount = qty - freeCount;
+        freeItemsRemaining -= freeCount;
+        platinumTotal += paidCount * Number(line.bundle.bundle_price || 0);
       });
       total = platinumTotal;
     } else {
-      // For DIAMONDFREE / general rank freebies, only non-subscription games are free.
-      // So the user pays only for the subscription items!
-      total = Math.max(0, subtotal - nonSubscriptionSubtotal);
+      // DIAMONDFREE / DIAMOND-FREEBIE: 100% Free checkout
+      total = 0;
     }
   }
   

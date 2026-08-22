@@ -92,64 +92,57 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                 colors={['#facc15', '#eab308', '#8b5cf6']}
                 className="w-full h-full"
               >
-                <Link href={gameUrl(game)} className="group grid min-h-56 grid-cols-[140px_1fr] sm:grid-cols-[180px_1fr] overflow-hidden w-full h-full">
-                  <div className="relative w-full h-full min-h-[190px] overflow-hidden bg-[#07090e] border-r border-white/10 flex items-center justify-center">
+                <Link href={gameUrl(game)} className="group flex flex-col sm:grid sm:grid-cols-[180px_1fr] md:grid-cols-[200px_1fr] overflow-hidden w-full h-full">
+                  <div className="relative aspect-[16/9] sm:aspect-auto w-full h-44 sm:h-full sm:min-h-[190px] overflow-hidden bg-[#07090e] border-b sm:border-b-0 sm:border-r border-white/10 flex items-center justify-center p-3">
                     <Image 
                       src={assetUrl(game.cover_image)} 
                       alt={game.title} 
                       fill 
-                      sizes="(max-width: 640px) 140px, 180px"
-                      className="object-cover object-center transition duration-500 group-hover:scale-105" 
+                      sizes="(max-width: 640px) 100vw, 200px"
+                      className="object-contain sm:object-cover object-center transition duration-500 group-hover:scale-105" 
                     />
                   </div>
-                  <div className="flex flex-col justify-center p-5">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-[#facc15]">
-                        Limited deal
-                      </span>
-                      {game.is_subscription ? (
-                        <span className="text-[10px] font-bold text-[#facc15] bg-[#facc15]/10 border border-[#facc15]/25 px-1.5 py-0.5 rounded">
-                          Subscription Pass
+                  <div className="flex flex-col justify-between p-4 sm:p-5 flex-1">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-[#facc15] bg-[#facc15]/10 border border-[#facc15]/20 px-2 py-0.5 rounded">
+                          Limited deal
                         </span>
-                      ) : game.duration ? (
-                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-1.5 py-0.5 rounded">
-                          {game.duration}
-                        </span>
-                      ) : null}
+                      </div>
+                      <h3 className="mt-2.5 line-clamp-1 sm:line-clamp-2 font-black text-white text-base sm:text-lg group-hover:text-[#facc15] transition-colors">{game.title}</h3>
+                      {resellerCalc ? (
+                        <div className="mt-2.5 flex items-baseline gap-2 flex-wrap">
+                          <strong className="text-xl sm:text-2xl font-black text-[#facc15] font-mono">
+                            {formatPrice(resellerCalc.price)}
+                          </strong>
+                          <span className="text-xs text-[#8991a6]">
+                            (Flash: {formatPrice(rawPrice)})
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="mt-2.5 flex items-baseline gap-1.5">
+                          {game.is_subscription && <span className="text-xs text-[#8991a6] font-bold">From</span>}
+                          <strong className="text-xl sm:text-2xl font-black text-[#facc15]">{formatPrice(rawPrice)}</strong>
+                        </div>
+                      )}
+                      {game.is_subscription && (
+                        <div className="mt-2 flex flex-wrap gap-1.5 text-[10px]">
+                          {sale.sale_price ? <span className="rounded bg-white/[0.06] border border-white/10 px-2 py-0.5 font-bold text-white">1M: ₹{sale.sale_price}</span> : null}
+                          {sale.price_2m ? <span className="rounded bg-white/[0.06] border border-white/10 px-2 py-0.5 font-bold text-white">2M: ₹{sale.price_2m}</span> : null}
+                          {sale.price_3m ? <span className="rounded bg-[#facc15]/15 border border-[#facc15]/30 px-2 py-0.5 font-bold text-[#facc15]">3M: ₹{sale.price_3m}</span> : null}
+                          {sale.price_6m ? <span className="rounded bg-white/[0.06] border border-white/10 px-2 py-0.5 font-bold text-white">6M: ₹{sale.price_6m}</span> : null}
+                          {sale.price_12m ? <span className="rounded bg-white/[0.06] border border-white/10 px-2 py-0.5 font-bold text-white">12M: ₹{sale.price_12m}</span> : null}
+                        </div>
+                      )}
                     </div>
-                    <h3 className="mt-2 line-clamp-2 font-black text-white group-hover:text-[#facc15] transition-colors">{game.title}</h3>
-                    {resellerCalc ? (
-                      <div className="mt-3 flex items-baseline gap-2 flex-wrap">
-                        <strong className="text-2xl font-black text-[#facc15] font-mono">
-                          {formatPrice(resellerCalc.price)}
-                        </strong>
-                        <span className="text-xs text-[#8991a6]">
-                          (Flash: {formatPrice(rawPrice)})
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="mt-3 flex items-baseline gap-1.5">
-                        {game.is_subscription && <span className="text-xs text-[#8991a6] font-bold">From</span>}
-                        <strong className="text-2xl font-black text-[#facc15]">{formatPrice(rawPrice)}</strong>
-                      </div>
-                    )}
-                    {game.is_subscription && (
-                      <div className="mt-2 flex flex-wrap gap-1 text-[10px]">
-                        {sale.sale_price ? <span className="rounded bg-black/50 border border-white/10 px-1.5 py-0.5 font-bold text-white">1M: ₹{sale.sale_price}</span> : null}
-                        {sale.price_2m ? <span className="rounded bg-black/50 border border-white/10 px-1.5 py-0.5 font-bold text-white">2M: ₹{sale.price_2m}</span> : null}
-                        {sale.price_3m ? <span className="rounded bg-[#facc15]/15 border border-[#facc15]/30 px-1.5 py-0.5 font-bold text-[#facc15]">3M: ₹{sale.price_3m}</span> : null}
-                        {sale.price_6m ? <span className="rounded bg-black/50 border border-white/10 px-1.5 py-0.5 font-bold text-white">6M: ₹{sale.price_6m}</span> : null}
-                        {sale.price_12m ? <span className="rounded bg-black/50 border border-white/10 px-1.5 py-0.5 font-bold text-white">12M: ₹{sale.price_12m}</span> : null}
-                      </div>
-                    )}
-                    <div className="mt-4 flex gap-1.5 flex-wrap">
+                    <div className="mt-4 flex items-center gap-1.5 w-full">
                       {timeBlocks.map(([value, label]) => (
-                        <span key={String(label)} className="min-w-10 rounded bg-black/35 px-2 py-2 text-center text-xs border border-white/5">
-                          <b className="block text-white">
+                        <div key={String(label)} className="flex-1 rounded-md bg-[#0a0d14] py-1.5 px-1 text-center border border-white/10">
+                          <b className="block text-xs sm:text-sm font-black text-white font-mono leading-tight">
                             {mounted ? String(value).padStart(2, "0") : "--"}
                           </b>
-                          <small className="text-[#7f879d]">{label}</small>
-                        </span>
+                          <small className="text-[9px] uppercase tracking-wider font-bold text-[#8991a6] block leading-none mt-0.5">{label}</small>
+                        </div>
                       ))}
                     </div>
                   </div>
