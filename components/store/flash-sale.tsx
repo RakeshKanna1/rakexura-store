@@ -67,8 +67,9 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
           if (!game) return null;
 
           const rawPrice = Number(sale.sale_price || 0);
+          const isMarkup = resellerDiscountType === "markup_flat" || resellerDiscountType === "markup_percentage";
           const resellerCalc =
-            isReseller && resellerDiscount > 0
+            isReseller && isMarkup && resellerDiscount > 0
               ? calculateResellerPrice(rawPrice, resellerDiscount, resellerDiscountType)
               : null;
 
@@ -94,7 +95,7 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                   </div>
                   <div className="flex flex-col justify-center p-5">
                     <span className="text-[10px] font-black uppercase tracking-wider text-[#facc15]">
-                      {isReseller ? "Reseller Flash Deal" : "Limited deal"}
+                      Limited deal
                     </span>
                     <h3 className="mt-2 line-clamp-2 font-black text-white group-hover:text-[#facc15] transition-colors">{game.title}</h3>
                     {resellerCalc ? (
@@ -102,11 +103,8 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                         <strong className="text-2xl font-black text-[#facc15] font-mono">
                           {formatPrice(resellerCalc.price)}
                         </strong>
-                        <del className="text-xs text-[#646b7b]">
-                          {formatPrice(rawPrice)}
-                        </del>
-                        <span className="text-[10px] font-black uppercase text-[#facc15] bg-[#facc15]/10 border border-[#facc15]/30 px-1.5 py-0.5 rounded">
-                          Wholesale
+                        <span className="text-xs text-[#8991a6]">
+                          (Flash: {formatPrice(rawPrice)})
                         </span>
                       </div>
                     ) : (
