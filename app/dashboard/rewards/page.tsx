@@ -20,18 +20,18 @@ export default async function RewardsPage() {
     supabase.from("reward_redemptions").select("offer_id").eq("user_id", user.id),
   ]);
 
-  const purchasePoints = (libraryCount ?? 0) * 100;
-  const referralPoints = (referralCount ?? 0) * 500;
-  const totalPoints = Math.min(10000, purchasePoints + referralPoints);
+  const dbPoints = userReward?.points;
+  const totalPoints = dbPoints !== undefined && dbPoints !== null ? dbPoints : Math.min(10000, (libraryCount ?? 0) * 100 + (referralCount ?? 0) * 500);
 
-  let currentLevel = "Bronze";
+  let currentLevel = userReward?.level || "Bronze";
   if (totalPoints >= 10000) currentLevel = "Platinum";
   else if (totalPoints >= 4000) currentLevel = "Diamond";
   else if (totalPoints >= 2000) currentLevel = "Gold";
   else if (totalPoints >= 1000) currentLevel = "Silver";
+  else currentLevel = "Bronze";
 
-  // Sync user_rewards table data non-blocking if outdated
-  if (userReward?.points !== totalPoints || userReward?.level !== currentLevel) {
+  // Sync user_rewards table data if not initialized
+  if (userReward === null) {
     void supabase.from("user_rewards").upsert({ user_id: user.id, points: totalPoints, level: currentLevel });
   }
 

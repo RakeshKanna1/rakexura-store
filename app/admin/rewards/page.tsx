@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { Award, Crown, Medal, Trophy, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { adjustRewardPoints } from "@/app/admin/actions";
