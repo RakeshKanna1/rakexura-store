@@ -201,8 +201,8 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                                 {matchingFlashSale && (
                                   <>
                                     <span className="text-[#8991a6] font-bold text-xs">•</span>
-                                    <span className="text-xs font-mono font-bold text-white/90 bg-white/10 px-2.5 py-0.5 rounded border border-white/15 backdrop-blur-md">
-                                      Ends in {formatRemainingTime(matchingFlashSale.ends_at, now)}
+                                    <span suppressHydrationWarning className="text-xs font-mono font-bold text-white/90 bg-white/10 px-2.5 py-0.5 rounded border border-white/15 backdrop-blur-md">
+                                      Ends in {mounted ? formatRemainingTime(matchingFlashSale.ends_at, now) : "--:--:--"}
                                     </span>
                                   </>
                                 )}

@@ -138,7 +138,7 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                     <div className="mt-4 flex items-center gap-1.5 w-full">
                       {timeBlocks.map(([value, label]) => (
                         <div key={String(label)} className="flex-1 rounded-md bg-[#0a0d14] py-1.5 px-1 text-center border border-white/10">
-                          <b className="block text-xs sm:text-sm font-black text-white font-mono leading-tight">
+                          <b suppressHydrationWarning className="block text-xs sm:text-sm font-black text-white font-mono leading-tight">
                             {mounted ? String(value).padStart(2, "0") : "--"}
                           </b>
                           <small className="text-[9px] uppercase tracking-wider font-bold text-[#8991a6] block leading-none mt-0.5">{label}</small>
