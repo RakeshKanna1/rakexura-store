@@ -119,11 +119,11 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 bg-black/60">
-              <div className="flex items-center gap-2.5">
-                <BadgeCheck size={19} className="text-[#00d68f]" />
+            <div className="flex items-center justify-between border-b border-white/10 px-5 py-3.5 bg-black/50">
+              <div className="flex items-center gap-2">
+                <BadgeCheck size={18} className="text-[#00d68f]" />
                 <div>
-                  <span className="text-sm font-black text-white block">Verified Customer Delivery Proof</span>
+                  <span className="text-sm font-bold text-white block">Verified Customer Delivery Proof</span>
                   <span className="text-[11px] text-[#8991a6]">
                     Photo {(selectedProofIndex ?? 0) + 1} of {filteredProofs.length}
                   </span>
@@ -132,7 +132,7 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
               <button
                 type="button"
                 onClick={() => setSelectedProofIndex(null)}
-                className="rounded-lg p-1.5 text-[#8991a6] hover:bg-white/10 hover:text-white transition-colors"
+                className="rounded-full p-1 text-[#8991a6] hover:bg-white/10 hover:text-white transition-colors"
                 aria-label="Close"
               >
                 <X size={20} />
@@ -140,12 +140,12 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
             </div>
 
             {/* Display Image */}
-            <div className="relative flex items-center justify-center bg-black/95 p-3 min-h-[320px] max-h-[72vh] overflow-auto">
+            <div className="relative flex items-center justify-center bg-black/90 p-2 min-h-[300px] max-h-[70vh] overflow-auto">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={assetUrl(currentSelectedProof.image_url)}
                 alt={currentSelectedProof.caption || "Customer proof screenshot"}
-                className="max-h-[68vh] w-auto object-contain rounded-lg shadow-lg"
+                className="max-h-[68vh] w-auto object-contain rounded"
               />
 
               {/* Prev / Next controls */}
@@ -157,10 +157,10 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
                       e.stopPropagation();
                       setSelectedProofIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : filteredProofs.length - 1));
                     }}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/80 p-2.5 text-white hover:bg-[#facc15] hover:text-black hover:border-[#facc15] transition-all shadow-xl"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/70 p-2 text-white hover:bg-black transition"
                     aria-label="Previous"
                   >
-                    <ChevronLeft size={22} />
+                    <ChevronLeft size={20} />
                   </button>
                   <button
                     type="button"
@@ -168,10 +168,10 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
                       e.stopPropagation();
                       setSelectedProofIndex((prev) => (prev !== null && prev < filteredProofs.length - 1 ? prev + 1 : 0));
                     }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/80 p-2.5 text-white hover:bg-[#facc15] hover:text-black hover:border-[#facc15] transition-all shadow-xl"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/70 p-2 text-white hover:bg-black transition"
                     aria-label="Next"
                   >
-                    <ChevronRight size={22} />
+                    <ChevronRight size={20} />
                   </button>
                 </>
               )}
@@ -179,7 +179,7 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
 
             {/* Footer Caption */}
             {currentSelectedProof.caption && (
-              <div className="border-t border-white/10 px-5 py-3.5 bg-black/50 text-xs text-[#c8cedc] font-medium">
+              <div className="border-t border-white/10 px-5 py-3 bg-black/40 text-xs text-[#d8dce7] leading-relaxed">
                 {currentSelectedProof.caption}
               </div>
             )}
