@@ -410,6 +410,14 @@ html {
   .spotlight-card::after { display: none; }
   .btn { min-height: 44px; }
   table { font-size: .78rem; }
+  .hide-scrollbar {
+    scroll-snap-type: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-x: auto !important;
+  }
+  .hide-scrollbar > * {
+    scroll-snap-align: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

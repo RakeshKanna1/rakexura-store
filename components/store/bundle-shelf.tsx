@@ -24,7 +24,7 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
         data-lenis-prevent="true"
         data-lenis-prevent-wheel="true"
         data-lenis-prevent-touch="true"
-        className="hide-scrollbar grid w-full max-w-full auto-cols-[85%] grid-flow-col gap-4 overflow-x-auto overscroll-x-contain sm:auto-cols-[70%] md:grid-flow-row md:grid-cols-2 md:overflow-visible"
+        className="hide-scrollbar grid w-full max-w-full auto-cols-[85%] grid-flow-col gap-4 overflow-x-auto sm:auto-cols-[70%] md:grid-flow-row md:grid-cols-2 md:overflow-visible"
         style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}
       >
         {bundles.map((bundle, index) => {

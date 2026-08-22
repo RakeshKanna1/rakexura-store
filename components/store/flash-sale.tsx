@@ -61,7 +61,7 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
         data-lenis-prevent="true"
         data-lenis-prevent-wheel="true"
         data-lenis-prevent-touch="true"
-        className="touch-row hide-scrollbar grid auto-cols-[82%] grid-flow-col gap-4 overflow-x-auto overscroll-x-contain md:auto-cols-[46%] xl:auto-cols-[31%]"
+        className="touch-row hide-scrollbar grid auto-cols-[82%] grid-flow-col gap-4 overflow-x-auto md:auto-cols-[46%] xl:auto-cols-[31%]"
         style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}
       >
         {active.map((sale) => {

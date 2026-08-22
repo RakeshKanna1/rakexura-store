@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 export function SmoothScroll() {
   useEffect(() => {
-    if (window.matchMedia("(max-width: 760px), (prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia("(pointer: coarse), (max-width: 1024px), (prefers-reduced-motion: reduce)").matches) return;
     let frame = 0; let disposed = false; let destroy = () => undefined;
     void import("lenis").then(({ default: Lenis }) => {
       if (disposed) return;

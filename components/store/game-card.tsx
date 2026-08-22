@@ -1,6 +1,5 @@
 "use client";
 
-import { PointerEvent } from "react";
 import { Eye, ShoppingCart, X, Zap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -283,9 +282,7 @@ export function GameCard({
     platforms,
   };
 
-  const move = (event: PointerEvent<HTMLElement>) => {
-    if (event.pointerType === "touch") return;
-
+  const move = (event: React.MouseEvent<HTMLElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     event.currentTarget.style.setProperty("--mouse-x", `${event.clientX - rect.left}px`);
     event.currentTarget.style.setProperty("--mouse-y", `${event.clientY - rect.top}px`);
@@ -297,8 +294,7 @@ export function GameCard({
 
   return (
     <article
-      onPointerMove={move}
-      style={{ touchAction: "pan-x pan-y" }}
+      onMouseMove={move}
       className={`spotlight-card group relative flex h-full flex-col overflow-hidden rounded-xl border transition-colors duration-200 md:transition-all md:duration-300 md:hover:-translate-y-1.5 transform-gpu shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] ${themeClasses}`}
     >
       <GameCardInner {...props} />
