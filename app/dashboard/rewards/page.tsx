@@ -1,10 +1,12 @@
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 import Link from "next/link";
 import { ArrowLeft, Gift } from "lucide-react";
 import { redirect } from "next/navigation";
 import { RewardsCenter } from "@/components/account/rewards-center";
 import { createClient } from "@/lib/supabase/server";
+import { DashboardRealtimeSync } from "@/components/dashboard/dashboard-realtime-sync";
 
 export default async function RewardsPage() {
   const supabase = await createClient();
@@ -37,6 +39,7 @@ export default async function RewardsPage() {
 
   return (
     <div className="page-shell py-10">
+      <DashboardRealtimeSync userId={user.id} />
       <Link href="/dashboard" prefetch={true} className="inline-flex min-h-11 items-center gap-2 text-sm text-[#8991a6] hover:text-[#b9a4ff] transition-colors">
         <ArrowLeft size={16} /> Dashboard
       </Link>

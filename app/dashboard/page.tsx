@@ -14,6 +14,7 @@ import { formatPrice } from "@/lib/utils";
 import { RedeemFreebieButton } from "@/components/account/redeem-freebie-button";
 import { GiftCelebration } from "@/components/dashboard/gift-celebration";
 import { ResellerBadge } from "@/components/ui/reseller-badge";
+import { DashboardRealtimeSync } from "@/components/dashboard/dashboard-realtime-sync";
 
 const modules = [
   ["orders", "My orders", "Payment and delivery history", PackageSearch],
@@ -116,6 +117,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="page-shell py-8 sm:py-10">
+      <DashboardRealtimeSync userId={user.id} />
       {/* Profile Header Wrapper with purple/violet gradients */}
       <header className="relative overflow-hidden rounded-2xl border border-[#8b5cf6]/25 bg-[#0e0a1f]/85 p-6 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl">
 

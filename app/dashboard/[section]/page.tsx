@@ -458,7 +458,16 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                             </div>
                           </Link>
                           <strong className="mt-1.5 block text-xs font-black text-[#facc15] filter drop-shadow-[0_0_6px_rgba(250,204,21,0.3)]">
-                            {formatPrice(item.unit_price || item.price)}
+                            {row.total_price === 0 ? (
+                              <span className="inline-flex items-center gap-1">
+                                <span>₹0</span>
+                                <span className="text-[9px] font-black uppercase text-[#00d68f] bg-[#00d68f]/10 border border-[#00d68f]/25 px-1.5 py-0.2 rounded">
+                                  FREE
+                                </span>
+                              </span>
+                            ) : (
+                              formatPrice(item.unit_price || item.price)
+                            )}
                           </strong>
                         </div>
                       </div>
