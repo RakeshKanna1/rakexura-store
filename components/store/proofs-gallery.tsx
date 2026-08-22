@@ -46,10 +46,10 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
           <button
             type="button"
             onClick={() => { setActiveFilter("all"); setSelectedProofIndex(null); }}
-            className={`rounded-lg px-4 py-2 text-xs font-black transition-all ${
+            className={`rounded px-3.5 py-1.5 text-xs font-bold transition-all ${
               activeFilter === "all"
-                ? "bg-[#facc15] text-black shadow-[0_0_20px_rgba(250,204,21,0.25)]"
-                : "bg-white/[0.05] text-[#8991a6] hover:text-white hover:bg-white/10 border border-white/10"
+                ? "bg-[#facc15] text-black shadow-[0_0_16px_rgba(250,204,21,0.2)]"
+                : "bg-white/[0.04] text-[#8991a6] hover:text-white hover:bg-white/10 border border-white/10"
             }`}
           >
             All Proofs ({proofs.length})
@@ -57,10 +57,10 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
           <button
             type="button"
             onClick={() => { setActiveFilter("whatsapp"); setSelectedProofIndex(null); }}
-            className={`rounded-lg px-4 py-2 text-xs font-black transition-all ${
+            className={`rounded px-3.5 py-1.5 text-xs font-bold transition-all ${
               activeFilter === "whatsapp"
-                ? "bg-[#facc15] text-black shadow-[0_0_20px_rgba(250,204,21,0.25)]"
-                : "bg-white/[0.05] text-[#8991a6] hover:text-white hover:bg-white/10 border border-white/10"
+                ? "bg-[#facc15] text-black shadow-[0_0_16px_rgba(250,204,21,0.2)]"
+                : "bg-white/[0.04] text-[#8991a6] hover:text-white hover:bg-white/10 border border-white/10"
             }`}
           >
             WhatsApp Deliveries ({proofs.filter(p => p.proof_type === "whatsapp" || !p.proof_type).length})
@@ -73,12 +73,12 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
       </div>
 
       {/* Grid of Delivery Proofs */}
-      <div className="grid grid-cols-2 gap-3.5 sm:gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3.5 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {filteredProofs.map((proof, idx) => (
           <article
             key={proof.id}
             onClick={() => setSelectedProofIndex(idx)}
-            className="group cursor-pointer overflow-hidden rounded-xl border border-white/[.08] bg-[#11131a] transition-all duration-300 hover:border-[#facc15]/50 hover:-translate-y-1.5 hover:shadow-[0_14px_36px_rgba(0,0,0,0.7)]"
+            className="group cursor-pointer overflow-hidden rounded-md border border-white/[.08] bg-[#11131a] transition-all hover:border-[#facc15]/40 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)]"
           >
             <div className="relative aspect-[3/4] overflow-hidden bg-black/60">
               <Image
@@ -90,21 +90,19 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/85 text-white font-bold text-xs border border-white/20 backdrop-blur-md">
-                  <ZoomIn size={14} className="text-[#facc15]" />
-                  View Full
+                  <ZoomIn size={13} className="text-[#facc15]" />
+                  <span>View Full</span>
                 </span>
               </div>
             </div>
             <div className="p-3">
               <div className="flex items-center gap-1.5">
                 <BadgeCheck size={15} className="shrink-0 text-[#00d68f]" />
-                <span className="text-xs font-bold text-white truncate">Verified Order Proof</span>
+                <span className="text-xs font-bold text-white truncate">{proof.caption || "Verified Proof"}</span>
               </div>
-              {proof.caption && (
-                <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-[#8991a6]">
-                  {proof.caption}
-                </p>
-              )}
+              <p className="mt-0.5 text-[11px] leading-relaxed text-[#8991a6]">
+                WhatsApp Delivery
+              </p>
             </div>
           </article>
         ))}

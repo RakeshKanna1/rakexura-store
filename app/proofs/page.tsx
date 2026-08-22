@@ -28,21 +28,9 @@ export default async function ProofsPage() {
       </div>
 
       <header className="mb-10 max-w-3xl">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00d68f]/10 text-[#00d68f] text-xs font-black border border-[#00d68f]/20">
-            <ShieldCheck size={14} />
-            100% Genuine Deliveries
-          </span>
-          <Link
-            href="/reviews"
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 text-[#8991a6] hover:text-white text-xs font-bold border border-white/10 transition"
-          >
-            <Star size={13} className="text-[#facc15]" />
-            Customer Reviews
-          </Link>
-        </div>
-        <h1 className="text-4xl font-black sm:text-6xl text-white tracking-tight">Verified Proofs.</h1>
-        <p className="mt-3 section-copy">
+        <p className="eyebrow mb-3">Real customer proof</p>
+        <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white tracking-tight">Verified Proofs.</h1>
+        <p className="section-copy">
           Real customer purchase screenshots, payment confirmations, and WhatsApp delivery proof cards. All customer personal details and phone numbers are securely hidden before publishing.
         </p>
       </header>
