@@ -128,9 +128,20 @@ export function PremiumSearch() {
       {/* Search Input Bar */}
       <label
         htmlFor="premium-search-input"
-        className="flex h-11 w-full items-center gap-2.5 rounded-xl border border-white/10 bg-[#10131b] px-3.5 text-sm shadow-inner transition-all duration-200 focus-within:border-[#8b5cf6]/60 focus-within:bg-[#141823] focus-within:shadow-[0_0_15px_rgba(139,92,246,0.12)] cursor-text"
+        className={`flex h-11 w-full items-center gap-2.5 rounded-xl border border-white/10 bg-[#10131b] px-3.5 text-sm shadow-inner transition-all duration-200 cursor-text ${
+          isReseller
+            ? "focus-within:border-[#facc15]/60 focus-within:bg-[#141823] focus-within:shadow-[0_0_15px_rgba(250,204,21,0.12)]"
+            : "focus-within:border-[#8b5cf6]/60 focus-within:bg-[#141823] focus-within:shadow-[0_0_15px_rgba(139,92,246,0.12)]"
+        }`}
       >
-        <Search size={16} className="shrink-0 text-[#8991a6] group-focus-within:text-[#8b5cf6] transition-colors" />
+        <Search
+          size={16}
+          className={`shrink-0 transition-colors ${
+            isReseller
+              ? "text-[#8991a6] group-focus-within:text-[#facc15]"
+              : "text-[#8991a6] group-focus-within:text-[#8b5cf6]"
+          }`}
+        />
         <span className="sr-only">Search games</span>
         <div className="relative flex-1 min-w-0 h-full flex items-center">
           <input
@@ -179,7 +190,7 @@ export function PremiumSearch() {
                 pauseDuration={2000}
                 showCursor={true}
                 cursorCharacter="|"
-                cursorClassName="text-[#8b5cf6] font-bold"
+                cursorClassName={`${isReseller ? "text-[#facc15]" : "text-[#8b5cf6]"} font-bold`}
               />
             </div>
           )}
@@ -217,12 +228,12 @@ export function PremiumSearch() {
               <span className="flex items-center gap-1.5">
                 {query.trim().length >= 2 ? (
                   <>
-                    <Search size={12} className="text-[#c4b5fd]" />
+                    <Search size={12} className={isReseller ? "text-[#facc15]" : "text-[#c4b5fd]"} />
                     <span>Search Results</span>
                   </>
                 ) : (
                   <>
-                    <Clock3 size={12} className="text-[#c4b5fd]" />
+                    <Clock3 size={12} className={isReseller ? "text-[#facc15]" : "text-[#c4b5fd]"} />
                     <span>Recently Viewed & Popular</span>
                   </>
                 )}
