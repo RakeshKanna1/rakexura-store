@@ -1602,6 +1602,19 @@ export async function saveFlashSale(formData: FormData) {
   const { error } = await query;
   if (error) throw new Error(error.message);
 
+  // Sync active flash prices directly to the game catalog so product page, cart, and catalog use discounted rate
+  if (active) {
+    const gameUpdate: Record<string, unknown> = {
+      sale_price,
+    };
+    if (price_2m !== null && price_2m > 0) gameUpdate.price_2m = price_2m;
+    if (price_3m !== null && price_3m > 0) gameUpdate.price_3m = price_3m;
+    if (price_6m !== null && price_6m > 0) gameUpdate.price_6m = price_6m;
+    if (price_12m !== null && price_12m > 0) gameUpdate.price_12m = price_12m;
+    
+    await supabase.from("games").update(gameUpdate).eq("id", game_id);
+  }
+
   // Send push notification if set to active
   if (active) {
     try {
