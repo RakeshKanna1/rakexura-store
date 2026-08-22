@@ -119,15 +119,18 @@ function GameCardInner({
       <Link 
         href={gameUrl(game)} 
         prefetch={false} 
+        draggable={false}
         onMouseEnter={handleMouseEnter}
-        className="block aspect-[3/4] w-full shrink-0 overflow-hidden bg-[#08090c] relative"
+        className="block aspect-[3/4] w-full shrink-0 overflow-hidden bg-[#08090c] relative select-none"
+        style={{ touchAction: "pan-y pan-x" }}
       >
         <Image
           src={assetUrl(game.cover_image)}
           alt={game.title}
           fill
+          draggable={false}
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-          className="object-cover pointer-events-none transition-transform duration-500 ease-out md:group-hover:scale-105"
+          className="object-cover pointer-events-none transition-transform duration-500 ease-out md:group-hover:scale-105 select-none"
           priority={priority}
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#07090e] via-transparent to-transparent opacity-70" />
@@ -295,7 +298,8 @@ export function GameCard({
   return (
     <article
       onMouseMove={move}
-      className={`spotlight-card group relative flex h-full flex-col overflow-hidden rounded-xl border transition-colors duration-200 md:transition-all md:duration-300 md:hover:-translate-y-1.5 transform-gpu shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] ${themeClasses}`}
+      style={{ touchAction: "pan-y pan-x" }}
+      className={`spotlight-card group relative flex h-full flex-col overflow-hidden rounded-xl border transition-colors duration-200 md:transition-all md:duration-300 md:hover:-translate-y-1.5 transform-gpu shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] select-none ${themeClasses}`}
     >
       <GameCardInner {...props} />
     </article>

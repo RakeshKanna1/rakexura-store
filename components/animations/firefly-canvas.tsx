@@ -16,6 +16,8 @@ export function FireflyCanvas() {
   const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
+    if (window.matchMedia("(max-width: 768px), (pointer: coarse)").matches) return;
+
     const list: Particle[] = [];
     // Full 18 golden firefly particles
     for (let i = 0; i < 18; i++) {

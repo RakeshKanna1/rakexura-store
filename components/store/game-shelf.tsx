@@ -43,7 +43,7 @@ export function GameShelf({
         }`}
         style={{
           WebkitOverflowScrolling: "touch",
-          touchAction: "pan-x pan-y",
+          touchAction: "pan-y pan-x",
         }}
       >
         {displayGames.map((game, index) => (
@@ -51,13 +51,13 @@ export function GameShelf({
             key={game.id}
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.05 }}
+            viewport={{ once: true, margin: "120px" }}
             transition={{
               duration: 0.38,
               delay: (index % 6) * 0.04,
               ease: [0.21, 0.47, 0.32, 0.98],
             }}
-            className="min-w-0 h-full flex flex-col snap-start"
+            className="min-w-0 h-full flex flex-col"
           >
             <GameCard game={game} priority={index < 2} />
           </motion.div>

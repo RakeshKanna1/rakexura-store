@@ -25,7 +25,7 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
         data-lenis-prevent-wheel="true"
         data-lenis-prevent-touch="true"
         className="hide-scrollbar grid w-full max-w-full auto-cols-[85%] grid-flow-col gap-4 overflow-x-auto sm:auto-cols-[70%] md:grid-flow-row md:grid-cols-2 md:overflow-visible"
-        style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}
+        style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y pan-x" }}
       >
         {bundles.map((bundle, index) => {
           const isSecond = index === 1;
@@ -34,13 +34,13 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
               key={bundle.id}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.1 }}
+              viewport={{ once: true, margin: "120px" }}
               transition={{
                 duration: 0.45,
                 delay: index * 0.08,
                 ease: [0.21, 0.47, 0.32, 0.98],
               }}
-              className="snap-start min-w-0"
+              className="min-w-0"
             >
               <Link
                 href={`/bundles/${bundle.id}`}

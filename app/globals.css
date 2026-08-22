@@ -418,6 +418,14 @@ html {
   .hide-scrollbar > * {
     scroll-snap-align: none !important;
   }
+  .spotlight-card,
+  .spotlight-card a,
+  .spotlight-card img {
+    touch-action: pan-y pan-x !important;
+    -webkit-user-drag: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
