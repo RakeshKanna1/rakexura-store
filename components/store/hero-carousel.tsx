@@ -194,15 +194,17 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                           >
                             {isFlashActive ? (
                               <div className="mb-1.5 sm:mb-2 flex flex-wrap items-center gap-2">
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#facc15] text-black font-black text-[11px] sm:text-xs uppercase tracking-wider shadow-[0_0_15px_rgba(250,204,21,0.6)]">
-                                  <Zap size={13} className="fill-black" />
-                                  Flash Sale Live
-                                </span>
+                                <p className="text-xs sm:text-sm font-extrabold uppercase tracking-[0.16em] text-[#facc15] flex items-center gap-1.5">
+                                  <Zap size={14} className="fill-[#facc15] shrink-0" />
+                                  <span>Flash Sale Deal</span>
+                                </p>
                                 {matchingFlashSale && (
-                                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/75 border border-[#facc15]/40 text-[#facc15] font-extrabold text-[11px] sm:text-xs backdrop-blur-md">
-                                    <Clock3 size={13} />
-                                    Ends in {formatRemainingTime(matchingFlashSale.ends_at, now)}
-                                  </span>
+                                  <>
+                                    <span className="text-[#8991a6] font-bold text-xs">•</span>
+                                    <span className="text-xs font-mono font-bold text-white/90 bg-white/10 px-2.5 py-0.5 rounded border border-white/15 backdrop-blur-md">
+                                      Ends in {formatRemainingTime(matchingFlashSale.ends_at, now)}
+                                    </span>
+                                  </>
                                 )}
                               </div>
                             ) : (
@@ -224,16 +226,7 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                               {game.tagline || game.description || "A standout PC experience, ready for your library."}
                             </p>
                             <div className="mt-4 sm:mt-6 grid grid-cols-3 sm:flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                              {isFlashActive ? (
-                                <Link 
-                                  href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-10 sm:h-12 w-full sm:w-[155px] items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#facc15] px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] tracking-tight shadow-[0_0_20px_rgba(250,204,21,0.4)]"
-                                >
-                                  <Zap size={14} className="fill-black shrink-0" />
-                                  <span className="truncate">{game.is_subscription ? "View Deal" : "Buy Flash Deal"}</span>
-                                  <ArrowRight size={15} className="shrink-0" />
-                                </Link>
-                              ) : game.is_subscription ? (
+                              {game.is_subscription ? (
                                 <Link 
                                   href={gameUrl(game)} 
                                   className="magnetic-button inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#facc15] px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-black text-black transition hover:-translate-y-0.5 hover:bg-[#ffe45c] tracking-tight shadow-lg"
@@ -263,9 +256,9 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                                   suppressHydrationWarning={true}
                                   type="button"
                                   onClick={(e) => handlePlayTrailer(game, e)}
-                                  className="inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center gap-1.5 sm:gap-2 rounded-lg border border-white/15 bg-black/65 px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-extrabold backdrop-blur hover:bg-black/85 hover:border-[#facc15]/50 transition-all cursor-pointer text-white tracking-tight"
+                                  className="inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center gap-1.5 sm:gap-2 rounded-lg border border-white/15 bg-black/65 px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-extrabold backdrop-blur hover:bg-black/85 hover:border-white/30 transition-all cursor-pointer text-white tracking-tight"
                                 >
-                                  <Play size={14} fill="currentColor" className="text-[#facc15] shrink-0" />
+                                  <Play size={14} fill="currentColor" className="shrink-0" />
                                   <span className="font-extrabold text-white truncate">Trailer</span>
                                 </button>
                               ) : (
@@ -277,12 +270,12 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                                   <span className="font-extrabold text-white truncate">Trailer</span>
                                 </Link>
                               )}
-                              <span className={`inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center rounded-lg border ${isFlashActive ? "border-[#facc15]/40 bg-black/80 shadow-[0_0_15px_rgba(250,204,21,0.2)]" : "border-white/10 bg-black/65"} px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-black backdrop-blur tracking-tight`}>
+                              <span className="inline-flex h-10 sm:h-12 w-full sm:w-[148px] items-center justify-center rounded-lg border border-white/10 bg-black/65 px-1 sm:px-3 text-xs sm:text-[14px] md:text-[15px] font-black backdrop-blur tracking-tight">
                                 {(() => {
                                   const p = getDisplayPrice(game, matchingFlashSale);
                                   return (
-                                    <span className={`truncate ${isFlashActive ? "text-[#facc15] font-black" : p.isWholesale && p.isDiscount ? "text-[#e0ce9a]" : "text-[#facc15]"}`}>
-                                      {isFlashActive ? "Deal " : "From "}{formatPrice(p.price)} {p.isWholesale && p.isDiscount && `(${p.label})`}
+                                    <span className={`truncate ${p.isWholesale && p.isDiscount ? "text-[#e0ce9a]" : "text-[#facc15]"}`}>
+                                      From {formatPrice(p.price)} {p.isWholesale && p.isDiscount && `(${p.label})`}
                                     </span>
                                   );
                                 })()}

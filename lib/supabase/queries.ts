@@ -244,7 +244,7 @@ export const getGameReviews = (gameId: number, limit = 10) =>
  * Fetch approved customer payment/WhatsApp proof cards.
  */
 export const getCustomerProofs = unstable_cache(
-  async (): Promise<CustomerProof[]> => {
+  async (limit = 12): Promise<CustomerProof[]> => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return [];
     const supabase = getStaticClient();
     const { data } = await supabase
@@ -252,10 +252,10 @@ export const getCustomerProofs = unstable_cache(
       .select("id,image_url,caption,proof_type,created_at")
       .eq("approved", true)
       .order("created_at", { ascending: false })
-      .limit(8);
+      .limit(limit);
     return (data || []) as CustomerProof[];
   },
-  ["customer-proofs"],
+  ["customer-proofs-feed"],
   { revalidate: 10, tags: ["proofs"] }
 );
 

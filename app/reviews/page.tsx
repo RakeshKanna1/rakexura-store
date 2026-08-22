@@ -1,9 +1,10 @@
-import { Star, BadgeCheck } from "lucide-react";
+import Link from "next/link";
+import { Star, BadgeCheck, ImageIcon } from "lucide-react";
 import { getReviews } from "@/lib/supabase/queries";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { 
-  title: "Customer Reviews",
+  title: "Customer Reviews | Rakexura",
   description: "Verified customer reviews and feedback for Rakexura Store games and delivery."
 };
 
@@ -12,7 +13,17 @@ export default async function ReviewsPage() {
   return (
     <div className="page-shell py-10">
       <header className="mb-10 max-w-3xl">
-        <p className="eyebrow mb-3">Verified feedback</p>
+        <div className="flex items-center gap-2 mb-3">
+          <p className="eyebrow">Verified feedback</p>
+          <span className="text-[#8991a6]">•</span>
+          <Link
+            href="/proofs"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 text-[#facc15] hover:text-[#ffe45c] text-xs font-bold border border-white/10 transition"
+          >
+            <ImageIcon size={13} />
+            View Delivery Proofs Gallery
+          </Link>
+        </div>
         <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Customer Reviews.</h1>
         <p className="section-copy">Read genuine experiences from gamers who purchased digital games and subscriptions from Rakexura.</p>
       </header>

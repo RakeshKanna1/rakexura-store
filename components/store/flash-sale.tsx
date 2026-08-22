@@ -101,15 +101,19 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                       <span className="text-[10px] font-black uppercase tracking-wider text-[#facc15]">
                         Limited deal
                       </span>
-                      {game.duration && (
+                      {game.is_subscription ? (
+                        <span className="text-[10px] font-bold text-[#facc15] bg-[#facc15]/10 border border-[#facc15]/25 px-1.5 py-0.5 rounded">
+                          Subscription Pass
+                        </span>
+                      ) : game.duration ? (
                         <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-1.5 py-0.5 rounded">
                           {game.duration}
                         </span>
-                      )}
+                      ) : null}
                     </div>
                     <h3 className="mt-2 line-clamp-2 font-black text-white group-hover:text-[#facc15] transition-colors">{game.title}</h3>
                     {resellerCalc ? (
-                      <div className="mt-4 flex items-baseline gap-2 flex-wrap">
+                      <div className="mt-3 flex items-baseline gap-2 flex-wrap">
                         <strong className="text-2xl font-black text-[#facc15] font-mono">
                           {formatPrice(resellerCalc.price)}
                         </strong>
@@ -118,7 +122,19 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                         </span>
                       </div>
                     ) : (
-                      <strong className="mt-4 text-2xl font-black text-[#facc15]">{formatPrice(sale.sale_price)}</strong>
+                      <div className="mt-3 flex items-baseline gap-1.5">
+                        {game.is_subscription && <span className="text-xs text-[#8991a6] font-bold">From</span>}
+                        <strong className="text-2xl font-black text-[#facc15]">{formatPrice(rawPrice)}</strong>
+                      </div>
+                    )}
+                    {game.is_subscription && (
+                      <div className="mt-2 flex flex-wrap gap-1 text-[10px]">
+                        {sale.sale_price ? <span className="rounded bg-black/50 border border-white/10 px-1.5 py-0.5 font-bold text-white">1M: ₹{sale.sale_price}</span> : null}
+                        {sale.price_2m ? <span className="rounded bg-black/50 border border-white/10 px-1.5 py-0.5 font-bold text-white">2M: ₹{sale.price_2m}</span> : null}
+                        {sale.price_3m ? <span className="rounded bg-[#facc15]/15 border border-[#facc15]/30 px-1.5 py-0.5 font-bold text-[#facc15]">3M: ₹{sale.price_3m}</span> : null}
+                        {sale.price_6m ? <span className="rounded bg-black/50 border border-white/10 px-1.5 py-0.5 font-bold text-white">6M: ₹{sale.price_6m}</span> : null}
+                        {sale.price_12m ? <span className="rounded bg-black/50 border border-white/10 px-1.5 py-0.5 font-bold text-white">12M: ₹{sale.price_12m}</span> : null}
+                      </div>
                     )}
                     <div className="mt-4 flex gap-1.5 flex-wrap">
                       {timeBlocks.map(([value, label]) => (
