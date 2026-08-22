@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { sendEmail, buildAdminAlertEmailHtml } from "@/lib/email";
 import { sendPushNotification } from "@/lib/push";
 import { rateLimiter } from "@/lib/security/rate-limit";
@@ -162,7 +162,8 @@ export async function POST(request: Request) {
 
     // Notify admins of the freebie request (only goes to owner/admins)
     try {
-      const { data: admins } = await supabase.from("profiles").select("id").eq("role", "admin");
+      const adminClient = process.env.SUPABASE_SERVICE_ROLE_KEY ? createAdminClient() : supabase;
+      const { data: admins } = await adminClient.from("profiles").select("id").or("role.eq.admin,email.ilike.%12k21rakeshkannam%");
       if (admins && admins.length > 0) {
         const adminNotifs = admins.map((admin) => ({
           user_id: admin.id,
@@ -171,7 +172,7 @@ export async function POST(request: Request) {
           type: "reward",
           link: "/admin/requests",
         }));
-        await supabase.from("notifications").insert(adminNotifs);
+        await adminClient.from("notifications").insert(adminNotifs);
         await Promise.all(
           adminNotifs.map((n) => sendPushNotification(n.user_id, n.title, n.message, n.link))
         );

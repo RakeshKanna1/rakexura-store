@@ -116,8 +116,13 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
+    const origOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = origOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [onClose]);
 
   return (
@@ -125,7 +130,7 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto"
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md"
       onClick={onClose}
     >
       <motion.div
@@ -134,7 +139,7 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
         exit={{ opacity: 0, scale: 0.96, y: 10 }}
         transition={{ type: "spring", stiffness: 350, damping: 25 }}
         onClick={(e) => e.stopPropagation()}
-        className="relative my-auto w-full max-w-lg max-h-[88vh] overflow-y-auto rounded-xl border border-white/10 bg-[#0c0d16] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.95)] sm:p-7 backdrop-blur-2xl"
+        className="relative w-full max-w-lg max-h-[88vh] overflow-y-auto rounded-xl border border-white/10 bg-[#0c0d16] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.95)] sm:p-7 backdrop-blur-2xl"
       >
         {/* Glow Effects */}
         <div className="pointer-events-none absolute -left-20 -top-20 -z-10 h-44 w-44 rounded-full bg-[#8b5cf6]/10 blur-[60px]" />

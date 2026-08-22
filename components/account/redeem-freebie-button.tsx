@@ -60,7 +60,7 @@ export function RedeemFreebieButton({ points, initialLastRequestDate, isApproved
     }
   }
 
-  if (isApproved) {
+  if (hasAccess && isApproved) {
     return (
       <button
         onClick={handleClaimApprovedFreebie}

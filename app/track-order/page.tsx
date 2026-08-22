@@ -70,10 +70,12 @@ function TrackOrderContent() {
 
   const handleDismissPoints = () => {
     setShowPointsAnimation(false);
-    const el = document.getElementById("credentials-section") || document.getElementById("order-tracking-result");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
+    setTimeout(() => {
+      const el = document.getElementById("credentials-section") || document.getElementById("order-tracking-result");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
   };
 
   async function handleSendEmailInvoice(targetEmail?: string) {
@@ -195,20 +197,25 @@ function TrackOrderContent() {
     }
     setOrderCoupon(couponName);
 
-    setTimeout(() => {
-      const el = document.getElementById("order-tracking-result");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }, 300);
-
-    if (casted.status === "Delivered" || casted.status === "Completed") {
+    const isDelivered = casted.status === "Delivered" || casted.status === "Completed";
+    let isShowingAnim = false;
+    if (isDelivered) {
       setShowConfetti(true);
       const key = `animated_points_${casted.order_ref}`;
       if (typeof window !== "undefined" && !sessionStorage.getItem(key)) {
         setShowPointsAnimation(true);
         sessionStorage.setItem(key, "true");
+        isShowingAnim = true;
       }
+    }
+
+    if (!isShowingAnim) {
+      setTimeout(() => {
+        const el = document.getElementById("order-tracking-result");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 300);
     }
   }, [order, phone, currentUser]);
 
@@ -609,18 +616,19 @@ function TrackOrderContent() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto"
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
             onClick={handleDismissPoints}
           >
             <motion.div
-              initial={{ scale: 0.85, y: 15 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.85, y: 10 }}
-              className="relative my-auto w-full max-w-sm rounded-2xl border border-amber-400/30 bg-gradient-to-b from-[#110e29] to-[#070514] p-6 text-center shadow-[0_0_50px_rgba(251,191,36,0.35)]"
+              initial={{ scale: 0.9, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 10 }}
+              transition={{ type: "spring", stiffness: 350, damping: 25 }}
+              className="relative w-full max-w-sm rounded-2xl border border-amber-400/30 bg-[#0c0d16] p-6 text-center shadow-[0_0_50px_rgba(251,191,36,0.35)]"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Floating Glow */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.15),transparent_70%)] pointer-events-none" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.15),transparent_70%)] pointer-events-none rounded-2xl" />
 
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 text-amber-400 font-black shadow-[0_0_20px_rgba(245,158,11,0.2)] animate-bounce mb-4">
                 <Sparkles size={32} />
