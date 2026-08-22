@@ -5,9 +5,10 @@ import Link from "next/link";
 import { Clock3 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { assetUrl, formatPrice, gameUrl } from "@/lib/utils";
+import { assetUrl, calculateResellerPrice, formatPrice, gameUrl } from "@/lib/utils";
 import type { FlashSale } from "@/types/store";
 import { BorderGlow } from "@/components/animations/border-glow";
+import { useCartStore } from "@/stores/cart-store";
 
 function remaining(end: string, now: number) {
   const distance = Math.max(0, new Date(end).getTime() - now);
@@ -22,6 +23,11 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
   const [items, setItems] = useState(sales);
   const [now, setNow] = useState(Date.now());
   const [mounted, setMounted] = useState(false);
+
+  const rawIsReseller = useCartStore((state) => state.isReseller);
+  const resellerDiscount = useCartStore((state) => state.resellerDiscount);
+  const resellerDiscountType = useCartStore((state) => state.resellerDiscountType);
+  const isReseller = mounted && rawIsReseller;
 
   useEffect(() => {
     setMounted(true);
@@ -60,6 +66,12 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
           const game = sale.games;
           if (!game) return null;
 
+          const rawPrice = Number(sale.sale_price || 0);
+          const resellerCalc =
+            isReseller && resellerDiscount > 0
+              ? calculateResellerPrice(rawPrice, resellerDiscount, resellerDiscountType)
+              : null;
+
           const timeBlocks = timer.d > 0
             ? [[timer.d, "D"], [timer.h, "H"], [timer.m, "M"], [timer.s, "S"]]
             : [[timer.h, "H"], [timer.m, "M"], [timer.s, "S"]];
@@ -81,9 +93,25 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                     <Image src={assetUrl(game.cover_image)} alt="" fill className="object-cover transition duration-500 group-hover:scale-105" />
                   </div>
                   <div className="flex flex-col justify-center p-5">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#facc15]">Limited deal</span>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#facc15]">
+                      {isReseller ? "Reseller Flash Deal" : "Limited deal"}
+                    </span>
                     <h3 className="mt-2 line-clamp-2 font-black text-white group-hover:text-[#facc15] transition-colors">{game.title}</h3>
-                    <strong className="mt-4 text-2xl font-black text-[#facc15]">{formatPrice(sale.sale_price)}</strong>
+                    {resellerCalc ? (
+                      <div className="mt-4 flex items-baseline gap-2 flex-wrap">
+                        <strong className="text-2xl font-black text-[#facc15] font-mono">
+                          {formatPrice(resellerCalc.price)}
+                        </strong>
+                        <del className="text-xs text-[#646b7b]">
+                          {formatPrice(rawPrice)}
+                        </del>
+                        <span className="text-[10px] font-black uppercase text-[#facc15] bg-[#facc15]/10 border border-[#facc15]/30 px-1.5 py-0.5 rounded">
+                          Wholesale
+                        </span>
+                      </div>
+                    ) : (
+                      <strong className="mt-4 text-2xl font-black text-[#facc15]">{formatPrice(sale.sale_price)}</strong>
+                    )}
                     <div className="mt-4 flex gap-1.5 flex-wrap">
                       {timeBlocks.map(([value, label]) => (
                         <span key={String(label)} className="min-w-10 rounded bg-black/35 px-2 py-2 text-center text-xs border border-white/5">
