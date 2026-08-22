@@ -4,7 +4,7 @@ import { BadgeCheck, Headphones, ShieldCheck, Zap } from "lucide-react";
 import { AnimatedCounter } from "@/components/animations/animated-counter";
 
 const stats = [
-  { icon: BadgeCheck, value: 1000, suffix: "+", label: "orders completed" },
+  { icon: BadgeCheck, value: 250, suffix: "+", label: "orders completed" },
   { icon: Zap, value: 95, suffix: "%", label: "same-day responses" },
   { icon: ShieldCheck, value: 100, suffix: "%", label: "protected tracking" },
   { icon: Headphones, value: 24, suffix: "/7", label: "support access" },
