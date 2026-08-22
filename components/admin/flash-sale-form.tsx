@@ -58,15 +58,20 @@ export function FlashSaleForm({
   const [discountType, setDiscountType] = useState<"percentage" | "flat" | "fixed">("percentage");
   const [discountValue, setDiscountValue] = useState<number>(20);
 
-  // Time calculations
-  const nowIso = useMemo(() => new Date(Date.now() + 60000).toISOString().slice(0, 16), []);
-  const in3DaysIso = useMemo(() => new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16), []);
+  // Time calculations preserving local browser timezone
+  const toLocalInputString = (d: Date) => {
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
 
-  const [bulkStartsAt, setBulkStartsAt] = useState(nowIso);
-  const [bulkEndsAt, setBulkEndsAt] = useState(in3DaysIso);
+  const nowLocal = useMemo(() => toLocalInputString(new Date()), []);
+  const in3DaysLocal = useMemo(() => toLocalInputString(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)), []);
 
-  const starts = flashSale?.starts_at ? new Date(flashSale.starts_at).toISOString().slice(0, 16) : nowIso;
-  const ends = flashSale?.ends_at ? new Date(flashSale.ends_at).toISOString().slice(0, 16) : in3DaysIso;
+  const [bulkStartsAt, setBulkStartsAt] = useState(nowLocal);
+  const [bulkEndsAt, setBulkEndsAt] = useState(in3DaysLocal);
+
+  const starts = flashSale?.starts_at ? toLocalInputString(new Date(flashSale.starts_at)) : nowLocal;
+  const ends = flashSale?.ends_at ? toLocalInputString(new Date(flashSale.ends_at)) : in3DaysLocal;
 
   // Filtered games
   const filteredGames = useMemo(() => {
@@ -159,6 +164,7 @@ export function FlashSaleForm({
           onSubmit={() => setIsSubmitting(true)}
           className="mt-6 space-y-6"
         >
+          <input type="hidden" name="tz_offset" value={new Date().getTimezoneOffset()} />
           {/* Step 1: Discount Settings */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <label className="flex flex-col text-sm font-bold">
@@ -443,6 +449,7 @@ export function FlashSaleForm({
           onSubmit={() => setIsSubmitting(true)}
           className="mt-6"
         >
+          <input type="hidden" name="tz_offset" value={new Date().getTimezoneOffset()} />
           {flashSale && <input type="hidden" name="id" value={flashSale.id} />}
           
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

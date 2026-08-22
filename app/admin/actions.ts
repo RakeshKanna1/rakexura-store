@@ -1559,6 +1559,21 @@ export async function sendPushEncouragement() {
   return { success: true };
 }
 
+function parseFormDate(dateStr: string, tzOffsetRaw?: FormDataEntryValue | null) {
+  if (!dateStr) return new Date().toISOString();
+  const tzOffset = tzOffsetRaw !== null && tzOffsetRaw !== undefined ? Number(tzOffsetRaw) : NaN;
+  if (!isNaN(tzOffset)) {
+    const [dPart, tPart] = dateStr.split("T");
+    if (dPart && tPart) {
+      const [year, month, day] = dPart.split("-").map(Number);
+      const [hours, minutes] = tPart.split(":").map(Number);
+      const utcMs = Date.UTC(year, month - 1, day, hours, minutes) + (tzOffset * 60 * 1000);
+      return new Date(utcMs).toISOString();
+    }
+  }
+  return new Date(dateStr).toISOString();
+}
+
 export async function saveFlashSale(formData: FormData) {
   await writeAuditLog("SAVE_FLASH_SALE", "flash_sales", formData);
   const supabase = await getAdminClient();
@@ -1572,6 +1587,7 @@ export async function saveFlashSale(formData: FormData) {
   const price_12m = formData.get("price_12m") ? Number(formData.get("price_12m")) : null;
   const starts_at = String(formData.get("starts_at") ?? "");
   const ends_at = String(formData.get("ends_at") ?? "");
+  const tz_offset = formData.get("tz_offset");
   const active = formData.get("active") === "on" || formData.get("active") === "true";
 
   if (!game_id || isNaN(game_id)) throw new Error("Game is required");
@@ -1590,8 +1606,8 @@ export async function saveFlashSale(formData: FormData) {
     price_3m: price_3m && price_3m > 0 ? price_3m : null,
     price_6m: price_6m && price_6m > 0 ? price_6m : null,
     price_12m: price_12m && price_12m > 0 ? price_12m : null,
-    starts_at: new Date(starts_at).toISOString(),
-    ends_at: new Date(ends_at).toISOString(),
+    starts_at: parseFormDate(starts_at, tz_offset),
+    ends_at: parseFormDate(ends_at, tz_offset),
     active,
   };
 
@@ -1663,14 +1679,15 @@ export async function saveBulkFlashSale(formData: FormData) {
   const discountValue = Number(formData.get("discount_value") ?? 0);
   const starts_at = String(formData.get("starts_at") ?? "");
   const ends_at = String(formData.get("ends_at") ?? "");
+  const tz_offset = formData.get("tz_offset");
   const active = formData.get("active") === "on" || formData.get("active") === "true";
   const updateCatalog = formData.get("update_catalog") === "on" || formData.get("update_catalog") === "true";
 
   if (isNaN(discountValue) || discountValue < 0) throw new Error("Enter a valid discount value");
   if (!starts_at || !ends_at) throw new Error("Starts at and Ends at times are required");
 
-  const startsIso = new Date(starts_at).toISOString();
-  const endsIso = new Date(ends_at).toISOString();
+  const startsIso = parseFormDate(starts_at, tz_offset);
+  const endsIso = parseFormDate(ends_at, tz_offset);
 
   // 1. Fetch current prices for selected games
   const { data: dbGames, error: fetchErr } = await supabase
