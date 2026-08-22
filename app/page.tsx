@@ -55,6 +55,7 @@ export default async function Home() {
         <WhatsAppCommunity />
         <TrustStats />
         <Reveal><FlashSaleBlock sales={sales} /></Reveal>
+        <Reveal><CustomerProofWall proofs={proofs} /></Reveal>
         {upcoming.length > 0 && <Reveal><GameShelf title="Pre-order games" subtitle="Secure your copy of upcoming titles" games={upcoming} href="/games?category=Pre-order" rows={1} /></Reveal>}
         <Reveal><GameShelf title="Gamer's choice" subtitle="Popular picks selected by Rakexura players" games={highlightGames} href="/games?sort=featured" rows={2} /></Reveal>
         <Reveal><CategoryRail /></Reveal>
@@ -64,7 +65,6 @@ export default async function Home() {
         <Reveal><BundleShelf bundles={bundles} /></Reveal>
         <Reveal><GameShelf title="New arrivals" subtitle="Fresh additions to the Rakexura catalog" games={arrivals} href="/games?sort=newest" rows={2} /></Reveal>
         <RecentlyViewedShelf games={games} />
-        <CustomerProofWall proofs={proofs} />
         <ReviewWall reviews={reviews} />
         <Reveal><HowToOrder /></Reveal>
         <DeliveryGuarantee />
