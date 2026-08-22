@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -8,6 +9,16 @@ import { assetUrl, formatPrice } from "@/lib/utils";
 import type { Bundle } from "@/types/store";
 
 export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
   if (!bundles.length) return null;
   return (
     <section className="section-space w-full max-w-full overflow-hidden">
@@ -29,27 +40,15 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
       >
         {bundles.map((bundle, index) => {
           const isSecond = index === 1;
-          return (
-            <motion.div
-              key={bundle.id}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "120px" }}
-              transition={{
-                duration: 0.45,
-                delay: index * 0.08,
-                ease: [0.21, 0.47, 0.32, 0.98],
-              }}
-              className="min-w-0"
+          const content = (
+            <Link
+              href={`/bundles/${bundle.id}`}
+              className={`group grid min-h-64 overflow-hidden rounded-xl border sm:grid-cols-[45%_1fr] transition duration-300 hover:-translate-y-1 bg-[#11131a] hover:bg-[#151922] shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] ${
+                isSecond 
+                  ? "border-white/[.08] hover:border-[#8b5cf6]/35 hover:shadow-[0_14px_38px_rgba(139,92,246,0.15)]" 
+                  : "border-white/[.08] hover:border-[#facc15]/35 hover:shadow-[0_14px_38px_rgba(0,0,0,.42)]"
+              }`}
             >
-              <Link
-                href={`/bundles/${bundle.id}`}
-                className={`group grid min-h-64 overflow-hidden rounded-xl border sm:grid-cols-[45%_1fr] transition duration-300 hover:-translate-y-1 bg-[#11131a] hover:bg-[#151922] shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] ${
-                  isSecond 
-                    ? "border-white/[.08] hover:border-[#8b5cf6]/35 hover:shadow-[0_14px_38px_rgba(139,92,246,0.15)]" 
-                    : "border-white/[.08] hover:border-[#facc15]/35 hover:shadow-[0_14px_38px_rgba(0,0,0,.42)]"
-                }`}
-              >
                 <div className="relative min-h-48 overflow-hidden">
                   <Image
                     src={assetUrl(bundle.cover_image)}
@@ -70,7 +69,31 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
                   </div>
                 </div>
               </Link>
-            </motion.div>
+            );
+
+          if (isDesktop) {
+            return (
+              <motion.div
+                key={bundle.id}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "120px" }}
+                transition={{
+                  duration: 0.45,
+                  delay: index * 0.08,
+                  ease: [0.21, 0.47, 0.32, 0.98],
+                }}
+                className="min-w-0"
+              >
+                {content}
+              </motion.div>
+            );
+          }
+
+          return (
+            <div key={bundle.id} className="min-w-0">
+              {content}
+            </div>
           );
         })}
       </div>

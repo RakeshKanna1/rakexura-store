@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
@@ -19,6 +20,16 @@ export function GameShelf({
   href?: string;
   rows?: 1 | 2;
 }) {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
   if (!games.length) return null;
 
   const displayGames = rows === 2 ? games.slice(0, 12) : games.slice(0, 6);
@@ -46,22 +57,32 @@ export function GameShelf({
           touchAction: "pan-y pan-x",
         }}
       >
-        {displayGames.map((game, index) => (
-          <motion.div
-            key={game.id}
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "120px" }}
-            transition={{
-              duration: 0.38,
-              delay: (index % 6) * 0.04,
-              ease: [0.21, 0.47, 0.32, 0.98],
-            }}
-            className="min-w-0 h-full flex flex-col"
-          >
-            <GameCard game={game} priority={index < 2} />
-          </motion.div>
-        ))}
+        {displayGames.map((game, index) => {
+          if (isDesktop) {
+            return (
+              <motion.div
+                key={game.id}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "120px" }}
+                transition={{
+                  duration: 0.38,
+                  delay: (index % 6) * 0.04,
+                  ease: [0.21, 0.47, 0.32, 0.98],
+                }}
+                className="min-w-0 h-full flex flex-col"
+              >
+                <GameCard game={game} priority={index < 2} />
+              </motion.div>
+            );
+          }
+
+          return (
+            <div key={game.id} className="min-w-0 h-full flex flex-col">
+              <GameCard game={game} priority={index < 2} />
+            </div>
+          );
+        })}
       </div>
     </section>
   );
