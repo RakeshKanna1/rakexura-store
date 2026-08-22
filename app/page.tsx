@@ -22,7 +22,7 @@ import { lowestPrice } from "@/lib/utils";
 export const revalidate = 60;
 
 export default async function Home() {
-  const [games, bundles, reviews, sales, deliveries, proofs] = await Promise.all([getGames(), getBundles(), getReviews(10), getFlashSales(), getRecentDeliveries(), getCustomerProofs()]);
+  const [games, bundles, reviews, sales, deliveries, proofs] = await Promise.all([getGames(), getBundles(), getReviews(10), getFlashSales(), getRecentDeliveries(), getCustomerProofs(24)]);
   
   // 1. Identify active Flash Sale games & prioritize them at the front of the Spotlight Banner
   const flashGameIds = new Set(sales.filter((s) => s.active).map((s) => s.game_id));
