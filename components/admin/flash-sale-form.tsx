@@ -477,21 +477,20 @@ export function FlashSaleForm({
                   <span className="text-sm font-bold text-white">Subscription Duration Flash Pricing (₹ INR)</span>
                 </div>
                 <p className="text-xs text-[#8991a6] mb-4">
-                  Set flash sale prices for each subscription duration. 1 Month sets the primary flash sale price shown on storefront cards.
+                  Set flash prices only for the durations you want on sale. Any duration left blank will keep its original price!
                 </p>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                   <label className="flex flex-col text-xs font-bold">
-                    <span>1 Month Flash Price (₹) *</span>
+                    <span>1 Month Flash Price (₹)</span>
                     <span className="text-[10px] font-normal text-[#8991a8] mt-0.5 mb-1">
-                      Regular: {formatPrice(selectedSingleGame.price_1m ?? selectedSingleGame.sale_price ?? selectedSingleGame.original_price ?? 0)}
+                      Original: {formatPrice(selectedSingleGame.price_1m ?? selectedSingleGame.sale_price ?? selectedSingleGame.original_price ?? 0)}
                     </span>
                     <input 
                       name="sale_price" 
                       type="number" 
                       min="0" 
-                      required 
-                      defaultValue={flashSale?.sale_price} 
-                      placeholder="e.g. 199" 
+                      defaultValue={flashSale?.sale_price ?? ""} 
+                      placeholder={`Original (${formatPrice(selectedSingleGame.price_1m ?? selectedSingleGame.sale_price ?? selectedSingleGame.original_price ?? 0)})`} 
                       className={input} 
                     />
                   </label>
@@ -499,14 +498,14 @@ export function FlashSaleForm({
                   <label className="flex flex-col text-xs font-bold">
                     <span>2 Months Flash Price (₹)</span>
                     <span className="text-[10px] font-normal text-[#8991a8] mt-0.5 mb-1">
-                      Regular: {formatPrice(selectedSingleGame.price_2m ?? 0)}
+                      Original: {formatPrice(selectedSingleGame.price_2m ?? 0)}
                     </span>
                     <input 
                       name="price_2m" 
                       type="number" 
                       min="0" 
                       defaultValue={flashSale?.price_2m ?? ""} 
-                      placeholder="e.g. 349" 
+                      placeholder={selectedSingleGame.price_2m ? `Original (${formatPrice(selectedSingleGame.price_2m)})` : "Leave empty"} 
                       className={input} 
                     />
                   </label>
@@ -514,14 +513,14 @@ export function FlashSaleForm({
                   <label className="flex flex-col text-xs font-bold">
                     <span>3 Months Flash Price (₹)</span>
                     <span className="text-[10px] font-normal text-[#8991a8] mt-0.5 mb-1">
-                      Regular: {formatPrice(selectedSingleGame.price_3m ?? 0)}
+                      Original: {formatPrice(selectedSingleGame.price_3m ?? 0)}
                     </span>
                     <input 
                       name="price_3m" 
                       type="number" 
                       min="0" 
                       defaultValue={flashSale?.price_3m ?? ""} 
-                      placeholder="e.g. 499" 
+                      placeholder={selectedSingleGame.price_3m ? `Original (${formatPrice(selectedSingleGame.price_3m)})` : "Leave empty"} 
                       className={input} 
                     />
                   </label>
@@ -529,14 +528,14 @@ export function FlashSaleForm({
                   <label className="flex flex-col text-xs font-bold">
                     <span>6 Months Flash Price (₹)</span>
                     <span className="text-[10px] font-normal text-[#8991a8] mt-0.5 mb-1">
-                      Regular: {formatPrice(selectedSingleGame.price_6m ?? 0)}
+                      Original: {formatPrice(selectedSingleGame.price_6m ?? 0)}
                     </span>
                     <input 
                       name="price_6m" 
                       type="number" 
                       min="0" 
                       defaultValue={flashSale?.price_6m ?? ""} 
-                      placeholder="e.g. 899" 
+                      placeholder={selectedSingleGame.price_6m ? `Original (${formatPrice(selectedSingleGame.price_6m)})` : "Leave empty"} 
                       className={input} 
                     />
                   </label>
@@ -544,14 +543,14 @@ export function FlashSaleForm({
                   <label className="flex flex-col text-xs font-bold">
                     <span>12 Months Flash Price (₹)</span>
                     <span className="text-[10px] font-normal text-[#8991a8] mt-0.5 mb-1">
-                      Regular: {formatPrice(selectedSingleGame.price_12m ?? 0)}
+                      Original: {formatPrice(selectedSingleGame.price_12m ?? 0)}
                     </span>
                     <input 
                       name="price_12m" 
                       type="number" 
                       min="0" 
                       defaultValue={flashSale?.price_12m ?? ""} 
-                      placeholder="e.g. 1599" 
+                      placeholder={selectedSingleGame.price_12m ? `Original (${formatPrice(selectedSingleGame.price_12m)})` : "Leave empty"} 
                       className={input} 
                     />
                   </label>

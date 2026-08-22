@@ -1564,7 +1564,8 @@ export async function saveFlashSale(formData: FormData) {
   const supabase = await getAdminClient();
   const rawId = String(formData.get("id") ?? "");
   const game_id = Number(formData.get("game_id"));
-  const sale_price = Number(formData.get("sale_price"));
+  const rawSalePrice = formData.get("sale_price");
+  let sale_price = rawSalePrice !== null && rawSalePrice !== "" ? Number(rawSalePrice) : 0;
   const price_2m = formData.get("price_2m") ? Number(formData.get("price_2m")) : null;
   const price_3m = formData.get("price_3m") ? Number(formData.get("price_3m")) : null;
   const price_6m = formData.get("price_6m") ? Number(formData.get("price_6m")) : null;
@@ -1574,8 +1575,13 @@ export async function saveFlashSale(formData: FormData) {
   const active = formData.get("active") === "on" || formData.get("active") === "true";
 
   if (!game_id || isNaN(game_id)) throw new Error("Game is required");
-  if (isNaN(sale_price) || sale_price < 0) throw new Error("Enter a valid sale price");
   if (!starts_at || !ends_at) throw new Error("Starts at and Ends at times are required");
+
+  // Fallback: If 1-month sale_price wasn't set, keep the game's regular price
+  if (isNaN(sale_price) || sale_price <= 0) {
+    const { data: gameData } = await supabase.from("games").select("price_1m, sale_price, original_price").eq("id", game_id).maybeSingle();
+    sale_price = Number(gameData?.price_1m ?? gameData?.sale_price ?? gameData?.original_price ?? 0);
+  }
 
   const payload = {
     game_id,

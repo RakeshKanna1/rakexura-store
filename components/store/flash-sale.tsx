@@ -66,7 +66,10 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
           const game = sale.games;
           if (!game) return null;
 
-          const rawPrice = Number(sale.sale_price || 0);
+          const activeDurationPrices = [sale.sale_price, sale.price_2m, sale.price_3m, sale.price_6m, sale.price_12m]
+            .map(Number)
+            .filter((p) => p > 0);
+          const rawPrice = activeDurationPrices.length > 0 ? activeDurationPrices[0] : Number(sale.sale_price || 0);
           const isMarkup = resellerDiscountType === "markup_flat" || resellerDiscountType === "markup_percentage";
           const resellerCalc =
             isReseller && isMarkup && resellerDiscount > 0
