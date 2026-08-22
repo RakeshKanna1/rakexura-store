@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Flame, Gamepad2, Plus, Search, Sparkles, X } from "lucide-react";
+import { Clock3, Flame, Gamepad2, Plus, Search, Sparkles, TrendingUp, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -41,13 +41,17 @@ export function PremiumSearch() {
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
   const [loading] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const add = useCartStore((state) => state.add);
-  const isReseller = useCartStore((state) => state.isReseller);
+  const rawIsReseller = useCartStore((state) => state.isReseller);
   const resellerDiscount = useCartStore((state) => state.resellerDiscount);
   const resellerDiscountType = useCartStore((state) => state.resellerDiscountType);
 
+  const isReseller = mounted && rawIsReseller;
+
   useEffect(() => {
+    setMounted(true);
     let saved: string[] = [];
     try {
       saved = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
@@ -117,84 +121,162 @@ export function PremiumSearch() {
 
   return (
     <div className="relative w-full">
-      <label
-        htmlFor="premium-search-input"
-        className="flex h-11 w-full items-center gap-2.5 rounded-xl border border-white/10 bg-[#10131b] px-3.5 text-sm shadow-inner transition-all duration-200 focus-within:border-[#facc15]/60 focus-within:bg-[#141823] focus-within:shadow-[0_0_15px_rgba(250,204,21,0.12)] cursor-text"
-      >
-        <Search size={16} className="shrink-0 text-[#8991a6] group-focus-within:text-[#facc15] transition-colors" />
-        <span className="sr-only">Search games</span>
-        <div className="relative flex-1 min-w-0 h-full flex items-center">
-          <input
-            suppressHydrationWarning
-            id="premium-search-input"
-            name="search"
-            value={query}
-            onFocus={() => {
-              setOpen(true);
-              setFocused(true);
-            }}
-            onBlur={() => {
-              window.setTimeout(() => setOpen(false), 200);
-              setFocused(false);
-            }}
-            onChange={(event) => {
-              setQuery(event.target.value);
-              setOpen(true);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                setOpen(false);
-                e.currentTarget.blur();
-              } else if (e.key === "Enter" && shown.length > 0) {
+      {/* Search Input Bar: Reseller vs Normal */}
+      {isReseller ? (
+        <label
+          htmlFor="premium-search-input"
+          className="flex h-11 w-full items-center gap-2.5 rounded-xl border border-white/10 bg-[#10131b] px-3.5 text-sm shadow-inner transition-all duration-200 focus-within:border-[#facc15]/60 focus-within:bg-[#141823] focus-within:shadow-[0_0_15px_rgba(250,204,21,0.12)] cursor-text"
+        >
+          <Search size={16} className="shrink-0 text-[#8991a6] group-focus-within:text-[#facc15] transition-colors" />
+          <span className="sr-only">Search games</span>
+          <div className="relative flex-1 min-w-0 h-full flex items-center">
+            <input
+              suppressHydrationWarning
+              id="premium-search-input"
+              name="search"
+              value={query}
+              onFocus={() => {
+                setOpen(true);
+                setFocused(true);
+              }}
+              onBlur={() => {
+                window.setTimeout(() => setOpen(false), 200);
+                setFocused(false);
+              }}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setOpen(true);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  setOpen(false);
+                  e.currentTarget.blur();
+                } else if (e.key === "Enter" && shown.length > 0) {
+                  e.preventDefault();
+                  remember(shown[0]);
+                  router.push(gameUrl(shown[0]));
+                  setOpen(false);
+                }
+              }}
+              autoComplete="off"
+              placeholder={focused ? "Search games, genres, platforms..." : ""}
+              className="w-full h-full border-0 bg-transparent text-white outline-none placeholder:text-[#5d6477] text-xs sm:text-sm font-medium"
+            />
+            {!focused && !query && (
+              <div className="absolute left-0 pointer-events-none text-[#767e90] text-xs sm:text-sm flex items-center">
+                <TextType
+                  text={[
+                    "Search games (GTA V, RDR 2...)",
+                    "Explore genres (Open World, FPS...)",
+                    "Check platforms (Steam, Epic...)",
+                    "Search deals & subscriptions...",
+                  ]}
+                  typingSpeed={60}
+                  deletingSpeed={30}
+                  pauseDuration={2000}
+                  showCursor={true}
+                  cursorCharacter="|"
+                  cursorClassName="text-[#facc15] font-bold"
+                />
+              </div>
+            )}
+          </div>
+
+          {query && (
+            <button
+              type="button"
+              onMouseDown={(e) => {
                 e.preventDefault();
-                remember(shown[0]);
-                router.push(gameUrl(shown[0]));
-                setOpen(false);
-              }
-            }}
-            autoComplete="off"
-            placeholder={focused ? "Search games, genres, platforms..." : ""}
-            className="w-full h-full border-0 bg-transparent text-white outline-none placeholder:text-[#5d6477] text-xs sm:text-sm font-medium"
-          />
-          {!focused && !query && (
-            <div className="absolute left-0 pointer-events-none text-[#767e90] text-xs sm:text-sm flex items-center">
-              <TextType
-                text={[
-                  "Search games (GTA V, RDR 2...)",
-                  "Explore genres (Open World, FPS...)",
-                  "Check platforms (Steam, Epic...)",
-                  "Search deals & subscriptions...",
-                ]}
-                typingSpeed={60}
-                deletingSpeed={30}
-                pauseDuration={2000}
-                showCursor={true}
-                cursorCharacter="|"
-                cursorClassName="text-[#facc15] font-bold"
-              />
-            </div>
+                setQuery("");
+              }}
+              className="text-[#8991a6] hover:text-white p-1 rounded-md transition"
+              title="Clear search"
+            >
+              <X size={14} />
+            </button>
           )}
-        </div>
+        </label>
+      ) : (
+        <label
+          htmlFor="premium-search-input"
+          className="flex h-11 w-full items-center gap-3 rounded-md border border-white/[.09] bg-[#10131b] px-4 text-sm shadow-inner transition focus-within:border-[#8b5cf6]/65 md:focus-within:bg-[#141823] md:focus-within:shadow-[0_0_0_3px_rgba(139,92,246,.08)] cursor-text"
+        >
+          <Search size={17} className="shrink-0 text-[#9da5b8]" />
+          <span className="sr-only">Search games</span>
+          <div className="relative flex-1 min-w-0 h-full flex items-center">
+            <input
+              suppressHydrationWarning
+              id="premium-search-input"
+              name="search"
+              value={query}
+              onFocus={() => {
+                setOpen(true);
+                setFocused(true);
+              }}
+              onBlur={() => {
+                window.setTimeout(() => setOpen(false), 180);
+                setFocused(false);
+              }}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setOpen(true);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  setOpen(false);
+                  e.currentTarget.blur();
+                } else if (e.key === "Enter" && shown.length > 0) {
+                  e.preventDefault();
+                  remember(shown[0]);
+                  router.push(gameUrl(shown[0]));
+                  setOpen(false);
+                }
+              }}
+              autoComplete="off"
+              placeholder={focused ? "Search games, genres, platforms..." : ""}
+              className="w-full h-full border-0 bg-transparent text-white outline-none placeholder:text-[#5d6477] text-sm"
+            />
+            {!focused && !query && (
+              <div className="absolute left-0 pointer-events-none text-[#767e90] text-sm flex items-center">
+                <TextType
+                  text={[
+                    "Search games (GTA V, RDR 2...)",
+                    "Explore genres (Open World, FPS...)",
+                    "Check platforms (Steam, Epic...)",
+                    "Search deals...",
+                  ]}
+                  typingSpeed={60}
+                  deletingSpeed={30}
+                  pauseDuration={2000}
+                  showCursor={true}
+                  cursorCharacter="|"
+                  cursorClassName="text-[#8b5cf6] font-bold"
+                />
+              </div>
+            )}
+          </div>
 
-        {query && (
-          <button
-            type="button"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              setQuery("");
-            }}
-            className="text-[#8991a6] hover:text-white p-1 rounded-md transition"
-            title="Clear search"
-          >
-            <X size={14} />
-          </button>
-        )}
-      </label>
+          {query && (
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setQuery("");
+              }}
+              className="text-[#8991a6] hover:text-white p-1 rounded-md transition"
+              title="Clear search"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </label>
+      )}
 
-      {/* Epic Games Store Style Dropdown Overlay */}
+      {/* Dropdown Overlay: Reseller (New Epic Games Store style) vs Normal (Original style) */}
       <AnimatePresence>
-        {open && (
+        {open && isReseller && (
           <motion.div
+            key="reseller-search-dropdown"
             initial={{ opacity: 0, y: -6, scale: 0.99 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.99 }}
@@ -365,6 +447,118 @@ export function PremiumSearch() {
                       setOpen(true);
                     }}
                     className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] font-bold text-[#b0b7c8] hover:border-[#facc15]/50 hover:bg-[#facc15]/10 hover:text-[#facc15] transition-all cursor-pointer"
+                  >
+                    {term}
+                  </button>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {open && !isReseller && (
+          <motion.div
+            key="normal-search-dropdown"
+            initial={{ opacity: 0, y: -6, scale: 0.99 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4 }}
+            className="absolute left-0 right-0 top-[calc(100%+8px)] z-[80] max-h-[62vh] overflow-y-auto rounded-lg border border-white/10 bg-[#090c13]/98 p-1.5 shadow-[0_20px_60px_rgba(0,0,0,.75)] backdrop-blur-xl custom-scrollbar"
+          >
+            <p className="flex items-center gap-2 px-2 py-1.5 text-[10px] font-black uppercase tracking-wider text-[#777f91]">
+              {query.trim().length >= 2 ? (
+                <>
+                  <Search size={12} /> Results
+                </>
+              ) : (
+                <>
+                  <Clock3 size={12} /> Recently viewed & popular
+                </>
+              )}
+            </p>
+
+            {loading && <p className="p-3 text-xs text-[#8f96a8]">Searching Rakexura...</p>}
+
+            {!loading &&
+              shown.map((game) => (
+                <article
+                  key={game.id}
+                  className="grid grid-cols-[42px_minmax(0,1fr)_36px] items-center gap-2.5 rounded-md p-1.5 transition hover:bg-white/[.055]"
+                >
+                  <Link
+                    href={gameUrl(game)}
+                    onClick={() => remember(game)}
+                    className="relative h-12 overflow-hidden rounded-sm bg-black border border-white/5"
+                  >
+                    <Image
+                      src={assetUrl(game.cover_image)}
+                      alt={`${game.title} cover`}
+                      fill
+                      className="object-cover"
+                      sizes="42px"
+                    />
+                  </Link>
+                  <Link
+                    href={gameUrl(game)}
+                    onClick={() => remember(game)}
+                    className="min-w-0"
+                  >
+                    <strong className="block truncate text-xs font-bold text-white hover:text-[#c4b5fd]">
+                      {game.title}
+                    </strong>
+                    <span className="mt-0.5 block truncate text-[11px] text-[#9ba2b3]">
+                      {formatPrice(lowestPrice(game))} ·{" "}
+                      <span className="text-[#727a8c]">
+                        {availablePlatforms(game).join(" / ") || "Check availability"}
+                      </span>
+                    </span>
+                  </Link>
+                  <button
+                    suppressHydrationWarning
+                    type="button"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => quickAdd(game)}
+                    className="grid h-8 w-8 place-items-center rounded-md border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#c9bcff] transition hover:bg-[#8b5cf6] hover:text-white cursor-pointer"
+                    aria-label={`Add ${game.title} to cart`}
+                  >
+                    <Plus size={15} />
+                  </button>
+                </article>
+              ))}
+
+            {!loading && query.trim().length >= 2 && !shown.length && (
+              <div className="p-5 text-center">
+                <Gamepad2 className="mx-auto text-[#9f7aea]" size={24} />
+                <strong className="mt-2 block text-xs font-bold text-white">
+                  No matching games found
+                </strong>
+                <p className="mt-1 text-[11px] text-[#8f96a8]">
+                  Ask Rakexura to add it to the catalog.
+                </p>
+                <Link
+                  href={`/requests?game=${encodeURIComponent(query.trim())}`}
+                  className="btn btn-secondary mt-3 text-xs py-1.5"
+                >
+                  Request this game
+                </Link>
+              </div>
+            )}
+
+            {query.trim().length < 2 && (
+              <div className="mt-1 flex items-center flex-wrap gap-2 border-t border-white/[.07] px-2 py-2">
+                <span className="flex items-center gap-1 text-[10px] font-black uppercase text-[#777f91]">
+                  <TrendingUp size={12} /> Explore
+                </span>
+                {trendingTerms.map((term) => (
+                  <button
+                    suppressHydrationWarning
+                    key={term}
+                    type="button"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
+                      setQuery(term);
+                      setOpen(true);
+                    }}
+                    className="rounded-full border border-white/10 bg-white/[0.02] px-3 py-1 text-xs text-[#b6bdcc] hover:border-[#8b5cf6]/40 hover:bg-[#8b5cf6]/10 hover:text-white transition-all cursor-pointer font-medium"
                   >
                     {term}
                   </button>
