@@ -389,6 +389,119 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
             </tbody>
           </table>
         </div>
+      ) : section === "flash-sales" ? (
+        <div className="overflow-x-auto rounded-md border border-white/10">
+          <table className="w-full min-w-[800px] border-collapse text-left text-sm">
+            <thead className="bg-white/[.04] text-[#8991a6]">
+              <tr>
+                <th className="p-4 w-16">ID</th>
+                <th className="p-4">Game / Product</th>
+                <th className="p-4">Flash Pricing</th>
+                <th className="p-4">Starts At</th>
+                <th className="p-4">Ends At</th>
+                <th className="p-4">Status</th>
+                <th className="p-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginated.map((row, index) => {
+                const isSub = Boolean(row.is_subscription);
+                const isActive = Boolean(row.active);
+                const startsDate = row.starts_at ? new Date(String(row.starts_at)) : null;
+                const endsDate = row.ends_at ? new Date(String(row.ends_at)) : null;
+                const now = Date.now();
+                const isLive = isActive && startsDate && endsDate && startsDate.getTime() <= now && endsDate.getTime() > now;
+                const isUpcoming = isActive && startsDate && startsDate.getTime() > now;
+                const isExpired = endsDate && endsDate.getTime() <= now;
+
+                return (
+                  <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
+                    <td className="p-4 font-mono font-bold text-[#8991a6]">
+                      #{String(row.id)}
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        {row.cover_image ? (
+                          <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-black/40 border border-white/10">
+                            <Image
+                              src={assetUrl(String(row.cover_image))}
+                              alt=""
+                              fill
+                              sizes="36px"
+                              className="object-cover"
+                            />
+                          </div>
+                        ) : null}
+                        <div className="min-w-0">
+                          <strong className="block text-sm font-bold text-white leading-tight">
+                            {String(row.game_title || `Game #${row.game_id}`)}
+                          </strong>
+                          {isSub ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] text-[#facc15] font-semibold mt-0.5">
+                              <Zap size={11} /> Subscription Pass
+                            </span>
+                          ) : (
+                            <span className="text-[11px] text-[#8991a6] block mt-0.5">
+                              Game ID: #{String(row.game_id)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      {isSub ? (
+                        <div className="flex flex-wrap gap-1.5 text-xs">
+                          {row.sale_price ? <span className="rounded bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 font-bold text-[#facc15]">1M: ₹{String(row.sale_price)}</span> : null}
+                          {row.price_2m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">2M: ₹{String(row.price_2m)}</span> : null}
+                          {row.price_3m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">3M: ₹{String(row.price_3m)}</span> : null}
+                          {row.price_6m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">6M: ₹{String(row.price_6m)}</span> : null}
+                          {row.price_12m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">12M: ₹{String(row.price_12m)}</span> : null}
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded bg-[#facc15]/10 border border-[#facc15]/30 px-2.5 py-1 text-xs font-black text-[#facc15]">
+                          ₹{String(row.sale_price)}
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-4 text-xs text-[#c8cedc] font-medium whitespace-nowrap">
+                      {row.starts_at ? formatDate12h(String(row.starts_at)) : "-"}
+                    </td>
+                    <td className="p-4 text-xs text-[#c8cedc] font-medium whitespace-nowrap">
+                      {row.ends_at ? formatDate12h(String(row.ends_at)) : "-"}
+                    </td>
+                    <td className="p-4 whitespace-nowrap">
+                      {!isActive ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-white/5 text-[#8991a6] border border-white/10">
+                          Disabled
+                        </span>
+                      ) : isLive ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Live Now
+                        </span>
+                      ) : isUpcoming ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                          Scheduled
+                        </span>
+                      ) : isExpired ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">
+                          Expired
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          Active
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <RowActions section={section} row={row} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       ) : (
         <div className="overflow-x-auto rounded-md border border-[#8b5cf6]/20">
           <table className="w-full min-w-[700px] border-collapse text-left text-sm">

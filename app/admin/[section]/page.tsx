@@ -88,6 +88,16 @@ export default async function AdminSection({ params, searchParams }: { params: P
   if (section === "flash-sales") {
     const { data: dbGames } = await supabase.from("games").select("id,title,original_price,sale_price,cover_image,duration,is_subscription,price_1m,price_2m,price_3m,price_6m,price_12m").eq("archived", false).order("title");
     gamesList = dbGames || [];
+    const gameMap = new Map(gamesList.map((g) => [g.id, g]));
+    rows.forEach((row) => {
+      const g = gameMap.get(Number(row.game_id));
+      if (g) {
+        row.game_title = g.title;
+        row.cover_image = g.cover_image;
+        row.is_subscription = g.is_subscription;
+        row.duration = g.duration;
+      }
+    });
     if (query.edit && /^\d+$/.test(query.edit)) {
       const { data: flashSale } = await supabase.from("flash_sales").select("id,game_id,sale_price,price_2m,price_3m,price_6m,price_12m,starts_at,ends_at,active").eq("id", Number(query.edit)).maybeSingle();
       editingFlashSale = flashSale;
