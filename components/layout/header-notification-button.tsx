@@ -135,11 +135,33 @@ export function HeaderNotificationButton() {
     const handleUpdate = () => void loadData();
     window.addEventListener("rakexura-notifications-updated", handleUpdate);
 
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    if (userId) {
+      channel = supabase
+        .channel(`header-notifs-${userId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${userId}`,
+          },
+          () => {
+            void fetchUserNotifications(userId);
+            setRinging(true);
+            setTimeout(() => setRinging(false), 2000);
+          }
+        )
+        .subscribe();
+    }
+
     return () => {
       authListener.subscription.unsubscribe();
       window.removeEventListener("rakexura-notifications-updated", handleUpdate);
+      if (channel) void supabase.removeChannel(channel);
     };
-  }, [loadData]);
+  }, [loadData, userId, fetchUserNotifications]);
 
   useEffect(() => {
     if (!open) return;

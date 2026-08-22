@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useOptimistic, useTransition } from "react";
+import { useState, useOptimistic, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, Copy, MessageCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { approveMilestoneRequest, updateRequestStatus, deleteGameRequest, deleteSupportTicket } from "@/app/admin/actions";
 
 type GameRow = { id: number; game_name: string; platform: string; votes: number; status: string; created_at: string };
@@ -62,10 +64,36 @@ export function RequestsClientView({
   initialVoucherRows: VoucherRow[];
   initialTab?: string;
 }) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"games" | "coupons">(
     initialTab === "coupons" || initialTab === "vouchers" ? "coupons" : "games"
   );
   const [, startTransition] = useTransition();
+
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel("admin-requests-realtime-listener")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "game_requests" },
+        () => {
+          router.refresh();
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "support_tickets" },
+        () => {
+          router.refresh();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [router]);
 
   const [optimisticGames, removeOptimisticGame] = useOptimistic(
     initialGameRows,

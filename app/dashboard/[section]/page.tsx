@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Bell, Gamepad2, Gift, Key, LifeBuoy, PackageSearch, Send, TicketPercent } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
@@ -7,6 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 import { assetUrl, formatPrice } from "@/lib/utils";
 import { WriteReviewTrigger } from "@/components/dashboard/write-review-trigger";
 import { TelegramLaunchButton } from "@/components/dashboard/telegram-launch-button";
+import { DashboardRealtimeSync } from "@/components/dashboard/dashboard-realtime-sync";
 
 
 const config = {
@@ -122,7 +126,24 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
   if (section === "requests") rows = (await supabase.from("game_requests").select("id,game_name,platform,votes,status,created_at").eq("user_id", user.id).order("created_at", { ascending: false })).data ?? [];
   const [emptyTitle, emptyMessage, emptyHref, emptyAction] = current.empty;
 
-  return <div className="page-shell py-10"><Link href="/dashboard" prefetch={true} className="inline-flex min-h-11 items-center gap-2 text-sm text-[#8991a6] hover:text-[#b9a4ff] transition-colors"><ArrowLeft size={16} /> Dashboard</Link><div className="mt-8 flex items-center gap-4"><span className="grid h-12 w-12 place-items-center rounded-md bg-[#8b5cf6]/10 border border-[#8b5cf6]/20 text-[#b9a4ff] shadow-[0_0_15px_rgba(139,92,246,0.15)]"><Icon /></span><div><p className="eyebrow">Account</p><h1 className="text-3xl font-black md:text-5xl bg-gradient-to-r from-white via-[#e8e3ff] to-[#b9a4ff] bg-clip-text text-transparent">{current.title}</h1></div></div>{section === "library" ? (
+  return (
+    <div className="page-shell py-10">
+      <DashboardRealtimeSync userId={user.id} />
+      <Link href="/dashboard" prefetch={true} className="inline-flex min-h-11 items-center gap-2 text-sm text-[#8991a6] hover:text-[#b9a4ff] transition-colors">
+        <ArrowLeft size={16} /> Dashboard
+      </Link>
+      <div className="mt-8 flex items-center gap-4">
+        <span className="grid h-12 w-12 place-items-center rounded-md bg-[#8b5cf6]/10 border border-[#8b5cf6]/20 text-[#b9a4ff] shadow-[0_0_15px_rgba(139,92,246,0.15)]">
+          <Icon />
+        </span>
+        <div>
+          <p className="eyebrow">Account</p>
+          <h1 className="text-3xl font-black md:text-5xl bg-gradient-to-r from-white via-[#e8e3ff] to-[#b9a4ff] bg-clip-text text-transparent">
+            {current.title}
+          </h1>
+        </div>
+      </div>
+      {section === "library" ? (
     <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
       {rows.map((row) => {
         const game = row.games as { title?: string; cover_image?: string } | null;
@@ -487,20 +508,21 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
     })}
   </div>
   )}
-  {!rows.length && (
-    <EmptyState
-      icon={Icon}
-      title={emptyTitle}
-      message={emptyMessage}
-      href={emptyHref}
-      action={emptyAction}
-    />
-  )}
-  {section === "support" && <SupportTicketForm />}
-  {section === "requests" && rows.length > 0 && (
-    <Link href="/requests" className="btn btn-primary mt-6">
-      Request another game
-    </Link>
-  )}
-</div>;
+      {!rows.length && (
+        <EmptyState
+          icon={Icon}
+          title={emptyTitle}
+          message={emptyMessage}
+          href={emptyHref}
+          action={emptyAction}
+        />
+      )}
+      {section === "support" && <SupportTicketForm />}
+      {section === "requests" && rows.length > 0 && (
+        <Link href="/requests" className="btn btn-primary mt-6">
+          Request another game
+        </Link>
+      )}
+    </div>
+  );
 }

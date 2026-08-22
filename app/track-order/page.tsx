@@ -237,6 +237,32 @@ function TrackOrderContent() {
     }
   }, [order, phone, currentUser, track]);
 
+  // Real-time listener for order updates while on track-order page
+  useEffect(() => {
+    const trimmedOrder = order.trim();
+    if (!trimmedOrder) return;
+    const supabase = createClient();
+    const channel = supabase
+      .channel(`track-order-${trimmedOrder}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "orders",
+          filter: `order_reference=eq.${trimmedOrder}`,
+        },
+        () => {
+          void track();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [order, track]);
+
   async function copyOrder() { if (!result) return; await navigator.clipboard.writeText(result.order_ref); toast.success("Order reference copied"); }
   
   const active = result ? stageIndex(result.status) : 0;

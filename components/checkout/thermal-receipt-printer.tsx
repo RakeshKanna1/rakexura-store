@@ -437,10 +437,14 @@ export function ThermalReceiptPrinter({
                           {item.platform ? ` (${item.platform})` : ""}
                         </span>
                         <span className="font-bold">
-                          {isOrderGift ? (
-                            <span className="line-through text-[#8d95aa] mr-1">{formatPrice(item.price * (item.quantity || 1))}</span>
-                          ) : null}
-                          {isOrderGift ? "FREE" : formatPrice(item.price * (item.quantity || 1))}
+                          {(isOrderGift || total === 0 || effectiveDiscount >= subtotal) ? (
+                            <>
+                              <span className="line-through text-[#8d95aa] mr-1">{formatPrice(item.price * (item.quantity || 1))}</span>
+                              <span className="text-emerald-700">FREE</span>
+                            </>
+                          ) : (
+                            formatPrice(item.price * (item.quantity || 1))
+                          )}
                         </span>
                       </div>
                     ))}

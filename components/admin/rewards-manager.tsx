@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Award, Crown, Medal, Trophy, Sparkles, Search, Mail, Phone } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { adjustRewardPoints } from "@/app/admin/actions";
 
 const rankStyle: Record<string, { badge: string; text: string }> = {
@@ -34,8 +36,27 @@ export type RewardUserRow = {
 };
 
 export function RewardsManager({ initialRewards }: { initialRewards: RewardUserRow[] }) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [selectedRank, setSelectedRank] = useState<string>("ALL");
+
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel("admin-rewards-realtime-listener")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "user_rewards" },
+        () => {
+          router.refresh();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [router]);
 
   const filteredRewards = useMemo(() => {
     return initialRewards.filter((r) => {

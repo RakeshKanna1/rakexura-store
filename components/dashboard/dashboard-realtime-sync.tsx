@@ -62,6 +62,18 @@ export function DashboardRealtimeSync({ userId }: { userId: string }) {
           router.refresh();
         }
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "customer_library",
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          router.refresh();
+        }
+      )
       .subscribe();
 
     // 2. Revalidate on tab focus / visibility change
