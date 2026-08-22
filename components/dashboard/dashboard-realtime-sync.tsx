@@ -1,11 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export function DashboardRealtimeSync({ userId }: { userId: string }) {
   const router = useRouter();
+  const refreshTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const debouncedRefresh = useCallback(() => {
+    if (refreshTimer.current) clearTimeout(refreshTimer.current);
+    refreshTimer.current = setTimeout(() => {
+      router.refresh();
+    }, 120);
+  }, [router]);
 
   useEffect(() => {
     if (!userId) return;
@@ -22,9 +30,7 @@ export function DashboardRealtimeSync({ userId }: { userId: string }) {
           table: "user_rewards",
           filter: `user_id=eq.${userId}`,
         },
-        () => {
-          router.refresh();
-        }
+        debouncedRefresh
       )
       .on(
         "postgres_changes",
@@ -34,9 +40,7 @@ export function DashboardRealtimeSync({ userId }: { userId: string }) {
           table: "orders",
           filter: `user_id=eq.${userId}`,
         },
-        () => {
-          router.refresh();
-        }
+        debouncedRefresh
       )
       .on(
         "postgres_changes",
@@ -46,9 +50,7 @@ export function DashboardRealtimeSync({ userId }: { userId: string }) {
           table: "support_tickets",
           filter: `user_id=eq.${userId}`,
         },
-        () => {
-          router.refresh();
-        }
+        debouncedRefresh
       )
       .on(
         "postgres_changes",
@@ -58,9 +60,7 @@ export function DashboardRealtimeSync({ userId }: { userId: string }) {
           table: "notifications",
           filter: `user_id=eq.${userId}`,
         },
-        () => {
-          router.refresh();
-        }
+        debouncedRefresh
       )
       .on(
         "postgres_changes",
@@ -70,28 +70,29 @@ export function DashboardRealtimeSync({ userId }: { userId: string }) {
           table: "customer_library",
           filter: `user_id=eq.${userId}`,
         },
-        () => {
-          router.refresh();
-        }
+        debouncedRefresh
       )
       .subscribe();
 
     // 2. Revalidate on tab focus / visibility change
     const onFocus = () => {
-      router.refresh();
+      debouncedRefresh();
     };
     window.addEventListener("focus", onFocus);
-    document.addEventListener("visibilitychange", () => {
+    const onVisibility = () => {
       if (document.visibilityState === "visible") {
-        router.refresh();
+        debouncedRefresh();
       }
-    });
+    };
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
+      if (refreshTimer.current) clearTimeout(refreshTimer.current);
       void supabase.removeChannel(channel);
       window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [userId, router]);
+  }, [userId, debouncedRefresh]);
 
   return null;
 }
