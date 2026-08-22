@@ -184,7 +184,7 @@ export async function POST(request: Request) {
 
     // 4. Milestone / Loyalty points check
     const isRestrictedCode = normalized === "RAKE20" || normalized === "DIAMONDFREE" || normalized === "DIAMOND-FREEBIE" || normalized === "PLATINUMFREE" || normalized === "PLATINUM-FREEBIE";
-    if (isRestrictedCode && !isAdmin) {
+    if (isRestrictedCode) {
       if (!user) {
         return NextResponse.json(
           {
@@ -231,7 +231,7 @@ export async function POST(request: Request) {
     }
 
     const isMilestoneCoupon = normalized.startsWith("MILE") || normalized.startsWith("LOYAL") || normalized.startsWith("STAGE") || (normalized.startsWith("PLAT") && normalized !== "PLATINUMFREE" && normalized !== "PLATINUM-FREEBIE");
-    if (isMilestoneCoupon && !isAdmin) {
+    if (isMilestoneCoupon) {
       if (!user) {
         return NextResponse.json(
           {
@@ -280,7 +280,7 @@ export async function POST(request: Request) {
     }
 
     // 6. Per-user limit check
-    if (user && !isAdmin) {
+    if (user) {
       const { count } = await supabase
         .from("coupon_usage")
         .select("id", { count: "exact", head: true })
