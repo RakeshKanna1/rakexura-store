@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { ArrowLeft, Calendar, CheckSquare, ExternalLink, HelpCircle, Phone, ReceiptText, Trash2, Filter, Search } from "lucide-react";
 import { OrderActions } from "@/components/admin/order-actions";
@@ -8,6 +8,7 @@ import { cleanupOldDeliveredOrders, deleteSingleOrder, deleteSelectedOrders } fr
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { matchesSearchQuery } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 
 export interface OrderRow {
   id: number;
@@ -25,11 +26,36 @@ export interface OrderRow {
 
 export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[] }) {
   const router = useRouter();
+  const [orders, setOrders] = useState<OrderRow[]>(initialOrders);
   const [period, setPeriod] = useState<"all" | "today" | "week" | "month" | "older">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "delivered" | "rejected">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isPending, startTransition] = useTransition();
+
+  // Sync state if initialOrders prop changes from server
+  useEffect(() => {
+    setOrders(initialOrders);
+  }, [initialOrders]);
+
+  // Real-time live synchronization with Supabase orders table
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel("admin-orders-realtime-listener")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        () => {
+          router.refresh();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [router]);
 
   // Instant In-Memory Filter Engine (0ms execution time)
   const filteredOrders = useMemo(() => {
@@ -39,7 +65,7 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).getTime();
 
-    return initialOrders.filter((order) => {
+    return orders.filter((order) => {
       const createdAt = new Date(order.created_at).getTime();
 
       // Period Filter
@@ -76,17 +102,17 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
 
       return true;
     });
-  }, [initialOrders, period, statusFilter, searchQuery]);
+  }, [orders, period, statusFilter, searchQuery]);
 
   // Count delivered or rejected orders older than 30 days
   const oldDeliveredCount = useMemo(() => {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).getTime();
-    return initialOrders.filter((o) => {
+    return orders.filter((o) => {
       const status = (o.order_status || "").toLowerCase();
       const createdAt = new Date(o.created_at).getTime();
       return (status === "delivered" || status === "rejected") && createdAt < thirtyDaysAgo;
     }).length;
-  }, [initialOrders]);
+  }, [orders]);
 
   const toggleSelectOrder = (id: number) => {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));

@@ -23,6 +23,9 @@ const sections = [
   ["audit-logs", "Audit logs", "Detailed administrator action trails", BarChart3]
 ] as const;
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function AdminPage() {
   const supabase = await createClient();
   const today = new Date(); today.setHours(0, 0, 0, 0);

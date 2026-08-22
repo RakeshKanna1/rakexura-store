@@ -35,6 +35,11 @@ type Data = z.infer<typeof schema>;
 const UPI_ID = process.env.NEXT_PUBLIC_UPI_ID || "12k21rakeshkannam@oksbi";
 
 function getCheckoutLinePrice(g: Game, platform: string) {
+  if (platform === "1 Month") return Number(g.price_1m ?? g.xbox_price ?? g.steam_price ?? g.sale_price ?? 0);
+  if (platform === "2 Months") return Number(g.price_2m ?? 0);
+  if (platform === "3 Months") return Number(g.price_3m ?? 0);
+  if (platform === "6 Months") return Number(g.price_6m ?? 0);
+  if (platform === "12 Months") return Number(g.price_12m ?? 0);
   if (platform === "Epic") return Number(g.epic_price ?? g.sale_price ?? 0);
   if (platform === "Offline") return Number(g.offline_price ?? 0);
   if (platform === "Online") return Number(g.online_price ?? 0);

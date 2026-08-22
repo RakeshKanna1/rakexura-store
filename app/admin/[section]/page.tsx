@@ -15,6 +15,9 @@ import { VisitorAnalytics } from "@/components/admin/visitor-analytics";
 import { SmartOrdersManager, type OrderRow } from "@/components/admin/smart-orders-manager";
 import { purgeExpiredCoupons } from "@/lib/supabase/coupons";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const sources = {
   games: { title: "Game management", table: "games", select: "id,title,cover_image,steam_price,epic_price,offline_price,online_price,xbox_price,geforce_price,price_1m,price_2m,price_3m,price_6m,price_12m,reseller_price,is_subscription,online_activation,duration,archived", order: "id" },
   orders: { title: "Customer orders", table: "orders", select: "id,order_reference,customer_name,customer_whatsapp,order_status,total_price,cart_items,screenshot_url,created_at,account_access", order: "created_at" },
