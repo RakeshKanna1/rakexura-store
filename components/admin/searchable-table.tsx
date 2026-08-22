@@ -374,11 +374,25 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
             <thead className="bg-white/[.04] text-[#8991a6]">
               <tr>
                 {headers.map((header) => (
-                  <th key={header} className="px-3.5 py-3 capitalize text-xs font-bold">
-                    {header === "is_reseller" ? "Partner Status" : header === "usage_limit" ? "Global Limit" : header === "per_user_limit" ? "Limit Per User" : header === "used_count" ? "Times Used" : header === "created_at" ? "Joined Date" : header === "applicable_to" ? "Scope / Target" : header.replaceAll("_", " ")}
+                  <th key={header} className="px-3.5 py-3 capitalize text-xs font-bold whitespace-nowrap">
+                    {header === "whatsapp"
+                      ? "WhatsApp"
+                      : header === "is_reseller"
+                      ? "Partner Status"
+                      : header === "usage_limit"
+                      ? "Global Limit"
+                      : header === "per_user_limit"
+                      ? "Limit Per User"
+                      : header === "used_count"
+                      ? "Times Used"
+                      : header === "created_at"
+                      ? "Joined Date"
+                      : header === "applicable_to"
+                      ? "Scope / Target"
+                      : header.replaceAll("_", " ")}
                   </th>
                 ))}
-                {hasActions && <th className="px-3.5 py-3 text-xs font-bold">Actions</th>}
+                {hasActions && <th className="px-3.5 py-3 text-xs font-bold whitespace-nowrap">Actions</th>}
               </tr>
             </thead>
             <tbody>
