@@ -664,14 +664,14 @@ export function BroadcastComposer({
 
   return (
     <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
-      <section className="premium-panel rounded-lg p-5 md:p-7">
-        <div className="flex items-center gap-3.5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#b9a4ff] shadow-[0_0_15px_rgba(139,92,246,0.15)]">
-            <BellRing size={22} />
+      <section className="premium-panel rounded-lg p-4 sm:p-5 md:p-7">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#b9a4ff] shadow-[0_0_15px_rgba(139,92,246,0.15)]">
+            <BellRing size={20} />
           </div>
-          <div>
-            <h2 className="text-xl font-black text-white">Create an update</h2>
-            <p className="text-sm text-[#8991a6]">Send a safe in-app, push, or email notification to registered customers.</p>
+          <div className="min-w-0">
+            <h2 className="text-lg sm:text-xl font-black text-white leading-tight">Create an update</h2>
+            <p className="text-xs sm:text-sm text-[#8991a6] mt-0.5">Send a safe in-app, push, or email notification to registered customers.</p>
           </div>
         </div>
 
@@ -852,7 +852,7 @@ export function BroadcastComposer({
 
       <aside className="space-y-5">
         {/* Targeted Customer Communications panel */}
-        <div className="premium-panel h-fit rounded-lg p-5 space-y-4">
+        <div className="premium-panel h-fit rounded-lg p-4 sm:p-5 space-y-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#20c763]/30 bg-[#20c763]/10 text-[#20c763]">
               <MessageCircle size={18} />
@@ -925,7 +925,7 @@ export function BroadcastComposer({
         </div>
 
         {/* Giveaway / Gift Game Panel */}
-        <div className="premium-panel h-fit rounded-lg p-5">
+        <div className="premium-panel h-fit rounded-lg p-4 sm:p-5">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#facc15]/30 bg-[#facc15]/10 text-[#facc15]">
               <Gift size={18} />

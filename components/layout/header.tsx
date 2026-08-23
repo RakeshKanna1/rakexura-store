@@ -74,13 +74,13 @@ export function Header() {
             <button
               suppressHydrationWarning
               onClick={() => setCartOpen(true)}
-              className="btn btn-secondary relative h-11 min-h-11 px-3"
+              className="btn btn-secondary relative h-9 min-h-9 px-2.5 sm:h-10 sm:min-h-10 sm:px-3 flex items-center justify-center rounded-lg"
               aria-label={`Open cart with ${mounted ? count : 0} items`}
             >
-              <ShoppingBag size={19} />
-              <span className="hidden sm:inline">Cart</span>
+              <ShoppingBag size={17} className="sm:scale-105" />
+              <span className="hidden sm:inline text-xs font-bold">Cart</span>
               {mounted && count > 0 && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#8b5cf6] px-1 text-[11px] text-white">
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[#8b5cf6] px-1 text-[9.5px] font-black text-white shadow-sm">
                   {count}
                 </span>
               )}

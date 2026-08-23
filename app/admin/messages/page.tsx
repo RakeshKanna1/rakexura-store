@@ -93,10 +93,14 @@ export default async function AdminMessagesPage({ searchParams }: { searchParams
   }
 
   return (
-    <main>
+    <main className="py-2 md:py-4">
       <p className="eyebrow">Customer communication</p>
-      <h1 className="mt-3 text-4xl font-black md:text-5xl">Messages & announcements</h1>
-      <p className="section-copy mb-8">Tell customers about new games, offers, and giveaways without editing code.</p>
+      <h1 className="mt-2 md:mt-3 text-2xl sm:text-3xl md:text-5xl font-black tracking-tight leading-tight">
+        Messages & announcements
+      </h1>
+      <p className="section-copy text-xs sm:text-sm text-[#8991a6] mt-1 mb-5 md:mb-8">
+        Tell customers about new games, offers, and giveaways without editing code.
+      </p>
       <BroadcastComposer customers={customers} games={games} orders={rawOrders} prefill={prefill} />
     </main>
   );
