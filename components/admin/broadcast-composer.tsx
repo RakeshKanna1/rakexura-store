@@ -1,6 +1,6 @@
 "use client";
 
-import { BellRing, Gamepad2, Gift, MessageCircle, Send, Mail, Flame, Key, Megaphone, LifeBuoy, Sparkles, Receipt, Search, Star, Clock, Copy } from "lucide-react";
+import { BellRing, Gamepad2, Gift, MessageCircle, Send, Mail, Flame, Key, Megaphone, LifeBuoy, Sparkles, Receipt, Search, Star, Clock, Copy, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useTransition, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { sendStoreAnnouncement, sendSinglePushNotification, sendSingleEmailNotification, giftGameToCustomer, fetchOrderInvoiceData } from "@/app/admin/actions";
@@ -131,6 +131,7 @@ export function BroadcastComposer({
   orders?: OrderOption[];
   prefill?: string;
 }) {
+  const [activeTab, setActiveTab] = useState<"broadcast" | "direct" | "gift">("broadcast");
   const [selectedTemplateKey, setSelectedTemplateKey] = useState<string>("game");
   const [title, setTitle] = useState(prefill ? `${prefill} is now available` : templates.game.title);
   const [message, setMessage] = useState(prefill ? `${prefill} has arrived at Rakexura. Check platforms, live pricing, trailers, and current offers.` : templates.game.message);
@@ -150,6 +151,7 @@ export function BroadcastComposer({
   const [orderQueryInput, setOrderQueryInput] = useState("");
   const [fetchingOrder, setFetchingOrder] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState("");
+  const [showOrderInvoiceBox, setShowOrderInvoiceBox] = useState(false);
 
   const customer = customers.find((item) => item.id === customerId);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -163,7 +165,7 @@ export function BroadcastComposer({
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${Math.min(600, Math.max(160, textareaRef.current.scrollHeight + 8))}px`;
+      textareaRef.current.style.height = `${Math.min(600, Math.max(140, textareaRef.current.scrollHeight + 8))}px`;
     }
   }, [message]);
 
@@ -199,6 +201,7 @@ export function BroadcastComposer({
     customerWhatsapp?: string | null;
   }) {
     setSelectedTemplateKey("invoice");
+    setShowOrderInvoiceBox(true);
     const ref = data.orderRef;
     const itemsText = data.items || "Purchased Items";
     const amountStr = `₹${Number(data.totalPrice ?? 0).toLocaleString("en-IN")}`;
@@ -302,6 +305,9 @@ export function BroadcastComposer({
 
   function applyTemplate(key: string) {
     setSelectedTemplateKey(key);
+    if (key === "invoice") {
+      setShowOrderInvoiceBox(true);
+    }
     const template = templates[key as keyof typeof templates];
     const game = games.find((item) => item.id === Number(selectedGameId));
 
@@ -358,10 +364,19 @@ export function BroadcastComposer({
         setLink("/reviews");
       }
     } else {
-      setTitle(template.title);
-      setMessage(template.message);
-      setShortMessage(template.shortMessage || template.title);
-      setLink(template.link);
+      if (game) {
+        const salePrice = game.sale_price || game.offline_price || game.steam_price || 0;
+        const priceStr = salePrice ? `₹${salePrice.toLocaleString("en-IN")}` : "Special Price";
+        setTitle(`${game.title} is now available`);
+        setMessage(`${game.title} has arrived at Rakexura. Check platforms, live pricing${priceStr !== "Special Price" ? ` (from ${priceStr})` : ''}, trailers, and current offers.`);
+        setShortMessage(`New Game: ${game.title} is now live on Rakexura Store!`);
+        setLink(gameUrl(game));
+      } else {
+        setTitle(template.title);
+        setMessage(template.message);
+        setShortMessage(template.shortMessage || template.title);
+        setLink(template.link);
+      }
     }
   }
 
@@ -613,206 +628,261 @@ export function BroadcastComposer({
   ];
 
   return (
-    <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
-      <section className="premium-panel rounded-lg p-4 sm:p-5 md:p-7">
-        <div className="flex items-center gap-3.5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#b9a4ff] shadow-[0_0_15px_rgba(139,92,246,0.15)]">
-            <BellRing size={22} />
-          </div>
-          <div>
-            <h2 className="text-xl font-black text-white">Create an update</h2>
-            <p className="text-sm text-[#8991a6]">Send a safe in-app, push, or email notification to registered customers.</p>
-          </div>
-        </div>
-
-        {/* Quick Template Dropdown */}
-        <div className="mt-6">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#94a3b8] mb-2.5">
-            <Sparkles size={15} className="text-[#a78bfa]" />
-            <span>SELECT NOTIFICATION TEMPLATE</span>
-          </div>
-          <CustomSelect
-            options={templateSelectOptions}
-            value={selectedTemplateKey}
-            onChange={(val) => applyTemplate(val)}
-            placeholder="Select a notification template..."
-            searchable={false}
-          />
-        </div>
-
-        {/* Order Invoice Fetch & Auto-Fill Section */}
-        <div className="mt-5 rounded-lg border border-[#facc15]/30 bg-[#facc15]/5 p-4 space-y-3">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#facc15]">
-            <Receipt size={16} />
-            <span>FETCH ORDER & AUTO-FILL INVOICE</span>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            {/* Pick Recent Order */}
-            <div>
-              <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Pick Recent Order</label>
-              <CustomSelect
-                options={[
-                  { value: "", label: "Pick recent order..." },
-                  ...safeOrders.map((o) => ({
-                    value: String(o.id),
-                    label: `${o.order_reference || `#${o.id}`} - Rs. ${Number(o.total_price ?? 0).toLocaleString("en-IN")}`,
-                    sublabel: `${o.customer_name || 'Customer'} · Status: ${o.order_status || 'Pending'}`,
-                  })),
-                ]}
-                value={selectedOrderId}
-                onChange={(val) => selectOrderById(val)}
-                placeholder="Pick recent order..."
-              />
-            </div>
-
-            {/* Search Order No / Reference */}
-            <div>
-              <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Search Order No / Ref</label>
-              <div className="flex gap-2 min-w-0">
-                <input
-                  value={orderQueryInput}
-                  onChange={(e) => setOrderQueryInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") handleFetchOrderNo(); }}
-                  placeholder="e.g. RKX-2607-000064 or 64"
-                  className="h-10 min-w-0 flex-1 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-mono text-white outline-none focus:border-[#facc15]"
-                />
-                <button
-                  suppressHydrationWarning
-                  type="button"
-                  onClick={handleFetchOrderNo}
-                  disabled={fetchingOrder}
-                  className="btn bg-[#facc15] hover:bg-[#eab308] text-black h-10 px-3.5 sm:px-4 text-xs font-extrabold cursor-pointer shrink-0 flex items-center gap-1.5"
-                >
-                  <Search size={14} />
-                  <span>{fetchingOrder ? "Fetching..." : "Fetch"}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-5">
-          <label className="block text-sm font-bold mb-2">
-            Choose a game <span className="font-normal text-[#8991a6]">(optional)</span>
-          </label>
-          <CustomSelect
-            options={gameOptions}
-            value={selectedGameId}
-            onChange={(val) => {
-              setSelectedGameId(val);
-              chooseGame(val);
-            }}
-            placeholder="Custom announcement"
-          />
-        </div>
-
-        <div className="mt-4">
-          <label className="block text-sm font-bold mb-2">Title / Email Subject</label>
-          <input
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            maxLength={80}
-            className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
-          />
-        </div>
-
-        <div className="mt-4">
-          <label className="block text-sm font-bold mb-2">Message Body</label>
-          <textarea
-            ref={textareaRef}
-            value={message}
-            onChange={(event) => setMessage(event.target.value)}
-            onWheel={(e) => e.stopPropagation()}
-            maxLength={3000}
-            rows={8}
-            style={{ overflowY: "auto", scrollbarWidth: "thin" }}
-            className="w-full min-h-[160px] max-h-[600px] overflow-y-auto resize-y rounded-md border border-white/10 bg-black/25 p-4 text-sm leading-relaxed text-white outline-none focus:border-[#8b5cf6]"
-          />
-        </div>
-
-        <div className="mt-4">
-          <div className="flex items-center justify-between text-sm font-bold mb-2">
-            <span>Push Notification Short Message</span>
-            <span className="text-[10px] font-black uppercase text-[#a78bfa] tracking-wider bg-[#a78bfa]/10 px-2 py-0.5 rounded border border-[#a78bfa]/20">Device Push Alert</span>
-          </div>
-          <input
-            value={shortMessage}
-            onChange={(event) => setShortMessage(event.target.value)}
-            maxLength={120}
-            placeholder="Short message for browser & mobile push notifications..."
-            className="h-11 w-full rounded-md border border-[#a78bfa]/40 bg-black/25 px-4 text-xs font-bold text-white outline-none focus:border-[#a78bfa]"
-          />
-        </div>
-
-        <div className="mt-4">
-          <label className="block text-sm font-bold mb-2">Rakexura Target Link</label>
-          <input
-            value={link}
-            onChange={(event) => setLink(event.target.value)}
-            className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
-          />
-        </div>
-
-        <div className="mt-4">
-          <label className="block text-sm font-bold text-[#20c763] mb-2">
-            Rakexura WhatsApp Channel Link <span className="font-normal text-[#8991a6]">(for WhatsApp channel broadcast)</span>
-          </label>
-          <input
-            value={whatsappChannelLink}
-            onChange={(event) => setWhatsappChannelLink(event.target.value)}
-            placeholder="e.g. https://whatsapp.com/channel/..."
-            className="h-12 w-full rounded-md border border-[#20c763]/40 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#20c763]"
-          />
-        </div>
+    <div className="space-y-4">
+      {/* Epic Style Segmented Mode Selector */}
+      <div className="flex rounded-lg bg-[#0a0c16] p-1 border border-white/10">
+        <button
+          suppressHydrationWarning
+          type="button"
+          onClick={() => setActiveTab("broadcast")}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 px-2 rounded-md text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+            activeTab === "broadcast"
+              ? "bg-white/[0.08] text-white border border-white/15 shadow-sm"
+              : "text-[#8991a6] hover:text-white border border-transparent"
+          }`}
+        >
+          <BellRing size={15} className={activeTab === "broadcast" ? "text-[#a78bfa]" : ""} />
+          <span className="truncate">Broadcast</span>
+        </button>
 
         <button
           suppressHydrationWarning
           type="button"
-          onClick={notifyAll}
-          disabled={pending}
-          className="btn btn-primary mt-6 w-full text-sm font-black cursor-pointer disabled:opacity-50"
+          onClick={() => setActiveTab("direct")}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 px-2 rounded-md text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+            activeTab === "direct"
+              ? "bg-white/[0.08] text-white border border-white/15 shadow-sm"
+              : "text-[#8991a6] hover:text-white border border-transparent"
+          }`}
         >
-          <Send size={16} />
-          <span className="font-black">{pending ? "Sending Broadcast..." : "Notify all customer accounts"}</span>
+          <MessageCircle size={15} className={activeTab === "direct" ? "text-[#20c763]" : ""} />
+          <span className="truncate">Direct Message</span>
         </button>
 
-        {/* WhatsApp Channel & Group Broadcast Buttons */}
-        <div className="mt-3.5 grid gap-2.5 sm:grid-cols-2">
-          <button
-            suppressHydrationWarning
-            type="button"
-            onClick={shareToWhatsAppChannel}
-            className="btn w-full bg-[#25D366] hover:bg-[#20bd5a] text-black font-black text-xs md:text-sm cursor-pointer flex items-center justify-center gap-2 py-3.5 rounded-lg shadow-[0_0_22px_rgba(37,211,102,0.35)] transition-all border border-black/10"
-          >
-            <MessageCircle size={18} className="text-black stroke-[2.2] shrink-0" />
-            <span>Open WhatsApp Channel</span>
-          </button>
+        <button
+          suppressHydrationWarning
+          type="button"
+          onClick={() => setActiveTab("gift")}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 px-2 rounded-md text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+            activeTab === "gift"
+              ? "bg-white/[0.08] text-white border border-white/15 shadow-sm"
+              : "text-[#8991a6] hover:text-white border border-transparent"
+          }`}
+        >
+          <Gift size={15} className={activeTab === "gift" ? "text-[#facc15]" : ""} />
+          <span className="truncate">Gift Game</span>
+        </button>
+      </div>
 
-          <button
-            suppressHydrationWarning
-            type="button"
-            onClick={() => void copyWhatsAppBroadcastText()}
-            className="btn w-full bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs md:text-sm cursor-pointer flex items-center justify-center gap-2 py-3.5 rounded-lg border border-white/15 transition-all"
-          >
-            <Copy size={18} className="text-[#a78bfa] shrink-0" />
-            <span>Copy Broadcast Text</span>
-          </button>
-        </div>
-      </section>
-
-      <aside className="space-y-5">
-        {/* Targeted Customer Communications panel */}
-        <div className="premium-panel h-fit rounded-lg p-4 sm:p-5 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#20c763]/30 bg-[#20c763]/10 text-[#20c763]">
-              <MessageCircle size={18} />
-            </div>
-            <h2 className="text-lg font-black text-white">Targeted Customer Messaging</h2>
+      {/* MODE 1: BROADCAST COMPOSER */}
+      {activeTab === "broadcast" && (
+        <section className="premium-panel rounded-lg p-4 sm:p-5 md:p-6 space-y-4">
+          <div>
+            <h2 className="text-base sm:text-lg font-black text-white">Create an update</h2>
+            <p className="text-xs sm:text-sm text-[#8991a6] mt-0.5">Send a safe in-app, push, or email notification to registered customers.</p>
           </div>
-          <p className="text-xs leading-5 text-[#8991a6]">
-            Select a registered website account to send a targeted lockscreen push, WhatsApp message, or direct email update.
-          </p>
+
+          {/* Template Select */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-bold text-[#8991a8]">Select Notification Template</label>
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={() => setShowOrderInvoiceBox(!showOrderInvoiceBox)}
+                className="text-[11px] font-bold text-[#facc15] hover:underline cursor-pointer flex items-center gap-1"
+              >
+                <Receipt size={12} /> {showOrderInvoiceBox ? "Hide Invoice" : "Fetch Invoice"}
+              </button>
+            </div>
+            <CustomSelect
+              options={templateSelectOptions}
+              value={selectedTemplateKey}
+              onChange={(val) => applyTemplate(val)}
+              placeholder="Select a notification template..."
+              searchable={false}
+            />
+          </div>
+
+          {/* Optional Order Invoice Fetcher */}
+          {showOrderInvoiceBox && (
+            <div className="rounded-lg border border-[#facc15]/30 bg-[#facc15]/5 p-3.5 space-y-3">
+              <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#facc15]">
+                <Receipt size={14} />
+                <span>Fetch Order & Auto-Fill Invoice</span>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="block text-xs font-bold text-[#8991a8] mb-1">Pick Recent Order</label>
+                  <CustomSelect
+                    options={[
+                      { value: "", label: "Pick recent order..." },
+                      ...safeOrders.map((o) => ({
+                        value: String(o.id),
+                        label: `${o.order_reference || `#${o.id}`} - Rs. ${Number(o.total_price ?? 0).toLocaleString("en-IN")}`,
+                        sublabel: `${o.customer_name || 'Customer'} · Status: ${o.order_status || 'Pending'}`,
+                      })),
+                    ]}
+                    value={selectedOrderId}
+                    onChange={(val) => selectOrderById(val)}
+                    placeholder="Pick recent order..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#8991a8] mb-1">Search Order No / Ref</label>
+                  <div className="flex gap-2 min-w-0">
+                    <input
+                      value={orderQueryInput}
+                      onChange={(e) => setOrderQueryInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") handleFetchOrderNo(); }}
+                      placeholder="e.g. RKX-2607-000064"
+                      className="h-10 min-w-0 flex-1 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-mono text-white outline-none focus:border-[#facc15]"
+                    />
+                    <button
+                      suppressHydrationWarning
+                      type="button"
+                      onClick={handleFetchOrderNo}
+                      disabled={fetchingOrder}
+                      className="btn bg-[#facc15] hover:bg-[#eab308] text-black h-10 px-3.5 text-xs font-bold cursor-pointer shrink-0 flex items-center gap-1"
+                    >
+                      <Search size={13} />
+                      <span>{fetchingOrder ? "..." : "Fetch"}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Optional Game Selector */}
+          <div>
+            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">
+              Choose a game <span className="font-normal text-[#64748b]">(optional)</span>
+            </label>
+            <CustomSelect
+              options={gameOptions}
+              value={selectedGameId}
+              onChange={(val) => {
+                setSelectedGameId(val);
+                chooseGame(val);
+              }}
+              placeholder="Custom announcement"
+            />
+          </div>
+
+          {/* Title */}
+          <div>
+            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Title / Email Subject</label>
+            <input
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              maxLength={80}
+              className="h-11 w-full rounded-md border border-white/10 bg-black/25 px-3.5 text-xs sm:text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
+            />
+          </div>
+
+          {/* Message Body */}
+          <div>
+            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Message Body</label>
+            <textarea
+              ref={textareaRef}
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              onWheel={(e) => e.stopPropagation()}
+              maxLength={3000}
+              rows={6}
+              style={{ overflowY: "auto", scrollbarWidth: "thin" }}
+              className="w-full min-h-[140px] max-h-[500px] overflow-y-auto resize-y rounded-md border border-white/10 bg-black/25 p-3.5 text-xs sm:text-sm leading-relaxed text-white outline-none focus:border-[#8b5cf6]"
+            />
+          </div>
+
+          {/* Push Alert Short Text */}
+          <div>
+            <div className="flex items-center justify-between text-xs font-bold text-[#8991a8] mb-1.5">
+              <span>Push Notification Short Message</span>
+              <span className="text-[9px] font-black uppercase text-[#a78bfa] tracking-wider bg-[#a78bfa]/10 px-1.5 py-0.5 rounded border border-[#a78bfa]/20">Device Push</span>
+            </div>
+            <input
+              value={shortMessage}
+              onChange={(event) => setShortMessage(event.target.value)}
+              maxLength={120}
+              placeholder="Short text for push alert..."
+              className="h-10 w-full rounded-md border border-[#a78bfa]/40 bg-black/25 px-3.5 text-xs font-bold text-white outline-none focus:border-[#a78bfa]"
+            />
+          </div>
+
+          {/* Target Link */}
+          <div>
+            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Rakexura Target Link</label>
+            <input
+              value={link}
+              onChange={(event) => setLink(event.target.value)}
+              className="h-10 w-full rounded-md border border-white/10 bg-black/25 px-3.5 text-xs sm:text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
+            />
+          </div>
+
+          {/* WhatsApp Channel Link */}
+          <div>
+            <label className="block text-xs font-bold text-[#20c763] mb-1.5">
+              Rakexura WhatsApp Channel Link
+            </label>
+            <input
+              value={whatsappChannelLink}
+              onChange={(event) => setWhatsappChannelLink(event.target.value)}
+              placeholder="https://whatsapp.com/channel/..."
+              className="h-10 w-full rounded-md border border-[#20c763]/40 bg-black/25 px-3.5 text-xs sm:text-sm font-medium text-white outline-none focus:border-[#20c763]"
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="pt-2 space-y-2.5">
+            <button
+              suppressHydrationWarning
+              type="button"
+              onClick={notifyAll}
+              disabled={pending}
+              className="btn btn-primary w-full h-11 text-xs sm:text-sm font-bold cursor-pointer"
+            >
+              <Send size={15} />
+              <span>{pending ? "Sending Broadcast..." : "Notify all customer accounts"}</span>
+            </button>
+
+            <div className="grid gap-2 sm:grid-cols-2">
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={shareToWhatsAppChannel}
+                className="btn w-full bg-[#25D366] hover:bg-[#20bd5a] text-black font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md"
+              >
+                <MessageCircle size={16} className="text-black stroke-[2.2] shrink-0" />
+                <span>Open WhatsApp Channel</span>
+              </button>
+
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={() => void copyWhatsAppBroadcastText()}
+                className="btn w-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md border border-white/15"
+              >
+                <Copy size={15} className="text-[#a78bfa] shrink-0" />
+                <span>Copy Broadcast Text</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* MODE 2: DIRECT CUSTOMER MESSAGE */}
+      {activeTab === "direct" && (
+        <section className="premium-panel rounded-lg p-4 sm:p-5 md:p-6 space-y-4">
+          <div>
+            <h2 className="text-base sm:text-lg font-black text-white">Targeted Customer Messaging</h2>
+            <p className="text-xs sm:text-sm text-[#8991a6] mt-0.5">
+              Select a registered website account to send a targeted lockscreen push, WhatsApp message, or direct email update.
+            </p>
+          </div>
 
           <div>
             <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Website Customer</label>
@@ -830,22 +900,22 @@ export function BroadcastComposer({
 
           <div
             style={{ overflowY: "auto", scrollbarWidth: "thin" }}
-            className="max-h-[220px] overflow-y-auto whitespace-pre-wrap rounded-md border border-white/[.07] bg-black/20 p-3.5 text-xs leading-5 text-[#aab1c1]"
+            className="max-h-[200px] overflow-y-auto whitespace-pre-wrap rounded-md border border-white/[.07] bg-black/25 p-3.5 text-xs leading-5 text-[#aab1c1]"
           >
             <strong className="block text-white font-bold">{title}</strong>
             <span className="mt-1 block text-zinc-300 whitespace-pre-wrap">{message}</span>
             {targetEmail && <span className="mt-2 block text-[11px] text-[#b9a4ff] font-mono">Recipient Email: {targetEmail}</span>}
           </div>
 
-          <div className="space-y-2 pt-1">
+          <div className="grid gap-2 sm:grid-cols-2 pt-1">
             <button
               suppressHydrationWarning
               type="button"
               onClick={sendEmailToCustomer}
               disabled={emailPending}
-              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-extrabold text-sm cursor-pointer flex items-center justify-center gap-2"
+              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md"
             >
-              <Mail size={16} /> {emailPending ? "Sending Email..." : "Send Direct Email"}
+              <Mail size={15} /> {emailPending ? "Sending Email..." : "Send Direct Email"}
             </button>
 
             <button
@@ -853,9 +923,9 @@ export function BroadcastComposer({
               type="button"
               onClick={sendPushToCustomer}
               disabled={pushPending}
-              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-extrabold text-sm cursor-pointer flex items-center justify-center gap-2"
+              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md"
             >
-              <Send size={16} /> {pushPending ? "Sending Push..." : "Send Device Push"}
+              <Send size={15} /> {pushPending ? "Sending Push..." : "Send Device Push"}
             </button>
 
             <button
@@ -863,34 +933,47 @@ export function BroadcastComposer({
               type="button"
               onClick={sendComboToCustomer}
               disabled={comboPending}
-              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-extrabold text-sm cursor-pointer flex items-center justify-center gap-2"
+              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md sm:col-span-2"
             >
-              <Sparkles size={16} /> {comboPending ? "Sending Combo..." : "Send Email + Device Push"}
+              <Sparkles size={15} /> {comboPending ? "Sending Combo..." : "Send Email + Device Push"}
             </button>
 
             <button
               suppressHydrationWarning
               type="button"
               onClick={openWhatsApp}
-              className="btn w-full bg-[#20c763] hover:bg-[#1bb057] text-black font-extrabold text-sm cursor-pointer flex items-center justify-center gap-2"
+              className="btn w-full bg-[#20c763] hover:bg-[#1bb057] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md sm:col-span-2"
             >
-              <MessageCircle size={16} /> Open WhatsApp
+              <MessageCircle size={15} /> Open WhatsApp
             </button>
           </div>
-        </div>
+        </section>
+      )}
 
-        {/* Giveaway / Gift Game Panel */}
-        <div className="premium-panel h-fit rounded-lg p-4 sm:p-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#facc15]/30 bg-[#facc15]/10 text-[#facc15]">
-              <Gift size={18} />
-            </div>
-            <h2 className="text-lg font-black text-white">Giveaway / Gift Game</h2>
+      {/* MODE 3: GIFT GAME */}
+      {activeTab === "gift" && (
+        <section className="premium-panel rounded-lg p-4 sm:p-5 md:p-6 space-y-4">
+          <div>
+            <h2 className="text-base sm:text-lg font-black text-white">Giveaway / Gift Game</h2>
+            <p className="text-xs sm:text-sm text-[#8991a6] mt-0.5">Send a game directly to this customer&apos;s library and orders page at Rs. 0 as a giveaway.</p>
           </div>
-          <p className="mt-2 text-xs leading-5 text-[#8991a6]">Send a game directly to this customer&apos;s library and orders page at Rs. 0 as a giveaway.</p>
 
-          <label className="mt-4 block text-xs font-bold text-[#8991a8]">Select Game</label>
-          <div className="mt-1.5">
+          <div>
+            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Customer</label>
+            <CustomSelect
+              options={customerOptions}
+              value={customerId}
+              onChange={(val) => {
+                setCustomerId(val);
+                const found = customers.find((c) => c.id === val);
+                if (found?.email) setTargetEmail(found.email);
+              }}
+              placeholder="Select registered customer..."
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Game</label>
             <CustomSelect
               options={giftGameOptions}
               value={giftGameId}
@@ -899,8 +982,8 @@ export function BroadcastComposer({
             />
           </div>
 
-          <label className="mt-4 block text-xs font-bold text-[#8991a8]">Select Platform</label>
-          <div className="mt-1.5">
+          <div>
+            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Platform</label>
             <CustomSelect
               options={platformOptions}
               value={giftPlatform}
@@ -915,12 +998,12 @@ export function BroadcastComposer({
             type="button"
             onClick={sendGiftGame}
             disabled={giftPending}
-            className="btn mt-5 w-full btn-primary bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold cursor-pointer"
+            className="btn w-full btn-primary bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold cursor-pointer h-11 mt-2"
           >
-            <Gift size={16} /> {giftPending ? "Gifting..." : "Gift Game"}
+            <Gift size={15} /> {giftPending ? "Gifting..." : "Gift Game"}
           </button>
-        </div>
-      </aside>
+        </section>
+      )}
     </div>
   );
 }
