@@ -40,12 +40,6 @@ export function Header() {
             <Image src="/Assets/RakeLogo.png" width={42} height={42} alt="Rakexura" className="rounded-md" priority />
             <span className="hidden sm:block">RAKEXURA</span>
           </Link>
-          {isAdminPage && (
-            <span className="inline-flex items-center gap-2 rounded-md border border-[#8b5cf6]/50 bg-[#0d091a]/80 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-white shadow-[0_0_15px_rgba(139,92,246,0.35)] select-none">
-              <span className="h-2 w-2 rounded-full bg-[#a78bfa] shadow-[0_0_8px_#8b5cf6] animate-pulse" />
-              ADMIN
-            </span>
-          )}
         </div>
 
         {!isAuthPage && !isAdminPage && (
