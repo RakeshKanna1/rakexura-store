@@ -1,6 +1,6 @@
 "use client";
 
-import { BellRing, Gamepad2, Gift, MessageCircle, Send, Mail, Flame, Key, Megaphone, LifeBuoy, Sparkles, Receipt, Search, Star, Clock, Copy, ChevronDown } from "lucide-react";
+import { BellRing, Gamepad2, Gift, MessageCircle, Send, Mail, Flame, Key, Megaphone, LifeBuoy, Sparkles, Receipt, Search, Star, Clock, Copy } from "lucide-react";
 import { useState, useTransition, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { sendStoreAnnouncement, sendSinglePushNotification, sendSingleEmailNotification, giftGameToCustomer, fetchOrderInvoiceData } from "@/app/admin/actions";
@@ -51,71 +51,71 @@ const templates = {
       "• Purchased Items\n\n" +
       "Please keep a copy of this receipt for your records.\n" +
       "View your purchase history: https://rakexura-store.vercel.app/dashboard/orders",
-    shortMessage: "🧾 Invoice RKX-ORDER-REF processed! View receipt details.",
+    shortMessage: "Invoice RKX-ORDER-REF processed! View receipt details.",
     link: "/dashboard/orders",
   },
   review: {
     label: "Review Request",
     icon: Star,
-    title: "⭐ How was your gaming experience? Leave a review!",
+    title: "How was your gaming experience? Leave a review!",
     message: "Thank you for shopping at Rakexura Store! We hope you are enjoying your new game. Please take 30 seconds to rate your experience and leave a review. Your feedback helps fellow gamers!",
-    shortMessage: "⭐ Leave a review on Rakexura Store! Share your gaming experience.",
+    shortMessage: "Leave a review on Rakexura Store! Share your gaming experience.",
     link: "/dashboard/orders",
   },
   game: {
     label: "New Game",
     icon: Gamepad2,
-    title: "🎮 New game added",
+    title: "New game added",
     message: "A new game just landed at Rakexura. View the latest price and available platforms now.",
-    shortMessage: "🎮 New Game added to Rakexura Store catalog!",
+    shortMessage: "New Game added to Rakexura Store catalog!",
     link: "/games",
   },
   preorder: {
     label: "Pre-order Game",
     icon: Clock,
-    title: "⏳ Pre-order Live on Rakexura Store",
+    title: "Pre-order Live on Rakexura Store",
     message: "Pre-orders are now officially open! Reserve your copy today on Rakexura Store to secure day-1 activation access and exclusive perks.",
-    shortMessage: "⏳ Pre-order Live: Reserve your copy on Rakexura Store now!",
+    shortMessage: "Pre-order Live: Reserve your copy on Rakexura Store now!",
     link: "/games",
   },
   offer: {
     label: "Special Offer",
     icon: Flame,
-    title: "🔥 Special Offer Live on Rakexura Store",
+    title: "Special Offer Live on Rakexura Store",
     message: "A fresh limited-time special offer is live! Check out our exclusive discounts on top PC games and grab your keys before stock runs out.",
-    shortMessage: "🔥 Special Offer: Top PC game deals live on Rakexura Store now!",
+    shortMessage: "Special Offer: Top PC game deals live on Rakexura Store now!",
     link: "/games",
   },
   giveaway: {
     label: "Giveaway Alert",
     icon: Gift,
-    title: "🎁 Rakexura Free Game Giveaway",
+    title: "Rakexura Free Game Giveaway",
     message: "A new Rakexura giveaway is open. Check the details and join before entries close.",
-    shortMessage: "🎁 Giveaway Alert: Win a free game on Rakexura Store!",
+    shortMessage: "Giveaway Alert: Win a free game on Rakexura Store!",
     link: "/",
   },
   activation: {
     label: "Activation Guide",
     icon: Key,
-    title: "🗝️ Game Activation & Account Guide",
+    title: "Game Activation & Account Guide",
     message: "Your game activation instructions and account details are ready. View your orders to claim access.",
-    shortMessage: "🗝️ Activation Guide: Claim your game access now.",
+    shortMessage: "Activation Guide: Claim your game access now.",
     link: "/dashboard/orders",
   },
   announcement: {
     label: "Announcement",
     icon: Megaphone,
-    title: "📢 Important Rakexura Store Update",
+    title: "Important Rakexura Store Update",
     message: "We have updated our store catalog and platform options. Discover what's new today on Rakexura!",
-    shortMessage: "📢 Announcement: New store features updated on Rakexura!",
+    shortMessage: "Announcement: New store features updated on Rakexura!",
     link: "/",
   },
   support: {
     label: "Support Notice",
     icon: LifeBuoy,
-    title: "⚽ Rakexura Support Update",
+    title: "Rakexura Support Update",
     message: "Need activation help or order assistance? Our support desk is ready to help you.",
-    shortMessage: "⚽ Support Notice: Need help with your order? Contact support.",
+    shortMessage: "Support Notice: Need help with your order? Contact support.",
     link: "/support",
   },
 };
@@ -131,11 +131,10 @@ export function BroadcastComposer({
   orders?: OrderOption[];
   prefill?: string;
 }) {
-  const [activeTab, setActiveTab] = useState<"broadcast" | "direct" | "gift">("broadcast");
   const [selectedTemplateKey, setSelectedTemplateKey] = useState<string>("game");
   const [title, setTitle] = useState(prefill ? `${prefill} is now available` : templates.game.title);
   const [message, setMessage] = useState(prefill ? `${prefill} has arrived at Rakexura. Check platforms, live pricing, trailers, and current offers.` : templates.game.message);
-  const [shortMessage, setShortMessage] = useState(prefill ? `🎮 New Game: ${prefill} is now live on Rakexura!` : templates.game.shortMessage);
+  const [shortMessage, setShortMessage] = useState(prefill ? `New Game: ${prefill} is now live on Rakexura!` : templates.game.shortMessage);
   const [link, setLink] = useState(prefill ? `/games` : templates.game.link);
   const [whatsappChannelLink, setWhatsappChannelLink] = useState("https://whatsapp.com/channel/0029Vb7ylzhLo4hZDVQL6U46");
   const [customerId, setCustomerId] = useState(customers[0]?.id ?? "");
@@ -151,7 +150,6 @@ export function BroadcastComposer({
   const [orderQueryInput, setOrderQueryInput] = useState("");
   const [fetchingOrder, setFetchingOrder] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState("");
-  const [showOrderInvoiceBox, setShowOrderInvoiceBox] = useState(false);
 
   const customer = customers.find((item) => item.id === customerId);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -165,7 +163,7 @@ export function BroadcastComposer({
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${Math.min(600, Math.max(140, textareaRef.current.scrollHeight + 8))}px`;
+      textareaRef.current.style.height = `${Math.min(600, Math.max(160, textareaRef.current.scrollHeight + 8))}px`;
     }
   }, [message]);
 
@@ -201,7 +199,6 @@ export function BroadcastComposer({
     customerWhatsapp?: string | null;
   }) {
     setSelectedTemplateKey("invoice");
-    setShowOrderInvoiceBox(true);
     const ref = data.orderRef;
     const itemsText = data.items || "Purchased Items";
     const amountStr = `₹${Number(data.totalPrice ?? 0).toLocaleString("en-IN")}`;
@@ -294,7 +291,7 @@ export function BroadcastComposer({
         toast.success(`Game gifted successfully as a giveaway! Ref: ${result.orderRef}`);
         setGiftGameId("");
       } else {
-        toast.error(result.error || "Failed to gift game");
+        toast.error("Failed to gift game");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to gift game");
@@ -305,9 +302,6 @@ export function BroadcastComposer({
 
   function applyTemplate(key: string) {
     setSelectedTemplateKey(key);
-    if (key === "invoice") {
-      setShowOrderInvoiceBox(true);
-    }
     const template = templates[key as keyof typeof templates];
     const game = games.find((item) => item.id === Number(selectedGameId));
 
@@ -319,18 +313,18 @@ export function BroadcastComposer({
         const priceStr = salePrice ? `₹${salePrice.toLocaleString("en-IN")}` : "Special Price";
         const origStr = origPrice ? `₹${origPrice.toLocaleString("en-IN")}` : "";
 
-        setTitle(`🔥 Limited Time Deal: ${game.title} is on Sale!`);
+        setTitle(`Limited Time Deal: ${game.title} is on Sale!`);
         setMessage(
           `Exclusive Special Offer on ${game.title}!\n\n` +
           `Grab your copy now for only ${priceStr}${origStr ? ` (was ${origStr}, save ${discount}% OFF)` : ''}.\n\n` +
           `Limited stock available on Rakexura Store. Claim your key before the deal ends!`
         );
-        setShortMessage(`🔥 Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
+        setShortMessage(`Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
         setLink(gameUrl(game));
       } else {
-        setTitle("🔥 Exclusive Rakexura Offer Live");
+        setTitle("Exclusive Rakexura Offer Live");
         setMessage("A fresh limited-time special offer is live! Check out our exclusive discounts on top PC games and grab your keys before stock runs out.");
-        setShortMessage("🔥 Special Offer: Top PC game deals live on Rakexura Store now!");
+        setShortMessage("Special Offer: Top PC game deals live on Rakexura Store now!");
         setLink("/games");
       }
     } else if (key === "preorder") {
@@ -338,12 +332,12 @@ export function BroadcastComposer({
         const salePrice = game.sale_price || game.offline_price || game.steam_price || 0;
         const priceStr = salePrice ? `₹${salePrice.toLocaleString("en-IN")}` : "Special Price";
 
-        setTitle(`⏳ Pre-order Live: ${game.title}`);
+        setTitle(`Pre-order Live: ${game.title}`);
         setMessage(
           `Pre-orders are officially open for ${game.title}!\n\n` +
           `Reserve your copy today on Rakexura Store${priceStr !== "Special Price" ? ` (from ${priceStr})` : ''} to secure day-1 activation access and exclusive pre-order perks.`
         );
-        setShortMessage(`⏳ Pre-order Live: Secure your copy of ${game.title} on Rakexura Store now!`);
+        setShortMessage(`Pre-order Live: Secure your copy of ${game.title} on Rakexura Store now!`);
         setLink(gameUrl(game));
       } else {
         setTitle(template.title);
@@ -353,9 +347,9 @@ export function BroadcastComposer({
       }
     } else if (key === "review") {
       if (game) {
-        setTitle(`⭐ How is ${game.title}? Leave a review!`);
+        setTitle(`How is ${game.title}? Leave a review!`);
         setMessage(`Hope you are enjoying ${game.title}! Please take 30 seconds to rate your experience and leave a review on Rakexura Store.`);
-        setShortMessage(`⭐ Leave a review for ${game.title}! Share your experience.`);
+        setShortMessage(`Leave a review for ${game.title}! Share your experience.`);
         setLink(`${gameUrl(game)}#reviews`);
       } else {
         setTitle(template.title);
@@ -383,31 +377,31 @@ export function BroadcastComposer({
     const origStr = origPrice ? `₹${origPrice.toLocaleString("en-IN")}` : "";
 
     if (selectedTemplateKey === "offer") {
-      setTitle(`🔥 Limited Time Deal: ${game.title} is on Sale!`);
+      setTitle(`Limited Time Deal: ${game.title} is on Sale!`);
       setMessage(
         `Exclusive Special Offer on ${game.title}!\n\n` +
         `Grab your copy now for only ${priceStr}${origStr ? ` (was ${origStr}, save ${discount}% OFF)` : ''}.\n\n` +
         `Limited stock available on Rakexura Store. Claim your key before the deal ends!`
       );
-      setShortMessage(`🔥 Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
+      setShortMessage(`Special Offer: ${game.title} is ${discount}% OFF at ${priceStr}! Grab it now.`);
       setLink(gameUrl(game));
     } else if (selectedTemplateKey === "preorder") {
-      setTitle(`⏳ Pre-order Live: ${game.title}`);
+      setTitle(`Pre-order Live: ${game.title}`);
       setMessage(
         `Pre-orders are officially open for ${game.title}!\n\n` +
         `Reserve your copy today on Rakexura Store${priceStr !== "Special Price" ? ` (from ${priceStr})` : ''} to secure day-1 activation access and exclusive pre-order perks.`
       );
-      setShortMessage(`⏳ Pre-order Live: Secure your copy of ${game.title} on Rakexura Store now!`);
+      setShortMessage(`Pre-order Live: Secure your copy of ${game.title} on Rakexura Store now!`);
       setLink(gameUrl(game));
     } else if (selectedTemplateKey === "review") {
-      setTitle(`⭐ How is ${game.title}? Leave a review!`);
+      setTitle(`How is ${game.title}? Leave a review!`);
       setMessage(`Hope you are enjoying ${game.title}! Please take 30 seconds to rate your experience and leave a review on Rakexura Store.`);
-      setShortMessage(`⭐ Leave a review for ${game.title}! Share your experience.`);
+      setShortMessage(`Leave a review for ${game.title}! Share your experience.`);
       setLink(`${gameUrl(game)}#reviews`);
     } else {
-      setTitle(`🎮 ${game.title} is now available`);
+      setTitle(`${game.title} is now available`);
       setMessage(`${game.title} has arrived at Rakexura. Check platforms, live pricing${priceStr !== "Special Price" ? ` (from ${priceStr})` : ''}, trailers, and current offers.`);
-      setShortMessage(`🎮 New Game: ${game.title} is now live on Rakexura Store!`);
+      setShortMessage(`New Game: ${game.title} is now live on Rakexura Store!`);
       setLink(gameUrl(game));
     }
   }
@@ -505,27 +499,27 @@ export function BroadcastComposer({
         : `https://rakexura-store.vercel.app${chosenGame.cover_url}`
       : "";
 
-    let actionLabel = "🎮 *ORDER GAME HERE:*";
+    let actionLabel = "ORDER GAME HERE:";
     if (selectedTemplateKey === "review" || title.toLowerCase().includes("review")) {
-      actionLabel = "⭐ *LEAVE YOUR REVIEW HERE:*";
+      actionLabel = "LEAVE YOUR REVIEW HERE:";
     } else if (selectedTemplateKey === "invoice") {
-      actionLabel = "🧾 *VIEW INVOICE & ORDER:*";
+      actionLabel = "VIEW INVOICE & ORDER:";
     } else if (selectedTemplateKey === "activation") {
-      actionLabel = "🗝️ *VIEW ACTIVATION DETAILS:*";
+      actionLabel = "VIEW ACTIVATION DETAILS:";
     } else if (selectedTemplateKey === "giveaway") {
-      actionLabel = "🎁 *JOIN GIVEAWAY HERE:*";
+      actionLabel = "JOIN GIVEAWAY HERE:";
     } else if (selectedTemplateKey === "support") {
-      actionLabel = "💬 *GET SUPPORT HERE:*";
+      actionLabel = "GET SUPPORT HERE:";
     } else if (selectedTemplateKey === "preorder") {
-      actionLabel = "⏳ *PRE-ORDER HERE:*";
+      actionLabel = "PRE-ORDER HERE:";
     }
 
     let waText = `*${title.toUpperCase()}*\n\n`;
     if (imageUrl && selectedTemplateKey !== "invoice") {
-      waText += `📸 *GAME COVER:* ${imageUrl}\n\n`;
+      waText += `GAME COVER: ${imageUrl}\n\n`;
     }
     waText += `${message}\n\n`;
-    waText += `${actionLabel} ${location.origin}${link}`;
+    waText += `*${actionLabel}* ${location.origin}${link}`;
 
     let copied = false;
     try {
@@ -556,7 +550,7 @@ export function BroadcastComposer({
     }
 
     if (copied) {
-      toast.success("WhatsApp broadcast text & photo link copied to clipboard!");
+      toast.success("WhatsApp broadcast text copied to clipboard!");
     } else {
       toast.error("Could not copy automatically. Please select & copy the text manually.");
     }
@@ -619,257 +613,206 @@ export function BroadcastComposer({
   ];
 
   return (
-    <div className="space-y-4">
-      {/* Sleek Segmented Mode Switcher */}
-      <div className="flex rounded-xl bg-[#090b14] p-1 border border-white/10 shadow-lg">
-        <button
-          suppressHydrationWarning
-          type="button"
-          onClick={() => setActiveTab("broadcast")}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs sm:text-sm font-black transition-all cursor-pointer ${
-            activeTab === "broadcast"
-              ? "bg-[#8b5cf6] text-white shadow-[0_0_16px_rgba(139,92,246,0.45)]"
-              : "text-[#8d95aa] hover:text-white"
-          }`}
-        >
-          <BellRing size={15} />
-          <span>Broadcast</span>
-        </button>
-
-        <button
-          suppressHydrationWarning
-          type="button"
-          onClick={() => setActiveTab("direct")}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs sm:text-sm font-black transition-all cursor-pointer ${
-            activeTab === "direct"
-              ? "bg-[#20c763] text-black shadow-[0_0_16px_rgba(32,199,99,0.45)]"
-              : "text-[#8d95aa] hover:text-white"
-          }`}
-        >
-          <MessageCircle size={15} />
-          <span>Direct Message</span>
-        </button>
-
-        <button
-          suppressHydrationWarning
-          type="button"
-          onClick={() => setActiveTab("gift")}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs sm:text-sm font-black transition-all cursor-pointer ${
-            activeTab === "gift"
-              ? "bg-[#facc15] text-black shadow-[0_0_16px_rgba(250,204,21,0.45)]"
-              : "text-[#8d95aa] hover:text-white"
-          }`}
-        >
-          <Gift size={15} />
-          <span>Gift Game</span>
-        </button>
-      </div>
-
-      {/* TAB 1: STORE BROADCAST */}
-      {activeTab === "broadcast" && (
-        <section className="premium-panel rounded-lg p-4 sm:p-5 md:p-6 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#b9a4ff] shadow-[0_0_15px_rgba(139,92,246,0.15)]">
-              <BellRing size={20} />
-            </div>
-            <div className="min-w-0">
-              <h2 className="text-base sm:text-lg font-black text-white leading-tight">Store Broadcast</h2>
-              <p className="text-xs text-[#8991a6]">Send announcements to all registered customer devices & feeds.</p>
-            </div>
+    <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
+      <section className="premium-panel rounded-lg p-4 sm:p-5 md:p-7">
+        <div className="flex items-center gap-3.5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#b9a4ff] shadow-[0_0_15px_rgba(139,92,246,0.15)]">
+            <BellRing size={22} />
           </div>
-
-          {/* Quick Template Selector */}
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-black uppercase tracking-wider text-[#a78bfa] flex items-center gap-1.5">
-                <Sparkles size={13} /> Select Template
-              </span>
-              <button
-                suppressHydrationWarning
-                type="button"
-                onClick={() => setShowOrderInvoiceBox(!showOrderInvoiceBox)}
-                className="text-[11px] font-bold text-[#facc15] hover:underline cursor-pointer flex items-center gap-1"
-              >
-                <Receipt size={12} /> {showOrderInvoiceBox ? "Hide Invoice Lookup" : "Fetch Order Invoice"}
-              </button>
-            </div>
-            <CustomSelect
-              options={templateSelectOptions}
-              value={selectedTemplateKey}
-              onChange={(val) => applyTemplate(val)}
-              placeholder="Select a notification template..."
-              searchable={false}
-            />
+            <h2 className="text-xl font-black text-white">Create an update</h2>
+            <p className="text-sm text-[#8991a6]">Send a safe in-app, push, or email notification to registered customers.</p>
+          </div>
+        </div>
+
+        {/* Quick Template Dropdown */}
+        <div className="mt-6">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#94a3b8] mb-2.5">
+            <Sparkles size={15} className="text-[#a78bfa]" />
+            <span>SELECT NOTIFICATION TEMPLATE</span>
+          </div>
+          <CustomSelect
+            options={templateSelectOptions}
+            value={selectedTemplateKey}
+            onChange={(val) => applyTemplate(val)}
+            placeholder="Select a notification template..."
+            searchable={false}
+          />
+        </div>
+
+        {/* Order Invoice Fetch & Auto-Fill Section */}
+        <div className="mt-5 rounded-lg border border-[#facc15]/30 bg-[#facc15]/5 p-4 space-y-3">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#facc15]">
+            <Receipt size={16} />
+            <span>FETCH ORDER & AUTO-FILL INVOICE</span>
           </div>
 
-          {/* Collapsible Order Invoice Lookup Box */}
-          {showOrderInvoiceBox && (
-            <div className="rounded-lg border border-[#facc15]/30 bg-[#facc15]/5 p-3.5 space-y-3">
-              <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider text-[#facc15]">
-                <span className="flex items-center gap-1.5"><Receipt size={14} /> Fetch Order & Auto-Fill Invoice</span>
-              </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            {/* Pick Recent Order */}
+            <div>
+              <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Pick Recent Order</label>
+              <CustomSelect
+                options={[
+                  { value: "", label: "Pick recent order..." },
+                  ...safeOrders.map((o) => ({
+                    value: String(o.id),
+                    label: `${o.order_reference || `#${o.id}`} - Rs. ${Number(o.total_price ?? 0).toLocaleString("en-IN")}`,
+                    sublabel: `${o.customer_name || 'Customer'} · Status: ${o.order_status || 'Pending'}`,
+                  })),
+                ]}
+                value={selectedOrderId}
+                onChange={(val) => selectOrderById(val)}
+                placeholder="Pick recent order..."
+              />
+            </div>
 
-              <div className="grid gap-2.5 sm:grid-cols-2">
-                <div>
-                  <label className="block text-[11px] font-bold text-[#8991a8] mb-1">Pick Recent Order</label>
-                  <CustomSelect
-                    options={[
-                      { value: "", label: "Pick recent order..." },
-                      ...safeOrders.map((o) => ({
-                        value: String(o.id),
-                        label: `${o.order_reference || `#${o.id}`} - Rs. ${Number(o.total_price ?? 0).toLocaleString("en-IN")}`,
-                        sublabel: `${o.customer_name || 'Customer'} · Status: ${o.order_status || 'Pending'}`,
-                      })),
-                    ]}
-                    value={selectedOrderId}
-                    onChange={(val) => selectOrderById(val)}
-                    placeholder="Pick recent order..."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-[#8991a8] mb-1">Search Order Reference</label>
-                  <div className="flex gap-2 min-w-0">
-                    <input
-                      value={orderQueryInput}
-                      onChange={(e) => setOrderQueryInput(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter") handleFetchOrderNo(); }}
-                      placeholder="e.g. RKX-2607-000064"
-                      className="h-10 min-w-0 flex-1 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-mono text-white outline-none focus:border-[#facc15]"
-                    />
-                    <button
-                      suppressHydrationWarning
-                      type="button"
-                      onClick={handleFetchOrderNo}
-                      disabled={fetchingOrder}
-                      className="btn bg-[#facc15] hover:bg-[#eab308] text-black h-10 px-3.5 text-xs font-extrabold cursor-pointer shrink-0 flex items-center gap-1"
-                    >
-                      <Search size={13} />
-                      <span>{fetchingOrder ? "..." : "Fetch"}</span>
-                    </button>
-                  </div>
-                </div>
+            {/* Search Order No / Reference */}
+            <div>
+              <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Search Order No / Ref</label>
+              <div className="flex gap-2 min-w-0">
+                <input
+                  value={orderQueryInput}
+                  onChange={(e) => setOrderQueryInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleFetchOrderNo(); }}
+                  placeholder="e.g. RKX-2607-000064 or 64"
+                  className="h-10 min-w-0 flex-1 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-mono text-white outline-none focus:border-[#facc15]"
+                />
+                <button
+                  suppressHydrationWarning
+                  type="button"
+                  onClick={handleFetchOrderNo}
+                  disabled={fetchingOrder}
+                  className="btn bg-[#facc15] hover:bg-[#eab308] text-black h-10 px-3.5 sm:px-4 text-xs font-extrabold cursor-pointer shrink-0 flex items-center gap-1.5"
+                >
+                  <Search size={14} />
+                  <span>{fetchingOrder ? "Fetching..." : "Fetch"}</span>
+                </button>
               </div>
             </div>
-          )}
-
-          {/* Optional Game Picker */}
-          <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">
-              Link with Game <span className="font-normal text-[#64748b]">(optional)</span>
-            </label>
-            <CustomSelect
-              options={gameOptions}
-              value={selectedGameId}
-              onChange={(val) => {
-                setSelectedGameId(val);
-                chooseGame(val);
-              }}
-              placeholder="Custom announcement"
-            />
           </div>
+        </div>
 
-          {/* Title */}
-          <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Title / Subject</label>
-            <input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              maxLength={80}
-              className="h-11 w-full rounded-md border border-white/10 bg-black/25 px-3.5 text-xs sm:text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
-            />
+        <div className="mt-5">
+          <label className="block text-sm font-bold mb-2">
+            Choose a game <span className="font-normal text-[#8991a6]">(optional)</span>
+          </label>
+          <CustomSelect
+            options={gameOptions}
+            value={selectedGameId}
+            onChange={(val) => {
+              setSelectedGameId(val);
+              chooseGame(val);
+            }}
+            placeholder="Custom announcement"
+          />
+        </div>
+
+        <div className="mt-4">
+          <label className="block text-sm font-bold mb-2">Title / Email Subject</label>
+          <input
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            maxLength={80}
+            className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
+          />
+        </div>
+
+        <div className="mt-4">
+          <label className="block text-sm font-bold mb-2">Message Body</label>
+          <textarea
+            ref={textareaRef}
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            onWheel={(e) => e.stopPropagation()}
+            maxLength={3000}
+            rows={8}
+            style={{ overflowY: "auto", scrollbarWidth: "thin" }}
+            className="w-full min-h-[160px] max-h-[600px] overflow-y-auto resize-y rounded-md border border-white/10 bg-black/25 p-4 text-sm leading-relaxed text-white outline-none focus:border-[#8b5cf6]"
+          />
+        </div>
+
+        <div className="mt-4">
+          <div className="flex items-center justify-between text-sm font-bold mb-2">
+            <span>Push Notification Short Message</span>
+            <span className="text-[10px] font-black uppercase text-[#a78bfa] tracking-wider bg-[#a78bfa]/10 px-2 py-0.5 rounded border border-[#a78bfa]/20">Device Push Alert</span>
           </div>
+          <input
+            value={shortMessage}
+            onChange={(event) => setShortMessage(event.target.value)}
+            maxLength={120}
+            placeholder="Short message for browser & mobile push notifications..."
+            className="h-11 w-full rounded-md border border-[#a78bfa]/40 bg-black/25 px-4 text-xs font-bold text-white outline-none focus:border-[#a78bfa]"
+          />
+        </div>
 
-          {/* Message Body */}
-          <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Message Body</label>
-            <textarea
-              ref={textareaRef}
-              value={message}
-              onChange={(event) => setMessage(event.target.value)}
-              onWheel={(e) => e.stopPropagation()}
-              maxLength={3000}
-              rows={5}
-              style={{ overflowY: "auto", scrollbarWidth: "thin" }}
-              className="w-full min-h-[130px] max-h-[450px] overflow-y-auto resize-y rounded-md border border-white/10 bg-black/25 p-3.5 text-xs sm:text-sm leading-relaxed text-white outline-none focus:border-[#8b5cf6]"
-            />
-          </div>
+        <div className="mt-4">
+          <label className="block text-sm font-bold mb-2">Rakexura Target Link</label>
+          <input
+            value={link}
+            onChange={(event) => setLink(event.target.value)}
+            className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
+          />
+        </div>
 
-          {/* Push Short Text */}
-          <div>
-            <div className="flex items-center justify-between text-xs font-bold text-[#8991a8] mb-1.5">
-              <span>Lockscreen Push Alert Text</span>
-              <span className="text-[9px] font-black uppercase text-[#a78bfa] tracking-wider bg-[#a78bfa]/10 px-1.5 py-0.5 rounded border border-[#a78bfa]/20">Mobile Push</span>
-            </div>
-            <input
-              value={shortMessage}
-              onChange={(event) => setShortMessage(event.target.value)}
-              maxLength={120}
-              placeholder="Short text for browser & device push..."
-              className="h-10 w-full rounded-md border border-[#a78bfa]/40 bg-black/25 px-3.5 text-xs font-bold text-white outline-none focus:border-[#a78bfa]"
-            />
-          </div>
+        <div className="mt-4">
+          <label className="block text-sm font-bold text-[#20c763] mb-2">
+            Rakexura WhatsApp Channel Link <span className="font-normal text-[#8991a6]">(for WhatsApp channel broadcast)</span>
+          </label>
+          <input
+            value={whatsappChannelLink}
+            onChange={(event) => setWhatsappChannelLink(event.target.value)}
+            placeholder="e.g. https://whatsapp.com/channel/..."
+            className="h-12 w-full rounded-md border border-[#20c763]/40 bg-black/25 px-4 text-sm font-medium text-white outline-none focus:border-[#20c763]"
+          />
+        </div>
 
-          {/* Target Link */}
-          <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Target Destination Link</label>
-            <input
-              value={link}
-              onChange={(event) => setLink(event.target.value)}
-              className="h-10 w-full rounded-md border border-white/10 bg-black/25 px-3.5 text-xs sm:text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
-            />
-          </div>
+        <button
+          suppressHydrationWarning
+          type="button"
+          onClick={notifyAll}
+          disabled={pending}
+          className="btn btn-primary mt-6 w-full text-sm font-black cursor-pointer disabled:opacity-50"
+        >
+          <Send size={16} />
+          <span className="font-black">{pending ? "Sending Broadcast..." : "Notify all customer accounts"}</span>
+        </button>
 
-          {/* Action Buttons */}
-          <div className="pt-2 space-y-2.5">
-            <button
-              suppressHydrationWarning
-              type="button"
-              onClick={notifyAll}
-              disabled={pending}
-              className="btn btn-primary w-full h-12 text-xs sm:text-sm font-black cursor-pointer shadow-[0_0_20px_rgba(139,92,246,0.35)]"
-            >
-              <Send size={16} />
-              <span>{pending ? "Sending Broadcast..." : "📢 Broadcast to All Customer Accounts"}</span>
-            </button>
+        {/* WhatsApp Channel & Group Broadcast Buttons */}
+        <div className="mt-3.5 grid gap-2.5 sm:grid-cols-2">
+          <button
+            suppressHydrationWarning
+            type="button"
+            onClick={shareToWhatsAppChannel}
+            className="btn w-full bg-[#25D366] hover:bg-[#20bd5a] text-black font-black text-xs md:text-sm cursor-pointer flex items-center justify-center gap-2 py-3.5 rounded-lg shadow-[0_0_22px_rgba(37,211,102,0.35)] transition-all border border-black/10"
+          >
+            <MessageCircle size={18} className="text-black stroke-[2.2] shrink-0" />
+            <span>Open WhatsApp Channel</span>
+          </button>
 
-            <div className="grid gap-2 sm:grid-cols-2">
-              <button
-                suppressHydrationWarning
-                type="button"
-                onClick={shareToWhatsAppChannel}
-                className="btn w-full bg-[#25D366] hover:bg-[#20bd5a] text-black font-black text-xs cursor-pointer flex items-center justify-center gap-1.5 py-3 rounded-lg shadow-sm"
-              >
-                <MessageCircle size={16} className="text-black stroke-[2.2] shrink-0" />
-                <span>Open WhatsApp Channel</span>
-              </button>
+          <button
+            suppressHydrationWarning
+            type="button"
+            onClick={() => void copyWhatsAppBroadcastText()}
+            className="btn w-full bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs md:text-sm cursor-pointer flex items-center justify-center gap-2 py-3.5 rounded-lg border border-white/15 transition-all"
+          >
+            <Copy size={18} className="text-[#a78bfa] shrink-0" />
+            <span>Copy Broadcast Text</span>
+          </button>
+        </div>
+      </section>
 
-              <button
-                suppressHydrationWarning
-                type="button"
-                onClick={() => void copyWhatsAppBroadcastText()}
-                className="btn w-full bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs cursor-pointer flex items-center justify-center gap-1.5 py-3 rounded-lg border border-white/15"
-              >
-                <Copy size={16} className="text-[#a78bfa] shrink-0" />
-                <span>Copy Broadcast Text</span>
-              </button>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* TAB 2: DIRECT CUSTOMER MESSAGE */}
-      {activeTab === "direct" && (
-        <section className="premium-panel rounded-lg p-4 sm:p-5 md:p-6 space-y-4">
+      <aside className="space-y-5">
+        {/* Targeted Customer Communications panel */}
+        <div className="premium-panel h-fit rounded-lg p-4 sm:p-5 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#20c763]/30 bg-[#20c763]/10 text-[#20c763]">
-              <MessageCircle size={20} />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#20c763]/30 bg-[#20c763]/10 text-[#20c763]">
+              <MessageCircle size={18} />
             </div>
-            <div className="min-w-0">
-              <h2 className="text-base sm:text-lg font-black text-white leading-tight">Direct Customer Message</h2>
-              <p className="text-xs text-[#8991a6]">Send a targeted 1-on-1 notification, direct email, or WhatsApp message.</p>
-            </div>
+            <h2 className="text-lg font-black text-white">Targeted Customer Messaging</h2>
           </div>
+          <p className="text-xs leading-5 text-[#8991a6]">
+            Select a registered website account to send a targeted lockscreen push, WhatsApp message, or direct email update.
+          </p>
 
           <div>
             <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Website Customer</label>
@@ -885,26 +828,24 @@ export function BroadcastComposer({
             />
           </div>
 
-          {/* Quick Message Preview & Subject */}
           <div
             style={{ overflowY: "auto", scrollbarWidth: "thin" }}
-            className="max-h-[180px] overflow-y-auto whitespace-pre-wrap rounded-md border border-white/[.07] bg-black/30 p-3.5 text-xs leading-5 text-[#aab1c1]"
+            className="max-h-[220px] overflow-y-auto whitespace-pre-wrap rounded-md border border-white/[.07] bg-black/20 p-3.5 text-xs leading-5 text-[#aab1c1]"
           >
             <strong className="block text-white font-bold">{title}</strong>
             <span className="mt-1 block text-zinc-300 whitespace-pre-wrap">{message}</span>
-            {targetEmail && <span className="mt-2 block text-[11px] text-[#20c763] font-mono">Recipient: {targetEmail}</span>}
+            {targetEmail && <span className="mt-2 block text-[11px] text-[#b9a4ff] font-mono">Recipient Email: {targetEmail}</span>}
           </div>
 
-          {/* 1-on-1 Action Buttons */}
-          <div className="grid gap-2 sm:grid-cols-2 pt-1">
+          <div className="space-y-2 pt-1">
             <button
               suppressHydrationWarning
               type="button"
               onClick={sendEmailToCustomer}
               disabled={emailPending}
-              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-extrabold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 py-3"
+              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-extrabold text-sm cursor-pointer flex items-center justify-center gap-2"
             >
-              <Mail size={16} /> {emailPending ? "Sending..." : "Send Direct Email"}
+              <Mail size={16} /> {emailPending ? "Sending Email..." : "Send Direct Email"}
             </button>
 
             <button
@@ -912,9 +853,9 @@ export function BroadcastComposer({
               type="button"
               onClick={sendPushToCustomer}
               disabled={pushPending}
-              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-extrabold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 py-3"
+              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-extrabold text-sm cursor-pointer flex items-center justify-center gap-2"
             >
-              <Send size={16} /> {pushPending ? "Sending..." : "Send Device Push"}
+              <Send size={16} /> {pushPending ? "Sending Push..." : "Send Device Push"}
             </button>
 
             <button
@@ -922,62 +863,44 @@ export function BroadcastComposer({
               type="button"
               onClick={sendComboToCustomer}
               disabled={comboPending}
-              className="btn w-full bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-extrabold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 py-3 sm:col-span-2 shadow-[0_0_16px_rgba(139,92,246,0.3)]"
+              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-extrabold text-sm cursor-pointer flex items-center justify-center gap-2"
             >
-              <Sparkles size={16} /> {comboPending ? "Dispatching..." : "Send Email + Device Push Combo"}
+              <Sparkles size={16} /> {comboPending ? "Sending Combo..." : "Send Email + Device Push"}
             </button>
 
             <button
               suppressHydrationWarning
               type="button"
               onClick={openWhatsApp}
-              className="btn w-full bg-[#20c763] hover:bg-[#1bb057] text-black font-extrabold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 py-3 sm:col-span-2 shadow-[0_0_16px_rgba(32,199,99,0.3)]"
+              className="btn w-full bg-[#20c763] hover:bg-[#1bb057] text-black font-extrabold text-sm cursor-pointer flex items-center justify-center gap-2"
             >
-              <MessageCircle size={16} /> Open Customer WhatsApp Chat
+              <MessageCircle size={16} /> Open WhatsApp
             </button>
           </div>
-        </section>
-      )}
+        </div>
 
-      {/* TAB 3: GIFT GAME / GIVEAWAY */}
-      {activeTab === "gift" && (
-        <section className="premium-panel rounded-lg p-4 sm:p-5 md:p-6 space-y-4">
+        {/* Giveaway / Gift Game Panel */}
+        <div className="premium-panel h-fit rounded-lg p-4 sm:p-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#facc15]/30 bg-[#facc15]/10 text-[#facc15]">
-              <Gift size={20} />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#facc15]/30 bg-[#facc15]/10 text-[#facc15]">
+              <Gift size={18} />
             </div>
-            <div className="min-w-0">
-              <h2 className="text-base sm:text-lg font-black text-white leading-tight">Giveaway / Gift Game</h2>
-              <p className="text-xs text-[#8991a6]">Send a game directly to this customer&apos;s library at Rs. 0 as a giveaway.</p>
-            </div>
+            <h2 className="text-lg font-black text-white">Giveaway / Gift Game</h2>
           </div>
+          <p className="mt-2 text-xs leading-5 text-[#8991a6]">Send a game directly to this customer&apos;s library and orders page at Rs. 0 as a giveaway.</p>
 
-          <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Website Customer</label>
-            <CustomSelect
-              options={customerOptions}
-              value={customerId}
-              onChange={(val) => {
-                setCustomerId(val);
-                const found = customers.find((c) => c.id === val);
-                if (found?.email) setTargetEmail(found.email);
-              }}
-              placeholder="Select registered customer..."
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Choose Game to Gift</label>
+          <label className="mt-4 block text-xs font-bold text-[#8991a8]">Select Game</label>
+          <div className="mt-1.5">
             <CustomSelect
               options={giftGameOptions}
               value={giftGameId}
               onChange={(val) => setGiftGameId(val)}
-              placeholder="Choose game to gift..."
+              placeholder="Choose game to gift"
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Game Platform</label>
+          <label className="mt-4 block text-xs font-bold text-[#8991a8]">Select Platform</label>
+          <div className="mt-1.5">
             <CustomSelect
               options={platformOptions}
               value={giftPlatform}
@@ -992,12 +915,12 @@ export function BroadcastComposer({
             type="button"
             onClick={sendGiftGame}
             disabled={giftPending}
-            className="btn w-full bg-[#facc15] hover:bg-[#eab308] text-black font-black text-xs sm:text-sm cursor-pointer py-3.5 rounded-lg shadow-[0_0_20px_rgba(250,204,21,0.35)]"
+            className="btn mt-5 w-full btn-primary bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold cursor-pointer"
           >
-            <Gift size={16} /> {giftPending ? "Gifting game..." : "🎁 Gift Game at Rs. 0 to Customer"}
+            <Gift size={16} /> {giftPending ? "Gifting..." : "Gift Game"}
           </button>
-        </section>
-      )}
+        </div>
+      </aside>
     </div>
   );
 }
