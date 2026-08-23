@@ -286,390 +286,760 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
       </div>
 
       {section === "games" ? (
-        <div className="overflow-x-auto rounded-md border border-white/10">
-          <table className="w-full min-w-[760px] border-collapse text-left text-sm">
-            <thead className="bg-white/[.04] text-[#8991a6]">
-              <tr>
-                <th className="p-4 w-16">ID</th>
-                <th className="p-4">Game</th>
-                <th className="p-4">Category</th>
-                <th className="p-4">Pricing & Plans</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginated.map((row, index) => {
-                const isSub = Boolean(row.is_subscription);
-                const isArchived = Boolean(row.archived);
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto rounded-md border border-white/10">
+            <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+              <thead className="bg-white/[.04] text-[#8991a6]">
+                <tr>
+                  <th className="p-4 w-16">ID</th>
+                  <th className="p-4">Game</th>
+                  <th className="p-4">Category</th>
+                  <th className="p-4">Pricing & Plans</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginated.map((row, index) => {
+                  const isSub = Boolean(row.is_subscription);
+                  const isArchived = Boolean(row.archived);
 
-                return (
-                  <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
-                    <td className="p-4 font-mono font-bold text-[#8991a6]">
-                      #{String(row.id)}
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        {row.cover_image ? (
-                          <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-black/40 border border-white/10">
-                            <Image
-                              src={assetUrl(String(row.cover_image))}
-                              alt=""
-                              fill
-                              sizes="36px"
-                              className="object-cover"
-                            />
+                  return (
+                    <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
+                      <td className="p-4 font-mono font-bold text-[#8991a6]">
+                        #{String(row.id)}
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          {row.cover_image ? (
+                            <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-black/40 border border-white/10">
+                              <Image
+                                src={assetUrl(String(row.cover_image))}
+                                alt=""
+                                fill
+                                sizes="36px"
+                                className="object-cover"
+                              />
+                            </div>
+                          ) : null}
+                          <div className="min-w-0">
+                            <strong className="block text-sm font-bold text-white leading-tight">
+                              {String(row.title || "Untitled")}
+                            </strong>
+                            {row.duration ? (
+                              <span className="text-[11px] text-[#8991a6] block mt-0.5">
+                                {String(row.duration)}
+                              </span>
+                            ) : null}
                           </div>
-                        ) : null}
-                        <div className="min-w-0">
-                          <strong className="block text-sm font-bold text-white leading-tight">
-                            {String(row.title || "Untitled")}
-                          </strong>
-                          {row.duration ? (
-                            <span className="text-[11px] text-[#8991a6] block mt-0.5">
-                              {String(row.duration)}
-                            </span>
-                          ) : null}
                         </div>
+                      </td>
+                      <td className="p-4">
+                        {isSub ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-white/10 text-white border border-white/20">
+                            <Zap size={12} className="text-[#facc15]" />
+                            Subscription
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-black/40 text-[#8991a6] border border-white/10">
+                            <Gamepad2 size={12} />
+                            PC Game
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        {isSub ? (
+                          <div className="flex flex-wrap gap-1.5 text-xs">
+                            {row.price_1m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">1M: ₹{String(row.price_1m)}</span> : null}
+                            {row.price_2m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">2M: ₹{String(row.price_2m)}</span> : null}
+                            {row.price_3m ? <span className="rounded bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 font-bold text-[#facc15]">3M: ₹{String(row.price_3m)}</span> : null}
+                            {row.price_6m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">6M: ₹{String(row.price_6m)}</span> : null}
+                            {row.price_12m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">12M: ₹{String(row.price_12m)}</span> : null}
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap gap-1.5 text-xs">
+                            {row.steam_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Steam: <b className="text-white">₹{String(row.steam_price)}</b></span> : null}
+                            {row.epic_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Epic: <b className="text-white">₹{String(row.epic_price)}</b></span> : null}
+                            {row.offline_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Offline: <b className="text-white">₹{String(row.offline_price)}</b></span> : null}
+                            {row.online_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Online: <b className="text-white">₹{String(row.online_price)}</b></span> : null}
+                            {row.xbox_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Xbox: <b className="text-white">₹{String(row.xbox_price)}</b></span> : null}
+                            {row.geforce_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">GFN: <b className="text-white">₹{String(row.geforce_price)}</b></span> : null}
+                            {!row.steam_price && !row.epic_price && !row.offline_price && !row.online_price && !row.xbox_price && !row.geforce_price && row.sale_price ? (
+                              <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">Sale: ₹{String(row.sale_price)}</span>
+                            ) : null}
+                          </div>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        {isArchived ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">
+                            Archived
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">
+                            Active
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        <RowActions section={section} row={row} />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="space-y-3 md:hidden">
+            {paginated.map((row, index) => {
+              const isSub = Boolean(row.is_subscription);
+              const isArchived = Boolean(row.archived);
+
+              return (
+                <article
+                  key={String(row.id ?? index)}
+                  className="rounded-xl border border-white/10 bg-[#0d0b1a]/90 p-4 space-y-3 shadow-sm"
+                >
+                  <div className="flex gap-3">
+                    {row.cover_image ? (
+                      <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-black/40 border border-white/10">
+                        <Image src={assetUrl(String(row.cover_image))} alt="" fill sizes="48px" className="object-cover" />
                       </div>
-                    </td>
-                    <td className="p-4">
-                      {isSub ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-white/10 text-white border border-white/20">
-                          <Zap size={12} className="text-[#facc15]" />
-                          Subscription
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-black/40 text-[#8991a6] border border-white/10">
-                          <Gamepad2 size={12} />
-                          PC Game
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-4">
-                      {isSub ? (
-                        <div className="flex flex-wrap gap-1.5 text-xs">
-                          {row.price_1m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">1M: ₹{String(row.price_1m)}</span> : null}
-                          {row.price_2m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">2M: ₹{String(row.price_2m)}</span> : null}
-                          {row.price_3m ? <span className="rounded bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 font-bold text-[#facc15]">3M: ₹{String(row.price_3m)}</span> : null}
-                          {row.price_6m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">6M: ₹{String(row.price_6m)}</span> : null}
-                          {row.price_12m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">12M: ₹{String(row.price_12m)}</span> : null}
-                        </div>
-                      ) : (
-                        <div className="flex flex-wrap gap-1.5 text-xs">
-                          {row.steam_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Steam: <b className="text-white">₹{String(row.steam_price)}</b></span> : null}
-                          {row.epic_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Epic: <b className="text-white">₹{String(row.epic_price)}</b></span> : null}
-                          {row.offline_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Offline: <b className="text-white">₹{String(row.offline_price)}</b></span> : null}
-                          {row.online_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Online: <b className="text-white">₹{String(row.online_price)}</b></span> : null}
-                          {row.xbox_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Xbox: <b className="text-white">₹{String(row.xbox_price)}</b></span> : null}
-                          {row.geforce_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">GFN: <b className="text-white">₹{String(row.geforce_price)}</b></span> : null}
-                          {!row.steam_price && !row.epic_price && !row.offline_price && !row.online_price && !row.xbox_price && !row.geforce_price && row.sale_price ? (
-                            <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">Sale: ₹{String(row.sale_price)}</span>
-                          ) : null}
-                        </div>
-                      )}
-                    </td>
-                    <td className="p-4">
-                      {isArchived ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">
-                          Archived
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">
-                          Active
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-4">
-                      <RowActions section={section} row={row} />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                    ) : null}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-bold text-white text-sm leading-snug">{String(row.title || "Untitled")}</h3>
+                        {isArchived ? (
+                          <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">Archived</span>
+                        ) : (
+                          <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Active</span>
+                        )}
+                      </div>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-[#8991a6]">
+                        <span className="font-mono font-bold text-white/80">#{String(row.id)}</span>
+                        {row.duration ? <span>· {String(row.duration)}</span> : null}
+                        {isSub ? (
+                          <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-[#facc15]"><Zap size={11} /> Sub</span>
+                        ) : (
+                          <span className="inline-flex items-center gap-0.5 text-[11px] text-[#a0a8c0]"><Gamepad2 size={11} /> PC Game</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-black/30 p-2.5 text-xs">
+                    {isSub ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {row.price_1m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-white font-bold">1M: ₹{String(row.price_1m)}</span> : null}
+                        {row.price_2m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-white font-bold">2M: ₹{String(row.price_2m)}</span> : null}
+                        {row.price_3m ? <span className="rounded bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 text-[#facc15] font-bold">3M: ₹{String(row.price_3m)}</span> : null}
+                        {row.price_6m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-white font-bold">6M: ₹{String(row.price_6m)}</span> : null}
+                        {row.price_12m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-white font-bold">12M: ₹{String(row.price_12m)}</span> : null}
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-1.5">
+                        {row.steam_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Steam: <b className="text-white">₹{String(row.steam_price)}</b></span> : null}
+                        {row.epic_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Epic: <b className="text-white">₹{String(row.epic_price)}</b></span> : null}
+                        {row.offline_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Offline: <b className="text-white">₹{String(row.offline_price)}</b></span> : null}
+                        {row.online_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Online: <b className="text-white">₹{String(row.online_price)}</b></span> : null}
+                        {row.xbox_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">Xbox: <b className="text-white">₹{String(row.xbox_price)}</b></span> : null}
+                        {row.geforce_price ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 text-[#8991a6]">GFN: <b className="text-white">₹{String(row.geforce_price)}</b></span> : null}
+                        {!row.steam_price && !row.epic_price && !row.offline_price && !row.online_price && !row.xbox_price && !row.geforce_price && row.sale_price ? (
+                          <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">Sale: ₹{String(row.sale_price)}</span>
+                        ) : null}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-2 border-t border-white/[0.06] flex items-center justify-end">
+                    <RowActions section={section} row={row} />
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </>
       ) : section === "flash-sales" ? (
-        <div className="overflow-x-auto rounded-md border border-white/10">
-          <table className="w-full min-w-[800px] border-collapse text-left text-sm">
-            <thead className="bg-white/[.04] text-[#8991a6]">
-              <tr>
-                <th className="p-4 w-16">ID</th>
-                <th className="p-4">Game / Product</th>
-                <th className="p-4">Flash Pricing</th>
-                <th className="p-4">Starts At</th>
-                <th className="p-4">Ends At</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginated.map((row, index) => {
-                const isSub = Boolean(row.is_subscription);
-                const isActive = Boolean(row.active);
-                const startsDate = row.starts_at ? new Date(String(row.starts_at)) : null;
-                const endsDate = row.ends_at ? new Date(String(row.ends_at)) : null;
-                const now = Date.now();
-                const isLive = isActive && startsDate && endsDate && startsDate.getTime() <= now && endsDate.getTime() > now;
-                const isUpcoming = isActive && startsDate && startsDate.getTime() > now;
-                const isExpired = endsDate && endsDate.getTime() <= now;
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto rounded-md border border-white/10">
+            <table className="w-full min-w-[800px] border-collapse text-left text-sm">
+              <thead className="bg-white/[.04] text-[#8991a6]">
+                <tr>
+                  <th className="p-4 w-16">ID</th>
+                  <th className="p-4">Game / Product</th>
+                  <th className="p-4">Flash Pricing</th>
+                  <th className="p-4">Starts At</th>
+                  <th className="p-4">Ends At</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginated.map((row, index) => {
+                  const isSub = Boolean(row.is_subscription);
+                  const isActive = Boolean(row.active);
+                  const startsDate = row.starts_at ? new Date(String(row.starts_at)) : null;
+                  const endsDate = row.ends_at ? new Date(String(row.ends_at)) : null;
+                  const now = Date.now();
+                  const isLive = isActive && startsDate && endsDate && startsDate.getTime() <= now && endsDate.getTime() > now;
+                  const isUpcoming = isActive && startsDate && startsDate.getTime() > now;
+                  const isExpired = endsDate && endsDate.getTime() <= now;
+
+                  return (
+                    <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
+                      <td className="p-4 font-mono font-bold text-[#8991a6]">
+                        #{String(row.id)}
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          {row.cover_image ? (
+                            <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-black/40 border border-white/10">
+                              <Image
+                                src={assetUrl(String(row.cover_image))}
+                                alt=""
+                                fill
+                                sizes="36px"
+                                className="object-cover"
+                              />
+                            </div>
+                          ) : null}
+                          <div className="min-w-0">
+                            <strong className="block text-sm font-bold text-white leading-tight">
+                              {String(row.game_title || `Game #${row.game_id}`)}
+                            </strong>
+                            {isSub ? (
+                              <span className="inline-flex items-center gap-1 text-[11px] text-[#facc15] font-semibold mt-0.5">
+                                <Zap size={11} /> Subscription Pass
+                              </span>
+                            ) : (
+                              <span className="text-[11px] text-[#8991a6] block mt-0.5">
+                                Game ID: #{String(row.game_id)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        {isSub ? (
+                          <div className="flex flex-wrap gap-1.5 text-xs">
+                            {row.sale_price ? <span className="rounded bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 font-bold text-[#facc15]">1M: ₹{String(row.sale_price)}</span> : null}
+                            {row.price_2m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">2M: ₹{String(row.price_2m)}</span> : null}
+                            {row.price_3m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">3M: ₹{String(row.price_3m)}</span> : null}
+                            {row.price_6m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">6M: ₹{String(row.price_6m)}</span> : null}
+                            {row.price_12m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">12M: ₹{String(row.price_12m)}</span> : null}
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded bg-[#facc15]/10 border border-[#facc15]/30 px-2.5 py-1 text-xs font-black text-[#facc15]">
+                            ₹{String(row.sale_price)}
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-4 text-xs text-[#c8cedc] font-medium whitespace-nowrap">
+                        {row.starts_at ? formatDate12h(String(row.starts_at)) : "-"}
+                      </td>
+                      <td className="p-4 text-xs text-[#c8cedc] font-medium whitespace-nowrap">
+                        {row.ends_at ? formatDate12h(String(row.ends_at)) : "-"}
+                      </td>
+                      <td className="p-4 whitespace-nowrap">
+                        {!isActive ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-white/5 text-[#8991a6] border border-white/10">
+                            Disabled
+                          </span>
+                        ) : isLive ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            Live Now
+                          </span>
+                        ) : isUpcoming ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                            Scheduled
+                          </span>
+                        ) : isExpired ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">
+                            Expired
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            Active
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        <RowActions section={section} row={row} />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="space-y-3 md:hidden">
+            {paginated.map((row, index) => {
+              const isSub = Boolean(row.is_subscription);
+              const isActive = Boolean(row.active);
+              const startsDate = row.starts_at ? new Date(String(row.starts_at)) : null;
+              const endsDate = row.ends_at ? new Date(String(row.ends_at)) : null;
+              const now = Date.now();
+              const isLive = isActive && startsDate && endsDate && startsDate.getTime() <= now && endsDate.getTime() > now;
+              const isUpcoming = isActive && startsDate && startsDate.getTime() > now;
+              const isExpired = endsDate && endsDate.getTime() <= now;
+
+              return (
+                <article
+                  key={String(row.id ?? index)}
+                  className="rounded-xl border border-white/10 bg-[#0d0b1a]/90 p-4 space-y-3 shadow-sm"
+                >
+                  <div className="flex gap-3">
+                    {row.cover_image ? (
+                      <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-black/40 border border-white/10">
+                        <Image src={assetUrl(String(row.cover_image))} alt="" fill sizes="48px" className="object-cover" />
+                      </div>
+                    ) : null}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-bold text-white text-sm leading-snug">{String(row.game_title || `Game #${row.game_id}`)}</h3>
+                        {!isActive ? (
+                          <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold bg-white/5 text-[#8991a6] border border-white/10">Disabled</span>
+                        ) : isLive ? (
+                          <span className="shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live
+                          </span>
+                        ) : isUpcoming ? (
+                          <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">Scheduled</span>
+                        ) : (
+                          <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">Expired</span>
+                        )}
+                      </div>
+                      <div className="mt-1 flex items-center gap-2 text-xs text-[#8991a6]">
+                        <span className="font-mono font-bold text-white/80">#{String(row.id)}</span>
+                        {isSub ? (
+                          <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-[#facc15]"><Zap size={11} /> Sub</span>
+                        ) : (
+                          <span className="rounded bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 text-[11px] font-black text-[#facc15]">
+                            ₹{String(row.sale_price)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px] bg-black/30 p-2.5 rounded-lg text-[#8991a6]">
+                    <div>
+                      <span className="block text-[#646b7b]">Starts:</span>
+                      <span className="font-medium text-[#c8cedc]">{row.starts_at ? formatDate12h(String(row.starts_at)) : "-"}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[#646b7b]">Ends:</span>
+                      <span className="font-medium text-[#c8cedc]">{row.ends_at ? formatDate12h(String(row.ends_at)) : "-"}</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-white/[0.06] flex items-center justify-end">
+                    <RowActions section={section} row={row} />
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto rounded-md border border-[#8b5cf6]/20">
+            <table className="w-full min-w-[700px] border-collapse text-left text-sm">
+              <thead className="bg-white/[.04] text-[#8991a6]">
+                <tr>
+                  {headers.map((header) => (
+                    <th key={header} className="px-3.5 py-3 capitalize text-xs font-bold whitespace-nowrap">
+                      {header === "whatsapp"
+                        ? "WhatsApp"
+                        : header === "is_reseller"
+                        ? "Partner Status"
+                        : header === "usage_limit"
+                        ? "Global Limit"
+                        : header === "per_user_limit"
+                        ? "Limit Per User"
+                        : header === "used_count"
+                        ? "Times Used"
+                        : header === "created_at"
+                        ? "Joined Date"
+                        : header === "applicable_to"
+                        ? "Scope / Target"
+                        : header.replaceAll("_", " ")}
+                    </th>
+                  ))}
+                  {hasActions && <th className="px-3.5 py-3 text-xs font-bold whitespace-nowrap">Actions</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {paginated.map((row, index) => (
+                  <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
+                    {headers.map((header) => {
+                      const isCodeColumn = section === "coupons" && header === "code";
+                      const isApplicableToColumn = section === "coupons" && header === "applicable_to";
+                      const isRoleColumn = section === "customers" && header === "role";
+                      const isWhatsappColumn = header === "whatsapp" || header === "customer_whatsapp";
+                      const isImageColumn = header === "image_url" || header === "screenshot_url" || header === "proof_url" || (header === "cover_image" && section !== "games");
+                      const isProofTypeColumn = header === "proof_type";
+                      const isApprovedColumn = header === "approved";
+                      const isResellerColumn = header === "is_reseller";
+                      const isDiscountColumn = header === "reseller_discount";
+                      const val = row[header];
+                      const lowerHeader = header.toLowerCase();
+                      const isIdColumn = (lowerHeader === "id" || lowerHeader.endsWith("_id") || lowerHeader === "visitor_id") && typeof val === "string" && val.length > 10;
+
+                      return (
+                        <td key={header} className="max-w-72 truncate px-3.5 py-3">
+                          {isCodeColumn ? (
+                            <div className="flex items-center gap-2">
+                              <code className="font-mono font-bold text-white bg-black/40 px-2 py-1 rounded border border-white/10">
+                                {String(row[header])}
+                              </code>
+                              <CopyCouponBadge
+                                code={String(row.code || "")}
+                                discountType={String(row.discount_type || "percentage")}
+                                discountValue={Number(row.discount_value || 0)}
+                                minimumOrder={Number(row.minimum_order || 0)}
+                              />
+                            </div>
+                          ) : isApplicableToColumn ? (
+                            val === "subscription" ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                                Subscriptions Only
+                              </span>
+                            ) : val === "normal" ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                                Normal Games Only
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                                All Items (Both)
+                              </span>
+                            )
+                          ) : isWhatsappColumn ? (
+                            (() => {
+                              const parsed = formatWhatsApp(val);
+                              if (!parsed) return <span className="text-xs text-[#646b7b]">-</span>;
+                              return (
+                                <a
+                                  href={parsed.linkUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  title={`Click to chat with ${parsed.display} on WhatsApp`}
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-[#20c763]/10 text-[#20c763] border border-[#20c763]/25 hover:bg-[#20c763]/20 hover:border-[#20c763]/50 transition cursor-pointer whitespace-nowrap"
+                                >
+                                  <MessageCircle size={13} className="shrink-0" />
+                                  <span>{parsed.display}</span>
+                                </a>
+                              );
+                            })()
+                          ) : isRoleColumn ? (
+                            val === "admin" ? (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-[#8b5cf6]/15 text-[#b9a4ff] border border-[#8b5cf6]/30">
+                                Admin
+                              </span>
+                            ) : (row.is_reseller || (row.reseller_discount && Number(row.reseller_discount) > 0)) ? (
+                              <ResellerBadge size="sm" discount={row.reseller_discount as number} discountType={row.reseller_discount_type as string} />
+                            ) : (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-white/5 text-[#8991a6] border border-white/10">
+                                Customer
+                              </span>
+                            )
+                          ) : isResellerColumn ? (
+                            val ? (
+                              <ResellerBadge size="sm" discount={row.reseller_discount as number} discountType={row.reseller_discount_type as string} isAdmin={true} />
+                            ) : (
+                              <span className="text-xs text-[#646b7b]">Standard</span>
+                            )
+                          ) : isDiscountColumn ? (
+                            val && Number(val) > 0 ? (
+                              <span className="font-mono font-bold text-[#facc15] bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 rounded text-xs">
+                                {row.reseller_discount_type === "flat"
+                                  ? `-₹${val}`
+                                  : row.reseller_discount_type === "markup_flat"
+                                  ? `+₹${val}`
+                                  : row.reseller_discount_type === "markup_percentage"
+                                  ? `+${val}%`
+                                  : `-${val}%`}
+                              </span>
+                            ) : (
+                              "-"
+                            )
+                          ) : isImageColumn && typeof val === "string" && val ? (
+                            <a href={val} target="_blank" rel="noreferrer" className="group inline-flex items-center gap-2.5">
+                              <div className="relative h-10 w-14 shrink-0 overflow-hidden rounded border border-white/10 bg-black/40 group-hover:border-white/40 transition">
+                                <Image src={assetUrl(val)} alt="" fill sizes="56px" className="object-cover" />
+                              </div>
+                              <span className="text-xs text-[#8991a6] group-hover:text-white inline-flex items-center gap-1 font-medium transition">
+                                View <ExternalLink size={11} />
+                              </span>
+                            </a>
+                          ) : isProofTypeColumn && typeof val === "string" && val ? (
+                            val === "whatsapp" ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#20c763]/10 text-[#20c763] border border-[#20c763]/25">
+                                <MessageCircle size={11} /> WhatsApp
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-white border border-white/20 capitalize">
+                                {val}
+                              </span>
+                            )
+                          ) : isApprovedColumn ? (
+                            val === true || val === "true" || val === "Yes" ? (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                Approved
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                                Pending
+                              </span>
+                            )
+                          ) : isIdColumn ? (
+                            <CopyIdBadge id={String(val)} />
+                          ) : (
+                            display(val)
+                          )}
+                        </td>
+                      );
+                    })}
+                    {hasActions && (
+                      <td className="px-3.5 py-3">
+                        <RowActions section={section} row={row} />
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="space-y-3 md:hidden">
+            {paginated.map((row, index) => {
+              if (section === "customers") {
+                const customerId = String(row.id || "");
+                const customerName = String(row.display_name || "Gamer");
+                const email = String(row.email || "");
+                const role = String(row.role || "customer");
+                const isAdmin = role === "admin";
+                const isReseller = Boolean(row.is_reseller);
+                const discount = Number(row.reseller_discount || 0);
+                const discountType = String(row.reseller_discount_type || "percentage");
 
                 return (
-                  <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
-                    <td className="p-4 font-mono font-bold text-[#8991a6]">
-                      #{String(row.id)}
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        {row.cover_image ? (
-                          <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-black/40 border border-white/10">
-                            <Image
-                              src={assetUrl(String(row.cover_image))}
-                              alt=""
-                              fill
-                              sizes="36px"
-                              className="object-cover"
-                            />
-                          </div>
-                        ) : null}
+                  <article
+                    key={customerId || index}
+                    className="rounded-xl border border-[#8b5cf6]/20 bg-[#0d0b1a]/90 p-4 space-y-3 shadow-sm"
+                  >
+                    {/* User Header */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#8b5cf6]/20 border border-[#8b5cf6]/35 text-xs font-black text-[#c4b5fd]">
+                          {customerName.slice(0, 2).toUpperCase()}
+                        </div>
                         <div className="min-w-0">
-                          <strong className="block text-sm font-bold text-white leading-tight">
-                            {String(row.game_title || `Game #${row.game_id}`)}
-                          </strong>
-                          {isSub ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] text-[#facc15] font-semibold mt-0.5">
-                              <Zap size={11} /> Subscription Pass
-                            </span>
-                          ) : (
-                            <span className="text-[11px] text-[#8991a6] block mt-0.5">
-                              Game ID: #{String(row.game_id)}
-                            </span>
-                          )}
+                          <h3 className="font-bold text-white text-sm truncate leading-tight">
+                            {customerName}
+                          </h3>
+                          <p className="text-xs text-[#8991a6] truncate mt-0.5">
+                            {email || "No email"}
+                          </p>
                         </div>
                       </div>
-                    </td>
-                    <td className="p-4">
-                      {isSub ? (
-                        <div className="flex flex-wrap gap-1.5 text-xs">
-                          {row.sale_price ? <span className="rounded bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 font-bold text-[#facc15]">1M: ₹{String(row.sale_price)}</span> : null}
-                          {row.price_2m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">2M: ₹{String(row.price_2m)}</span> : null}
-                          {row.price_3m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">3M: ₹{String(row.price_3m)}</span> : null}
-                          {row.price_6m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">6M: ₹{String(row.price_6m)}</span> : null}
-                          {row.price_12m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">12M: ₹{String(row.price_12m)}</span> : null}
-                        </div>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 rounded bg-[#facc15]/10 border border-[#facc15]/30 px-2.5 py-1 text-xs font-black text-[#facc15]">
-                          ₹{String(row.sale_price)}
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-4 text-xs text-[#c8cedc] font-medium whitespace-nowrap">
-                      {row.starts_at ? formatDate12h(String(row.starts_at)) : "-"}
-                    </td>
-                    <td className="p-4 text-xs text-[#c8cedc] font-medium whitespace-nowrap">
-                      {row.ends_at ? formatDate12h(String(row.ends_at)) : "-"}
-                    </td>
-                    <td className="p-4 whitespace-nowrap">
-                      {!isActive ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-white/5 text-[#8991a6] border border-white/10">
-                          Disabled
-                        </span>
-                      ) : isLive ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                          Live Now
-                        </span>
-                      ) : isUpcoming ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                          Scheduled
-                        </span>
-                      ) : isExpired ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">
-                          Expired
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                          Active
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-4">
-                      <RowActions section={section} row={row} />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="overflow-x-auto rounded-md border border-[#8b5cf6]/20">
-          <table className="w-full min-w-[700px] border-collapse text-left text-sm">
-            <thead className="bg-white/[.04] text-[#8991a6]">
-              <tr>
-                {headers.map((header) => (
-                  <th key={header} className="px-3.5 py-3 capitalize text-xs font-bold whitespace-nowrap">
-                    {header === "whatsapp"
-                      ? "WhatsApp"
-                      : header === "is_reseller"
-                      ? "Partner Status"
-                      : header === "usage_limit"
-                      ? "Global Limit"
-                      : header === "per_user_limit"
-                      ? "Limit Per User"
-                      : header === "used_count"
-                      ? "Times Used"
-                      : header === "created_at"
-                      ? "Joined Date"
-                      : header === "applicable_to"
-                      ? "Scope / Target"
-                      : header.replaceAll("_", " ")}
-                  </th>
-                ))}
-                {hasActions && <th className="px-3.5 py-3 text-xs font-bold whitespace-nowrap">Actions</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {paginated.map((row, index) => (
-                <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
-                  {headers.map((header) => {
-                    const isCodeColumn = section === "coupons" && header === "code";
-                    const isApplicableToColumn = section === "coupons" && header === "applicable_to";
-                    const isRoleColumn = section === "customers" && header === "role";
-                    const isWhatsappColumn = header === "whatsapp" || header === "customer_whatsapp";
-                    const isImageColumn = header === "image_url" || header === "screenshot_url" || header === "proof_url" || (header === "cover_image" && section !== "games");
-                    const isProofTypeColumn = header === "proof_type";
-                    const isApprovedColumn = header === "approved";
-                    const isResellerColumn = header === "is_reseller";
-                    const isDiscountColumn = header === "reseller_discount";
-                    const val = row[header];
-                    const lowerHeader = header.toLowerCase();
-                    const isIdColumn = (lowerHeader === "id" || lowerHeader.endsWith("_id") || lowerHeader === "visitor_id") && typeof val === "string" && val.length > 10;
 
-                    return (
-                      <td key={header} className="max-w-72 truncate px-3.5 py-3">
-                        {isCodeColumn ? (
-                          <div className="flex items-center gap-2">
-                            <code className="font-mono font-bold text-white bg-black/40 px-2 py-1 rounded border border-white/10">
-                              {String(row[header])}
-                            </code>
-                            <CopyCouponBadge
-                              code={String(row.code || "")}
-                              discountType={String(row.discount_type || "percentage")}
-                              discountValue={Number(row.discount_value || 0)}
-                              minimumOrder={Number(row.minimum_order || 0)}
-                            />
-                          </div>
-                        ) : isApplicableToColumn ? (
-                          val === "subscription" ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-purple-500/15 text-purple-300 border border-purple-500/30">
-                              Subscriptions Only
-                            </span>
-                          ) : val === "normal" ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-blue-500/15 text-blue-300 border border-blue-500/30">
-                              Normal Games Only
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                              All Items (Both)
-                            </span>
-                          )
-                        ) : isWhatsappColumn ? (
-                          (() => {
-                            const parsed = formatWhatsApp(val);
-                            if (!parsed) return <span className="text-xs text-[#646b7b]">-</span>;
+                      <div className="shrink-0">
+                        {isAdmin ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#8b5cf6]/20 text-[#b9a4ff] border border-[#8b5cf6]/40">
+                            Admin
+                          </span>
+                        ) : isReseller || discount > 0 ? (
+                          <ResellerBadge size="sm" discount={discount} discountType={discountType} />
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-white/5 text-[#8991a6] border border-white/10">
+                            Customer
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Details Rows */}
+                    <div className="grid grid-cols-1 gap-2 pt-1 border-t border-white/[0.06] text-xs">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[#8991a6]">User ID:</span>
+                        <CopyIdBadge id={customerId} />
+                      </div>
+
+                      {row.whatsapp ? (
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[#8991a6]">WhatsApp:</span>
+                          {(() => {
+                            const parsed = formatWhatsApp(row.whatsapp);
+                            if (!parsed) return <span className="text-[#646b7b]">-</span>;
                             return (
                               <a
                                 href={parsed.linkUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                title={`Click to chat with ${parsed.display} on WhatsApp`}
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-[#20c763]/10 text-[#20c763] border border-[#20c763]/25 hover:bg-[#20c763]/20 hover:border-[#20c763]/50 transition cursor-pointer whitespace-nowrap"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-[#20c763]/10 text-[#20c763] border border-[#20c763]/25 hover:bg-[#20c763]/20"
                               >
                                 <MessageCircle size={13} className="shrink-0" />
                                 <span>{parsed.display}</span>
                               </a>
                             );
-                          })()
-                        ) : isRoleColumn ? (
-                          val === "admin" ? (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-[#8b5cf6]/15 text-[#b9a4ff] border border-[#8b5cf6]/30">
-                              Admin
-                            </span>
-                          ) : (row.is_reseller || (row.reseller_discount && Number(row.reseller_discount) > 0)) ? (
-                            <ResellerBadge size="sm" discount={row.reseller_discount as number} discountType={row.reseller_discount_type as string} />
-                          ) : (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-white/5 text-[#8991a6] border border-white/10">
-                              Customer
-                            </span>
-                          )
-                        ) : isResellerColumn ? (
-                          val ? (
-                            <ResellerBadge size="sm" discount={row.reseller_discount as number} discountType={row.reseller_discount_type as string} isAdmin={true} />
-                          ) : (
-                            <span className="text-xs text-[#646b7b]">Standard</span>
-                          )
-                        ) : isDiscountColumn ? (
-                          val && Number(val) > 0 ? (
-                            <span className="font-mono font-bold text-[#facc15] bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 rounded text-xs">
-                              {row.reseller_discount_type === "flat"
-                                ? `-₹${val}`
-                                : row.reseller_discount_type === "markup_flat"
-                                ? `+₹${val}`
-                                : row.reseller_discount_type === "markup_percentage"
-                                ? `+${val}%`
-                                : `-${val}%`}
-                            </span>
-                          ) : (
-                            "-"
-                          )
-                        ) : isImageColumn && typeof val === "string" && val ? (
-                          <a href={val} target="_blank" rel="noreferrer" className="group inline-flex items-center gap-2.5">
-                            <div className="relative h-10 w-14 shrink-0 overflow-hidden rounded border border-white/10 bg-black/40 group-hover:border-white/40 transition">
-                              <Image src={assetUrl(val)} alt="" fill sizes="56px" className="object-cover" />
-                            </div>
-                            <span className="text-xs text-[#8991a6] group-hover:text-white inline-flex items-center gap-1 font-medium transition">
-                              View <ExternalLink size={11} />
-                            </span>
-                          </a>
-                        ) : isProofTypeColumn && typeof val === "string" && val ? (
-                          val === "whatsapp" ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#20c763]/10 text-[#20c763] border border-[#20c763]/25">
-                              <MessageCircle size={11} /> WhatsApp
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-white border border-white/20 capitalize">
-                              {val}
-                            </span>
-                          )
-                        ) : isApprovedColumn ? (
-                          val === true || val === "true" || val === "Yes" ? (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                              Approved
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                              Pending
-                            </span>
-                          )
-                        ) : isIdColumn ? (
-                          <CopyIdBadge id={String(val)} />
-                        ) : (
-                          display(val)
-                        )}
-                      </td>
-                    );
-                  })}
+                          })()}
+                        </div>
+                      ) : null}
+
+                      {row.created_at ? (
+                        <div className="flex items-center justify-between gap-2 text-[11px] text-[#767e90]">
+                          <span>Joined:</span>
+                          <span>{formatDate12h(String(row.created_at))}</span>
+                        </div>
+                      ) : null}
+                    </div>
+
+                    {/* Actions */}
+                    {hasActions && (
+                      <div className="pt-2 border-t border-white/[0.06] flex items-center justify-end">
+                        <RowActions section={section} row={row} />
+                      </div>
+                    )}
+                  </article>
+                );
+              }
+
+              // Generic Mobile Card for all other sections
+              return (
+                <article
+                  key={String(row.id ?? index)}
+                  className="rounded-xl border border-white/10 bg-[#0d0b1a]/90 p-4 space-y-3 shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      {section === "coupons" && row.code ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <code className="font-mono font-bold text-white bg-black/50 px-2.5 py-1 rounded border border-white/15 text-sm">
+                            {String(row.code)}
+                          </code>
+                          <CopyCouponBadge
+                            code={String(row.code || "")}
+                            discountType={String(row.discount_type || "percentage")}
+                            discountValue={Number(row.discount_value || 0)}
+                            minimumOrder={Number(row.minimum_order || 0)}
+                          />
+                        </div>
+                      ) : row.customer_name ? (
+                        <div>
+                          <h3 className="font-bold text-white text-sm">{String(row.customer_name)}</h3>
+                          {row.rating ? <div className="flex items-center gap-0.5 text-[#facc15] text-xs mt-0.5">{"★".repeat(Number(row.rating))}</div> : null}
+                        </div>
+                      ) : row.game_name ? (
+                        <h3 className="font-bold text-white text-sm">{String(row.game_name)}</h3>
+                      ) : row.name ? (
+                        <h3 className="font-bold text-white text-sm">{String(row.name)}</h3>
+                      ) : row.subject ? (
+                        <h3 className="font-bold text-white text-sm">{String(row.subject)}</h3>
+                      ) : (
+                        <span className="font-mono font-bold text-white text-sm">#{String(row.id ?? index)}</span>
+                      )}
+                    </div>
+
+                    {row.status ? (
+                      <span className="shrink-0 rounded px-2 py-0.5 text-[10px] font-bold bg-white/10 text-white border border-white/15">
+                        {String(row.status)}
+                      </span>
+                    ) : row.active !== undefined ? (
+                      <span className={`shrink-0 rounded px-2 py-0.5 text-[10px] font-bold ${row.active ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30" : "bg-white/5 text-[#8991a6] border border-white/10"}`}>
+                        {row.active ? "Active" : "Disabled"}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {/* Section specific / Generic key-values */}
+                  <div className="space-y-1.5 pt-1 border-t border-white/[0.06] text-xs">
+                    {headers.map((header) => {
+                      if (header === "code" && section === "coupons") return null;
+                      if (header === "customer_name" && section === "reviews") return null;
+                      if (header === "game_name" && section === "requests") return null;
+                      if (header === "subject" && section === "support") return null;
+                      const val = row[header];
+                      if (val === undefined || val === null || val === "") return null;
+                      const lowerHeader = header.toLowerCase();
+                      const isIdColumn = (lowerHeader === "id" || lowerHeader.endsWith("_id") || lowerHeader === "visitor_id") && typeof val === "string" && val.length > 10;
+                      const isWhatsapp = header === "whatsapp" || header === "customer_whatsapp";
+                      const isApplicableTo = section === "coupons" && header === "applicable_to";
+
+                      return (
+                        <div key={header} className="flex items-center justify-between gap-2">
+                          <span className="text-[#8991a6] capitalize text-[11px]">
+                            {header === "whatsapp"
+                              ? "WhatsApp"
+                              : header === "is_reseller"
+                              ? "Partner Status"
+                              : header === "usage_limit"
+                              ? "Global Limit"
+                              : header === "per_user_limit"
+                              ? "Limit Per User"
+                              : header === "used_count"
+                              ? "Times Used"
+                              : header === "created_at"
+                              ? "Date"
+                              : header === "applicable_to"
+                              ? "Scope"
+                              : header.replaceAll("_", " ")}:
+                          </span>
+                          <span className="text-white text-right max-w-[65%] truncate">
+                            {isIdColumn ? (
+                              <CopyIdBadge id={String(val)} />
+                            ) : isApplicableTo ? (
+                              val === "subscription" ? (
+                                <span className="text-[10px] font-bold text-purple-300">Subscriptions Only</span>
+                              ) : val === "normal" ? (
+                                <span className="text-[10px] font-bold text-blue-300">Normal Games Only</span>
+                              ) : (
+                                <span className="text-[10px] font-bold text-emerald-300">All Items</span>
+                              )
+                            ) : isWhatsapp ? (
+                              (() => {
+                                const parsed = formatWhatsApp(val);
+                                if (!parsed) return <span className="text-[#646b7b]">-</span>;
+                                return (
+                                  <a
+                                    href={parsed.linkUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-[#20c763]/10 text-[#20c763] border border-[#20c763]/25"
+                                  >
+                                    <MessageCircle size={11} />
+                                    <span>{parsed.display}</span>
+                                  </a>
+                                );
+                              })()
+                            ) : (
+                              display(val)
+                            )}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
                   {hasActions && (
-                    <td className="px-3.5 py-3">
+                    <div className="pt-2 border-t border-white/[0.06] flex items-center justify-end">
                       <RowActions section={section} row={row} />
-                    </td>
+                    </div>
                   )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                </article>
+              );
+            })}
+          </div>
+        </>
       )}
       {!filtered.length && (
         <p className="p-10 text-center text-[#8991a6]">

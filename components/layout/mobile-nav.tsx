@@ -19,7 +19,8 @@ export function MobileNav() {
     path === "/register" ||
     path === "/reset-password" ||
     path === "/otp-preview" ||
-    path?.startsWith("/auth")
+    path?.startsWith("/auth") ||
+    path?.startsWith("/admin")
   );
 
   useEffect(() => {

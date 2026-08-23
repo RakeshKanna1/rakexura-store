@@ -26,19 +26,29 @@ export function Header() {
     path?.startsWith("/auth")
   );
 
+  const isAdminPage = Boolean(path?.startsWith("/admin"));
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
   return (
     <header data-site-header className="sticky top-0 z-50 border-b border-white/[.06] bg-[#050505]/92 backdrop-blur-xl">
-      <div className={`page-shell ${isAuthPage ? "flex items-center justify-between min-h-[64px] py-2.5" : "grid min-h-[76px] grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-3 py-3 md:flex md:gap-7 md:py-0"}`}>
-        <Link href="/" className="flex shrink-0 items-center gap-3 font-black tracking-wide" aria-label="Rakexura home">
-          <Image src="/Assets/RakeLogo.png" width={42} height={42} alt="Rakexura" className="rounded-md" priority />
-          <span className="hidden sm:block">RAKEXURA</span>
-        </Link>
+      <div className={`page-shell ${isAuthPage || isAdminPage ? "flex items-center justify-between min-h-[64px] py-2.5" : "grid min-h-[76px] grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-3 py-3 md:flex md:gap-7 md:py-0"}`}>
+        <div className="flex items-center gap-3">
+          <Link href="/" className="flex shrink-0 items-center gap-3 font-black tracking-wide" aria-label="Rakexura home">
+            <Image src="/Assets/RakeLogo.png" width={42} height={42} alt="Rakexura" className="rounded-md" priority />
+            <span className="hidden sm:block">RAKEXURA</span>
+          </Link>
+          {isAdminPage && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-2.5 py-0.5 text-[11px] font-bold text-[#c4b5fd]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#8b5cf6] animate-pulse" />
+              Admin
+            </span>
+          )}
+        </div>
 
-        {!isAuthPage && (
+        {!isAuthPage && !isAdminPage && (
           <nav className="hidden items-center gap-6 lg:flex" aria-label="Primary navigation">
             {links.map((link) => (
               <Link
@@ -52,15 +62,15 @@ export function Header() {
           </nav>
         )}
 
-        {!isAuthPage && (
+        {!isAuthPage && !isAdminPage && (
           <div className="order-3 col-span-3 min-w-0 md:order-none md:ml-auto md:w-full md:max-w-[390px]">
             <PremiumSearch />
           </div>
         )}
 
         <div className="ml-auto flex items-center gap-2">
-          {!isAuthPage && <HeaderNotificationButton />}
-          {!isAuthPage && (
+          {!isAuthPage && !isAdminPage && <HeaderNotificationButton />}
+          {!isAuthPage && !isAdminPage && (
             <button
               suppressHydrationWarning
               onClick={() => setCartOpen(true)}
