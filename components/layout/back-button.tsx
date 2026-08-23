@@ -7,8 +7,8 @@ export function BackButton() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Do not show Back button on homepage or admin (admin has its own breadcrumb hierarchy)
-  if (!pathname || pathname === "/" || pathname === "/otp-preview" || pathname.startsWith("/admin")) return null;
+  // Do not show Back button on homepage
+  if (!pathname || pathname === "/" || pathname === "/otp-preview") return null;
 
   function goBack() {
     // 1. Admin hierarchy
@@ -63,10 +63,10 @@ export function BackButton() {
         suppressHydrationWarning
         type="button"
         onClick={goBack}
-        className="inline-flex min-h-10 items-center gap-2 rounded-md px-2 text-sm font-semibold text-[#a0a8c0] transition hover:bg-white/[.05] hover:text-white cursor-pointer"
+        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-bold text-[#a0a8c0] transition-all hover:bg-white/[0.08] hover:border-white/20 hover:text-white active:scale-95 cursor-pointer shadow-sm"
         aria-label="Go back"
       >
-        <ArrowLeft size={17} /> Back
+        <ArrowLeft size={14} /> <span>Back</span>
       </button>
     </div>
   );

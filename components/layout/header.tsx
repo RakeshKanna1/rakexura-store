@@ -41,9 +41,14 @@ export function Header() {
             <span className="hidden sm:block">RAKEXURA</span>
           </Link>
           {isAdminPage && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-2.5 py-0.5 text-[11px] font-bold text-[#c4b5fd]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#8b5cf6] animate-pulse" />
-              Admin
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#8b5cf6]/40 bg-gradient-to-r from-[#19142d] via-[#221842] to-[#141024] px-3 py-1 text-[11px] font-black uppercase tracking-wider shadow-[0_0_14px_rgba(139,92,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.18)] select-none">
+              <span className="relative flex h-2 w-2 items-center justify-center">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#a78bfa] opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#c4b5fd] shadow-[0_0_6px_#8b5cf6]" />
+              </span>
+              <span className="bg-gradient-to-r from-white via-[#f3e8ff] to-[#c4b5fd] bg-clip-text text-transparent">
+                Admin
+              </span>
             </span>
           )}
         </div>
