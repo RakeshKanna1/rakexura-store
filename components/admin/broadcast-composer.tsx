@@ -719,22 +719,23 @@ export function BroadcastComposer({
             {/* Search Order No / Reference */}
             <div>
               <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Search Order No / Ref</label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 min-w-0">
                 <input
                   value={orderQueryInput}
                   onChange={(e) => setOrderQueryInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") handleFetchOrderNo(); }}
                   placeholder="e.g. RKX-2607-000064 or 64"
-                  className="h-10 flex-1 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-mono text-white outline-none focus:border-[#facc15]"
+                  className="h-10 min-w-0 flex-1 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-mono text-white outline-none focus:border-[#facc15]"
                 />
                 <button
+                  suppressHydrationWarning
                   type="button"
                   onClick={handleFetchOrderNo}
                   disabled={fetchingOrder}
-                  className="btn bg-[#facc15] hover:bg-[#eab308] text-black h-10 px-4 text-xs font-extrabold cursor-pointer shrink-0 flex items-center gap-1.5"
+                  className="btn bg-[#facc15] hover:bg-[#eab308] text-black h-10 px-3 sm:px-4 text-xs font-extrabold cursor-pointer shrink-0 flex items-center gap-1.5"
                 >
                   <Search size={14} />
-                  {fetchingOrder ? "Fetching..." : "Fetch"}
+                  <span>{fetchingOrder ? "Fetching..." : "Fetch"}</span>
                 </button>
               </div>
             </div>
@@ -955,7 +956,13 @@ export function BroadcastComposer({
             />
           </div>
 
-          <button onClick={sendGiftGame} disabled={giftPending} className="btn mt-5 w-full btn-primary bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold cursor-pointer">
+          <button
+            suppressHydrationWarning
+            type="button"
+            onClick={sendGiftGame}
+            disabled={giftPending}
+            className="btn mt-5 w-full btn-primary bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold cursor-pointer"
+          >
             <Gift size={16} /> {giftPending ? "Gifting..." : "Gift Game"}
           </button>
         </div>

@@ -72,6 +72,8 @@ export function AdminNav() {
           </span>
         </div>
         <button
+          suppressHydrationWarning
+          type="button"
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center gap-1.5 text-xs font-bold text-[#b9a4ff] hover:text-white px-2.5 py-1.5 rounded bg-white/[.03] border border-white/5 active:scale-95 transition"
         >
