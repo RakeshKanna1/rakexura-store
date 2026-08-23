@@ -34,7 +34,7 @@ export function Header() {
 
   return (
     <header data-site-header className="sticky top-0 z-50 border-b border-white/[.06] bg-[#050505]/92 backdrop-blur-xl">
-      <div className={`page-shell ${isAuthPage || isAdminPage ? "flex items-center justify-between min-h-[64px] py-2.5" : "grid min-h-[76px] grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-3 py-3 md:flex md:gap-7 md:py-0"}`}>
+      <div className={`mx-auto w-full max-w-[1480px] px-3.5 sm:px-6 lg:px-8 ${isAuthPage || isAdminPage ? "flex items-center justify-between min-h-[64px] py-2.5" : "grid min-h-[74px] grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2.5 py-2.5 md:flex md:gap-7 md:py-0"}`}>
         <div className="flex items-center gap-3">
           <Link href="/" className="flex shrink-0 items-center gap-3 font-black tracking-wide" aria-label="Rakexura home">
             <Image src="/Assets/RakeLogo.png" width={42} height={42} alt="Rakexura" className="rounded-md" priority />
