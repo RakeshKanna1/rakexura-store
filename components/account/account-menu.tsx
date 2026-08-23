@@ -98,15 +98,13 @@ export function AccountMenu() {
       suppressHydrationWarning
       type="button"
       onClick={() => setOpen((value) => !value)}
-      className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] transition hover:border-[#8b5cf6]/50 hover:bg-white/[0.08] active:scale-95 sm:h-10 sm:w-auto sm:rounded-lg sm:px-3 sm:gap-2 sm:border-white/10 sm:bg-white/[0.03] cursor-pointer"
+      className="btn btn-secondary relative h-10 min-h-10 px-2.5 sm:px-3 gap-2 rounded-lg flex items-center cursor-pointer"
       aria-label="Open profile menu"
       aria-expanded={open}
     >
-      <span className="relative grid h-7 w-7 sm:h-7 sm:w-7 shrink-0 place-items-center overflow-hidden rounded-full bg-[#6d4aff]/20 text-xs font-black text-[#d4caff] ring-1 ring-white/15">
-        {account.avatarUrl ? <Image src={account.avatarUrl} alt="" fill sizes="28px" className="object-cover" unoptimized /> : account.name.slice(0, 1).toUpperCase()}
-      </span>
+      <span className="relative grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-full bg-[#6d4aff]/20 text-xs font-black text-[#d4caff]">{account.avatarUrl ? <Image src={account.avatarUrl} alt="" fill sizes="28px" className="object-cover" unoptimized /> : account.name.slice(0, 1).toUpperCase()}</span>
       <span className="hidden max-w-24 truncate sm:inline text-xs font-bold text-white">{account.name}</span>
-      {account.isReseller && <ResellerIcon className="hidden sm:block w-3.5 h-3.5 text-[#facc15] shrink-0" />}
+      {account.isReseller && <ResellerIcon className="w-3.5 h-3.5 text-[#facc15] shrink-0" />}
       <ChevronDown size={14} className={`hidden transition sm:block ${open ? "rotate-180" : ""}`} />
     </button>
     {open && <div className="absolute right-0 top-[calc(100%+10px)] z-50 w-72 overflow-hidden rounded-lg border border-white/10 bg-[#0b0f18]/98 p-2 shadow-2xl backdrop-blur-xl">
