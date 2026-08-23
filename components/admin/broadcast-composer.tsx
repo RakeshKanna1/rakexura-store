@@ -630,18 +630,18 @@ export function BroadcastComposer({
   return (
     <div className="space-y-4">
       {/* Epic Style Segmented Mode Selector */}
-      <div className="flex rounded-lg bg-[#0a0c16] p-1 border border-white/10">
+      <div className="grid grid-cols-3 gap-1 rounded-xl bg-[#090b14]/90 p-1 border border-white/10 shadow-lg">
         <button
           suppressHydrationWarning
           type="button"
           onClick={() => setActiveTab("broadcast")}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 px-2 rounded-md text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+          className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer ${
             activeTab === "broadcast"
-              ? "bg-white/[0.08] text-white border border-white/15 shadow-sm"
-              : "text-[#8991a6] hover:text-white border border-transparent"
+              ? "bg-gradient-to-b from-[#1c1830] to-[#121020] text-white border border-[#8b5cf6]/40 shadow-[0_0_12px_rgba(139,92,246,0.25)]"
+              : "text-[#8991a6] hover:text-white border border-transparent hover:bg-white/[0.04]"
           }`}
         >
-          <BellRing size={15} className={activeTab === "broadcast" ? "text-[#a78bfa]" : ""} />
+          <BellRing size={14} className={activeTab === "broadcast" ? "text-[#a78bfa]" : ""} />
           <span className="truncate">Broadcast</span>
         </button>
 
@@ -649,27 +649,27 @@ export function BroadcastComposer({
           suppressHydrationWarning
           type="button"
           onClick={() => setActiveTab("direct")}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 px-2 rounded-md text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+          className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer ${
             activeTab === "direct"
-              ? "bg-white/[0.08] text-white border border-white/15 shadow-sm"
-              : "text-[#8991a6] hover:text-white border border-transparent"
+              ? "bg-gradient-to-b from-[#14261d] to-[#0d1a13] text-white border border-[#20c763]/40 shadow-[0_0_12px_rgba(32,199,99,0.25)]"
+              : "text-[#8991a6] hover:text-white border border-transparent hover:bg-white/[0.04]"
           }`}
         >
-          <MessageCircle size={15} className={activeTab === "direct" ? "text-[#20c763]" : ""} />
-          <span className="truncate">Direct Message</span>
+          <MessageCircle size={14} className={activeTab === "direct" ? "text-[#20c763]" : ""} />
+          <span className="truncate">Direct</span>
         </button>
 
         <button
           suppressHydrationWarning
           type="button"
           onClick={() => setActiveTab("gift")}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 px-2 rounded-md text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+          className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer ${
             activeTab === "gift"
-              ? "bg-white/[0.08] text-white border border-white/15 shadow-sm"
-              : "text-[#8991a6] hover:text-white border border-transparent"
+              ? "bg-gradient-to-b from-[#241f12] to-[#17140b] text-white border border-[#facc15]/40 shadow-[0_0_12px_rgba(250,204,21,0.25)]"
+              : "text-[#8991a6] hover:text-white border border-transparent hover:bg-white/[0.04]"
           }`}
         >
-          <Gift size={15} className={activeTab === "gift" ? "text-[#facc15]" : ""} />
+          <Gift size={14} className={activeTab === "gift" ? "text-[#facc15]" : ""} />
           <span className="truncate">Gift Game</span>
         </button>
       </div>

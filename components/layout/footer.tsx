@@ -13,13 +13,14 @@ export function Footer() {
   const [email, setEmail] = useState("");
   const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695";
 
-  // Hide footer on focused auth and checkout pages
+  // Hide footer on focused auth, checkout, and admin pages
   if (
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/signup") ||
     pathname.startsWith("/forgot-password") ||
-    pathname.startsWith("/auth")
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/admin")
   ) {
     return null;
   }
@@ -35,34 +36,34 @@ export function Footer() {
   }
 
   return (
-    <footer className="mt-20 border-t border-white/[0.06] bg-[#000000] py-16 text-sm text-[#8991a6] md:py-20" aria-label="Global footer">
-      <div className="page-shell grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
+    <footer className="mt-12 sm:mt-20 border-t border-white/[0.06] bg-[#000000] py-10 sm:py-16 text-sm text-[#8991a6]" aria-label="Global footer">
+      <div className="page-shell grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
         {/* Brand Section */}
-        <section className="flex flex-col gap-4">
+        <section className="col-span-2 sm:col-span-2 lg:col-span-1 flex flex-col gap-3">
           <div className="flex items-center gap-3">
             <Image 
               src="/Assets/RakeLogo.png" 
               alt="Rakexura" 
-              width={44} 
-              height={44} 
-              className="rounded-md border border-white/10 animate-pulse shadow-[0_0_10px_rgba(250,204,21,0.15)] hover:border-[#facc15]/30 transition-all duration-300" 
+              width={40} 
+              height={40} 
+              className="rounded-md border border-white/10 shadow-[0_0_10px_rgba(250,204,21,0.15)]" 
             />
             <strong className="text-base font-black tracking-widest text-white">RAKEXURA</strong>
           </div>
-          <p className="mt-2 max-w-sm text-xs leading-relaxed text-[#8991a6]">
+          <p className="max-w-sm text-xs leading-relaxed text-[#8991a6]">
             Premium PC games with clear pricing, secure payment review, and direct human support.
           </p>
-          <div className="mt-2 flex flex-wrap gap-2 text-[9px] font-black text-[#facc15] tracking-wider">
-            <span className="rounded border border-[#facc15]/20 px-2.5 py-1 bg-[#facc15]/5 hover:bg-[#facc15]/10 transition-colors cursor-default">STEAM</span>
-            <span className="rounded border border-[#facc15]/20 px-2.5 py-1 bg-[#facc15]/5 hover:bg-[#facc15]/10 transition-colors cursor-default">EPIC</span>
-            <span className="rounded border border-[#facc15]/20 px-2.5 py-1 bg-[#facc15]/5 hover:bg-[#facc15]/10 transition-colors cursor-default">OFFLINE</span>
+          <div className="flex flex-wrap gap-1.5 text-[9px] font-black text-[#facc15] tracking-wider">
+            <span className="rounded border border-[#facc15]/20 px-2 py-0.5 bg-[#facc15]/5">STEAM</span>
+            <span className="rounded border border-[#facc15]/20 px-2 py-0.5 bg-[#facc15]/5">EPIC</span>
+            <span className="rounded border border-[#facc15]/20 px-2 py-0.5 bg-[#facc15]/5">OFFLINE</span>
           </div>
         </section>
 
         {/* Quick Links Section */}
-        <nav aria-label="Store links" className="flex flex-col">
-          <strong className="text-xs font-black uppercase tracking-widest text-white mb-4">Quick Links</strong>
-          <div className="flex flex-col gap-2.5 text-xs">
+        <nav aria-label="Store links" className="col-span-1 flex flex-col">
+          <strong className="text-xs font-black uppercase tracking-widest text-white mb-3">Quick Links</strong>
+          <div className="flex flex-col gap-2 text-xs">
             <Link href="/games" className="hover:text-[#facc15] transition-colors duration-200">All games</Link>
             <Link href="/bundles" className="hover:text-[#facc15] transition-colors duration-200">Bundles</Link>
             <Link href="/subscriptions" className="hover:text-[#facc15] transition-colors duration-200">Subscriptions</Link>
@@ -73,43 +74,43 @@ export function Footer() {
         </nav>
 
         {/* Support Section */}
-        <nav aria-label="Support links" className="flex flex-col">
-          <strong className="text-xs font-black uppercase tracking-widest text-white mb-4">Support</strong>
-          <div className="flex flex-col gap-2.5 text-xs">
+        <nav aria-label="Support links" className="col-span-1 flex flex-col">
+          <strong className="text-xs font-black uppercase tracking-widest text-white mb-3">Support</strong>
+          <div className="flex flex-col gap-2 text-xs">
             <Link href="/support" className="hover:text-[#b9a4ff] transition-colors duration-200">Contact us</Link>
             <Link href="/faq" className="hover:text-[#b9a4ff] transition-colors duration-200">FAQ</Link>
             <Link href="/privacy" className="hover:text-[#b9a4ff] transition-colors duration-200">Privacy</Link>
             <Link href="/terms" className="hover:text-[#b9a4ff] transition-colors duration-200">Terms</Link>
             <a href={`https://wa.me/${number}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[#70efbb] hover:text-[#52d6a2] transition-colors duration-200 font-bold">
-              <MessageCircle size={14} /> WhatsApp support
+              <MessageCircle size={13} /> WhatsApp
             </a>
           </div>
         </nav>
 
         {/* Newsletter Section */}
-        <section className="flex flex-col">
-          <strong className="text-xs font-black uppercase tracking-widest text-white mb-4">Stay in the Loop</strong>
-          <p className="text-xs leading-relaxed text-[#8991a6] mb-4">
+        <section className="col-span-2 sm:col-span-2 lg:col-span-1 flex flex-col">
+          <strong className="text-xs font-black uppercase tracking-widest text-white mb-3">Stay in the Loop</strong>
+          <p className="text-xs leading-relaxed text-[#8991a6] mb-3">
             Occasional new-game and deal updates. No noisy daily mail.
           </p>
           <form onSubmit={subscribe} className="flex gap-2">
-            <label htmlFor="footer-email-input" className="group flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded border border-white/10 bg-[#0c0c0c] px-3 focus-within:border-[#facc15] focus-within:shadow-[0_0_12px_rgba(250,204,21,0.15)] transition-all duration-200">
-              <Mail size={15} className="text-[#646b7b] group-focus-within:text-[#facc15] transition-colors duration-200" />
+            <label htmlFor="footer-email-input" className="group flex min-h-10 min-w-0 flex-1 items-center gap-2 rounded-md border border-white/10 bg-[#0c0c0c] px-3 focus-within:border-[#facc15] focus-within:shadow-[0_0_12px_rgba(250,204,21,0.15)] transition-all duration-200">
+              <Mail size={14} className="text-[#646b7b] group-focus-within:text-[#facc15] transition-colors duration-200" />
               <span className="sr-only">Email address</span>
               <input suppressHydrationWarning id="footer-email-input" name="email" value={email} onChange={(event) => setEmail(event.target.value)} type="email" autoComplete="email" placeholder="Your email" className="min-w-0 flex-1 bg-transparent pl-1 text-xs text-white outline-none placeholder:text-[#8991a6] placeholder:opacity-80 transition-colors" />
             </label>
-            <button suppressHydrationWarning className="rounded bg-[#facc15] px-4 text-xs font-black text-black hover:bg-[#fbbf24] active:scale-[0.96] shadow-[0_0_12px_rgba(250,204,21,0.1)] hover:shadow-[0_0_18px_rgba(250,204,21,0.25)] transition-all cursor-pointer">Join</button>
+            <button suppressHydrationWarning className="rounded-md bg-[#facc15] px-4 text-xs font-black text-black hover:bg-[#fbbf24] active:scale-[0.96] shadow-[0_0_12px_rgba(250,204,21,0.1)] transition-all cursor-pointer">Join</button>
           </form>
-          <div className="mt-4 flex flex-wrap gap-2 text-[9px] font-black text-[#facc15] tracking-wider">
-            <span className="rounded border border-[#facc15]/20 px-2.5 py-1 bg-[#facc15]/5 transition-colors hover:bg-[#facc15]/10">UPI</span>
-            <span className="rounded border border-[#facc15]/20 px-2.5 py-1 bg-[#facc15]/5 transition-colors hover:bg-[#facc15]/10">GPAY</span>
-            <span className="rounded border border-[#facc15]/20 px-2.5 py-1 bg-[#facc15]/5 transition-colors hover:bg-[#facc15]/10">PHONEPE</span>
+          <div className="mt-3 flex flex-wrap gap-1.5 text-[9px] font-black text-[#facc15] tracking-wider">
+            <span className="rounded border border-[#facc15]/20 px-2 py-0.5 bg-[#facc15]/5">UPI</span>
+            <span className="rounded border border-[#facc15]/20 px-2 py-0.5 bg-[#facc15]/5">GPAY</span>
+            <span className="rounded border border-[#facc15]/20 px-2 py-0.5 bg-[#facc15]/5">PHONEPE</span>
           </div>
         </section>
       </div>
 
       {/* Copyright Footer Bottom */}
-      <div className="page-shell mt-12 flex flex-col gap-4 border-t border-white/[0.06] pt-6 text-xs sm:flex-row sm:items-center sm:justify-between">
+      <div className="page-shell mt-8 sm:mt-12 flex flex-col gap-4 border-t border-white/[0.06] pt-6 text-xs sm:flex-row sm:items-center sm:justify-between">
         <p className="text-neutral-400">© {new Date().getFullYear()} Rakexura. All rights reserved.</p>
         <div className="flex flex-wrap gap-4 text-[#8991a6]">
           <span className="flex items-center gap-1.5 hover:text-white transition-colors"><BadgeCheck size={14} className="text-[#facc15]" /> Verified seller</span>
