@@ -362,7 +362,7 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
 
                   <p className="text-xs sm:text-sm text-[#a0a8c0]">
                     <strong className="text-white">{String(row.customer_name)}</strong> ·{" "}
-                    <span className="inline-flex items-center gap-1 font-mono text-xs">
+                    <span suppressHydrationWarning className="inline-flex items-center gap-1 font-mono text-xs">
                       <Calendar size={12} className="text-[#8b5cf6]" />
                       {new Date(String(row.created_at)).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
                     </span>

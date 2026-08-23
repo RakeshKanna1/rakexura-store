@@ -144,6 +144,7 @@ export function OrderActions({
 
           return (
             <button
+              suppressHydrationWarning
               key={status}
               type="button"
               disabled={pending || isDone}
@@ -169,6 +170,7 @@ export function OrderActions({
         <label className="block text-xs font-extrabold uppercase tracking-wider text-[#cbbfff]">
           Game Activation / Account Details (User ID, Pass, or Keys)
           <textarea
+            suppressHydrationWarning
             value={accountAccess}
             onChange={(e) => setAccountAccess(e.target.value)}
             placeholder="e.g. Username: user123&#10;Password: pass123&#10;or Activation Key: XXXX-XXXX-XXXX"
@@ -176,6 +178,7 @@ export function OrderActions({
           />
         </label>
         <button
+          suppressHydrationWarning
           type="button"
           disabled={savingAccess || initialAccountAccess === accountAccess}
           onClick={handleSaveAccess}
