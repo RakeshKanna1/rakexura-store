@@ -36,8 +36,7 @@ const navigation = [
   ["/admin/coupons", "Coupons", TicketPercent],
   ["/admin/flash-sales", "Flash sales", Flame],
   ["/admin/reviews", "Reviews", MessageSquareText],
-  ["/admin/requests", "Vouchers", Trophy],
-  ["/admin/game-requests", "Requests", Send],
+  ["/admin/requests", "Requests", Trophy],
   ["/admin/support", "Support", LifeBuoy],
   ["/admin/media", "Media", ImageIcon],
   ["/admin/analytics", "Analytics", BarChart3]

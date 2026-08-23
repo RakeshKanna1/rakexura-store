@@ -3,7 +3,7 @@
 import { ArrowLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
-export function BackButton() {
+export function BackButton({ className = "" }: { className?: string }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -58,7 +58,7 @@ export function BackButton() {
   }
 
   return (
-    <div className="relative z-30 page-shell pt-3 pointer-events-auto">
+    <div className={`relative z-30 pointer-events-auto mb-2 sm:mb-3 ${className}`}>
       <button
         suppressHydrationWarning
         type="button"

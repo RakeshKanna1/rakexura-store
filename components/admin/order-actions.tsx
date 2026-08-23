@@ -135,7 +135,7 @@ export function OrderActions({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
         {actions.map(({ status, label, icon: Icon, tone }) => {
           const isDone = isStatusPassed(activeStatus, status);
           const showDoneText = status === "Rejected"
@@ -148,7 +148,7 @@ export function OrderActions({
               type="button"
               disabled={pending || isDone}
               onClick={() => update(status, label)}
-              className={`inline-flex min-h-10 items-center gap-2 rounded-md border px-3 text-xs font-bold transition ${
+              className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-md border px-3 text-xs font-bold transition ${
                 isDone
                   ? "bg-white/[0.05] cursor-default opacity-60 pointer-events-none"
                   : "bg-black/20 cursor-pointer"
@@ -158,8 +158,8 @@ export function OrderActions({
                   : tone
               }`}
             >
-              <Icon size={14} />
-              {showDoneText ? `${status} done` : label}
+              <Icon size={14} className="shrink-0" />
+              <span className="truncate">{showDoneText ? `${status} done` : label}</span>
             </button>
           );
         })}

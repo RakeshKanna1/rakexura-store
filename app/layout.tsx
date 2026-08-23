@@ -59,7 +59,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <MouseSpotlight />
           <CartDrawer />
           <Header />
-          <main><BackButton />{children}</main>
+          <main>{children}</main>
           <Footer />
           <WhatsAppOnboardingModal />
           <WhatsAppFloat />

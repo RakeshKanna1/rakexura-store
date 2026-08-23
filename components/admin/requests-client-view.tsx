@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useOptimistic, useTransition, useEffect } from "react";
-import Link from "next/link";
-import { ArrowLeft, Check, Copy, MessageCircle, Trash2 } from "lucide-react";
+import { Check, Copy, MessageCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -47,8 +46,9 @@ function SubmitButton({ children, tone = "neutral" }: { children: React.ReactNod
       : "border-white/10 text-[#c8cedc] hover:bg-white/[.06]";
   return (
     <button 
+      suppressHydrationWarning
       type="submit" 
-      className={`rounded border bg-black/20 px-3 py-2 text-xs font-bold transition cursor-pointer ${color}`}
+      className={`rounded border bg-black/20 px-2.5 py-1.5 text-xs font-bold transition cursor-pointer ${color}`}
     >
       {children}
     </button>
@@ -122,240 +122,395 @@ export function RequestsClientView({
   };
 
   return (
-    <div className="py-10">
-      <Link href="/admin" className="inline-flex min-h-11 items-center gap-2 text-sm text-[#8991a6] hover:text-white">
-        <ArrowLeft size={16} /> Control center
-      </Link>
-
-      <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="eyebrow">Milestone & Demand</p>
-          <h1 className="mt-3 text-4xl font-black md:text-5xl bg-gradient-to-r from-white via-[#e8e3ff] to-[#b9a4ff] bg-clip-text text-transparent">
-            Customer Requests Hub
-          </h1>
-          <p className="section-copy text-[#8991a6]">
-            Review community game requests and manually approve loyalty reward milestone activations.
-          </p>
-        </div>
+    <div className="py-2 md:py-4">
+      <div>
+        <p className="eyebrow">Milestone & Demand</p>
+        <h1 className="mt-2 text-2xl sm:text-3xl md:text-5xl font-black tracking-tight leading-tight bg-gradient-to-r from-white via-[#e8e3ff] to-[#b9a4ff] bg-clip-text text-transparent">
+          Customer Requests Hub
+        </h1>
+        <p className="section-copy text-xs sm:text-sm text-[#8991a6] mt-1">
+          Review community game requests and manually approve loyalty reward milestone activations.
+        </p>
       </div>
 
-      {/* Instant 0ms Client-Side Tab Switcher */}
-      <div className="mt-8 flex gap-6 border-b border-white/10 pb-px">
+      {/* Rakexura Style Underline Tabs */}
+      <div className="mt-6 flex gap-6 border-b border-white/10 pb-px">
         <button
           suppressHydrationWarning={true}
           type="button"
           onClick={() => setActiveTab("games")}
-          className={`pb-4 text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
+          className={`pb-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
             activeTab === "games"
-              ? "border-[#b9a4ff] text-white"
+              ? "border-[#8b5cf6] text-white"
               : "border-transparent text-[#8991a6] hover:text-white"
           }`}
         >
           Game Requests ({optimisticGames.length})
         </button>
+
         <button
           suppressHydrationWarning={true}
           type="button"
           onClick={() => setActiveTab("coupons")}
-          className={`pb-4 text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
+          className={`pb-3 text-xs sm:text-sm font-black uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
             activeTab === "coupons"
-              ? "border-[#b9a4ff] text-white"
+              ? "border-[#8b5cf6] text-white"
               : "border-transparent text-[#8991a6] hover:text-white"
           }`}
         >
-          Reward & Coupon Requests ({optimisticVouchers.length})
+          Voucher Requests ({optimisticVouchers.length})
         </button>
       </div>
 
       {activeTab === "games" ? (
-        <div className="mt-8 overflow-x-auto rounded-md border border-[#8b5cf6]/20 bg-[#0c0a1a]/80">
-          <table className="w-full min-w-[760px] border-collapse text-left text-sm">
-            <thead className="bg-white/[.04] text-[#8991a6]">
-              <tr>
-                <th className="p-4">Game Name</th>
-                <th className="p-4">Platform</th>
-                <th className="p-4">Votes</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Requested On</th>
-                <th className="p-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {optimisticGames.map((row) => (
-                <tr key={row.id} className="border-t border-white/[.07] hover:bg-white/[.025] transition-colors">
-                  <td className="p-4 font-bold text-white">{row.game_name}</td>
-                  <td className="p-4 font-semibold text-[#b9a4ff]">{row.platform}</td>
-                  <td className="p-4 font-bold text-white">{row.votes}</td>
-                  <td className="p-4">
-                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider ${
-                      row.status === "available"
-                        ? "bg-[#00d68f]/10 text-[#00d68f]"
-                        : row.status === "declined"
-                          ? "bg-red-500/10 text-red-400"
-                          : "bg-white/[0.05] text-[#8991a6]"
-                    }`}>
-                      {row.status === "available" ? "Added" : row.status}
-                    </span>
-                  </td>
-                  <td suppressHydrationWarning={true} className="p-4 text-xs text-[#8991a6]">
-                    {new Date(row.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}
-                  </td>
-                  <td className="p-4">
-                    <div className="flex min-w-60 flex-wrap gap-2 items-center">
-                      {["Reviewing", "Planned", "Added", "Declined"].map((status) => (
-                        <form action={updateRequestStatus} key={status}>
-                          <input type="hidden" name="id" value={row.id} />
-                          <input type="hidden" name="status" value={status} />
-                          <SubmitButton tone={status === "Declined" ? "danger" : status === "Added" ? "positive" : "neutral"}>
-                            {status}
-                          </SubmitButton>
-                        </form>
-                      ))}
-                      <form action={handleDeleteGame}>
-                        <input type="hidden" name="id" value={row.id} />
-                        <SubmitButton tone="danger">Delete</SubmitButton>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+        <div className="mt-6">
+          {/* Mobile Stacked Cards */}
+          <div className="space-y-3 md:hidden">
+            {optimisticGames.map((row) => (
+              <div key={row.id} className="premium-panel rounded-lg p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <strong className="text-sm font-bold text-white block">{row.game_name}</strong>
+                    <span className="text-xs font-semibold text-[#b9a4ff]">{row.platform}</span>
+                  </div>
+                  <span className="rounded bg-white/[0.08] px-2 py-0.5 text-xs font-bold text-white border border-white/10 shrink-0">
+                    {row.votes} {row.votes === 1 ? "vote" : "votes"}
+                  </span>
+                </div>
 
-              {optimisticGames.length === 0 && (
+                <div className="flex items-center justify-between text-xs text-[#8991a6] pt-1 border-t border-white/[0.06]">
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                    row.status === "available"
+                      ? "bg-[#00d68f]/10 text-[#00d68f]"
+                      : row.status === "declined"
+                        ? "bg-red-500/10 text-red-400"
+                        : "bg-white/[0.05] text-[#8991a6]"
+                  }`}>
+                    {row.status === "available" ? "Added" : row.status}
+                  </span>
+                  <span>{new Date(row.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}</span>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {["Reviewing", "Planned", "Added", "Declined"].map((status) => (
+                    <form action={updateRequestStatus} key={status}>
+                      <input type="hidden" name="id" value={row.id} />
+                      <input type="hidden" name="status" value={status} />
+                      <SubmitButton tone={status === "Declined" ? "danger" : status === "Added" ? "positive" : "neutral"}>
+                        {status}
+                      </SubmitButton>
+                    </form>
+                  ))}
+                  <form action={handleDeleteGame}>
+                    <input type="hidden" name="id" value={row.id} />
+                    <SubmitButton tone="danger">Delete</SubmitButton>
+                  </form>
+                </div>
+              </div>
+            ))}
+
+            {optimisticGames.length === 0 && (
+              <div className="premium-panel rounded-lg p-8 text-center text-sm text-[#8991a6]">
+                No game requests recorded yet.
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto rounded-md border border-[#8b5cf6]/20 bg-[#0c0a1a]/80">
+            <table className="w-full border-collapse text-left text-sm">
+              <thead className="bg-white/[.04] text-[#8991a6]">
                 <tr>
-                  <td colSpan={6} className="p-10 text-center text-[#8991a6]">
-                    No game requests recorded yet.
-                  </td>
+                  <th className="p-4">Game Name</th>
+                  <th className="p-4">Platform</th>
+                  <th className="p-4">Votes</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4">Requested On</th>
+                  <th className="p-4">Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="mt-8 overflow-x-auto rounded-md border border-white/10 bg-black/20">
-          <table className="w-full min-w-[840px] border-collapse text-left text-sm">
-            <thead className="bg-white/[.04] text-[#8991a6]">
-              <tr>
-                <th className="p-4 w-28">User ID</th>
-                <th className="p-4">Customer</th>
-                <th className="p-4">Loyalty Status</th>
-                <th className="p-4">Requested On</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Voucher Authorization &amp; Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {optimisticVouchers.map((row) => {
-                const cleanedWhatsapp = row.whatsapp.replace(/\D/g, "");
-                const whatsappNormalized = cleanedWhatsapp.length === 10 ? `91${cleanedWhatsapp}` : cleanedWhatsapp;
-                const whatsappLink = `https://wa.me/${whatsappNormalized}?text=${encodeURIComponent(
-                  `Hi ${row.username}! Regarding your Rakexura loyalty milestone voucher request...`
-                )}`;
-
-                const isResolved = row.status === "resolved" || row.status === "Approved";
-
-                return (
+              </thead>
+              <tbody>
+                {optimisticGames.map((row) => (
                   <tr key={row.id} className="border-t border-white/[.07] hover:bg-white/[.025] transition-colors">
-                    <td className="p-4">
-                      <CopyIdBadge id={row.userId} />
-                    </td>
-                    <td className="p-4">
-                      <strong className="block text-sm font-bold text-white leading-tight">
-                        {row.username}
-                      </strong>
-                      <span className="text-xs text-[#8991a6] block mt-0.5 max-w-[200px] truncate">
-                        {row.email}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex rounded bg-white/[0.05] px-2.5 py-0.5 text-xs font-bold text-[#b9a4ff] border border-[#8b5cf6]/20">
-                          {row.rankStatus}
-                        </span>
-                        <span className="font-bold text-white text-xs">{row.points.toLocaleString()} pts</span>
-                      </div>
-                    </td>
-                    <td suppressHydrationWarning={true} className="p-4 text-xs text-[#8991a6] whitespace-nowrap">
-                      {new Date(row.timestamp).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
-                    </td>
+                    <td className="p-4 font-bold text-white">{row.game_name}</td>
+                    <td className="p-4 font-semibold text-[#b9a4ff]">{row.platform}</td>
+                    <td className="p-4 font-bold text-white">{row.votes}</td>
                     <td className="p-4">
                       <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider ${
-                        isResolved
-                          ? "bg-[#00d68f]/10 text-[#00d68f] border border-[#00d68f]/20"
-                          : "bg-amber-400/10 text-amber-200 border border-amber-400/20"
+                        row.status === "available"
+                          ? "bg-[#00d68f]/10 text-[#00d68f]"
+                          : row.status === "declined"
+                            ? "bg-red-500/10 text-red-400"
+                            : "bg-white/[0.05] text-[#8991a6]"
                       }`}>
-                        {isResolved ? "Authorized" : "Pending"}
+                        {row.status === "available" ? "Added" : row.status}
                       </span>
                     </td>
+                    <td suppressHydrationWarning={true} className="p-4 text-xs text-[#8991a6]">
+                      {new Date(row.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}
+                    </td>
                     <td className="p-4">
-                      <div className="flex items-center gap-2 flex-nowrap">
-                        {!isResolved ? (
-                          <form action={approveMilestoneRequest} className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-white/10 shrink-0">
-                            <input type="hidden" name="ticket_id" value={row.id} />
-                            <input type="hidden" name="unlock_access" value="true" />
-                            <div className="flex flex-col gap-0.5">
-                              <label className="text-[9px] font-black uppercase tracking-wider text-[#8991a6]">
-                                Authorized Code
-                              </label>
-                              <input
-                                suppressHydrationWarning={true}
-                                name="promo_code"
-                                required
-                                placeholder="DIAMONDFREE"
-                                className="h-8 w-32 rounded border border-white/10 bg-black/60 px-2.5 text-xs font-mono font-bold text-white outline-none focus:border-white/30"
-                              />
-                            </div>
-                            <button
-                              suppressHydrationWarning={true}
-                              type="submit"
-                              className="inline-flex h-8 mt-auto items-center justify-center gap-1 rounded border border-[#00d68f]/40 bg-[#00d68f]/15 px-3 text-xs font-bold text-[#70efbb] hover:bg-[#00d68f]/25 transition-all active:scale-[0.97] cursor-pointer whitespace-nowrap"
-                            >
-                              Approve &amp; Unlock
-                            </button>
+                      <div className="flex min-w-60 flex-wrap gap-2 items-center">
+                        {["Reviewing", "Planned", "Added", "Declined"].map((status) => (
+                          <form action={updateRequestStatus} key={status}>
+                            <input type="hidden" name="id" value={row.id} />
+                            <input type="hidden" name="status" value={status} />
+                            <SubmitButton tone={status === "Declined" ? "danger" : status === "Added" ? "positive" : "neutral"}>
+                              {status}
+                            </SubmitButton>
                           </form>
-                        ) : (
-                          <span className="text-xs text-[#00d68f] font-bold inline-flex items-center gap-1.5 bg-[#00d68f]/10 border border-[#00d68f]/20 px-3 py-1.5 rounded-lg shrink-0">
-                            <Check size={14} className="text-[#00d68f]" /> Authorized &amp; Approved
-                          </span>
-                        )}
-
-                        {row.whatsapp && (
-                          <a
-                            href={whatsappLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex h-8 w-8 items-center justify-center rounded border border-white/10 bg-[#20c763]/10 text-[#20c763] hover:bg-[#20c763]/20 transition-all shrink-0"
-                            title="Chat with customer on WhatsApp"
-                          >
-                            <MessageCircle size={15} />
-                          </a>
-                        )}
-
-                        <form action={handleDeleteVoucher} className="shrink-0">
+                        ))}
+                        <form action={handleDeleteGame}>
                           <input type="hidden" name="id" value={row.id} />
-                          <button
-                            suppressHydrationWarning={true}
-                            type="submit"
-                            title="Delete request entry"
-                            className="inline-flex h-8 w-8 items-center justify-center rounded border border-red-500/30 bg-red-950/20 text-red-300 hover:bg-red-950/40 transition-all cursor-pointer"
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                          <SubmitButton tone="danger">Delete</SubmitButton>
                         </form>
                       </div>
                     </td>
                   </tr>
-                );
-              })}
+                ))}
 
-              {optimisticVouchers.length === 0 && (
+                {optimisticGames.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="p-10 text-center text-[#8991a6]">
+                      No game requests recorded yet.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-6">
+          {/* Mobile Stacked Cards for Vouchers */}
+          <div className="space-y-3 md:hidden">
+            {optimisticVouchers.map((row) => {
+              const cleanedWhatsapp = row.whatsapp.replace(/\D/g, "");
+              const whatsappNormalized = cleanedWhatsapp.length === 10 ? `91${cleanedWhatsapp}` : cleanedWhatsapp;
+              const whatsappLink = `https://wa.me/${whatsappNormalized}?text=${encodeURIComponent(
+                `Hi ${row.username}! Regarding your Rakexura loyalty milestone voucher request...`
+              )}`;
+              const isResolved = row.status === "resolved" || row.status === "Approved";
+
+              return (
+                <div key={row.id} className="premium-panel rounded-lg p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <strong className="text-sm font-bold text-white block">{row.username}</strong>
+                      <span className="text-xs text-[#8991a6] block truncate">{row.email}</span>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <span className="inline-flex rounded bg-white/[0.05] px-2 py-0.5 text-[10px] font-bold text-[#b9a4ff] border border-[#8b5cf6]/20">
+                        {row.rankStatus}
+                      </span>
+                      <span className="text-[11px] font-bold text-white">{row.points.toLocaleString()} pts</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-[#8991a6] pt-1 border-t border-white/[0.06]">
+                    <CopyIdBadge id={row.userId} />
+                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                      isResolved
+                        ? "bg-[#00d68f]/10 text-[#00d68f] border border-[#00d68f]/20"
+                        : "bg-amber-400/10 text-amber-200 border border-amber-400/20"
+                    }`}>
+                      {isResolved ? "Authorized" : "Pending"}
+                    </span>
+                  </div>
+
+                  <div className="pt-1">
+                    {!isResolved ? (
+                      <form action={approveMilestoneRequest} className="flex flex-col sm:flex-row gap-2 bg-black/40 p-2.5 rounded-lg border border-white/10">
+                        <input type="hidden" name="ticket_id" value={row.id} />
+                        <input type="hidden" name="unlock_access" value="true" />
+                        <div className="flex-1 min-w-0">
+                          <label className="text-[9px] font-black uppercase tracking-wider text-[#8991a6] block mb-1">
+                            Promo Code
+                          </label>
+                          <input
+                            suppressHydrationWarning={true}
+                            name="promo_code"
+                            required
+                            placeholder="DIAMONDFREE"
+                            className="h-8 w-full rounded border border-white/10 bg-black/60 px-2.5 text-xs font-mono font-bold text-white outline-none focus:border-white/30"
+                          />
+                        </div>
+                        <button
+                          suppressHydrationWarning={true}
+                          type="submit"
+                          className="inline-flex h-8 items-center justify-center gap-1 rounded border border-[#00d68f]/40 bg-[#00d68f]/15 px-3 text-xs font-bold text-[#70efbb] hover:bg-[#00d68f]/25 transition-all cursor-pointer self-end w-full sm:w-auto"
+                        >
+                          Approve &amp; Unlock
+                        </button>
+                      </form>
+                    ) : (
+                      <span className="text-xs text-[#00d68f] font-bold inline-flex items-center gap-1.5 bg-[#00d68f]/10 border border-[#00d68f]/20 px-3 py-1.5 rounded-lg">
+                        <Check size={14} className="text-[#00d68f]" /> Authorized &amp; Approved
+                      </span>
+                    )}
+
+                    <div className="flex items-center gap-2 mt-2">
+                      {row.whatsapp && (
+                        <a
+                          href={whatsappLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex h-8 items-center gap-1.5 rounded border border-white/10 bg-[#20c763]/10 px-3 text-xs font-bold text-[#20c763] hover:bg-[#20c763]/20 transition-all"
+                        >
+                          <MessageCircle size={14} /> WhatsApp
+                        </a>
+                      )}
+
+                      <form action={handleDeleteVoucher}>
+                        <input type="hidden" name="id" value={row.id} />
+                        <button
+                          suppressHydrationWarning={true}
+                          type="submit"
+                          className="inline-flex h-8 items-center gap-1 rounded border border-red-500/30 bg-red-950/20 px-3 text-xs font-bold text-red-300 hover:bg-red-950/40 transition-all cursor-pointer"
+                        >
+                          <Trash2 size={14} /> Delete
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {optimisticVouchers.length === 0 && (
+              <div className="premium-panel rounded-lg p-8 text-center text-sm text-[#8991a6]">
+                No loyalty voucher requests recorded yet.
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Table View for Vouchers */}
+          <div className="hidden md:block overflow-x-auto rounded-md border border-white/10 bg-black/20">
+            <table className="w-full min-w-[840px] border-collapse text-left text-sm">
+              <thead className="bg-white/[.04] text-[#8991a6]">
                 <tr>
-                  <td colSpan={8} className="p-10 text-center text-[#8991a6]">
-                    No loyalty voucher requests recorded yet.
-                  </td>
+                  <th className="p-4 w-28">User ID</th>
+                  <th className="p-4">Customer</th>
+                  <th className="p-4">Loyalty Status</th>
+                  <th className="p-4">Requested On</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4">Voucher Authorization &amp; Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {optimisticVouchers.map((row) => {
+                  const cleanedWhatsapp = row.whatsapp.replace(/\D/g, "");
+                  const whatsappNormalized = cleanedWhatsapp.length === 10 ? `91${cleanedWhatsapp}` : cleanedWhatsapp;
+                  const whatsappLink = `https://wa.me/${whatsappNormalized}?text=${encodeURIComponent(
+                    `Hi ${row.username}! Regarding your Rakexura loyalty milestone voucher request...`
+                  )}`;
+
+                  const isResolved = row.status === "resolved" || row.status === "Approved";
+
+                  return (
+                    <tr key={row.id} className="border-t border-white/[.07] hover:bg-white/[.025] transition-colors">
+                      <td className="p-4">
+                        <CopyIdBadge id={row.userId} />
+                      </td>
+                      <td className="p-4">
+                        <strong className="block text-sm font-bold text-white leading-tight">
+                          {row.username}
+                        </strong>
+                        <span className="text-xs text-[#8991a6] block mt-0.5 max-w-[200px] truncate">
+                          {row.email}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex rounded bg-white/[0.05] px-2.5 py-0.5 text-xs font-bold text-[#b9a4ff] border border-[#8b5cf6]/20">
+                            {row.rankStatus}
+                          </span>
+                          <span className="font-bold text-white text-xs">{row.points.toLocaleString()} pts</span>
+                        </div>
+                      </td>
+                      <td suppressHydrationWarning={true} className="p-4 text-xs text-[#8991a6] whitespace-nowrap">
+                        {new Date(row.timestamp).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
+                      </td>
+                      <td className="p-4">
+                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider ${
+                          isResolved
+                            ? "bg-[#00d68f]/10 text-[#00d68f] border border-[#00d68f]/20"
+                            : "bg-amber-400/10 text-amber-200 border border-amber-400/20"
+                        }`}>
+                          {isResolved ? "Authorized" : "Pending"}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2 flex-nowrap">
+                          {!isResolved ? (
+                            <form action={approveMilestoneRequest} className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-white/10 shrink-0">
+                              <input type="hidden" name="ticket_id" value={row.id} />
+                              <input type="hidden" name="unlock_access" value="true" />
+                              <div className="flex flex-col gap-0.5">
+                                <label className="text-[9px] font-black uppercase tracking-wider text-[#8991a6]">
+                                  Authorized Code
+                                </label>
+                                <input
+                                  suppressHydrationWarning={true}
+                                  name="promo_code"
+                                  required
+                                  placeholder="DIAMONDFREE"
+                                  className="h-8 w-32 rounded border border-white/10 bg-black/60 px-2.5 text-xs font-mono font-bold text-white outline-none focus:border-white/30"
+                                />
+                              </div>
+                              <button
+                                suppressHydrationWarning={true}
+                                type="submit"
+                                className="inline-flex h-8 mt-auto items-center justify-center gap-1 rounded border border-[#00d68f]/40 bg-[#00d68f]/15 px-3 text-xs font-bold text-[#70efbb] hover:bg-[#00d68f]/25 transition-all active:scale-[0.97] cursor-pointer whitespace-nowrap"
+                              >
+                                Approve &amp; Unlock
+                              </button>
+                            </form>
+                          ) : (
+                            <span className="text-xs text-[#00d68f] font-bold inline-flex items-center gap-1.5 bg-[#00d68f]/10 border border-[#00d68f]/20 px-3 py-1.5 rounded-lg shrink-0">
+                              <Check size={14} className="text-[#00d68f]" /> Authorized &amp; Approved
+                            </span>
+                          )}
+
+                          {row.whatsapp && (
+                            <a
+                              href={whatsappLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded border border-white/10 bg-[#20c763]/10 text-[#20c763] hover:bg-[#20c763]/20 transition-all shrink-0"
+                              title="Chat with customer on WhatsApp"
+                            >
+                              <MessageCircle size={15} />
+                            </a>
+                          )}
+
+                          <form action={handleDeleteVoucher} className="shrink-0">
+                            <input type="hidden" name="id" value={row.id} />
+                            <button
+                              suppressHydrationWarning={true}
+                              type="submit"
+                              title="Delete request entry"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded border border-red-500/30 bg-red-950/20 text-red-300 hover:bg-red-950/40 transition-all cursor-pointer"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+
+                {optimisticVouchers.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="p-10 text-center text-[#8991a6]">
+                      No loyalty voucher requests recorded yet.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
