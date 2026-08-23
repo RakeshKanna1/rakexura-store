@@ -69,8 +69,8 @@ body::before {
   filter: blur(32px);
   animation: aurora-drift 18s ease-in-out infinite alternate;
 }
-a { text-decoration: none; }
-button, input, select, textarea { font: inherit; }
+a { text-decoration: none; touch-action: manipulation; }
+button, input, select, textarea { font: inherit; touch-action: manipulation; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
   outline: 2px solid #9f7aea;

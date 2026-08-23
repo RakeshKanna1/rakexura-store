@@ -12,10 +12,9 @@ interface NavItem {
   label: string;
   icon: typeof Home;
   color: string;
-  gradient: string;
-  glow: string;
+  glowColor: string;
   activeTextColor: string;
-  iconColor?: string;
+  badgeBg?: string;
 }
 
 const items: NavItem[] = [
@@ -23,47 +22,42 @@ const items: NavItem[] = [
     href: "/",
     label: "Home",
     icon: Home,
-    color: "#8b5cf6",
-    gradient: "from-[#8b5cf6] to-[#6d28d9]",
-    glow: "rgba(139, 92, 246, 0.55)",
-    activeTextColor: "text-[#c4b5fd]",
+    color: "#a78bfa",
+    glowColor: "rgba(167, 139, 250, 0.8)",
+    activeTextColor: "text-[#ddd6fe]",
   },
   {
     href: "/games",
     label: "Browse",
     icon: Library,
-    color: "#a855f7",
-    gradient: "from-[#a855f7] to-[#7e22ce]",
-    glow: "rgba(168, 85, 247, 0.55)",
-    activeTextColor: "text-[#d8b4fe]",
+    color: "#c084fc",
+    glowColor: "rgba(192, 132, 252, 0.8)",
+    activeTextColor: "text-[#e9d5ff]",
   },
   {
     href: "/wishlist",
     label: "Saved",
     icon: Heart,
-    color: "#f43f5e",
-    gradient: "from-[#f43f5e] to-[#be123c]",
-    glow: "rgba(244, 63, 94, 0.55)",
-    activeTextColor: "text-[#fda4af]",
+    color: "#fb7185",
+    glowColor: "rgba(251, 113, 133, 0.8)",
+    activeTextColor: "text-[#fecdd3]",
   },
   {
     href: "/cart",
     label: "Cart",
     icon: ShoppingBag,
     color: "#facc15",
-    gradient: "from-[#facc15] to-[#ca8a04]",
-    glow: "rgba(250, 204, 21, 0.55)",
+    glowColor: "rgba(250, 204, 21, 0.85)",
     activeTextColor: "text-[#fef08a]",
-    iconColor: "text-black",
+    badgeBg: "bg-[#facc15]",
   },
   {
     href: "/profile",
     label: "You",
     icon: UserRound,
-    color: "#6366f1",
-    gradient: "from-[#6366f1] to-[#4338ca]",
-    glow: "rgba(99, 102, 241, 0.55)",
-    activeTextColor: "text-[#c7d2fe]",
+    color: "#818cf8",
+    glowColor: "rgba(129, 140, 248, 0.8)",
+    activeTextColor: "text-[#e0e7ff]",
   },
 ];
 
@@ -92,8 +86,6 @@ export function MobileNav() {
   );
 
   const activeIndex = getActiveIndex(path);
-  const activeItem = items[activeIndex] ?? items[0];
-  const ActiveIcon = activeItem.icon;
 
   useEffect(() => {
     setMounted(true);
@@ -106,113 +98,116 @@ export function MobileNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-50 md:hidden select-none"
-      aria-label="Magic Mobile Navigation"
+      className="fixed bottom-2.5 inset-x-2.5 sm:inset-x-6 max-w-[430px] mx-auto z-50 md:hidden select-none"
+      aria-label="Mobile navigation bar"
+      style={{
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+      }}
     >
-      {/* Background Shell Container */}
-      <div className="relative h-[calc(62px+env(safe-area-inset-bottom,0px))] border-t border-white/[0.08] bg-[#07080c]/95 px-1 pb-[env(safe-area-inset-bottom,0px)] backdrop-blur-2xl shadow-[0_-10px_32px_rgba(0,0,0,0.85)]">
+      {/* Floating Cyber Glass Capsule Shell */}
+      <div className="relative flex h-[62px] w-full items-center justify-around rounded-2xl border border-white/[0.13] bg-[#070911]/92 p-1.5 backdrop-blur-2xl shadow-[0_16px_45px_rgba(0,0,0,0.92),0_0_30px_rgba(139,92,246,0.12),inset_0_1px_1px_rgba(255,255,255,0.14)]">
         
-        {/* Magic Sliding Elevated Notch & Glowing Orb */}
-        <motion.div
-          className="pointer-events-none absolute top-0 flex items-center justify-center"
-          style={{ width: "20%" }}
-          animate={{ left: `${activeIndex * 20}%` }}
-          transition={{ type: "spring", stiffness: 400, damping: 30 }}
-        >
-          {/* Sculpted Curved Notch Socket */}
-          <div className="relative -top-[22px] flex items-center justify-center">
-            {/* Left Inverse Liquid Curve */}
-            <div className="absolute -left-[14px] top-[22px] h-3.5 w-3.5 rounded-tr-xl bg-transparent shadow-[4px_-4px_0_0_#07080c]" />
+        {items.map(({ href, label, icon: Icon, color, glowColor, activeTextColor }, index) => {
+          const isActive = activeIndex === index;
 
-            {/* Sunken Socket Circle */}
-            <div className="relative flex h-[50px] w-[50px] items-center justify-center rounded-full bg-[#07080c] border-[3px] border-[#07080c] shadow-[0_4px_16px_rgba(0,0,0,0.9)]">
-              {/* Floating Elevated Neon Pill / Orb */}
-              <motion.div
-                key={activeItem.href}
-                initial={{ scale: 0.7, y: 6 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.7, y: 6 }}
-                transition={{ type: "spring", stiffness: 500, damping: 24 }}
-                className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${activeItem.gradient} shadow-lg relative`}
-                style={{
-                  boxShadow: `0 0 24px ${activeItem.glow}, 0 4px 12px rgba(0,0,0,0.6)`,
-                }}
-              >
-                <ActiveIcon size={20} strokeWidth={2.4} className={activeItem.iconColor ?? "text-white"} />
-
-                {/* Floating Cart Counter on Active Orb */}
-                {activeItem.href === "/cart" && mounted && count > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[9px] font-black text-white shadow-md ring-2 ring-[#07080c]">
-                    {count}
-                  </span>
-                )}
-              </motion.div>
-            </div>
-
-            {/* Right Inverse Liquid Curve */}
-            <div className="absolute -right-[14px] top-[22px] h-3.5 w-3.5 rounded-tl-xl bg-transparent shadow-[-4px_-4px_0_0_#07080c]" />
-          </div>
-        </motion.div>
-
-        {/* Navigation Tab Links Grid */}
-        <div className="relative flex h-[62px] w-full items-center justify-between">
-          {items.map(({ href, label, icon: Icon, activeTextColor }, index) => {
-            const isActive = activeIndex === index;
-
-            return (
-              <Link
-                key={href}
-                href={href}
-                onClick={(e) => {
-                  if (isActive) {
-                    e.preventDefault();
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }
-                }}
-                className="relative z-10 flex h-full flex-1 flex-col items-center justify-center pt-2 focus:outline-none"
-              >
-                {/* Resting Icon (Fades out smoothly when tab becomes active as orb takes over) */}
-                <div className="relative flex h-6 w-6 items-center justify-center">
-                  <motion.div
-                    animate={{
-                      opacity: isActive ? 0 : 1,
-                      y: isActive ? -16 : 0,
-                      scale: isActive ? 0.5 : 1,
-                    }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Icon
-                      size={20}
-                      strokeWidth={1.9}
-                      className="text-[#7e879c] transition-colors hover:text-white"
-                    />
-                  </motion.div>
-
-                  {/* Cart Counter on Inactive Tab */}
-                  {!isActive && href === "/cart" && mounted && count > 0 && (
-                    <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#facc15] px-1 text-[9px] font-black text-black shadow-[0_0_10px_rgba(250,204,21,0.6)]">
-                      {count}
-                    </span>
-                  )}
-                </div>
-
-                {/* Animated Text Label */}
-                <motion.span
-                  className={`text-[10px] font-bold tracking-tight transition-colors duration-200 mt-1 ${
-                    isActive ? activeTextColor : "text-[#767e90]"
-                  }`}
-                  animate={{
-                    y: isActive ? 3 : 0,
-                    scale: isActive ? 1.05 : 0.95,
+          return (
+            <Link
+              key={href}
+              href={href}
+              prefetch={true}
+              onPointerDown={() => router.prefetch(href)}
+              onClick={(e) => {
+                if (isActive) {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
+              className="relative flex h-full flex-1 flex-col items-center justify-center rounded-xl transition-all duration-200 focus:outline-none"
+            >
+              {/* Active Magnetic Glowing Backdrop Capsule */}
+              {isActive && (
+                <motion.div
+                  layoutId="active-dock-indicator"
+                  className="absolute inset-0 rounded-xl bg-gradient-to-b from-white/[0.12] to-white/[0.03] border border-white/[0.16] shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_16px_rgba(0,0,0,0.5)]"
+                  transition={{
+                    type: "spring",
+                    stiffness: 480,
+                    damping: 34,
+                    mass: 0.7,
                   }}
-                  transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                />
+              )}
+
+              {/* Icon with Spring Bounce & Neon Bloom */}
+              <div className="relative z-10 flex h-6 w-6 items-center justify-center">
+                <motion.div
+                  animate={{
+                    scale: isActive ? 1.14 : 1,
+                    y: isActive ? -1 : 0,
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 500,
+                    damping: 26,
+                  }}
                 >
-                  {label}
-                </motion.span>
-              </Link>
-            );
-          })}
-        </div>
+                  <Icon
+                    size={20}
+                    strokeWidth={isActive ? 2.4 : 1.8}
+                    style={
+                      isActive
+                        ? {
+                            color,
+                            filter: `drop-shadow(0 0 8px ${glowColor})`,
+                          }
+                        : undefined
+                    }
+                    className={`transition-colors duration-200 ${
+                      isActive ? "" : "text-[#7b849c] hover:text-white"
+                    }`}
+                  />
+                </motion.div>
+
+                {/* Cart Notification Badge */}
+                {href === "/cart" && mounted && count > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -right-2.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#facc15] px-1 text-[9.5px] font-black text-black shadow-[0_0_10px_rgba(250,204,21,0.85)] ring-2 ring-[#070911]"
+                  >
+                    {count}
+                  </motion.span>
+                )}
+              </div>
+
+              {/* Text Label with Active Neon Accent */}
+              <span
+                className={`relative z-10 text-[10px] font-bold tracking-tight transition-all duration-200 mt-0.5 ${
+                  isActive ? `${activeTextColor} font-black` : "text-[#6c758d]"
+                }`}
+              >
+                {label}
+              </span>
+
+              {/* Micro Active Glow Pip Indicator */}
+              {isActive && (
+                <motion.div
+                  layoutId="active-dock-pip"
+                  className="absolute bottom-1 h-1 w-3 rounded-full shadow-sm"
+                  style={{
+                    backgroundColor: color,
+                    boxShadow: `0 0 8px ${glowColor}`,
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 500,
+                    damping: 30,
+                  }}
+                />
+              )}
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );
