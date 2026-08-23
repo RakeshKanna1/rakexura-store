@@ -14,14 +14,14 @@ export function TrustStats() {
   return (
     <section className="my-8 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/[.08] bg-white/[.04] lg:grid-cols-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
       {stats.map(({ icon: Icon, value, suffix, label }) => (
-        <article key={label} className="relative overflow-hidden border border-amber-500/5 backdrop-blur-md p-5 md:p-6 transition-all duration-300 hover:shadow-[inset_0_0_12px_rgba(250,204,21,0.04)] group" style={{ background: "linear-gradient(145deg, rgba(7, 7, 8, 0.95) 0%, rgba(22, 18, 10, 0.05) 100%)" }}>
+        <article key={label} className="relative overflow-hidden border border-amber-500/5 backdrop-blur-md p-3.5 sm:p-5 md:p-6 transition-all duration-300 hover:shadow-[inset_0_0_12px_rgba(250,204,21,0.04)] group" style={{ background: "linear-gradient(145deg, rgba(7, 7, 8, 0.95) 0%, rgba(22, 18, 10, 0.05) 100%)" }}>
           {/* Subtle neon purple tint background overlay */}
           <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: "rgba(147, 51, 234, 0.0001)" }} />
           {/* Border glow on hover */}
           <div className="absolute inset-x-0 bottom-0 h-[2px] bg-[#facc15]/30 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
           
-          <Icon size={20} className="mb-7 text-[#facc15] filter drop-shadow-[0_0_4px_rgba(250,204,21,0.2)]" />
-          <strong className="block text-2xl md:text-3xl text-white">
+          <Icon size={19} className="mb-3 sm:mb-6 text-[#facc15] filter drop-shadow-[0_0_4px_rgba(250,204,21,0.2)]" />
+          <strong className="block text-xl sm:text-2xl md:text-3xl text-white">
             <AnimatedCounter value={value} suffix={suffix} />
           </strong>
           <span className="mt-1 block text-xs text-[#8991a6] font-medium">{label}</span>

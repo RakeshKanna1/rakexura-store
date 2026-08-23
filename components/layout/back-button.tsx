@@ -7,8 +7,8 @@ export function BackButton() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Do not show Back button on homepage
-  if (!pathname || pathname === "/" || pathname === "/otp-preview") return null;
+  // Do not show Back button on homepage or admin (admin has its own breadcrumb hierarchy)
+  if (!pathname || pathname === "/" || pathname === "/otp-preview" || pathname.startsWith("/admin")) return null;
 
   function goBack() {
     // 1. Admin hierarchy

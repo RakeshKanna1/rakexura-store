@@ -161,11 +161,11 @@ export default async function AdminSection({ params, searchParams }: { params: P
   const hasActions = ["games", "orders", "customers", "reviews", "coupons", "requests", "support", "media", "flash-sales", "campaigns", "campaign-games"].includes(section);
 
   return (
-    <div className="py-10">
-      <Link href="/admin" className="inline-flex min-h-11 items-center gap-2 text-sm text-[#8991a6] hover:text-white">
-        <ArrowLeft size={16} /> Control center
+    <div className="py-4 md:py-8">
+      <Link href="/admin" className="inline-flex min-h-10 items-center gap-2 text-xs md:text-sm font-semibold text-[#8991a6] hover:text-white transition-colors">
+        <ArrowLeft size={15} /> Control center
       </Link>
-      <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
+      <div className="mt-4 md:mt-7 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="eyebrow">Administration</p>
           <h1 className="mt-3 text-4xl font-black md:text-5xl">{source.title}</h1>

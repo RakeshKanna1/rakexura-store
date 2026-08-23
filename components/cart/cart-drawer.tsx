@@ -196,7 +196,7 @@ export function CartDrawer() {
               )}
             </div>
 
-            <footer className="border-t border-white/[.08] p-5">
+            <footer className="border-t border-white/[.08] p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))] bg-[#080b13]">
               <div className="mb-4 flex items-center justify-between">
                 <span className="text-sm text-[#8991a6]">
                   {isWholesaleActive && wholesaleCalc.isDiscount ? "Wholesale Total" : "Subtotal"}

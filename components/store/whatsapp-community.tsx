@@ -19,15 +19,15 @@ export function WhatsAppCommunity() {
         className="w-full"
       >
         <div className="flex flex-col justify-between gap-5 p-5 text-white sm:flex-row sm:items-center md:px-7 w-full h-full">
-          <div className="flex items-start gap-4">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#25d366]/10 text-[#25d366] border border-[#25d366]/20">
-              <WhatsAppIcon size={22} className="h-[22px] w-[22px] text-[#25d366]" />
+          <div className="flex items-start gap-3.5 sm:gap-4">
+            <span className="grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-xl bg-[#25d366]/10 text-[#25d366] border border-[#25d366]/20">
+              <WhatsAppIcon size={20} className="h-5 w-5 sm:h-[22px] sm:w-[22px] text-[#25d366]" />
             </span>
-            <div>
-              <h2 className="flex items-center gap-2 text-lg font-black text-white">
-                Join our WhatsApp Channel <BadgeCheck size={16} className="text-[#8b5cf6]" />
+            <div className="min-w-0 flex-1">
+              <h2 className="flex flex-wrap items-center gap-1.5 text-base sm:text-lg font-black text-white">
+                <span>Join our WhatsApp Channel</span> <BadgeCheck size={16} className="text-[#8b5cf6] shrink-0" />
               </h2>
-              <p className="mt-1 text-sm font-medium text-[#9da5b8]">
+              <p className="mt-1 text-xs sm:text-sm font-medium text-[#9da5b8]">
                 Get new deals, game drops, giveaways, and exclusive offers directly on WhatsApp.
               </p>
             </div>
@@ -36,7 +36,7 @@ export function WhatsAppCommunity() {
             href={channel}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex min-h-[40px] items-center justify-center gap-2 rounded-lg bg-[#25d366] px-5 py-2.5 text-xs font-black uppercase tracking-wider text-[#07130b] hover:bg-[#55e88a] transition-all hover:scale-[1.02] active:scale-95 shadow-md shadow-[#25d366]/20 shrink-0"
+            className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-[#25d366] px-5 py-2.5 text-xs font-black uppercase tracking-wider text-[#07130b] hover:bg-[#55e88a] transition-all hover:scale-[1.02] active:scale-95 shadow-md shadow-[#25d366]/20 shrink-0"
           >
             <span>Open Official Channel</span> <ArrowUpRight size={15} />
           </a>
