@@ -211,7 +211,7 @@ export function HeaderNotificationButton() {
           setTimeout(() => setRinging(false), 800);
           setOpen(!open);
         }}
-        className="btn btn-secondary relative h-9 min-h-9 w-9 sm:h-10 sm:w-10 sm:min-h-10 px-0 flex items-center justify-center rounded-lg hover:border-[#facc15]/30 hover:bg-white/[.08] cursor-pointer"
+        className="btn btn-secondary relative h-11 min-h-11 px-3 hover:border-[#facc15]/30 hover:bg-white/[.08] cursor-pointer"
         aria-label="Open notifications"
       >
         <motion.div
@@ -243,7 +243,7 @@ export function HeaderNotificationButton() {
               />
             </>
           )}
-          <Bell size={17} className={ringing ? "text-[#facc15]" : "text-[#aeb5c6] transition-colors hover:text-white sm:scale-105"} />
+          <Bell size={19} className={ringing ? "text-[#facc15]" : "text-[#aeb5c6] transition-colors hover:text-white"} />
         </motion.div>
 
         {unreadCount > 0 && (
