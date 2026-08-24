@@ -628,9 +628,9 @@ export function BroadcastComposer({
   ];
 
   return (
-    <div className="space-y-4">
-      {/* Epic Style Segmented Mode Selector */}
-      <div className="grid grid-cols-3 gap-1 rounded-xl bg-[#090b14]/90 p-1 border border-white/10 shadow-lg">
+    <div className="space-y-5">
+      {/* Mobile-Only Segmented Mode Selector */}
+      <div className="grid grid-cols-3 gap-1 rounded-xl bg-[#090b14]/90 p-1 border border-white/10 shadow-lg xl:hidden">
         <button
           suppressHydrationWarning
           type="button"
@@ -674,12 +674,18 @@ export function BroadcastComposer({
         </button>
       </div>
 
-      {/* MODE 1: BROADCAST COMPOSER */}
-      {activeTab === "broadcast" && (
-        <section className="premium-panel rounded-lg p-4 sm:p-5 md:p-6 space-y-4">
-          <div>
-            <h2 className="text-base sm:text-lg font-black text-white">Create an update</h2>
-            <p className="text-xs sm:text-sm text-[#8991a6] mt-0.5">Send a safe in-app, push, or email notification to registered customers.</p>
+      {/* Main 2-Column Grid on Desktop, Tab-Responsive on Mobile */}
+      <div className="grid gap-6 xl:grid-cols-[1fr_390px]">
+        {/* LEFT COLUMN: BROADCAST COMPOSER */}
+        <section className={`premium-panel rounded-lg p-4 sm:p-5 md:p-7 space-y-4 ${activeTab === "broadcast" ? "block" : "hidden xl:block"}`}>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#b9a4ff] shadow-[0_0_15px_rgba(139,92,246,0.15)]">
+              <BellRing size={20} />
+            </div>
+            <div>
+              <h2 className="text-lg sm:text-xl font-black text-white leading-tight">Create an update</h2>
+              <p className="text-xs sm:text-sm text-[#8991a6] mt-0.5">Send a safe in-app, push, or email notification to registered customers.</p>
+            </div>
           </div>
 
           {/* Template Select */}
@@ -748,29 +754,13 @@ export function BroadcastComposer({
                       className="btn bg-[#facc15] hover:bg-[#eab308] text-black h-10 px-3.5 text-xs font-bold cursor-pointer shrink-0 flex items-center gap-1"
                     >
                       <Search size={13} />
-                      <span>{fetchingOrder ? "..." : "Fetch"}</span>
+                      <span>{fetchingOrder ? "Searching..." : "Fetch"}</span>
                     </button>
                   </div>
                 </div>
               </div>
             </div>
           )}
-
-          {/* Optional Game Selector */}
-          <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">
-              Choose a game <span className="font-normal text-[#64748b]">(optional)</span>
-            </label>
-            <CustomSelect
-              options={gameOptions}
-              value={selectedGameId}
-              onChange={(val) => {
-                setSelectedGameId(val);
-                chooseGame(val);
-              }}
-              placeholder="Custom announcement"
-            />
-          </div>
 
           {/* Title */}
           <div>
@@ -872,138 +862,143 @@ export function BroadcastComposer({
             </div>
           </div>
         </section>
-      )}
 
-      {/* MODE 2: DIRECT CUSTOMER MESSAGE */}
-      {activeTab === "direct" && (
-        <section className="premium-panel rounded-lg p-4 sm:p-5 md:p-6 space-y-4">
-          <div>
-            <h2 className="text-base sm:text-lg font-black text-white">Targeted Customer Messaging</h2>
-            <p className="text-xs sm:text-sm text-[#8991a6] mt-0.5">
+        {/* RIGHT COLUMN ASIDE: TARGETED MESSAGING & GIVEAWAY */}
+        <aside className="space-y-6">
+          {/* Targeted Customer Messaging */}
+          <section className={`premium-panel rounded-lg p-4 sm:p-5 space-y-4 ${activeTab === "direct" ? "block" : "hidden xl:block"}`}>
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#20c763]/30 bg-[#20c763]/10 text-[#20c763]">
+                <MessageCircle size={18} />
+              </div>
+              <h2 className="text-lg font-black text-white">Targeted Customer Messaging</h2>
+            </div>
+            <p className="text-xs leading-5 text-[#8991a6]">
               Select a registered website account to send a targeted lockscreen push, WhatsApp message, or direct email update.
             </p>
-          </div>
 
-          <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Website Customer</label>
-            <CustomSelect
-              options={customerOptions}
-              value={customerId}
-              onChange={(val) => {
-                setCustomerId(val);
-                const found = customers.find((c) => c.id === val);
-                if (found?.email) setTargetEmail(found.email);
-              }}
-              placeholder="Select registered customer..."
-            />
-          </div>
+            <div>
+              <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Website Customer</label>
+              <CustomSelect
+                options={customerOptions}
+                value={customerId}
+                onChange={(val) => {
+                  setCustomerId(val);
+                  const found = customers.find((c) => c.id === val);
+                  if (found?.email) setTargetEmail(found.email);
+                }}
+                placeholder="Select registered customer..."
+              />
+            </div>
 
-          <div
-            style={{ overflowY: "auto", scrollbarWidth: "thin" }}
-            className="max-h-[200px] overflow-y-auto whitespace-pre-wrap rounded-md border border-white/[.07] bg-black/25 p-3.5 text-xs leading-5 text-[#aab1c1]"
-          >
-            <strong className="block text-white font-bold">{title}</strong>
-            <span className="mt-1 block text-zinc-300 whitespace-pre-wrap">{message}</span>
-            {targetEmail && <span className="mt-2 block text-[11px] text-[#b9a4ff] font-mono">Recipient Email: {targetEmail}</span>}
-          </div>
+            <div
+              style={{ overflowY: "auto", scrollbarWidth: "thin" }}
+              className="max-h-[200px] overflow-y-auto whitespace-pre-wrap rounded-md border border-white/[.07] bg-black/25 p-3.5 text-xs leading-5 text-[#aab1c1]"
+            >
+              <strong className="block text-white font-bold">{title}</strong>
+              <span className="mt-1 block text-zinc-300 whitespace-pre-wrap">{message}</span>
+              {targetEmail && <span className="mt-2 block text-[11px] text-[#b9a4ff] font-mono">Recipient Email: {targetEmail}</span>}
+            </div>
 
-          <div className="grid gap-2 sm:grid-cols-2 pt-1">
+            <div className="grid gap-2 sm:grid-cols-2 pt-1">
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={sendEmailToCustomer}
+                disabled={emailPending}
+                className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md"
+              >
+                <Mail size={15} /> {emailPending ? "Sending Email..." : "Send Direct Email"}
+              </button>
+
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={sendPushToCustomer}
+                disabled={pushPending}
+                className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md"
+              >
+                <Send size={15} /> {pushPending ? "Sending Push..." : "Send Device Push"}
+              </button>
+
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={sendComboToCustomer}
+                disabled={comboPending}
+                className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md sm:col-span-2"
+              >
+                <Sparkles size={15} /> {comboPending ? "Sending Combo..." : "Send Email + Device Push"}
+              </button>
+
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={openWhatsApp}
+                className="btn w-full bg-[#20c763] hover:bg-[#1bb057] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md sm:col-span-2"
+              >
+                <MessageCircle size={15} /> Open WhatsApp
+              </button>
+            </div>
+          </section>
+
+          {/* Giveaway / Gift Game */}
+          <section className={`premium-panel rounded-lg p-4 sm:p-5 space-y-4 ${activeTab === "gift" ? "block" : "hidden xl:block"}`}>
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#facc15]/30 bg-[#facc15]/10 text-[#facc15]">
+                <Gift size={18} />
+              </div>
+              <h2 className="text-lg font-black text-white">Giveaway / Gift Game</h2>
+            </div>
+            <p className="text-xs leading-5 text-[#8991a6]">Send a game directly to this customer&apos;s library and orders page at Rs. 0 as a giveaway.</p>
+
+            <div>
+              <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Customer</label>
+              <CustomSelect
+                options={customerOptions}
+                value={customerId}
+                onChange={(val) => {
+                  setCustomerId(val);
+                  const found = customers.find((c) => c.id === val);
+                  if (found?.email) setTargetEmail(found.email);
+                }}
+                placeholder="Select registered customer..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Game</label>
+              <CustomSelect
+                options={giftGameOptions}
+                value={giftGameId}
+                onChange={(val) => setGiftGameId(val)}
+                placeholder="Choose game to gift"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Platform</label>
+              <CustomSelect
+                options={platformOptions}
+                value={giftPlatform}
+                onChange={(val) => setGiftPlatform(val)}
+                placeholder="Select platform"
+                searchable={false}
+              />
+            </div>
+
             <button
               suppressHydrationWarning
               type="button"
-              onClick={sendEmailToCustomer}
-              disabled={emailPending}
-              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md"
+              onClick={sendGiftGame}
+              disabled={giftPending}
+              className="btn w-full btn-primary bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold cursor-pointer h-11 mt-2"
             >
-              <Mail size={15} /> {emailPending ? "Sending Email..." : "Send Direct Email"}
+              <Gift size={15} /> {giftPending ? "Gifting..." : "Gift Game"}
             </button>
-
-            <button
-              suppressHydrationWarning
-              type="button"
-              onClick={sendPushToCustomer}
-              disabled={pushPending}
-              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md"
-            >
-              <Send size={15} /> {pushPending ? "Sending Push..." : "Send Device Push"}
-            </button>
-
-            <button
-              suppressHydrationWarning
-              type="button"
-              onClick={sendComboToCustomer}
-              disabled={comboPending}
-              className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md sm:col-span-2"
-            >
-              <Sparkles size={15} /> {comboPending ? "Sending Combo..." : "Send Email + Device Push"}
-            </button>
-
-            <button
-              suppressHydrationWarning
-              type="button"
-              onClick={openWhatsApp}
-              className="btn w-full bg-[#20c763] hover:bg-[#1bb057] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md sm:col-span-2"
-            >
-              <MessageCircle size={15} /> Open WhatsApp
-            </button>
-          </div>
-        </section>
-      )}
-
-      {/* MODE 3: GIFT GAME */}
-      {activeTab === "gift" && (
-        <section className="premium-panel rounded-lg p-4 sm:p-5 md:p-6 space-y-4">
-          <div>
-            <h2 className="text-base sm:text-lg font-black text-white">Giveaway / Gift Game</h2>
-            <p className="text-xs sm:text-sm text-[#8991a6] mt-0.5">Send a game directly to this customer&apos;s library and orders page at Rs. 0 as a giveaway.</p>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Customer</label>
-            <CustomSelect
-              options={customerOptions}
-              value={customerId}
-              onChange={(val) => {
-                setCustomerId(val);
-                const found = customers.find((c) => c.id === val);
-                if (found?.email) setTargetEmail(found.email);
-              }}
-              placeholder="Select registered customer..."
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Game</label>
-            <CustomSelect
-              options={giftGameOptions}
-              value={giftGameId}
-              onChange={(val) => setGiftGameId(val)}
-              placeholder="Choose game to gift"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Platform</label>
-            <CustomSelect
-              options={platformOptions}
-              value={giftPlatform}
-              onChange={(val) => setGiftPlatform(val)}
-              placeholder="Select platform"
-              searchable={false}
-            />
-          </div>
-
-          <button
-            suppressHydrationWarning
-            type="button"
-            onClick={sendGiftGame}
-            disabled={giftPending}
-            className="btn w-full btn-primary bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold cursor-pointer h-11 mt-2"
-          >
-            <Gift size={15} /> {giftPending ? "Gifting..." : "Gift Game"}
-          </button>
-        </section>
-      )}
+          </section>
+        </aside>
+      </div>
     </div>
   );
 }
