@@ -68,10 +68,10 @@ export function WishlistButton({
 
   const getContainerStyle = () => {
     if (variant === "details") {
-      return "relative grid h-11 w-11 place-items-center rounded-md bg-white/[.07] border border-white/10 hover:bg-white/15 active:scale-95 transition-all overflow-visible shadow-md cursor-pointer select-none";
+      return "relative grid h-11 w-11 place-items-center rounded-full bg-white/[.07] border border-white/10 hover:bg-white/15 active:scale-95 transition-all overflow-visible shadow-md cursor-pointer select-none";
     }
     if (variant === "card") {
-      return "relative flex h-8 w-8 min-h-0 min-w-0 shrink-0 aspect-square items-center justify-center rounded-md border border-white/15 bg-black/75 backdrop-blur-md hover:scale-110 hover:border-white/40 hover:bg-black/90 active:scale-90 transition-all duration-200 overflow-visible cursor-pointer select-none";
+      return "relative flex h-8 w-8 min-h-0 min-w-0 shrink-0 aspect-square items-center justify-center rounded-full border border-white/15 bg-black/75 backdrop-blur-md hover:scale-110 hover:border-white/40 hover:bg-black/90 active:scale-90 transition-all duration-200 overflow-visible cursor-pointer select-none";
     }
     return `relative flex items-center justify-center transition-all overflow-visible cursor-pointer select-none ${className}`;
   };

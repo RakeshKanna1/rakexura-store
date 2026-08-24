@@ -162,7 +162,7 @@ function GameCardInner({
               e.stopPropagation();
               onQuickView(game);
             }}
-            className="group/eyebtn flex h-8 w-8 items-center justify-center rounded-md border border-white/15 bg-black/75 backdrop-blur-md hover:scale-110 hover:border-white/40 hover:bg-black/90 active:scale-90 transition-all duration-200 text-white cursor-pointer"
+            className="group/eyebtn flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/75 backdrop-blur-md hover:scale-110 hover:border-white/40 hover:bg-black/90 active:scale-90 transition-all duration-200 text-white cursor-pointer"
             aria-label={`Quick view ${game.title}`}
           >
             <Eye size={14} className="eye-icon-blink" />
