@@ -1,24 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-
+// Native compositor scrolling is used for 120Hz/144Hz buttery smooth performance without JS scroll hijacking
 export function SmoothScroll() {
-  useEffect(() => {
-    if (window.matchMedia("(pointer: coarse), (max-width: 1024px), (prefers-reduced-motion: reduce)").matches) return;
-    let frame = 0; let disposed = false; let destroy = () => undefined;
-    void import("lenis").then(({ default: Lenis }) => {
-      if (disposed) return;
-      const lenis = new Lenis({
-        duration: 0.75,
-        smoothWheel: true,
-        wheelMultiplier: 1.0,
-        touchMultiplier: 1.5,
-        syncTouch: false
-      });
-      const raf = (time: number) => { lenis.raf(time); frame = requestAnimationFrame(raf); };
-      frame = requestAnimationFrame(raf); destroy = () => { cancelAnimationFrame(frame); lenis.destroy(); };
-    });
-    return () => { disposed = true; destroy(); };
-  }, []);
   return null;
 }
+
