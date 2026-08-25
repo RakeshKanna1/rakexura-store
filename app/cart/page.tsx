@@ -4,6 +4,7 @@ import { BundleShelf } from "@/components/store/bundle-shelf";
 import { GameShelf } from "@/components/store/game-shelf";
 import { OnboardingHint } from "@/components/common/onboarding-hint";
 import { getBundles, getGames } from "@/lib/supabase/queries";
+import { BackButton } from "@/components/layout/back-button";
 
 export const metadata: Metadata = { title: "Your Cart" };
 
@@ -11,6 +12,7 @@ export default async function CartPage() {
   const [games, bundles] = await Promise.all([getGames(), getBundles()]);
   return (
     <div className="page-shell py-10">
+      <BackButton href="/games" label="Continue Shopping" className="mb-4" />
       <header className="mb-8">
         <p className="eyebrow">Checkout</p>
         <h1 className="mt-3 text-4xl font-black sm:text-6xl">Your cart</h1>

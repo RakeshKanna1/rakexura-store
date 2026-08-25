@@ -7,7 +7,6 @@ import { Header } from "@/components/layout/header";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { BackButton } from "@/components/layout/back-button";
 import { MouseSpotlight } from "@/components/animations/mouse-spotlight";
 import { ClickSpark } from "@/components/animations/click-spark";
 import { CartDrawer } from "@/components/cart/cart-drawer";

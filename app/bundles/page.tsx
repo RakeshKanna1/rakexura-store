@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getBundles } from "@/lib/supabase/queries";
 import { assetUrl, formatPrice } from "@/lib/utils";
+import { BackButton } from "@/components/layout/back-button";
 
 export default async function BundlesPage() {
   const bundles = await getBundles();
@@ -12,6 +13,7 @@ export default async function BundlesPage() {
       <div className="absolute -top-40 right-0 -z-10 w-96 h-96 bg-[#facc15]/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-40 left-0 -z-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
 
+      <BackButton href="/" label="Back to Store" className="mb-4" />
       <header className="mb-10 max-w-3xl">
         <p className="eyebrow mb-3">Save more together</p>
         <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Game bundles</h1>

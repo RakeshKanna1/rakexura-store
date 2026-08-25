@@ -5,6 +5,7 @@ import { BundlePurchaseButton } from "@/components/store/bundle-purchase-button"
 import { OfferCountdown } from "@/components/store/offer-countdown";
 import { assetUrl, formatPrice } from "@/lib/utils";
 import { getBundle, getBundles } from "@/lib/supabase/queries";
+import { BackButton } from "@/components/layout/back-button";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -38,6 +39,7 @@ export default async function BundlePage({ params }: { params: Promise<{ id: str
   
   return (
     <div className="shell py-8">
+      <BackButton className="mb-4" />
       <section className="grid overflow-hidden rounded-xl border border-white/[.07] bg-[#101522] lg:grid-cols-[55%_1fr]">
         <div className="relative min-h-[420px]">
           <Image src={assetUrl(bundle.cover_image)} alt={bundle.title} fill priority className="object-cover" />

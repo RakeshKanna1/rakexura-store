@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { toggleBundle, deleteBundle } from "@/app/admin/actions";
 import { BundleForm } from "@/components/admin/bundle-form";
 import { createClient } from "@/lib/supabase/server";

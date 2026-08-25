@@ -17,6 +17,7 @@ const ThermalReceiptPrinter = dynamic(
   () => import("@/components/checkout/thermal-receipt-printer").then((mod) => mod.ThermalReceiptPrinter),
   { ssr: false }
 );
+import { BackButton } from "@/components/layout/back-button";
 
 type TrackedOrder = { 
   order_id: number; 
@@ -289,6 +290,7 @@ function TrackOrderContent() {
   if (!mounted) {
     return (
       <div className="page-shell py-10">
+        <BackButton href="/" label="Back to Store" className="mb-4" />
         <p className="eyebrow mb-3">Live order status</p>
         <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Track your delivery</h1>
         <p className="section-copy max-w-2xl mb-8">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
@@ -315,6 +317,7 @@ function TrackOrderContent() {
 
   return (
     <div className="page-shell py-10">
+      <BackButton href="/" label="Back to Store" className="mb-4" />
       <Confetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
       <p className="eyebrow mb-3">Live order status</p>
       <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Track your delivery</h1>

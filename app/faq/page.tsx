@@ -6,9 +6,12 @@ const items = [
   ["Can I request a game?", "Yes. Sign in and use the Game Request page. Popular requests help prioritize new listings."]
 ];
 
+import { BackButton } from "@/components/layout/back-button";
+
 export default function FaqPage() {
   return (
     <div className="page-shell py-10">
+      <BackButton href="/" label="Back to Store" className="mb-4" />
       <header className="mb-10 max-w-3xl">
         <p className="eyebrow mb-3">Support center</p>
         <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Frequently Asked Questions.</h1>

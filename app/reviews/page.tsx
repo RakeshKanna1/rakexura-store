@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Star, BadgeCheck, ImageIcon } from "lucide-react";
 import { getReviews } from "@/lib/supabase/queries";
+import { BackButton } from "@/components/layout/back-button";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { 
@@ -12,6 +13,7 @@ export default async function ReviewsPage() {
   const reviews = await getReviews(30);
   return (
     <div className="page-shell py-10">
+      <BackButton href="/" label="Back to Store" className="mb-4" />
       <header className="mb-10 max-w-3xl">
         <div className="flex items-center gap-2 mb-3">
           <p className="eyebrow">Verified feedback</p>

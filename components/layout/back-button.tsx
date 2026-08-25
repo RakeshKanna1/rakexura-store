@@ -2,15 +2,25 @@
 
 import { ArrowLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 
-export function BackButton({ className = "" }: { className?: string }) {
+interface BackButtonProps {
+  label?: string;
+  href?: string;
+  className?: string;
+}
+
+export function BackButton({ label, href, className = "" }: BackButtonProps) {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Do not show Back button on homepage
+  // Do not show Back button on homepage or OTP preview
   if (!pathname || pathname === "/" || pathname === "/otp-preview") return null;
 
-  function goBack() {
+  function goBack(e: React.MouseEvent) {
+    if (href) return;
+    e.preventDefault();
+
     // 1. Admin hierarchy
     if (pathname.startsWith("/admin/") && pathname !== "/admin") {
       router.push("/admin");
@@ -57,16 +67,46 @@ export function BackButton({ className = "" }: { className?: string }) {
     }
   }
 
+  const defaultLabel = pathname.startsWith("/games/")
+    ? "Back to Games"
+    : pathname.startsWith("/bundles/")
+      ? "Back to Bundles"
+      : pathname === "/checkout"
+        ? "Back to Cart"
+        : pathname.startsWith("/admin/")
+          ? "Back to Admin"
+          : pathname.startsWith("/dashboard/")
+            ? "Back to Dashboard"
+            : "Back";
+
+  const displayLabel = label ?? defaultLabel;
+
+  if (href) {
+    return (
+      <div className={`relative z-30 pointer-events-auto mb-2 sm:mb-3 ${className}`}>
+        <Link
+          href={href}
+          className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-bold text-[#a0a8c0] transition-all hover:bg-white/[0.08] hover:border-white/20 hover:text-white active:scale-95 cursor-pointer shadow-sm backdrop-blur-sm"
+          aria-label={displayLabel}
+        >
+          <ArrowLeft size={14} className="shrink-0" />
+          <span>{displayLabel}</span>
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className={`relative z-30 pointer-events-auto mb-2 sm:mb-3 ${className}`}>
       <button
         suppressHydrationWarning
         type="button"
         onClick={goBack}
-        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-bold text-[#a0a8c0] transition-all hover:bg-white/[0.08] hover:border-white/20 hover:text-white active:scale-95 cursor-pointer shadow-sm"
-        aria-label="Go back"
+        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-bold text-[#a0a8c0] transition-all hover:bg-white/[0.08] hover:border-white/20 hover:text-white active:scale-95 cursor-pointer shadow-sm backdrop-blur-sm"
+        aria-label={displayLabel}
       >
-        <ArrowLeft size={14} /> <span>Back</span>
+        <ArrowLeft size={14} className="shrink-0" />
+        <span>{displayLabel}</span>
       </button>
     </div>
   );

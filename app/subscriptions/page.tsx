@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
 import { getGames } from "@/lib/supabase/queries";
 import { GameCard } from "@/components/store/game-card";
+import { BackButton } from "@/components/layout/back-button";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = { 
   title: "Gaming Subscriptions", 
@@ -14,6 +15,7 @@ export default async function SubscriptionsPage() {
 
   return (
     <div className="page-shell py-10">
+      <BackButton href="/" label="Back to Store" className="mb-4" />
       <header className="mb-10 max-w-3xl">
         <p className="eyebrow mb-3">Services & memberships</p>
         <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Gaming Subscriptions.</h1>

@@ -1,4 +1,5 @@
 import { ArrowUpRight, BadgeCheck, Instagram, MessageCircle, ShieldCheck, Clock, CreditCard, Key } from "lucide-react";
+import { BackButton } from "@/components/layout/back-button";
 
 export default function SupportPage() {
   const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695";
@@ -41,6 +42,7 @@ export default function SupportPage() {
       <div className="absolute top-40 left-0 -z-10 w-96 h-96 bg-emerald-500/[0.03] rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-40 right-20 -z-10 w-96 h-96 bg-rose-500/[0.03] rounded-full blur-3xl pointer-events-none" />
 
+      <BackButton href="/" label="Back to Store" className="mb-4" />
       <p className="eyebrow">Support & social</p>
       
       <h1 className="mt-4 text-4xl font-black sm:text-6xl text-white">

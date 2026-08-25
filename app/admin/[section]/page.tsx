@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { ArrowLeft, HelpCircle } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { GameForm } from "@/components/admin/game-form";

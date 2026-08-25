@@ -15,6 +15,7 @@ import { PremiumAmbientEffect } from "@/components/animations/premium-ambient";
 import { fetchOfficialSteamRequirements } from "@/lib/steam-requirements";
 import { DynamicBannerAccent } from "@/components/store/dynamic-banner-accent";
 import { PlatformIcon } from "@/components/store/platform-icon";
+import { BackButton } from "@/components/layout/back-button";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -407,6 +408,7 @@ export default async function GamePage({ params }: Props) {
     <DynamicBannerAccent src={bannerUrl} />
     {premiumTheme && <PremiumAmbientEffect theme={premiumTheme} />}
     <RecentlyViewedTracker gameId={game.id} />
+    <BackButton className="mb-4" />
     <section className="game-detail-hero relative min-h-[560px] overflow-hidden border-0">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img 

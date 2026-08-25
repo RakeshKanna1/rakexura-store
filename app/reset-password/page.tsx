@@ -3,6 +3,7 @@ import Link from "next/link";
 import { KeyRound, ShieldCheck } from "lucide-react";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { ChampagneFizz } from "@/components/animations/champagne-fizz";
+import { BackButton } from "@/components/layout/back-button";
 
 export const metadata: Metadata = { title: "Set New Password - Rakexura" };
 
@@ -10,7 +11,9 @@ export default function ResetPasswordPage() {
   return (
     <>
       <ChampagneFizz />
-      <div className="relative z-10 page-shell grid min-h-[calc(100vh-140px)] items-center gap-10 py-10 lg:grid-cols-2">
+      <div className="relative z-10 page-shell py-6">
+        <BackButton href="/" label="Back to Store" className="mb-2" />
+        <div className="grid min-h-[calc(100vh-180px)] items-center gap-10 lg:grid-cols-2">
         <section className="hidden lg:block">
           <KeyRound size={42} className="text-[#facc15]" />
           <h1 className="mt-7 max-w-lg text-6xl font-black leading-[1.02]">
@@ -43,6 +46,7 @@ export default function ResetPasswordPage() {
             Remember your password? <Link href="/login" className="font-bold text-[#facc15] hover:text-[#ffe45c] hover:underline transition-colors ml-1">Sign in here</Link>
           </p>
         </section>
+        </div>
       </div>
     </>
   );
