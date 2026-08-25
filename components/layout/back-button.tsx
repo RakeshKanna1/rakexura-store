@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -81,7 +81,7 @@ export function BackButton({ label, href, className = "" }: BackButtonProps) {
 
   const displayLabel = label ?? defaultLabel;
 
-  const btnClasses = "group inline-flex items-center gap-2 rounded-xl border border-white/10 bg-black/45 px-3.5 py-1.5 text-sm font-medium text-[#cbd5e1] backdrop-blur-md transition-all duration-150 hover:border-white/25 hover:bg-black/65 hover:text-white active:scale-95 cursor-pointer select-none shadow-[0_4px_16px_rgba(0,0,0,0.5)]";
+  const btnClasses = "group inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#121212]/80 px-3 py-1.5 text-xs font-semibold tracking-wide text-[#a0a8c0] backdrop-blur-md transition-all duration-150 hover:border-white/20 hover:bg-[#202020] hover:text-white active:scale-95 cursor-pointer select-none shadow-[0_4px_16px_rgba(0,0,0,0.5)]";
 
   if (href) {
     return (
@@ -91,7 +91,7 @@ export function BackButton({ label, href, className = "" }: BackButtonProps) {
           className={btnClasses}
           aria-label={displayLabel}
         >
-          <ArrowLeft size={15} className="shrink-0 transition-transform duration-150 group-hover:-translate-x-0.5" />
+          <ChevronLeft size={16} className="shrink-0 transition-transform duration-150 group-hover:-translate-x-0.5" />
           <span>{displayLabel}</span>
         </Link>
       </div>
@@ -107,7 +107,7 @@ export function BackButton({ label, href, className = "" }: BackButtonProps) {
         className={btnClasses}
         aria-label={displayLabel}
       >
-        <ArrowLeft size={15} className="shrink-0 transition-transform duration-150 group-hover:-translate-x-0.5" />
+        <ChevronLeft size={16} className="shrink-0 transition-transform duration-150 group-hover:-translate-x-0.5" />
         <span>{displayLabel}</span>
       </button>
     </div>
