@@ -8,10 +8,10 @@ interface BackButtonProps {
   label?: string;
   href?: string;
   className?: string;
-  variant?: "box" | "ghost";
+  variant?: "pill" | "box" | "ghost";
 }
 
-export function BackButton({ label, href, className = "", variant = "ghost" }: BackButtonProps) {
+export function BackButton({ label, href, className = "", variant = "pill" }: BackButtonProps) {
   const pathname = usePathname() || "";
   const router = useRouter();
 
@@ -84,17 +84,17 @@ export function BackButton({ label, href, className = "", variant = "ghost" }: B
 
   const btnClasses = variant === "ghost"
     ? "group inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white transition-all active:scale-95 cursor-pointer drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] select-none"
-    : "group inline-flex min-h-9 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-sm font-medium text-[#cbd5e1] transition-all hover:bg-white/[0.08] hover:border-white/20 hover:text-white active:scale-95 cursor-pointer shadow-sm backdrop-blur-md select-none";
+    : "group inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3.5 py-1.5 text-xs font-medium text-[#cbd5e1] backdrop-blur-xl transition-all duration-200 hover:border-white/25 hover:bg-black/60 hover:text-white hover:shadow-[0_0_20px_rgba(255,255,255,0.08)] active:scale-95 cursor-pointer select-none shadow-[0_4px_20px_rgba(0,0,0,0.4)]";
 
   if (href) {
     return (
-      <div className={`relative z-30 pointer-events-auto ${variant === "box" ? "mb-2 sm:mb-3" : ""} ${className}`}>
+      <div className={`relative z-30 pointer-events-auto ${className}`}>
         <Link
           href={href}
           className={btnClasses}
           aria-label={displayLabel}
         >
-          <ArrowLeft size={16} className="shrink-0 transition-transform group-hover:-translate-x-1 stroke-[2.5]" />
+          <ArrowLeft size={14} className="shrink-0 transition-transform duration-200 group-hover:-translate-x-0.5" />
           <span>{displayLabel}</span>
         </Link>
       </div>
@@ -102,7 +102,7 @@ export function BackButton({ label, href, className = "", variant = "ghost" }: B
   }
 
   return (
-    <div className={`relative z-30 pointer-events-auto ${variant === "box" ? "mb-2 sm:mb-3" : ""} ${className}`}>
+    <div className={`relative z-30 pointer-events-auto ${className}`}>
       <button
         suppressHydrationWarning
         type="button"
@@ -110,7 +110,7 @@ export function BackButton({ label, href, className = "", variant = "ghost" }: B
         className={btnClasses}
         aria-label={displayLabel}
       >
-        <ArrowLeft size={16} className="shrink-0 transition-transform group-hover:-translate-x-1 stroke-[2.5]" />
+        <ArrowLeft size={14} className="shrink-0 transition-transform duration-200 group-hover:-translate-x-0.5" />
         <span>{displayLabel}</span>
       </button>
     </div>

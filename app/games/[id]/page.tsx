@@ -423,7 +423,7 @@ export default async function GamePage({ params }: Props) {
 
       <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-between p-7 md:p-14">
         <div className="pt-1">
-          <BackButton href="/games" label="Back to Games" variant="ghost" />
+          <BackButton href="/games" label="Back to Games" variant="pill" />
         </div>
         <div>
           {game.preorder && (
