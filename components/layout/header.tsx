@@ -34,11 +34,11 @@ export function Header() {
 
   return (
     <header data-site-header className="sticky top-0 z-50 border-b border-white/[.06] bg-[#050505]/92 backdrop-blur-xl">
-      <div className={`mx-auto w-full max-w-[1480px] px-3.5 sm:px-6 lg:px-8 ${isAuthPage || isAdminPage ? "flex items-center justify-between min-h-[64px] py-2.5" : "grid min-h-[74px] grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2.5 py-2.5 md:flex md:gap-7 md:py-0"}`}>
+      <div className={`mx-auto w-full max-w-[1480px] px-3.5 sm:px-6 lg:px-8 ${isAuthPage || isAdminPage ? "flex items-center justify-between min-h-[64px] py-2.5" : "grid min-h-[74px] grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2.5 py-2.5 md:flex md:items-center md:gap-6 lg:gap-8 md:py-0"}`}>
         <div className="flex items-center gap-3">
           <Link href="/" className="flex shrink-0 items-center gap-3 font-black tracking-wide" aria-label="Rakexura home">
             <Image src="/Assets/RakeLogo.png" width={42} height={42} alt="Rakexura" className="rounded-md" priority />
-            <span className="hidden sm:block">RAKEXURA</span>
+            <span className="hidden sm:block text-base tracking-wider">RAKEXURA</span>
           </Link>
         </div>
 
@@ -48,7 +48,7 @@ export function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-sm transition-colors ${path === link.href ? "text-white" : "text-[#a0a8c0] hover:text-white"}`}
+                className={`text-sm transition-colors ${path === link.href ? "text-white font-semibold" : "text-[#a0a8c0] hover:text-white"}`}
               >
                 {link.label}
               </Link>
@@ -57,12 +57,12 @@ export function Header() {
         )}
 
         {!isAuthPage && !isAdminPage && (
-          <div className="order-3 col-span-3 min-w-0 md:order-none md:ml-auto md:w-full md:max-w-[390px]">
+          <div className="order-3 col-span-3 min-w-0 md:order-none md:ml-auto md:w-full md:max-w-[340px] lg:max-w-[380px]">
             <PremiumSearch />
           </div>
         )}
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="flex items-center gap-2.5 shrink-0">
           {!isAuthPage && !isAdminPage && <HeaderNotificationButton />}
           {!isAuthPage && !isAdminPage && (
             <button

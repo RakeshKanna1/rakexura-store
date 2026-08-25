@@ -177,7 +177,7 @@ export function PremiumSearch() {
             className="w-full h-full border-0 bg-transparent text-white outline-none placeholder:text-[#5d6477] text-xs sm:text-sm font-medium"
           />
           {!focused && !query && (
-            <div className="absolute left-0 pointer-events-none text-[#767e90] text-xs sm:text-sm flex items-center">
+            <div className="absolute left-0 right-0 pointer-events-none text-[#767e90] text-xs sm:text-sm flex items-center overflow-hidden whitespace-nowrap">
               <TextType
                 text={[
                   "Search games (GTA V, RDR 2...)",
