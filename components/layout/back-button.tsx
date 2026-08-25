@@ -8,14 +8,15 @@ interface BackButtonProps {
   label?: string;
   href?: string;
   className?: string;
+  variant?: "box" | "ghost";
 }
 
-export function BackButton({ label, href, className = "" }: BackButtonProps) {
-  const pathname = usePathname();
+export function BackButton({ label, href, className = "", variant = "ghost" }: BackButtonProps) {
+  const pathname = usePathname() || "";
   const router = useRouter();
 
-  // Do not show Back button on homepage or OTP preview
-  if (!pathname || pathname === "/" || pathname === "/otp-preview") return null;
+  // If on homepage or otp-preview and no explicit href, don't show
+  if (!href && (pathname === "/" || pathname === "/otp-preview")) return null;
 
   function goBack(e: React.MouseEvent) {
     if (href) return;
@@ -81,15 +82,19 @@ export function BackButton({ label, href, className = "" }: BackButtonProps) {
 
   const displayLabel = label ?? defaultLabel;
 
+  const btnClasses = variant === "ghost"
+    ? "group inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white transition-all active:scale-95 cursor-pointer drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] select-none"
+    : "group inline-flex min-h-9 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-sm font-medium text-[#cbd5e1] transition-all hover:bg-white/[0.08] hover:border-white/20 hover:text-white active:scale-95 cursor-pointer shadow-sm backdrop-blur-md select-none";
+
   if (href) {
     return (
-      <div className={`relative z-30 pointer-events-auto mb-2 sm:mb-3 ${className}`}>
+      <div className={`relative z-30 pointer-events-auto ${variant === "box" ? "mb-2 sm:mb-3" : ""} ${className}`}>
         <Link
           href={href}
-          className="inline-flex min-h-9 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-sm font-medium text-[#cbd5e1] transition-all hover:bg-white/[0.08] hover:border-white/20 hover:text-white active:scale-95 cursor-pointer shadow-sm backdrop-blur-md"
+          className={btnClasses}
           aria-label={displayLabel}
         >
-          <ArrowLeft size={15} className="shrink-0" />
+          <ArrowLeft size={16} className="shrink-0 transition-transform group-hover:-translate-x-1 stroke-[2.5]" />
           <span>{displayLabel}</span>
         </Link>
       </div>
@@ -97,15 +102,15 @@ export function BackButton({ label, href, className = "" }: BackButtonProps) {
   }
 
   return (
-    <div className={`relative z-30 pointer-events-auto mb-2 sm:mb-3 ${className}`}>
+    <div className={`relative z-30 pointer-events-auto ${variant === "box" ? "mb-2 sm:mb-3" : ""} ${className}`}>
       <button
         suppressHydrationWarning
         type="button"
         onClick={goBack}
-        className="inline-flex min-h-9 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-sm font-medium text-[#cbd5e1] transition-all hover:bg-white/[0.08] hover:border-white/20 hover:text-white active:scale-95 cursor-pointer shadow-sm backdrop-blur-md"
+        className={btnClasses}
         aria-label={displayLabel}
       >
-        <ArrowLeft size={15} className="shrink-0" />
+        <ArrowLeft size={16} className="shrink-0 transition-transform group-hover:-translate-x-1 stroke-[2.5]" />
         <span>{displayLabel}</span>
       </button>
     </div>
