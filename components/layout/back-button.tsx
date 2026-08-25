@@ -8,10 +8,9 @@ interface BackButtonProps {
   label?: string;
   href?: string;
   className?: string;
-  variant?: "pill" | "box" | "ghost";
 }
 
-export function BackButton({ label, href, className = "", variant = "pill" }: BackButtonProps) {
+export function BackButton({ label, href, className = "" }: BackButtonProps) {
   const pathname = usePathname() || "";
   const router = useRouter();
 
@@ -82,9 +81,7 @@ export function BackButton({ label, href, className = "", variant = "pill" }: Ba
 
   const displayLabel = label ?? defaultLabel;
 
-  const btnClasses = variant === "ghost"
-    ? "group inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white transition-all active:scale-95 cursor-pointer drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] select-none"
-    : "group inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3.5 py-1.5 text-xs font-medium text-[#cbd5e1] backdrop-blur-xl transition-all duration-200 hover:border-white/25 hover:bg-black/60 hover:text-white hover:shadow-[0_0_20px_rgba(255,255,255,0.08)] active:scale-95 cursor-pointer select-none shadow-[0_4px_20px_rgba(0,0,0,0.4)]";
+  const btnClasses = "group inline-flex items-center gap-2 rounded-xl border border-white/10 bg-black/45 px-3.5 py-1.5 text-sm font-medium text-[#cbd5e1] backdrop-blur-md transition-all duration-150 hover:border-white/25 hover:bg-black/65 hover:text-white active:scale-95 cursor-pointer select-none shadow-[0_4px_16px_rgba(0,0,0,0.5)]";
 
   if (href) {
     return (
@@ -94,7 +91,7 @@ export function BackButton({ label, href, className = "", variant = "pill" }: Ba
           className={btnClasses}
           aria-label={displayLabel}
         >
-          <ArrowLeft size={14} className="shrink-0 transition-transform duration-200 group-hover:-translate-x-0.5" />
+          <ArrowLeft size={15} className="shrink-0 transition-transform duration-150 group-hover:-translate-x-0.5" />
           <span>{displayLabel}</span>
         </Link>
       </div>
@@ -110,7 +107,7 @@ export function BackButton({ label, href, className = "", variant = "pill" }: Ba
         className={btnClasses}
         aria-label={displayLabel}
       >
-        <ArrowLeft size={14} className="shrink-0 transition-transform duration-200 group-hover:-translate-x-0.5" />
+        <ArrowLeft size={15} className="shrink-0 transition-transform duration-150 group-hover:-translate-x-0.5" />
         <span>{displayLabel}</span>
       </button>
     </div>

@@ -421,11 +421,12 @@ export default async function GamePage({ params }: Props) {
       />
       <div className="absolute inset-0" style={{ background: heroBackground }} />
 
-      <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-between p-7 md:p-14">
-        <div className="pt-1">
-          <BackButton href="/games" label="Back to Games" variant="pill" />
-        </div>
-        <div>
+      {/* Top-Left Corner Back Button */}
+      <div className="absolute top-4 left-4 sm:top-5 sm:left-6 md:top-6 md:left-8 z-30 pointer-events-auto">
+        <BackButton href="/games" label="Back to Games" />
+      </div>
+
+      <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-end p-7 md:p-14">
           {game.preorder && (
             <div suppressHydrationWarning className="mb-4 self-start inline-flex items-center rounded border border-[#facc15]/30 bg-[#facc15]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#facc15] backdrop-blur-sm">
               Pre-Order
@@ -447,7 +448,6 @@ export default async function GamePage({ params }: Props) {
           <h1 className={`mt-5 max-w-4xl font-black leading-[.95] ${titleSize(game.title)} ${titleGradientClass}`}>{game.title}</h1>
           <p className="mt-5 text-lg text-[#d7dae4]">{game.tagline}</p>
           {tags.length > 0 && <div className="mt-6 flex flex-wrap gap-2">{tags.map((tag) => <span key={tag} className={`rounded border px-3 py-2 text-xs font-semibold backdrop-blur ${tagClass}`} style={!game.is_premium ? { borderColor: `${accent}55` } : {}}>{tag}</span>)}</div>}
-        </div>
       </div>
     </section>
 
