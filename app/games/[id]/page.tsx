@@ -420,34 +420,34 @@ export default async function GamePage({ params }: Props) {
         {...{ fetchPriority: "high" }}
       />
       <div className="absolute inset-0" style={{ background: heroBackground }} />
-      
-      {/* Top overlay Back Button on Banner */}
-      <div className="absolute top-6 left-6 md:top-8 md:left-14 z-30 pointer-events-auto">
-        <BackButton href="/games" label="Back to Games" variant="ghost" />
-      </div>
 
-      <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-end p-7 md:p-14">
-        {game.preorder && (
-          <div suppressHydrationWarning className="mb-4 self-start inline-flex items-center rounded border border-[#facc15]/30 bg-[#facc15]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#facc15] backdrop-blur-sm">
-            Pre-Order
-          </div>
-        )}
-        {game.is_premium && !game.preorder && (
-          <div className={`mb-4 self-start inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] backdrop-blur-sm animate-pulse ${badgeClass}`}>
-            <Sparkles size={13} className="shrink-0" /> Premium Listing
-          </div>
-        )}
-        {game.out_of_stock && (
-          <div className="mb-4 self-start inline-flex items-center gap-1.5 rounded-full border border-red-500/35 bg-red-500/10 px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] text-red-400 backdrop-blur-sm shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-pulse">
-            Out of Stock
-          </div>
-        )}
-        <p className="eyebrow flex items-center gap-1" style={{ color: accent }}>
-          {game.preorder ? "Pre-order title" : game.is_premium ? <><Sparkles size={13} /> RAKEXURA EXCLUSIVE</> : "Rakexura game page"}
-        </p>
-        <h1 className={`mt-5 max-w-4xl font-black leading-[.95] ${titleSize(game.title)} ${titleGradientClass}`}>{game.title}</h1>
-        <p className="mt-5 text-lg text-[#d7dae4]">{game.tagline}</p>
-        {tags.length > 0 && <div className="mt-6 flex flex-wrap gap-2">{tags.map((tag) => <span key={tag} className={`rounded border px-3 py-2 text-xs font-semibold backdrop-blur ${tagClass}`} style={!game.is_premium ? { borderColor: `${accent}55` } : {}}>{tag}</span>)}</div>}
+      <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-between p-7 md:p-14">
+        <div className="pt-1">
+          <BackButton href="/games" label="Back to Games" variant="ghost" />
+        </div>
+        <div>
+          {game.preorder && (
+            <div suppressHydrationWarning className="mb-4 self-start inline-flex items-center rounded border border-[#facc15]/30 bg-[#facc15]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#facc15] backdrop-blur-sm">
+              Pre-Order
+            </div>
+          )}
+          {game.is_premium && !game.preorder && (
+            <div className={`mb-4 self-start inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] backdrop-blur-sm animate-pulse ${badgeClass}`}>
+              <Sparkles size={13} className="shrink-0" /> Premium Listing
+            </div>
+          )}
+          {game.out_of_stock && (
+            <div className="mb-4 self-start inline-flex items-center gap-1.5 rounded-full border border-red-500/35 bg-red-500/10 px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] text-red-400 backdrop-blur-sm shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-pulse">
+              Out of Stock
+            </div>
+          )}
+          <p className="eyebrow flex items-center gap-1" style={{ color: accent }}>
+            {game.preorder ? "Pre-order title" : game.is_premium ? <><Sparkles size={13} /> RAKEXURA EXCLUSIVE</> : "Rakexura game page"}
+          </p>
+          <h1 className={`mt-5 max-w-4xl font-black leading-[.95] ${titleSize(game.title)} ${titleGradientClass}`}>{game.title}</h1>
+          <p className="mt-5 text-lg text-[#d7dae4]">{game.tagline}</p>
+          {tags.length > 0 && <div className="mt-6 flex flex-wrap gap-2">{tags.map((tag) => <span key={tag} className={`rounded border px-3 py-2 text-xs font-semibold backdrop-blur ${tagClass}`} style={!game.is_premium ? { borderColor: `${accent}55` } : {}}>{tag}</span>)}</div>}
+        </div>
       </div>
     </section>
 
