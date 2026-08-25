@@ -11,6 +11,7 @@
     "test-production": "echo \"Production tests completed successfully.\""
   },
   "dependencies": {
+    "@animateicons/react": "^0.4.3",
     "@hookform/resolvers": "^5.2.2",
     "@sentry/nextjs": "^10.65.0",
     "@supabase/ssr": "^0.7.0",
