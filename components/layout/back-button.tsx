@@ -86,10 +86,10 @@ export function BackButton({ label, href, className = "" }: BackButtonProps) {
       <div className={`relative z-30 pointer-events-auto mb-2 sm:mb-3 ${className}`}>
         <Link
           href={href}
-          className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-bold text-[#a0a8c0] transition-all hover:bg-white/[0.08] hover:border-white/20 hover:text-white active:scale-95 cursor-pointer shadow-sm backdrop-blur-sm"
+          className="inline-flex min-h-9 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-sm font-medium text-[#cbd5e1] transition-all hover:bg-white/[0.08] hover:border-white/20 hover:text-white active:scale-95 cursor-pointer shadow-sm backdrop-blur-md"
           aria-label={displayLabel}
         >
-          <ArrowLeft size={14} className="shrink-0" />
+          <ArrowLeft size={15} className="shrink-0" />
           <span>{displayLabel}</span>
         </Link>
       </div>
@@ -102,10 +102,10 @@ export function BackButton({ label, href, className = "" }: BackButtonProps) {
         suppressHydrationWarning
         type="button"
         onClick={goBack}
-        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-bold text-[#a0a8c0] transition-all hover:bg-white/[0.08] hover:border-white/20 hover:text-white active:scale-95 cursor-pointer shadow-sm backdrop-blur-sm"
+        className="inline-flex min-h-9 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-sm font-medium text-[#cbd5e1] transition-all hover:bg-white/[0.08] hover:border-white/20 hover:text-white active:scale-95 cursor-pointer shadow-sm backdrop-blur-md"
         aria-label={displayLabel}
       >
-        <ArrowLeft size={14} className="shrink-0" />
+        <ArrowLeft size={15} className="shrink-0" />
         <span>{displayLabel}</span>
       </button>
     </div>
