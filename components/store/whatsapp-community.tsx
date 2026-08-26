@@ -36,9 +36,9 @@ export function WhatsAppCommunity() {
             href={channel}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex min-h-[38px] sm:min-h-[44px] w-full sm:w-auto items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#25d366] px-4 sm:px-5 py-2 text-xs font-black uppercase tracking-wider text-[#07130b] hover:bg-[#55e88a] transition-all hover:scale-[1.02] active:scale-95 shadow-md shadow-[#25d366]/20 shrink-0"
+            className="inline-flex min-h-[36px] sm:min-h-[44px] w-auto self-start sm:self-auto items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-[#25d366] px-4 sm:px-5 py-2 text-xs font-black uppercase tracking-wider text-[#07130b] hover:bg-[#55e88a] transition-all hover:scale-[1.02] active:scale-95 shadow-md shadow-[#25d366]/20 shrink-0"
           >
-            <span>Open Official Channel</span> <ArrowUpRight size={14} />
+            <span>Open Channel</span> <ArrowUpRight size={14} />
           </a>
         </div>
       </BorderGlow>

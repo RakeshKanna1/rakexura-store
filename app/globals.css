@@ -385,11 +385,11 @@ html {
 @media (max-width: 760px) {
   .page-shell, .shell { width: min(100% - 24px, 640px); }
   .display { font-size: clamp(2rem, 9.5vw, 3rem); line-height: 1; }
-  .section-space { padding-block: 20px; }
+  .section-space { padding-block: 22px; }
   .section-title { font-size: clamp(1.25rem, 5vw, 1.75rem); line-height: 1.18; }
-  .section-head { align-items: center; margin-bottom: 12px; }
+  .section-head { align-items: center; margin-bottom: 14px; }
   .section-copy { font-size: .84rem; line-height: 1.45; }
-  .hero-with-featured { display: flex; flex-direction: column; gap: 16px; }
+  .hero-with-featured { display: flex; flex-direction: column; gap: 18px; }
   .featured-now { border: 0; border-radius: 0; background: transparent; padding: 0; }
   .featured-now-list { display: grid; grid-auto-flow: column; grid-auto-columns: min(54vw, 175px); gap: 8px; overflow-x: auto; overflow-y: visible; max-height: none; overscroll-behavior-inline: contain; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
   .featured-now-item { min-height: 58px; border: 1px solid rgba(255,255,255,.07); border-radius: 8px; background: rgba(12, 15, 22, 0.95); padding: 6px 8px; scroll-snap-align: start; }
