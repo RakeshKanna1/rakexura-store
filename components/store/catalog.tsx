@@ -230,10 +230,10 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
                 suppressHydrationWarning
                 key={item}
                 onClick={() => setPlatform(item)}
-                className={`inline-flex h-8 shrink-0 items-center justify-center rounded-lg px-3.5 text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                className={`inline-flex h-8 shrink-0 items-center justify-center rounded-lg px-3.5 text-xs font-bold transition-all duration-200 cursor-pointer ${
                   platform === item
                     ? "bg-[#facc15] text-[#080a10] font-black shadow-[0_0_12px_rgba(250,204,21,0.25)] border border-[#facc15]"
-                    : "bg-[#121622] text-[#9da5b8] border border-white/[0.07] hover:border-white/20 hover:text-white hover:bg-[#181d2c] font-bold active:scale-95"
+                    : "bg-[#121622] text-[#9da5b8] border border-white/[0.07] hover:border-white/20 hover:text-white hover:bg-[#181d2c] active:scale-95"
                 }`}
               >
                 {item}
@@ -245,7 +245,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
         {/* Category & Budget Selectors */}
         <div className="grid gap-2 sm:grid-cols-2">
           <label className="flex items-center justify-between rounded-lg bg-black/40 px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-[#a0a8c0] border border-white/[0.08]">
-            <span className="text-[11px] font-black uppercase tracking-wider text-white">Category</span>
+            <span className="text-xs font-bold text-white">Category</span>
             <CustomSelect
               value={selectedGenre}
               onChange={(val) => setGenre(val)}
@@ -254,7 +254,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
             />
           </label>
           <label className="flex items-center justify-between rounded-lg bg-black/40 px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-[#a0a8c0] border border-white/[0.08]">
-            <span className="text-[11px] font-black uppercase tracking-wider text-white">Budget</span>
+            <span className="text-xs font-bold text-white">Budget</span>
             <CustomSelect
               value={budget}
               onChange={(val) => setBudget(val)}
@@ -267,7 +267,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
 
       {/* Active Results & Reset Action */}
       <div className="mb-3 sm:mb-5 flex items-center justify-between">
-        <p className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-[#8991a6]">
+        <p className="text-xs font-medium text-[#8991a6]">
           {filtered.length} {filtered.length === 1 ? "game available" : "games available"}
         </p>
         {(query || platform !== "All" || selectedGenre !== "All" || budget !== "All") && (
@@ -279,7 +279,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
               setGenre("All");
               setBudget("All");
             }}
-            className="text-[11px] font-black uppercase tracking-wider text-[#facc15] hover:underline cursor-pointer"
+            className="text-xs font-bold text-[#facc15] hover:underline cursor-pointer"
           >
             Reset filters ✕
           </button>
