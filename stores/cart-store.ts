@@ -46,10 +46,29 @@ export const useCartStore = create<CartState>()(
       coupon: null,
       drawerOpen: false,
       add: (game, platform) => set((state) => {
-        const exists = state.lines.some((line) => line.game.id === game.id && line.platform === platform);
-        return exists ? state : { lines: [...state.lines, { game, platform, quantity: 1 }] };
+        const index = state.lines.findIndex((line) => line.game.id === game.id && line.platform === platform);
+        if (index > -1) {
+          const updated = [...state.lines];
+          updated[index] = {
+            ...updated[index],
+            quantity: Math.min(5, (updated[index].quantity || 1) + 1),
+          };
+          return { lines: updated };
+        }
+        return { lines: [...state.lines, { game, platform, quantity: 1 }] };
       }),
-      addBundle: (bundle) => set((state) => state.bundleLines.some((line) => line.bundle.id === bundle.id) ? state : { bundleLines: [...state.bundleLines, { bundle, quantity: 1 }] }),
+      addBundle: (bundle) => set((state) => {
+        const index = state.bundleLines.findIndex((line) => line.bundle.id === bundle.id);
+        if (index > -1) {
+          const updated = [...state.bundleLines];
+          updated[index] = {
+            ...updated[index],
+            quantity: Math.min(5, (updated[index].quantity || 1) + 1),
+          };
+          return { bundleLines: updated };
+        }
+        return { bundleLines: [...state.bundleLines, { bundle, quantity: 1 }] };
+      }),
       setQuantity: (gameId, platform, quantity) => set((state) => ({ lines: state.lines.map((line) => line.game.id === gameId && line.platform === platform ? { ...line, quantity: Math.max(1, Math.min(5, quantity)) } : line) })),
       setBundleQuantity: (bundleId, quantity) => set((state) => ({ bundleLines: state.bundleLines.map((line) => line.bundle.id === bundleId ? { ...line, quantity: Math.max(1, Math.min(5, quantity)) } : line) })),
       remove: (gameId, platform) => set((state) => ({

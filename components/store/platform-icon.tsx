@@ -1,6 +1,6 @@
 "use client";
 
-import { WifiOff, Globe, Monitor, Clock, ShieldCheck, Gamepad2 } from "lucide-react";
+import { WifiOff, Globe, Monitor, Clock } from "lucide-react";
 
 export function PlatformIcon({
   platform,

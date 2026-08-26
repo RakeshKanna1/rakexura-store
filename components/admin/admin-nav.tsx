@@ -16,7 +16,6 @@ import {
   Megaphone, 
   MessageSquareText, 
   PackageCheck, 
-  Send, 
   TicketPercent, 
   Trophy, 
   Users,

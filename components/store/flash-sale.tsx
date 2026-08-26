@@ -33,13 +33,21 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
     setMounted(true);
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     const supabase = createClient();
-    const channel = supabase.channel("flash-sales-storefront").on("postgres_changes", { event: "UPDATE", schema: "public", table: "flash_sales" }, (payload: { new: Record<string, unknown> }) => {
-      const update = payload.new as Partial<FlashSale> & { id: number };
-      setItems((current) => current.map((item) => item.id === update.id ? { ...item, ...update } : item));
-    }).on("postgres_changes", { event: "DELETE", schema: "public", table: "flash_sales" }, (payload: { old: Record<string, unknown> }) => {
-      const removed = payload.old as { id?: number };
-      setItems((current) => current.filter((item) => item.id !== removed.id));
-    }).subscribe();
+    const channel = supabase
+      .channel("flash-sales-storefront")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "flash_sales" }, (payload: { new: Record<string, unknown> }) => {
+        const item = payload.new as unknown as FlashSale;
+        setItems((current) => [item, ...current.filter((c) => c.id !== item.id)]);
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "flash_sales" }, (payload: { new: Record<string, unknown> }) => {
+        const update = payload.new as Partial<FlashSale> & { id: number };
+        setItems((current) => current.map((item) => item.id === update.id ? { ...item, ...update } : item));
+      })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "flash_sales" }, (payload: { old: Record<string, unknown> }) => {
+        const removed = payload.old as { id?: number };
+        setItems((current) => current.filter((item) => item.id !== removed.id));
+      })
+      .subscribe();
     return () => { window.clearInterval(timer); void supabase.removeChannel(channel); };
   }, []);
 

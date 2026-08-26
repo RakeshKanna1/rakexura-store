@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isDiamondOrPlatinumCoupon } from "@/lib/utils";
 import { NextResponse } from "next/server";
 import { logError } from "@/lib/security/logger";
+import { OWNER_EMAIL } from "@/lib/config";
 
 export const runtime = "nodejs";
 
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
         .eq("id", user.id)
         .maybeSingle();
 
-      isAdmin = profile?.role === "admin" || profile?.role === "owner" || user.email === "12k21rakeshkannam@gmail.com";
+      isAdmin = profile?.role === "admin" || profile?.role === "owner" || user.email?.toLowerCase() === OWNER_EMAIL.toLowerCase();
       isReseller = Boolean(profile?.is_reseller);
     }
 

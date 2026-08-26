@@ -1,6 +1,6 @@
 "use client";
 
-import { BellRing, Gamepad2, Gift, MessageCircle, Send, Mail, Flame, Key, Megaphone, LifeBuoy, Sparkles, Receipt, Search, Star, Clock, Copy, ChevronDown, ChevronUp } from "lucide-react";
+import { BellRing, Gamepad2, Gift, MessageCircle, Send, Mail, Flame, Key, Megaphone, LifeBuoy, Sparkles, Receipt, Search, Star, Clock, Copy } from "lucide-react";
 import { useState, useTransition, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { sendStoreAnnouncement, sendSinglePushNotification, sendSingleEmailNotification, giftGameToCustomer, fetchOrderInvoiceData } from "@/app/admin/actions";
@@ -709,6 +709,19 @@ export function BroadcastComposer({
               searchable={false}
             />
           </div>
+
+          {/* Optional Game Selector for Game-specific templates */}
+          {(selectedTemplateKey === "offer" || selectedTemplateKey === "preorder" || selectedTemplateKey === "review") && (
+            <div className="rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/5 p-3.5 space-y-2">
+              <label className="block text-xs font-bold text-[#b9a4ff]">Pick Game to Auto-fill Details</label>
+              <CustomSelect
+                options={gameOptions}
+                value={selectedGameId}
+                onChange={(val) => chooseGame(val)}
+                placeholder="Choose a game to auto-fill title, message, and link..."
+              />
+            </div>
+          )}
 
           {/* Optional Order Invoice Fetcher */}
           {showOrderInvoiceBox && (

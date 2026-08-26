@@ -25,8 +25,13 @@ function readableWhatsAppError(raw: string) {
 }
 
 export function cleanPhone(value?: string | null) {
-  const digits = String(value ?? "").replace(/\D/g, "");
-  if (digits.length === 10) return `91${digits}`;
+  let digits = String(value ?? "").replace(/\D/g, "");
+  if (digits.startsWith("0") && digits.length === 11) {
+    digits = digits.slice(1);
+  }
+  if (digits.length === 10) {
+    return `91${digits}`;
+  }
   return digits;
 }
 

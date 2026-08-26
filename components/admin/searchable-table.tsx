@@ -588,7 +588,6 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
               const now = Date.now();
               const isLive = isActive && startsDate && endsDate && startsDate.getTime() <= now && endsDate.getTime() > now;
               const isUpcoming = isActive && startsDate && startsDate.getTime() > now;
-              const isExpired = endsDate && endsDate.getTime() <= now;
 
               return (
                 <article
