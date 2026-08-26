@@ -628,6 +628,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                           setForgotPasswordView(false);
                           setForgotEmailSent(false);
                         }}
+                        suppressHydrationWarning
                         className="w-full rounded-xl bg-gradient-to-r from-[#facc15] to-[#eab308] hover:from-[#ffe45c] hover:to-[#facc15] text-black h-11 font-black text-sm tracking-wide transition-all shadow-[0_0_24px_rgba(250,204,21,0.3)] hover:shadow-[0_0_35px_rgba(250,204,21,0.5)] cursor-pointer flex items-center justify-center gap-2 active:scale-[0.99]"
                       >
                         <span>Return to Sign In</span>
@@ -635,6 +636,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                       </button>
 
                       <button
+                        suppressHydrationWarning
                         type="button"
                         onClick={handleSendForgotResetEmail}
                         disabled={forgotLoading}
@@ -686,8 +688,9 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                 </div>
 
                 {/* Sign-in Method Tabs */}
-                <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-white/[0.03] backdrop-blur-md p-1 border border-white/10 text-xs font-bold">
+                <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-white/[0.03] backdrop-blur-md p-1 border border-white/10 text-xs font-bold" suppressHydrationWarning>
                   <button
+                    suppressHydrationWarning
                     type="button"
                     onClick={() => setLoginWithOtp(false)}
                     className={`h-8 rounded-lg transition-all cursor-pointer ${
@@ -699,6 +702,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                     Password
                   </button>
                   <button
+                    suppressHydrationWarning
                     type="button"
                     onClick={() => setLoginWithOtp(true)}
                     className={`h-8 rounded-lg transition-all cursor-pointer ${
@@ -778,6 +782,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
 
                     <div className="flex items-center justify-between text-xs pt-1">
                       <button
+                        suppressHydrationWarning
                         type="button"
                         onClick={() => {
                           setForgotPasswordView(true);
@@ -789,6 +794,7 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
                         Forgot password?
                       </button>
                       <button
+                        suppressHydrationWarning
                         type="button"
                         onClick={() => setLoginWithOtp(true)}
                         className="text-[11px] font-semibold text-[#a0a8c0] hover:text-[#facc15] transition-colors cursor-pointer flex items-center gap-1"
