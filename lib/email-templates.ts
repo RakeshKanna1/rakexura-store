@@ -198,7 +198,7 @@ export type AdminAlertEmailOptions = {
 export function buildAdminAlertEmailHtml(options: AdminAlertEmailOptions) {
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
   const {
-    badgeText = "Store Alert",
+    badgeText,
     title,
     subtitle = "Automated notification from Rakexura Store",
     fields,
@@ -249,6 +249,12 @@ export function buildAdminAlertEmailHtml(options: AdminAlertEmailOptions) {
                 <tr>
                   <td align="center">
                     
+                    ${badgeText ? `
+                      <div style="display:inline-block;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#777777;margin-bottom:12px;">
+                        ${escapeHtml(badgeText)}
+                      </div>
+                    ` : ''}
+
                     <!-- Brand Title in Editorial Serif -->
                     <h1 style="font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:42px;font-weight:900;color:#111111;margin:0 0 16px 0;letter-spacing:-1px;line-height:1;">
                       Rakexura
@@ -342,9 +348,12 @@ export function buildWishlistSaleEmailHtml(options: WishlistSaleEmailOptions): s
     salePrice,
     originalPrice,
     discountPercentage,
-    wishlistUrl = `${siteUrl}/wishlist`,
-    gameUrl = gameSlug ? `${siteUrl}/games/${gameSlug}` : `${siteUrl}/wishlist`,
+    wishlistUrl,
+    gameUrl,
   } = options;
+
+  const effectiveWishlistUrl: string = wishlistUrl || `${siteUrl}/wishlist`;
+  const effectiveGameUrl: string = gameUrl || (gameSlug ? `${siteUrl}/games/${gameSlug}` : effectiveWishlistUrl);
 
   let fullImageUrl: string | null = null;
   if (gameImageUrl) {
@@ -397,7 +406,7 @@ export function buildWishlistSaleEmailHtml(options: WishlistSaleEmailOptions): s
             ${fullImageUrl ? `
               <tr>
                 <td style="padding:0 24px 16px 24px;">
-                  <a href="${escapeHtml(gameUrl)}" target="_blank" style="display:block;text-decoration:none;">
+                  <a href="${escapeHtml(effectiveGameUrl)}" target="_blank" style="display:block;text-decoration:none;">
                     <img src="${escapeHtml(fullImageUrl)}" alt="${escapeHtml(gameTitle)}" style="width:100%;max-width:492px;height:auto;display:block;border-radius:0;border:0;" />
                   </a>
                 </td>
@@ -452,7 +461,7 @@ export function buildWishlistSaleEmailHtml(options: WishlistSaleEmailOptions): s
                 <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
                   <tr>
                     <td align="center">
-                      <a href="${escapeHtml(gameUrl)}" target="_blank" style="display:inline-block;width:100%;max-width:320px;background-color:#214b6b;background:linear-gradient(90deg,#225883,#1b3d5b);color:#ffffff;font-size:13px;font-weight:800;text-decoration:none;padding:14px 20px;border-radius:0;text-align:center;letter-spacing:0.5px;text-transform:uppercase;border:1px solid #3d7ea6;box-sizing:border-box;">
+                      <a href="${escapeHtml(effectiveGameUrl)}" target="_blank" style="display:inline-block;width:100%;max-width:320px;background-color:#214b6b;background:linear-gradient(90deg,#225883,#1b3d5b);color:#ffffff;font-size:13px;font-weight:800;text-decoration:none;padding:14px 20px;border-radius:0;text-align:center;letter-spacing:0.5px;text-transform:uppercase;border:1px solid #3d7ea6;box-sizing:border-box;">
                         View Your Wishlist &rarr;
                       </a>
                     </td>
@@ -475,7 +484,7 @@ export function buildWishlistSaleEmailHtml(options: WishlistSaleEmailOptions): s
                 </p>
                 <div style="border-top:1px solid #e5e7eb;padding-top:16px;">
                   <a href="${siteUrl}/games" style="color:#4b5563;text-decoration:underline;margin-right:12px;font-weight:600;">Browse Store</a> &bull;
-                  <a href="${siteUrl}/wishlist" style="color:#4b5563;text-decoration:underline;margin:0 12px;font-weight:600;">My Wishlist</a> &bull;
+                  <a href="${escapeHtml(effectiveWishlistUrl)}" style="color:#4b5563;text-decoration:underline;margin:0 12px;font-weight:600;">My Wishlist</a> &bull;
                   <a href="${siteUrl}/support" style="color:#4b5563;text-decoration:underline;margin-left:12px;font-weight:600;">Support Desk</a>
                 </div>
                 <div style="margin-top:8px;font-size:10px;color:#9ca3af;">
