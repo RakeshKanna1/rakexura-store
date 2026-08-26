@@ -211,7 +211,7 @@ export function HeaderNotificationButton() {
           setTimeout(() => setRinging(false), 800);
           setOpen(!open);
         }}
-        className="btn btn-secondary relative h-11 min-h-11 px-3 hover:border-[#facc15]/30 hover:bg-white/[.08] cursor-pointer"
+        className="btn btn-secondary relative h-10 sm:h-11 min-h-10 sm:min-h-11 px-2.5 sm:px-3 hover:border-[#facc15]/30 hover:bg-white/[.08] cursor-pointer flex items-center justify-center"
         aria-label="Open notifications"
       >
         <motion.div

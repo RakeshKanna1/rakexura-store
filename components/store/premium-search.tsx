@@ -128,7 +128,7 @@ export function PremiumSearch() {
       {/* Search Input Bar */}
       <label
         htmlFor="premium-search-input"
-        className={`flex h-11 w-full items-center gap-2.5 rounded-xl border border-white/10 bg-[#10131b] px-3.5 text-sm shadow-inner transition-all duration-200 cursor-text ${
+        className={`flex h-10 sm:h-11 w-full items-center gap-2 sm:gap-2.5 rounded-xl border border-white/10 bg-[#10131b] px-3 sm:px-3.5 text-sm shadow-inner transition-all duration-200 cursor-text ${
           isReseller
             ? "focus-within:border-[#facc15]/60 focus-within:bg-[#141823] focus-within:shadow-[0_0_15px_rgba(250,204,21,0.12)]"
             : "focus-within:border-[#8b5cf6]/60 focus-within:bg-[#141823] focus-within:shadow-[0_0_15px_rgba(139,92,246,0.12)]"
