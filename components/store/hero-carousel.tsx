@@ -192,10 +192,10 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                             initial={{ opacity: 0, y: 24 }} 
                             animate={active === index ? { opacity: 1, y: 0 } : { opacity: .75, y: 12 }} 
                             transition={{ duration: .65, ease: [0.2, 0.7, 0.2, 1] }} 
-                            className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-4 pb-14 pt-6 sm:p-6 sm:pb-16 md:pb-24 md:pt-14 md:px-14 lg:px-16"
+                            className="relative z-10 flex h-full w-full max-w-4xl flex-col justify-end p-4 pb-10 pt-4 sm:p-6 sm:pb-12 md:pb-16 md:pt-10 md:px-12 lg:px-14"
                           >
                             {isFlashActive ? (
-                              <div className="mb-1.5 sm:mb-2 flex flex-wrap items-center gap-2">
+                              <div className="mb-2 sm:mb-2.5 md:mb-3 flex flex-wrap items-center gap-2">
                                 <p className="text-xs sm:text-sm font-extrabold uppercase tracking-[0.16em] text-[#facc15] flex items-center gap-1.5">
                                   <Zap size={14} className="fill-[#facc15] shrink-0" />
                                   <span>Flash Sale Deal</span>
@@ -210,11 +210,11 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                                 )}
                               </div>
                             ) : (
-                              <p className="mb-1.5 sm:mb-2 text-xs sm:text-sm font-extrabold uppercase tracking-[0.16em] text-[#b9a4ff]">
+                              <p className="mb-2 sm:mb-2.5 md:mb-3 text-xs sm:text-sm font-extrabold uppercase tracking-[0.16em] text-[#b9a4ff]">
                                 {game.preorder ? "Pre-order spotlight" : "Rakexura spotlight"}
                               </p>
                             )}
-                            <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-[62px] font-black tracking-tight leading-[1.06] drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
+                            <h3 className="text-2xl sm:text-4xl md:text-5xl lg:text-[54px] font-black tracking-tight leading-[1.08] drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
                               <BlurText 
                                 key={`${game.id}-${active === index}`}
                                 text={game.title} 
@@ -224,14 +224,14 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                                 stepDuration={0.3} 
                               />
                             </h3>
-                            <p className="mt-2 sm:mt-3.5 max-w-xl text-sm sm:text-base md:text-lg leading-relaxed text-[#d8dce8] font-medium line-clamp-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                            <p className="mt-2 sm:mt-2.5 md:mt-3 max-w-xl text-xs sm:text-sm md:text-base leading-relaxed text-[#d8dce8] font-medium line-clamp-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
                               {game.tagline || game.description || "A standout PC experience, ready for your library."}
                             </p>
-                            <div className="mt-4 sm:mt-6 grid grid-cols-3 sm:flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                            <div className="mt-3.5 sm:mt-5 md:mt-6 grid grid-cols-3 sm:flex items-center gap-2 sm:gap-3 md:gap-3.5 w-full sm:w-auto">
                               {game.is_subscription ? (
                                 <Link 
                                   href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl bg-[#facc15] px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-[#080a10] leading-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#ffe45c] shadow-[0_4px_16px_rgba(250,204,21,0.35)] active:scale-95 cursor-pointer"
+                                  className="magnetic-button inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl border border-[#c5a059] bg-[#c5a059] px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-[#080a10] leading-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d6b26d] hover:border-[#d6b26d] shadow-[0_4px_14px_rgba(197,160,89,0.22)] active:scale-95 cursor-pointer"
                                 >
                                   <span className="truncate">View plans</span>
                                   <ArrowRight size={13} className="shrink-0 text-[#080a10]" />
@@ -239,7 +239,7 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                               ) : game.preorder ? (
                                 <Link 
                                   href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl bg-[#facc15] px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-[#080a10] leading-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#ffe45c] shadow-[0_4px_16px_rgba(250,204,21,0.35)] active:scale-95 cursor-pointer"
+                                  className="magnetic-button inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl border border-[#c5a059] bg-[#c5a059] px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-[#080a10] leading-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d6b26d] hover:border-[#d6b26d] shadow-[0_4px_14px_rgba(197,160,89,0.22)] active:scale-95 cursor-pointer"
                                 >
                                   <span className="truncate">Pre-order</span>
                                   <ArrowRight size={13} className="shrink-0 text-[#080a10]" />
@@ -247,7 +247,7 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                               ) : (
                                 <Link 
                                   href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl bg-[#facc15] px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-[#080a10] leading-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#ffe45c] shadow-[0_4px_16px_rgba(250,204,21,0.35)] active:scale-95 cursor-pointer"
+                                  className="magnetic-button inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl border border-[#c5a059] bg-[#c5a059] px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-[#080a10] leading-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d6b26d] hover:border-[#d6b26d] shadow-[0_4px_14px_rgba(197,160,89,0.22)] active:scale-95 cursor-pointer"
                                 >
                                   <span className="truncate">View game</span>
                                   <ArrowRight size={13} className="shrink-0 text-[#080a10]" />
@@ -261,7 +261,7 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                                   className="inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl border border-white/20 bg-black/60 px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-white leading-none backdrop-blur-md hover:bg-black/80 hover:border-white/35 transition-all duration-200 cursor-pointer active:scale-95"
                                 >
                                   <Play size={12} fill="currentColor" className="shrink-0 text-white" />
-                                  <span className="truncate">Trailer</span>
+                                  <span className="truncate">Watch</span>
                                 </button>
                               ) : (
                                 <Link
@@ -269,7 +269,7 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                                   className="inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl border border-white/20 bg-black/60 px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-white leading-none backdrop-blur-md hover:bg-black/80 hover:border-white/35 transition-all duration-200 active:scale-95"
                                 >
                                   <Play size={12} fill="currentColor" className="shrink-0 text-white" />
-                                  <span className="truncate">Trailer</span>
+                                  <span className="truncate">Watch</span>
                                 </Link>
                               )}
                               <span className="inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center rounded-xl border border-white/15 bg-black/60 px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold leading-none backdrop-blur-md">
@@ -291,8 +291,8 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                 );
               })}
             </Swiper>
-            <div className="absolute inset-x-4 sm:inset-x-6 bottom-5 z-20 flex gap-2 md:inset-x-14 lg:inset-x-16">
-              {games.map((game, index) => <span key={game.id} className="h-0.5 flex-1 overflow-hidden bg-white/20"><span key={active === index ? `active-${game.id}` : game.id} className={`block h-full origin-left bg-[#facc15] ${active === index ? "animate-[hero-progress_6.5s_linear_forwards]" : index < active ? "scale-x-100" : "scale-x-0"}`} /></span>)}
+            <div className="absolute inset-x-4 sm:inset-x-6 bottom-3 sm:bottom-4 md:bottom-5 z-20 flex gap-2 md:gap-2.5 md:inset-x-12 lg:inset-x-14">
+              {games.map((game, index) => <span key={game.id} className="h-0.5 md:h-1 flex-1 overflow-hidden rounded-full bg-white/20"><span key={active === index ? `active-${game.id}` : game.id} className={`block h-full origin-left bg-[#facc15] ${active === index ? "animate-[hero-progress_6.5s_linear_forwards]" : index < active ? "scale-x-100" : "scale-x-0"}`} /></span>)}
             </div>
           </>
       </div>

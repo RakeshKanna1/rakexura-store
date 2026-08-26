@@ -174,6 +174,8 @@ export {
   type AdminAlertField,
   type AdminAlertEmailOptions,
   buildAdminAlertEmailHtml,
+  type WishlistSaleEmailOptions,
+  buildWishlistSaleEmailHtml,
 } from "./email-templates";
 
 export type StoreEmailOptions = {
@@ -653,7 +655,38 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
   // OWNER EMAILS MUST NEVER USE BREVO API!
   // =========================================================================
   if (isOwner) {
-    // 1a. Try Resend API first for Owner emails
+    // 1a. Try Gmail Direct SMTP first for Owner emails (100% reliable inbox delivery)
+    const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
+    const smtpPort = Number(process.env.SMTP_PORT || "587");
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS;
+
+    if (nodemailer && smtpUser && smtpPass) {
+      try {
+        const transporter = nodemailer.createTransport({
+          host: smtpHost,
+          port: smtpPort,
+          secure: smtpPort === 465,
+          auth: { user: smtpUser, pass: smtpPass },
+        });
+
+        await transporter.sendMail({
+          from: `Rakexura Store <${smtpUser}>`,
+          to: recipient,
+          subject,
+          text,
+          html: html ?? textToHtml(text),
+          attachments: getInlineAttachments(),
+        });
+
+        console.log(`[Gmail Direct SMTP] Owner email successfully delivered to ${recipient}`);
+        return { ok: true };
+      } catch (smtpErr) {
+        console.warn("[Gmail Direct SMTP] Owner email failed:", smtpErr);
+      }
+    }
+
+    // 1b. Fallback: Try Resend API
     if (process.env.RESEND_API_KEY) {
       try {
         const apiKey = process.env.RESEND_API_KEY;
@@ -683,38 +716,7 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
       }
     }
 
-    // 1b. Fallback for Owner: Gmail Direct SMTP (if configured)
-    const smtpHost = process.env.SMTP_HOST;
-    const smtpPort = Number(process.env.SMTP_PORT || "465");
-    const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
-
-    if (nodemailer && smtpHost && smtpUser && smtpPass) {
-      try {
-        const transporter = nodemailer.createTransport({
-          host: smtpHost,
-          port: smtpPort,
-          secure: smtpPort === 465,
-          auth: { user: smtpUser, pass: smtpPass },
-        });
-
-        await transporter.sendMail({
-          from: `Rakexura Admin Alert <${smtpUser}>`,
-          to: recipient,
-          subject,
-          text,
-          html: html ?? textToHtml(text),
-          attachments: getInlineAttachments(),
-        });
-
-        console.log(`[Gmail Direct SMTP] Owner email successfully delivered to ${recipient}`);
-        return { ok: true };
-      } catch (smtpErr) {
-        console.warn("[Gmail Direct SMTP] Owner email failed:", smtpErr);
-      }
-    }
-
-    return { ok: false, skipped: true, reason: "Owner email dispatch failed (Resend API & Gmail Direct SMTP failed)" };
+    return { ok: false, skipped: true, reason: "Owner email dispatch failed (Gmail Direct SMTP & Resend API failed)" };
   }
 
   // =========================================================================
