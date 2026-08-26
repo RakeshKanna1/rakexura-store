@@ -17,39 +17,12 @@ export type OtpEmailOptions = {
 };
 
 export function buildOtpVerificationEmailHtml(options: OtpEmailOptions) {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
-  const logoUrl = `${siteUrl}/images/rakexura-silver-badge.png`;
   const {
     otpCode,
-    userName = "Gamer",
-    userEmail,
-    purpose = "account verification",
-    expiresInMinutes = 10,
-    ipAddress,
+    expiresInMinutes = 15,
   } = options;
 
   const formattedCode = String(otpCode).trim();
-  const digits = formattedCode.split("");
-
-  const digitBoxesHtml = digits.length === 6
-    ? digits
-        .map(
-          (d) => `
-            <td align="center" style="padding:0 4px;">
-              <div style="width:42px;height:50px;line-height:50px;background-color:#ffffff;border:2px solid #e2e8f0;border-radius:8px;font-size:24px;font-weight:900;color:#0f172a;font-family:monospace,Consolas,Courier,monospace;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,0.04);">
-                ${escapeHtml(d)}
-              </div>
-            </td>
-          `
-        )
-        .join("")
-    : `
-        <td align="center">
-          <div style="font-size:32px;font-weight:900;letter-spacing:10px;color:#0f172a;font-family:monospace,Consolas,Courier,monospace;">
-            ${escapeHtml(formattedCode)}
-          </div>
-        </td>
-      `;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -58,92 +31,63 @@ export function buildOtpVerificationEmailHtml(options: OtpEmailOptions) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Your Rakexura Verification Code</title>
   </head>
-  <body style="margin:0;padding:0;background-color:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased;">
-    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f4f5f7;padding:36px 12px;">
+  <body style="margin:0;padding:0;background-color:#faebd7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#111111;-webkit-font-smoothing:antialiased;">
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#faebd7;padding:48px 16px 64px 16px;">
       <tr>
         <td align="center">
-          <!-- Clean White Card Container -->
-          <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:540px;background-color:#ffffff;border-radius:16px;border:1px solid #e2e8f0;padding:40px 32px;box-shadow:0 12px 35px rgba(0,0,0,0.06);text-align:center;">
+          <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:460px;text-align:center;margin:0 auto;">
             <tr>
               <td align="center">
-                <!-- Top Brand Header with Shield Badge -->
-                <div style="margin-bottom:24px;text-align:center;">
-                  <img src="${logoUrl}" alt="Rakexura Logo" width="46" height="54" style="display:block;margin:0 auto 12px auto;border:0;outline:none;" />
-                  <div style="font-size:18px;font-weight:900;letter-spacing:2px;color:#0f172a;text-transform:uppercase;">
-                    RAKEXURA STORE
-                  </div>
-                </div>
-
-                <!-- Security Pill Badge -->
-                <div style="display:inline-block;background-color:#fefce8;border:1px solid #fef08a;padding:6px 16px;border-radius:999px;margin-bottom:20px;">
-                  <span style="font-size:11px;font-weight:900;color:#854d0e;text-transform:uppercase;letter-spacing:1px;">
-                    🛡️ ONE-TIME SECURITY CODE
-                  </span>
-                </div>
-
-                <!-- Main Heading -->
-                <h1 style="font-size:26px;font-weight:900;color:#0f172a;margin:0 0 12px 0;letter-spacing:-0.5px;line-height:1.2;">
-                  Verify Your Account
+                <!-- Brand Title in Editorial Serif -->
+                <h1 style="font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:42px;font-weight:900;color:#111111;margin:0 0 16px 0;letter-spacing:-1px;line-height:1;">
+                  Rakexura
                 </h1>
 
-                <div style="font-size:15px;font-weight:700;color:#1e293b;margin-bottom:8px;">
-                  Hello ${escapeHtml(userName)}!
-                </div>
+                <!-- Subheading -->
+                <h2 style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:20px;font-weight:700;color:#111111;margin:0 0 22px 0;letter-spacing:-0.2px;line-height:1.3;">
+                  Let's get you signed in
+                </h2>
 
-                <p style="font-size:14px;line-height:1.6;color:#64748b;margin:0 auto 28px auto;max-width:440px;">
-                  Please enter the verification code below to complete your ${escapeHtml(purpose)}. This code is valid for <strong>${expiresInMinutes} minutes</strong>.
+                <!-- Intro copy -->
+                <p style="font-size:14px;line-height:1.65;color:#333333;margin:0 auto 28px auto;max-width:390px;">
+                  We use this easy login code so you don't have to remember or type in yet another long password.
                 </p>
 
-                <!-- OTP Code Display Card -->
-                <div style="background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:24px 16px;margin-bottom:28px;text-align:center;">
-                  <div style="font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;">
-                    YOUR 6-DIGIT VERIFICATION CODE
-                  </div>
-                  
-                  <table role="presentation" border="0" cellspacing="0" cellpadding="0" style="margin:0 auto;">
-                    <tr>
-                      ${digitBoxesHtml}
-                    </tr>
-                  </table>
-
-                  <div style="font-size:11px;color:#94a3b8;margin-top:14px;">
-                    Click and hold code to copy
-                  </div>
+                <!-- Code prompt label -->
+                <div style="font-size:13px;font-weight:600;color:#111111;margin-bottom:10px;text-align:left;max-width:420px;padding-left:4px;">
+                  Your login code is:
                 </div>
 
-                <!-- Security Warnings & Details Box -->
-                <div style="background-color:#fffbeb;border:1px solid #fef3c7;border-radius:10px;padding:16px 18px;margin-bottom:28px;text-align:left;">
-                  <div style="font-size:12px;font-weight:800;color:#92400e;margin-bottom:6px;">
-                    ⚠️ Security Reminders:
-                  </div>
-                  <ul style="margin:0;padding-left:18px;font-size:12px;color:#78350f;line-height:1.6;">
-                    <li>Never share this code with anyone. Rakexura staff will <strong>never</strong> ask for your verification code.</li>
-                    <li>This code expires automatically in <strong>${expiresInMinutes} minutes</strong>.</li>
-                    ${userEmail ? `<li>Sent specifically to <strong>${escapeHtml(userEmail)}</strong>.</li>` : ''}
-                    ${ipAddress ? `<li>Requested from IP: <code style="font-family:monospace;font-size:11px;">${escapeHtml(ipAddress)}</code></li>` : ''}
-                  </ul>
+                <!-- Clean white code pill container -->
+                <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:420px;margin:0 auto;background-color:#ffffff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.04);">
+                  <tr>
+                    <td align="center" style="padding:22px 24px;">
+                      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:34px;font-weight:700;letter-spacing:14px;color:#111111;line-height:1;margin-left:14px;">
+                        ${escapeHtml(formattedCode)}
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Note below pill -->
+                <div style="font-size:12px;color:#666666;margin-top:12px;margin-bottom:44px;">
+                  Please note this code is only valid for ${expiresInMinutes} minutes.
                 </div>
 
-                <p style="font-size:12px;color:#94a3b8;line-height:1.5;margin:0 0 28px 0;">
-                  If you did not request this verification code, someone may have entered your email address by mistake. You can safely ignore this email or update your password.
-                </p>
+                <!-- Questions / Support -->
+                <div style="font-size:16px;font-weight:600;color:#111111;margin-bottom:8px;">
+                  Have questions or trouble logging in?
+                </div>
+                <div style="font-size:13px;color:#333333;margin-bottom:52px;line-height:1.5;">
+                  Just reply to this email or contact <a href="mailto:support@rakexura.store" style="color:#4f46e5;text-decoration:underline;">support@rakexura.store</a>
+                </div>
 
-                <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 20px 0;" />
-
-                <!-- Footer -->
-                <div style="text-align:center;font-size:11px;line-height:1.6;color:#64748b;">
-                  <div style="font-weight:800;color:#0f172a;margin-bottom:2px;">Rakexura Store Gaming Pvt Ltd</div>
-                  <div style="font-size:10px;color:#94a3b8;margin-bottom:12px;">Authorized PC Game Reseller &middot; India</div>
-
-                  <img src="${logoUrl}" alt="Rakexura Shield" width="22" height="26" style="display:block;margin:0 auto 10px auto;border:0;outline:none;opacity:0.8;" />
-
-                  <div style="font-size:10px;color:#94a3b8;margin-bottom:8px;">&copy; 2026 Rakexura Store. All rights reserved.</div>
-
-                  <div>
-                    <a href="${siteUrl}/terms" style="color:#64748b;text-decoration:underline;margin:0 6px;">Terms of Service</a> |
-                    <a href="${siteUrl}/privacy" style="color:#64748b;text-decoration:underline;margin:0 6px;">Privacy Policy</a> |
-                    <a href="${siteUrl}/support" style="color:#64748b;text-decoration:underline;margin:0 6px;">Help Center</a>
-                  </div>
+                <!-- Sign off -->
+                <div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:17px;color:#111111;margin-bottom:6px;">
+                  All the Best,
+                </div>
+                <div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:28px;font-weight:900;color:#111111;letter-spacing:-0.5px;">
+                  The Rakexura team
                 </div>
               </td>
             </tr>
@@ -156,9 +100,6 @@ export function buildOtpVerificationEmailHtml(options: OtpEmailOptions) {
 }
 
 export function getSupabaseOtpEmailTemplateHtml(): string {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
-  const logoUrl = `${siteUrl}/images/rakexura-silver-badge.png`;
-
   return `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -166,70 +107,63 @@ export function getSupabaseOtpEmailTemplateHtml(): string {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Your Rakexura Verification Code</title>
   </head>
-  <body style="margin:0;padding:0;background-color:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased;">
-    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f4f5f7;padding:36px 12px;">
+  <body style="margin:0;padding:0;background-color:#faebd7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#111111;-webkit-font-smoothing:antialiased;">
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#faebd7;padding:48px 16px 64px 16px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:540px;background-color:#ffffff;border-radius:16px;border:1px solid #e2e8f0;padding:40px 32px;box-shadow:0 12px 35px rgba(0,0,0,0.06);text-align:center;">
+          <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:460px;text-align:center;margin:0 auto;">
             <tr>
               <td align="center">
-                <div style="margin-bottom:24px;text-align:center;">
-                  <img src="${logoUrl}" alt="Rakexura Logo" width="46" height="54" style="display:block;margin:0 auto 12px auto;border:0;outline:none;" />
-                  <div style="font-size:18px;font-weight:900;letter-spacing:2px;color:#0f172a;text-transform:uppercase;">
-                    RAKEXURA STORE
-                  </div>
-                </div>
-
-                <div style="display:inline-block;background-color:#fefce8;border:1px solid #fef08a;padding:6px 16px;border-radius:999px;margin-bottom:20px;">
-                  <span style="font-size:11px;font-weight:900;color:#854d0e;text-transform:uppercase;letter-spacing:1px;">
-                    🛡️ ONE-TIME SECURITY CODE
-                  </span>
-                </div>
-
-                <h1 style="font-size:26px;font-weight:900;color:#0f172a;margin:0 0 12px 0;letter-spacing:-0.5px;line-height:1.2;">
-                  Verify Your Account
+                <!-- Brand Title in Editorial Serif -->
+                <h1 style="font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:42px;font-weight:900;color:#111111;margin:0 0 16px 0;letter-spacing:-1px;line-height:1;">
+                  Rakexura
                 </h1>
 
-                <p style="font-size:14px;line-height:1.6;color:#64748b;margin:0 auto 28px auto;max-width:440px;">
-                  Please enter the verification code below to complete your login or registration. This code is valid for <strong>10 minutes</strong>.
+                <!-- Subheading -->
+                <h2 style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:20px;font-weight:700;color:#111111;margin:0 0 22px 0;letter-spacing:-0.2px;line-height:1.3;">
+                  Let's get you signed in
+                </h2>
+
+                <!-- Intro copy -->
+                <p style="font-size:14px;line-height:1.65;color:#333333;margin:0 auto 28px auto;max-width:390px;">
+                  We use this easy login code so you don't have to remember or type in yet another long password.
                 </p>
 
-                <div style="background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:24px 16px;margin-bottom:28px;text-align:center;">
-                  <div style="font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;">
-                    YOUR 6-DIGIT VERIFICATION CODE
-                  </div>
-                  <div style="font-size:36px;font-weight:900;letter-spacing:12px;color:#0f172a;font-family:monospace,Consolas,Courier,monospace;padding:10px 0;">
-                    {{ .Token }}
-                  </div>
-                  <div style="font-size:11px;color:#94a3b8;margin-top:10px;">
-                    Copy and paste this code in your verification prompt
-                  </div>
+                <!-- Code prompt label -->
+                <div style="font-size:13px;font-weight:600;color:#111111;margin-bottom:10px;text-align:left;max-width:420px;padding-left:4px;">
+                  Your login code is:
                 </div>
 
-                <div style="background-color:#fffbeb;border:1px solid #fef3c7;border-radius:10px;padding:16px 18px;margin-bottom:28px;text-align:left;">
-                  <div style="font-size:12px;font-weight:800;color:#92400e;margin-bottom:6px;">
-                    ⚠️ Security Reminders:
-                  </div>
-                  <ul style="margin:0;padding-left:18px;font-size:12px;color:#78350f;line-height:1.6;">
-                    <li>Never share this code with anyone. Rakexura staff will never ask for your code.</li>
-                    <li>This code expires in <strong>10 minutes</strong>.</li>
-                  </ul>
+                <!-- Clean white code pill container -->
+                <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:420px;margin:0 auto;background-color:#ffffff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.04);">
+                  <tr>
+                    <td align="center" style="padding:22px 24px;">
+                      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:34px;font-weight:700;letter-spacing:14px;color:#111111;line-height:1;margin-left:14px;">
+                        {{ .Token }}
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Note below pill -->
+                <div style="font-size:12px;color:#666666;margin-top:12px;margin-bottom:44px;">
+                  Please note this code is only valid for 15 minutes.
                 </div>
 
-                <p style="font-size:12px;color:#94a3b8;line-height:1.5;margin:0 0 28px 0;">
-                  If you did not request this code, you can safely ignore this email.
-                </p>
+                <!-- Questions / Support -->
+                <div style="font-size:16px;font-weight:600;color:#111111;margin-bottom:8px;">
+                  Have questions or trouble logging in?
+                </div>
+                <div style="font-size:13px;color:#333333;margin-bottom:52px;line-height:1.5;">
+                  Just reply to this email or contact <a href="mailto:support@rakexura.store" style="color:#4f46e5;text-decoration:underline;">support@rakexura.store</a>
+                </div>
 
-                <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 20px 0;" />
-
-                <div style="text-align:center;font-size:11px;line-height:1.6;color:#64748b;">
-                  <div style="font-weight:800;color:#0f172a;margin-bottom:2px;">Rakexura Store Gaming Pvt Ltd</div>
-                  <div style="font-size:10px;color:#94a3b8;margin-bottom:8px;">&copy; 2026 Rakexura Store. All rights reserved.</div>
-                  <div>
-                    <a href="${siteUrl}/terms" style="color:#64748b;text-decoration:underline;margin:0 6px;">Terms</a> |
-                    <a href="${siteUrl}/privacy" style="color:#64748b;text-decoration:underline;margin:0 6px;">Privacy</a> |
-                    <a href="${siteUrl}/support" style="color:#64748b;text-decoration:underline;margin:0 6px;">Support</a>
-                  </div>
+                <!-- Sign off -->
+                <div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:17px;color:#111111;margin-bottom:6px;">
+                  All the Best,
+                </div>
+                <div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:28px;font-weight:900;color:#111111;letter-spacing:-0.5px;">
+                  The Rakexura team
                 </div>
               </td>
             </tr>
