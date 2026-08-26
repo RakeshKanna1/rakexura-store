@@ -35,7 +35,7 @@ export function Header() {
   return (
     <header data-site-header className="sticky top-0 z-50 border-b border-white/[.06] bg-[#050505]/92 backdrop-blur-xl">
       <div
-        className={`mx-auto w-full max-w-[1480px] px-3.5 sm:px-6 lg:px-8 ${
+        className={`mx-auto w-full max-w-[1580px] px-3 sm:px-5 lg:px-5 ${
           isAuthPage || isAdminPage
             ? "flex items-center justify-between min-h-[60px] sm:min-h-[64px] py-2.5"
             : "grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2.5 py-2.5 md:flex md:items-center md:gap-6 lg:gap-8 md:py-0 md:min-h-[74px]"
