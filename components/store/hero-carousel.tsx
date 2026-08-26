@@ -231,7 +231,7 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                               {game.is_subscription ? (
                                 <Link 
                                   href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl border border-[#c5a059] bg-[#c5a059] px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-[#080a10] leading-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d6b26d] hover:border-[#d6b26d] shadow-[0_4px_14px_rgba(197,160,89,0.22)] active:scale-95 cursor-pointer"
+                                  className="magnetic-button inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl border border-[#eab308] bg-[#eab308] px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-[#080a10] leading-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#facc15] hover:border-[#facc15] shadow-[0_4px_14px_rgba(234,179,8,0.25)] active:scale-95 cursor-pointer"
                                 >
                                   <span className="truncate">View plans</span>
                                   <ArrowRight size={13} className="shrink-0 text-[#080a10]" />
@@ -239,7 +239,7 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                               ) : game.preorder ? (
                                 <Link 
                                   href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl border border-[#c5a059] bg-[#c5a059] px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-[#080a10] leading-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d6b26d] hover:border-[#d6b26d] shadow-[0_4px_14px_rgba(197,160,89,0.22)] active:scale-95 cursor-pointer"
+                                  className="magnetic-button inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl border border-[#eab308] bg-[#eab308] px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-[#080a10] leading-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#facc15] hover:border-[#facc15] shadow-[0_4px_14px_rgba(234,179,8,0.25)] active:scale-95 cursor-pointer"
                                 >
                                   <span className="truncate">Pre-order</span>
                                   <ArrowRight size={13} className="shrink-0 text-[#080a10]" />
@@ -247,7 +247,7 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                               ) : (
                                 <Link 
                                   href={gameUrl(game)} 
-                                  className="magnetic-button inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl border border-[#c5a059] bg-[#c5a059] px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-[#080a10] leading-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d6b26d] hover:border-[#d6b26d] shadow-[0_4px_14px_rgba(197,160,89,0.22)] active:scale-95 cursor-pointer"
+                                  className="magnetic-button inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl border border-[#eab308] bg-[#eab308] px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-[#080a10] leading-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#facc15] hover:border-[#facc15] shadow-[0_4px_14px_rgba(234,179,8,0.25)] active:scale-95 cursor-pointer"
                                 >
                                   <span className="truncate">View game</span>
                                   <ArrowRight size={13} className="shrink-0 text-[#080a10]" />
