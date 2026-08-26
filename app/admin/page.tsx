@@ -47,7 +47,7 @@ export default async function AdminPage() {
   const quick = [["/admin/games", "Add Game", Plus], ["/admin/coupons", "Add Coupon", TicketPercent], ["/admin/orders", "View Orders", PackageCheck], ["/admin/reviews", "Approve Reviews", MessageSquareText], ["/admin/requests", "Manage Requests", ArrowUpRight], ["/admin/support", "Answer Support", LifeBuoy]] as const;
 
   return (
-    <div className="py-4 md:py-8">
+    <div className="pb-8 pt-0.5">
       <header className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <p className="eyebrow">Protected administration</p>

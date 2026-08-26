@@ -160,8 +160,8 @@ export default async function AdminSection({ params, searchParams }: { params: P
   const hasActions = ["games", "orders", "customers", "reviews", "coupons", "requests", "support", "media", "flash-sales", "campaigns", "campaign-games"].includes(section);
 
   return (
-    <div className="py-2 md:py-4">
-      <div className="mt-4 md:mt-7 flex flex-wrap items-end justify-between gap-3">
+    <div className="pb-6 pt-0.5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="eyebrow">Administration</p>
           <h1 className="mt-3 text-4xl font-black md:text-5xl">{source.title}</h1>

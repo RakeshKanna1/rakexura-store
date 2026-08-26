@@ -184,7 +184,7 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
   };
 
   return (
-    <div className="py-2 md:py-4">
+    <div className="pb-6 pt-0.5">
       {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>

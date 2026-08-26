@@ -93,7 +93,7 @@ export default async function AdminMessagesPage({ searchParams }: { searchParams
   }
 
   return (
-    <main className="py-2 md:py-4">
+    <main className="pb-6 pt-0.5">
       <p className="eyebrow">Customer communication</p>
       <h1 className="mt-2 md:mt-3 text-2xl sm:text-3xl md:text-5xl font-black tracking-tight leading-tight">
         Messages & announcements

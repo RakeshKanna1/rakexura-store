@@ -16,7 +16,7 @@ export default async function AdminBundlesPage({ searchParams }: { searchParams:
   const editing = query.edit ? bundles?.find((bundle) => bundle.id === Number(query.edit)) : null;
   
   return (
-    <div className="py-2 md:py-4">
+    <div className="pb-6 pt-0.5">
       <p className="eyebrow text-xs font-bold uppercase tracking-[.14em] text-[#8991a6]">Administration</p>
       <h1 className="mt-3 text-4xl font-black md:text-5xl text-white">Combo deals</h1>
       <p className="section-copy">Build multi-game offers and control when they appear on the storefront.</p>
