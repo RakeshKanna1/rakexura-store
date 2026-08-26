@@ -164,22 +164,32 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
 
   return (
     <>
-      <div className="mb-4 sm:mb-6 space-y-2.5 rounded-xl border border-white/[.07] bg-[#0c0e15] p-2.5 sm:p-3.5">
+      <div className="mb-4 sm:mb-6 space-y-2.5 rounded-xl border border-white/[.08] bg-[#0c0e16] p-3 sm:p-4 shadow-xl">
+        {/* Search & Sort Row */}
         <div className="flex flex-col gap-2 sm:gap-3 md:flex-row items-center">
-          <label className="flex min-h-10 sm:min-h-12 flex-1 items-center gap-2.5 sm:gap-3 rounded-lg bg-black/30 px-3 sm:px-4 w-full border border-white/5 focus-within:border-white/15 transition-colors">
+          <label className="flex min-h-10 sm:min-h-11 flex-1 items-center gap-2.5 rounded-lg bg-black/40 px-3.5 w-full border border-white/[0.08] focus-within:border-[#facc15]/40 transition-colors">
             <Search size={16} className="text-[#8991a6] shrink-0" />
             <span className="sr-only">Search games</span>
             <input
               suppressHydrationWarning
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search by game, genre or tag"
-              className="w-full border-0 bg-transparent text-xs sm:text-sm text-white outline-none placeholder:text-[#737b90]"
+              placeholder="Search games, genres, tags..."
+              className="w-full border-0 bg-transparent text-xs sm:text-sm text-white outline-none placeholder:text-[#676f84]"
             />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                className="text-xs text-[#8991a6] hover:text-white px-1 font-bold"
+              >
+                ✕
+              </button>
+            )}
           </label>
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <div className="flex min-h-10 sm:min-h-12 flex-1 md:flex-none items-center gap-2 rounded-lg bg-black/30 px-3 text-xs sm:text-sm min-w-0 border border-white/5">
-              <SlidersHorizontal size={15} className="text-[#facc15] shrink-0" />
+            <div className="flex min-h-10 sm:min-h-11 flex-1 md:flex-none items-center gap-2 rounded-lg bg-black/40 px-3 text-xs sm:text-sm min-w-0 border border-white/[0.08]">
+              <SlidersHorizontal size={14} className="text-[#facc15] shrink-0" />
               <span className="sr-only">Sort games</span>
               <CustomSelect
                 value={sort}
@@ -189,14 +199,14 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
               />
             </div>
             {isAdmin && (
-              <div className="flex min-h-10 sm:min-h-12 items-center gap-2 rounded-lg bg-black/30 px-3 shrink-0 border border-white/5">
-                <Share2 size={15} className="text-[#facc15] shrink-0" />
+              <div className="flex min-h-10 sm:min-h-11 items-center gap-2 rounded-lg bg-black/40 px-3 shrink-0 border border-white/[0.08]">
+                <Share2 size={14} className="text-[#facc15] shrink-0" />
                 <button
                   type="button"
                   suppressHydrationWarning
                   onClick={() => setIsCopyModalOpen(true)}
                   title="Copy formatted price list for WhatsApp/Telegram"
-                  className="flex h-8 sm:h-9 items-center justify-center rounded-md bg-[#090b10] border border-white/5 hover:border-white/15 hover:bg-white/[0.04] px-3 text-xs font-bold text-white transition-all cursor-pointer"
+                  className="flex h-7 sm:h-8 items-center justify-center rounded-md bg-[#090b10] border border-white/5 hover:border-white/15 hover:bg-white/[0.04] px-2.5 text-[11px] font-bold text-white transition-all cursor-pointer"
                 >
                   <span className="whitespace-nowrap hidden min-[400px]:inline">Copy Price List</span>
                   <span className="whitespace-nowrap min-[400px]:hidden">Copy Price</span>
@@ -205,22 +215,36 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
             )}
           </div>
         </div>
-        <div className="hide-scrollbar flex gap-1.5 sm:gap-2 overflow-x-auto pb-1">
-          {platforms.map((item) => (
-            <button
-              suppressHydrationWarning
-              key={item}
-              onClick={() => setPlatform(item)}
-              className={`btn h-8 min-h-8 shrink-0 px-3 text-[11px] sm:text-xs rounded-lg uppercase tracking-wider font-black ${
-                platform === item ? "bg-[#facc15] text-black shadow-md shadow-[#facc15]/15" : "btn-secondary text-[#8991a6] hover:text-white"
-              }`}
-            >
-              {item}
-            </button>
-          ))}
+
+        {/* Platform Horizontal Swipe Bar */}
+        <div className="relative -mx-1 px-1">
+          <div
+            data-lenis-prevent="true"
+            data-lenis-prevent-wheel="true"
+            data-lenis-prevent-touch="true"
+            className="hide-scrollbar flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 pt-0.5 overscroll-x-contain"
+            style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x" }}
+          >
+            {platforms.map((item) => (
+              <button
+                suppressHydrationWarning
+                key={item}
+                onClick={() => setPlatform(item)}
+                className={`inline-flex h-8 shrink-0 items-center justify-center rounded-lg px-3.5 text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                  platform === item
+                    ? "bg-[#facc15] text-[#080a10] font-black shadow-[0_0_12px_rgba(250,204,21,0.25)] border border-[#facc15]"
+                    : "bg-[#121622] text-[#9da5b8] border border-white/[0.07] hover:border-white/20 hover:text-white hover:bg-[#181d2c] font-bold active:scale-95"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Category & Budget Selectors */}
         <div className="grid gap-2 sm:grid-cols-2">
-          <label className="flex items-center justify-between rounded-lg bg-black/30 px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-[#a0a8c0] border border-white/5">
+          <label className="flex items-center justify-between rounded-lg bg-black/40 px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-[#a0a8c0] border border-white/[0.08]">
             <span className="text-[11px] font-black uppercase tracking-wider text-white">Category</span>
             <CustomSelect
               value={selectedGenre}
@@ -229,7 +253,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
               className="w-44 max-w-[65%]"
             />
           </label>
-          <label className="flex items-center justify-between rounded-lg bg-black/30 px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-[#a0a8c0] border border-white/5">
+          <label className="flex items-center justify-between rounded-lg bg-black/40 px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-[#a0a8c0] border border-white/[0.08]">
             <span className="text-[11px] font-black uppercase tracking-wider text-white">Budget</span>
             <CustomSelect
               value={budget}
@@ -240,9 +264,27 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
           </label>
         </div>
       </div>
-      <p className="mb-3 sm:mb-5 text-[11px] sm:text-xs font-black uppercase tracking-wider text-[#8991a6]">
-        {filtered.length} {filtered.length === 1 ? "game available" : "games available"}
-      </p>
+
+      {/* Active Results & Reset Action */}
+      <div className="mb-3 sm:mb-5 flex items-center justify-between">
+        <p className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-[#8991a6]">
+          {filtered.length} {filtered.length === 1 ? "game available" : "games available"}
+        </p>
+        {(query || platform !== "All" || selectedGenre !== "All" || budget !== "All") && (
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              setPlatform("All");
+              setGenre("All");
+              setBudget("All");
+            }}
+            className="text-[11px] font-black uppercase tracking-wider text-[#facc15] hover:underline cursor-pointer"
+          >
+            Reset filters ✕
+          </button>
+        )}
+      </div>
       <div className="grid grid-cols-2 gap-2.5 sm:gap-4 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
         {filtered.slice(0, visibleCount).map((game) => (
           <GameCard key={game.id} game={game} onQuickView={setQuickView} />

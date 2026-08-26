@@ -247,14 +247,14 @@ export function CartView() {
 
   return (
     <>
-      <div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-7 pb-12 lg:grid-cols-[minmax(0,1fr)_380px] lg:pb-0">
-        <div className="grid w-full min-w-0 content-start gap-3">
+      <div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-4 sm:gap-7 pb-10 sm:pb-12 lg:grid-cols-[minmax(0,1fr)_380px] lg:pb-0">
+        <div className="grid w-full min-w-0 content-start gap-2.5 sm:gap-3">
           {bundles.map((line) => (
             <article
               key={`bundle-${line.bundle.id}`}
-              className="relative flex w-full gap-4 rounded-md border border-[#8b5cf6]/20 bg-[#8b5cf6]/[.04] p-4"
+              className="relative flex w-full gap-3 sm:gap-4 rounded-xl border border-[#8b5cf6]/20 bg-[#8b5cf6]/[.04] p-3 sm:p-4"
             >
-              <Link href={`/bundles/${line.bundle.id}`} className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-sm sm:h-28 sm:w-[88px] block hover:opacity-90 transition-opacity">
+              <Link href={`/bundles/${line.bundle.id}`} className="relative h-20 w-[64px] shrink-0 overflow-hidden rounded-lg sm:h-28 sm:w-[88px] block hover:opacity-90 transition-opacity border border-white/10">
                 <Image
                   src={assetUrl(line.bundle.cover_image)}
                   alt={line.bundle.title}
@@ -262,14 +262,14 @@ export function CartView() {
                   className="object-cover"
                 />
               </Link>
-              <div className="min-w-0 flex-1 pr-10">
-                <Link href={`/bundles/${line.bundle.id}`} className="line-clamp-2 font-bold hover:underline pr-4">
+              <div className="min-w-0 flex-1 pr-8 sm:pr-10">
+                <Link href={`/bundles/${line.bundle.id}`} className="line-clamp-2 text-xs sm:text-base font-bold text-white hover:underline pr-2">
                   {line.bundle.title}
                 </Link>
-                <p className="mt-2 flex items-center gap-1.5 text-xs text-[#c8baff]">
-                  <Package size={14} /> Combo bundle
+                <p className="mt-1 sm:mt-1.5 flex items-center gap-1 text-[10px] sm:text-xs text-[#c8baff]">
+                  <Package size={13} /> Combo bundle
                 </p>
-                <strong className="mt-3 block text-[#facc15]">{formatPrice(Number(line.bundle.bundle_price) * line.quantity)}</strong>
+                <strong className="mt-2 sm:mt-3 block text-xs sm:text-base font-black text-[#facc15]">{formatPrice(Number(line.bundle.bundle_price) * line.quantity)}</strong>
                 <Quantity
                   value={line.quantity}
                   decrease={() => setBundleQuantity(line.bundle.id, line.quantity - 1)}
@@ -278,10 +278,10 @@ export function CartView() {
               </div>
               <button
                 onClick={() => removeBundle(line.bundle.id)}
-                className="absolute top-4 right-4 grid h-8 w-8 place-items-center rounded-full border border-white/10 bg-black/40 text-[#a0a8c0] transition hover:bg-white/10 hover:text-white cursor-pointer"
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-full border border-white/10 bg-black/40 text-[#a0a8c0] transition hover:bg-white/10 hover:text-white cursor-pointer"
                 aria-label={`Remove ${line.bundle.title}`}
               >
-                <Trash2 size={15} />
+                <Trash2 size={14} />
               </button>
             </article>
           ))}
@@ -289,9 +289,9 @@ export function CartView() {
           {lines.map((line) => (
             <article
               key={`${line.game.id}-${line.platform}`}
-              className="relative flex w-full gap-4 rounded-md border border-white/[.08] bg-[#0b0f19] p-4"
+              className="relative flex w-full gap-3 sm:gap-4 rounded-xl border border-white/[.08] bg-[#0c0f16] p-3 sm:p-4"
             >
-              <Link href={gameUrl(line.game)} className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-sm sm:h-28 sm:w-[88px] block hover:opacity-90 transition-opacity">
+              <Link href={gameUrl(line.game)} className="relative h-20 w-[64px] shrink-0 overflow-hidden rounded-lg sm:h-28 sm:w-[88px] block hover:opacity-90 transition-opacity border border-white/10">
                 <Image
                   src={assetUrl(line.game.cover_image)}
                   alt={line.game.title}
@@ -299,11 +299,11 @@ export function CartView() {
                   className="object-cover"
                 />
               </Link>
-              <div className="min-w-0 flex-1 pr-10">
-                <Link href={gameUrl(line.game)} className="line-clamp-2 font-bold hover:underline pr-4">
+              <div className="min-w-0 flex-1 pr-8 sm:pr-10">
+                <Link href={gameUrl(line.game)} className="line-clamp-2 text-xs sm:text-base font-bold text-white hover:underline pr-2">
                   {line.game.title}
                 </Link>
-                <p className="mt-2 text-xs text-[#8991a6]">
+                <p className="mt-1 sm:mt-1.5 text-[10px] sm:text-xs text-[#8991a6]">
                   {getPlatformLabel(line.platform, line.game.is_subscription, line.game.duration)} · Digital delivery
                 </p>
                 {isReseller && resellerDiscount > 0 && resellerSubtotalCalc.isDiscount ? (
@@ -311,19 +311,19 @@ export function CartView() {
                     const rawLineTotal = linePrice(line) * line.quantity;
                     const lineCalc = calculateResellerPrice(rawLineTotal, resellerDiscount, resellerDiscountType);
                     return (
-                      <div className="mt-3 flex items-baseline gap-2">
-                        <strong className="text-base font-black text-[#e0ce9a]">
+                      <div className="mt-2 sm:mt-3 flex items-baseline gap-1.5 sm:gap-2">
+                        <strong className="text-xs sm:text-base font-black text-[#e0ce9a]">
                           {formatPrice(lineCalc.price)}
                         </strong>
-                        <del className="text-xs text-[#646b7b] font-medium">{formatPrice(rawLineTotal)}</del>
-                        <span className="rounded bg-amber-400/10 border border-amber-400/25 px-1.5 py-0.5 text-[9px] font-black text-[#e0ce9a]">
+                        <del className="text-[10px] sm:text-xs text-[#646b7b] font-medium">{formatPrice(rawLineTotal)}</del>
+                        <span className="rounded bg-amber-400/10 border border-amber-400/25 px-1 sm:px-1.5 py-0.5 text-[8px] sm:text-[9px] font-black text-[#e0ce9a]">
                           {lineCalc.label}
                         </span>
                       </div>
                     );
                   })()
                 ) : (
-                  <strong className="mt-3 block text-[#facc15]">
+                  <strong className="mt-2 sm:mt-3 block text-xs sm:text-base font-black text-[#facc15]">
                     {formatPrice(calculateResellerPrice(linePrice(line) * line.quantity, resellerDiscount, resellerDiscountType).price)}
                   </strong>
                 )}
@@ -335,20 +335,20 @@ export function CartView() {
               </div>
               <button
                 onClick={() => remove(line.game.id, line.platform)}
-                className="absolute top-4 right-4 grid h-8 w-8 place-items-center rounded-full border border-white/10 bg-black/40 text-[#a0a8c0] transition hover:bg-white/10 hover:text-white cursor-pointer"
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-full border border-white/10 bg-black/40 text-[#a0a8c0] transition hover:bg-white/10 hover:text-white cursor-pointer"
                 aria-label={`Remove ${line.game.title}`}
               >
-                <Trash2 size={15} />
+                <Trash2 size={14} />
               </button>
             </article>
           ))}
         </div>
 
-        <aside className="glass h-fit w-full rounded-md p-4 sm:p-6 lg:sticky lg:top-24">
-          <h2 className="mt-0">Order summary</h2>
-          <div className="mt-5 rounded-md border border-white/[.08] bg-black/20 p-3">
-            <label className="mb-2 flex items-center gap-2 text-xs font-bold text-[#a0a8c0]">
-              <TicketPercent size={15} /> Coupon code
+        <aside className="glass h-fit w-full rounded-xl border border-white/[.08] bg-[#0c0f16] p-3.5 sm:p-6 lg:sticky lg:top-24">
+          <h2 className="mt-0 text-sm sm:text-lg font-black uppercase tracking-wider text-white">Order summary</h2>
+          <div className="mt-3.5 sm:mt-5 rounded-lg border border-white/[.08] bg-black/30 p-2.5 sm:p-3">
+            <label className="mb-1.5 sm:mb-2 flex items-center gap-1.5 text-[11px] sm:text-xs font-black uppercase tracking-wider text-[#a0a8c0]">
+              <TicketPercent size={14} className="text-[#facc15]" /> Coupon code
             </label>
             <div className="flex gap-2">
               <input
@@ -362,55 +362,55 @@ export function CartView() {
                 }}
                 placeholder="RAKE10"
                 aria-label="Coupon code"
-                className="h-11 min-w-0 flex-1 rounded-md border border-white/10 bg-white/[.04] px-3 text-sm uppercase outline-none focus:border-[#8b5cf6]"
+                className="h-9 sm:h-10 min-w-0 flex-1 rounded-lg border border-white/10 bg-white/[.04] px-3 text-xs sm:text-sm uppercase outline-none focus:border-[#8b5cf6]"
               />
               <button
                 onClick={checkCoupon}
                 disabled={checking}
-                className="btn btn-secondary h-11 min-h-11 px-3 text-xs"
+                className="btn btn-secondary h-9 sm:h-10 min-h-9 sm:min-h-10 px-3.5 text-xs font-black uppercase tracking-wider"
               >
-                {checking ? "Checking..." : "Apply"}
+                {checking ? "..." : "Apply"}
               </button>
             </div>
-            <p className={`mt-3 text-xs leading-5 ${gamesNeeded ? "text-[#a7aec0]" : "text-[#70efbb]"}`}>
+            <p className={`mt-2 sm:mt-2.5 text-[11px] sm:text-xs leading-snug sm:leading-5 ${gamesNeeded ? "text-[#a7aec0]" : "text-[#70efbb]"}`}>
               {gamesNeeded
                 ? `Add ${gamesNeeded} more ${gamesNeeded === 1 ? "game" : "games"} to unlock the 3-game coupon offer.`
                 : "Your cart has 3+ games. Try coupon RAKE10."}
             </p>
             {coupon && (
-              <div className="mt-2 flex items-center justify-between text-xs text-[#70efbb]">
+              <div className="mt-2 flex items-center justify-between text-xs text-[#70efbb] font-bold">
                 <span>{coupon.code} applied</span>
                 <button
                   onClick={() => {
                     setCoupon(null);
                     setCode("");
                   }}
-                  className="min-h-10 underline"
+                  className="min-h-8 underline text-[#ff7070] cursor-pointer"
                 >
                   Remove
                 </button>
               </div>
             )}
           </div>
-          <div className="mt-5 space-y-3 text-sm">
-            <div className="flex justify-between text-[#a0a8c0]">
-              <span>{quantity} games</span>
+          <div className="mt-3.5 sm:mt-5 space-y-2 sm:space-y-3 text-xs sm:text-sm">
+            <div className="flex justify-between text-[#a0a8c0] font-medium">
+              <span>{quantity} {quantity === 1 ? "item" : "items"}</span>
               <span>{formatPrice(isWholesaleActive && !resellerSubtotalCalc.isDiscount ? resellerSubtotalCalc.price : subtotal)}</span>
             </div>
             {catalogSavings > 0 && (
-              <div className="flex justify-between text-[#70efbb]">
+              <div className="flex justify-between text-[#70efbb] font-medium">
                 <span>Catalog savings</span>
                 <span>{formatPrice(catalogSavings)}</span>
               </div>
             )}
             {couponSavings > 0 && (
-              <div className="flex justify-between text-[#70efbb]">
+              <div className="flex justify-between text-[#70efbb] font-medium">
                 <span>Coupon savings</span>
                 <span>-{formatPrice(couponSavings)}</span>
               </div>
             )}
             {isReseller && resellerSubtotalCalc.diff !== 0 && resellerSubtotalCalc.isDiscount && (
-              <div className="flex justify-between items-center text-[#e0ce9a] bg-[#16171d] border border-amber-400/25 px-2.5 py-1.5 rounded-lg text-xs font-bold">
+              <div className="flex justify-between items-center text-[#e0ce9a] bg-[#16171d] border border-amber-400/25 px-2.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold">
                 <span className="flex items-center gap-1.5">
                   <ResellerIcon className="w-3.5 h-3.5" />
                   Wholesale Partner Rate ({resellerSubtotalCalc.label})
@@ -419,20 +419,20 @@ export function CartView() {
               </div>
             )}
           </div>
-          <div className="mt-5 flex justify-between border-t border-white/10 pt-5 text-xl font-black">
-            <span>Total</span>
+          <div className="mt-4 sm:mt-5 flex justify-between border-t border-white/10 pt-3.5 sm:pt-4 text-base sm:text-xl font-black">
+            <span className="text-white">Total</span>
             <span className="text-[#facc15] font-black">{formatPrice(total)}</span>
           </div>
           <Link
             href="/checkout"
-            className="btn btn-primary mt-6 w-full"
+            className="btn btn-primary mt-4 sm:mt-6 w-full h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider"
           >
-            Checkout <ArrowRight size={17} />
+            Checkout <ArrowRight size={16} />
           </Link>
-          <p className="mt-5 flex gap-2 text-xs leading-5 text-[#8991a6]">
+          <p className="mt-3.5 sm:mt-5 flex gap-2 text-[11px] sm:text-xs leading-relaxed text-[#8991a6]">
             <ShieldCheck
-              size={16}
-              className="shrink-0"
+              size={15}
+              className="shrink-0 text-[#25d366]"
             />{" "}
             Secure payment review. Final prices are verified when the order is created.
           </p>

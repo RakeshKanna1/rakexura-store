@@ -58,7 +58,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <MouseSpotlight />
           <CartDrawer />
           <Header />
-          <main>{children}</main>
+          <main className="min-h-[calc(100vh-140px)]">{children}</main>
           <Footer />
           <WhatsAppOnboardingModal />
           <WhatsAppFloat />
