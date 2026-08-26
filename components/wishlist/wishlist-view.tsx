@@ -19,5 +19,5 @@ export function WishlistView({ games }: { games: Game[] }) {
 
   const saved = games.filter((game) => ids.includes(game.id));
   if (!saved.length) return <EmptyState icon={Heart} title="Your wishlist is empty" message="Save games you want to revisit and find them here on any signed-in device." href="/games" action="Explore games" />;
-  return <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">{saved.map((game) => <GameCard key={game.id} game={game} />)}</div>;
+  return <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">{saved.map((game) => <GameCard key={game.id} game={game} />)}</div>;
 }

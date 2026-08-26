@@ -164,22 +164,22 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
 
   return (
     <>
-      <div className="mb-6 space-y-3 rounded-md border border-white/[.08] bg-[#11131a] p-3">
-        <div className="flex flex-col gap-3 md:flex-row items-center">
-          <label className="flex min-h-12 flex-1 items-center gap-3 rounded-md bg-black/20 px-4 w-full">
-            <Search size={18} className="text-[#8991a6]" />
+      <div className="mb-4 sm:mb-6 space-y-2.5 rounded-xl border border-white/[.07] bg-[#0c0e15] p-2.5 sm:p-3.5">
+        <div className="flex flex-col gap-2 sm:gap-3 md:flex-row items-center">
+          <label className="flex min-h-10 sm:min-h-12 flex-1 items-center gap-2.5 sm:gap-3 rounded-lg bg-black/30 px-3 sm:px-4 w-full border border-white/5 focus-within:border-white/15 transition-colors">
+            <Search size={16} className="text-[#8991a6] shrink-0" />
             <span className="sr-only">Search games</span>
             <input
               suppressHydrationWarning
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search by game, genre or tag"
-              className="w-full border-0 bg-transparent text-white outline-none placeholder:text-[#737b90]"
+              className="w-full border-0 bg-transparent text-xs sm:text-sm text-white outline-none placeholder:text-[#737b90]"
             />
           </label>
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <div className="flex min-h-12 flex-1 md:flex-none items-center gap-2.5 rounded-md bg-black/20 px-3 sm:px-4 text-sm min-w-0">
-              <SlidersHorizontal size={17} className="text-[#facc15] shrink-0" />
+            <div className="flex min-h-10 sm:min-h-12 flex-1 md:flex-none items-center gap-2 rounded-lg bg-black/30 px-3 text-xs sm:text-sm min-w-0 border border-white/5">
+              <SlidersHorizontal size={15} className="text-[#facc15] shrink-0" />
               <span className="sr-only">Sort games</span>
               <CustomSelect
                 value={sort}
@@ -189,14 +189,14 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
               />
             </div>
             {isAdmin && (
-              <div className="flex min-h-12 items-center gap-2.5 rounded-md bg-black/20 px-3 sm:px-4 shrink-0">
-                <Share2 size={17} className="text-[#facc15] shrink-0" />
+              <div className="flex min-h-10 sm:min-h-12 items-center gap-2 rounded-lg bg-black/30 px-3 shrink-0 border border-white/5">
+                <Share2 size={15} className="text-[#facc15] shrink-0" />
                 <button
                   type="button"
                   suppressHydrationWarning
                   onClick={() => setIsCopyModalOpen(true)}
                   title="Copy formatted price list for WhatsApp/Telegram"
-                  className="flex h-9 items-center justify-center rounded-md bg-[#090b10] border border-white/5 hover:border-white/15 hover:bg-white/[0.04] px-3.5 text-xs font-bold text-white transition-all cursor-pointer"
+                  className="flex h-8 sm:h-9 items-center justify-center rounded-md bg-[#090b10] border border-white/5 hover:border-white/15 hover:bg-white/[0.04] px-3 text-xs font-bold text-white transition-all cursor-pointer"
                 >
                   <span className="whitespace-nowrap hidden min-[400px]:inline">Copy Price List</span>
                   <span className="whitespace-nowrap min-[400px]:hidden">Copy Price</span>
@@ -205,14 +205,14 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
             )}
           </div>
         </div>
-        <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">
+        <div className="hide-scrollbar flex gap-1.5 sm:gap-2 overflow-x-auto pb-1">
           {platforms.map((item) => (
             <button
               suppressHydrationWarning
               key={item}
               onClick={() => setPlatform(item)}
-              className={`btn h-9 min-h-9 shrink-0 px-4 text-xs ${
-                platform === item ? "bg-[#facc15] text-black" : "btn-secondary"
+              className={`btn h-8 min-h-8 shrink-0 px-3 text-xs rounded-lg ${
+                platform === item ? "bg-[#facc15] text-black font-black" : "btn-secondary"
               }`}
             >
               {item}
@@ -220,30 +220,30 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
           ))}
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
-          <label className="flex items-center justify-between rounded-md bg-black/20 px-4 py-2 text-xs font-semibold text-[#a0a8c0]">
-            Category
+          <label className="flex items-center justify-between rounded-lg bg-black/30 px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold text-[#a0a8c0] border border-white/5">
+            <span>Category</span>
             <CustomSelect
               value={selectedGenre}
               onChange={(val) => setGenre(val)}
               options={genres}
-              className="w-48 max-w-[65%]"
+              className="w-44 max-w-[65%]"
             />
           </label>
-          <label className="flex items-center justify-between rounded-md bg-black/20 px-4 py-2 text-xs font-semibold text-[#a0a8c0]">
-            Budget
+          <label className="flex items-center justify-between rounded-lg bg-black/30 px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold text-[#a0a8c0] border border-white/5">
+            <span>Budget</span>
             <CustomSelect
               value={budget}
               onChange={(val) => setBudget(val)}
               options={["All", "Under ₹99", "₹100 - ₹199", "₹200+"]}
-              className="w-48 max-w-[65%]"
+              className="w-44 max-w-[65%]"
             />
           </label>
         </div>
       </div>
-      <p className="mb-5 text-sm text-[#8991a6]">
+      <p className="mb-3 sm:mb-5 text-xs sm:text-sm text-[#8991a6] font-medium">
         {filtered.length} {filtered.length === 1 ? "game" : "games"}
       </p>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
         {filtered.slice(0, visibleCount).map((game) => (
           <GameCard key={game.id} game={game} onQuickView={setQuickView} />
         ))}
