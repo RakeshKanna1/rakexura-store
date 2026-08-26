@@ -211,8 +211,8 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
               suppressHydrationWarning
               key={item}
               onClick={() => setPlatform(item)}
-              className={`btn h-8 min-h-8 shrink-0 px-3 text-xs rounded-lg ${
-                platform === item ? "bg-[#facc15] text-black font-black" : "btn-secondary"
+              className={`btn h-8 min-h-8 shrink-0 px-3 text-[11px] sm:text-xs rounded-lg uppercase tracking-wider font-black ${
+                platform === item ? "bg-[#facc15] text-black shadow-md shadow-[#facc15]/15" : "btn-secondary text-[#8991a6] hover:text-white"
               }`}
             >
               {item}
@@ -220,8 +220,8 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
           ))}
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
-          <label className="flex items-center justify-between rounded-lg bg-black/30 px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold text-[#a0a8c0] border border-white/5">
-            <span>Category</span>
+          <label className="flex items-center justify-between rounded-lg bg-black/30 px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-[#a0a8c0] border border-white/5">
+            <span className="text-[11px] font-black uppercase tracking-wider text-white">Category</span>
             <CustomSelect
               value={selectedGenre}
               onChange={(val) => setGenre(val)}
@@ -229,8 +229,8 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
               className="w-44 max-w-[65%]"
             />
           </label>
-          <label className="flex items-center justify-between rounded-lg bg-black/30 px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold text-[#a0a8c0] border border-white/5">
-            <span>Budget</span>
+          <label className="flex items-center justify-between rounded-lg bg-black/30 px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-[#a0a8c0] border border-white/5">
+            <span className="text-[11px] font-black uppercase tracking-wider text-white">Budget</span>
             <CustomSelect
               value={budget}
               onChange={(val) => setBudget(val)}
@@ -240,8 +240,8 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
           </label>
         </div>
       </div>
-      <p className="mb-3 sm:mb-5 text-xs sm:text-sm text-[#8991a6] font-medium">
-        {filtered.length} {filtered.length === 1 ? "game" : "games"}
+      <p className="mb-3 sm:mb-5 text-[11px] sm:text-xs font-black uppercase tracking-wider text-[#8991a6]">
+        {filtered.length} {filtered.length === 1 ? "game available" : "games available"}
       </p>
       <div className="grid grid-cols-2 gap-2.5 sm:gap-4 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
         {filtered.slice(0, visibleCount).map((game) => (
