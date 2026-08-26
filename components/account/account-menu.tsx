@@ -88,7 +88,7 @@ export function AccountMenu() {
     };
   }, [open]);
 
-  if (!ready || !account) return <Link href="/login" className="btn btn-secondary relative h-11 min-h-11 px-3" aria-label="Sign in to your account"><UserRound size={19} /></Link>;
+  if (!ready || !account) return <Link href="/login" className="btn btn-secondary relative h-10 sm:h-11 min-h-10 sm:min-h-11 px-2.5 sm:px-3 flex items-center justify-center" aria-label="Sign in to your account"><UserRound size={18} /></Link>;
 
   const links = [["/dashboard", "Dashboard", LayoutDashboard], ["/dashboard/orders", "My orders", PackageSearch], ["/dashboard/library", "My games", Gamepad2], ["/wishlist", "Wishlist", Heart], ["/dashboard/notifications", "Notifications", Bell], ["/dashboard/settings", "Account settings", Settings]] as const;
   const owner = account.email.toLowerCase() === OWNER_EMAIL;
@@ -98,7 +98,7 @@ export function AccountMenu() {
       suppressHydrationWarning
       type="button"
       onClick={() => setOpen((value) => !value)}
-      className="btn btn-secondary relative h-11 min-h-11 px-3 gap-2 flex items-center cursor-pointer"
+      className="btn btn-secondary relative h-10 sm:h-11 min-h-10 sm:min-h-11 px-2.5 sm:px-3 gap-2 flex items-center cursor-pointer"
       aria-label="Open profile menu"
       aria-expanded={open}
     >
