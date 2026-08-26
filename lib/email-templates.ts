@@ -83,11 +83,11 @@ export function buildOtpVerificationEmailHtml(options: OtpEmailOptions) {
                 </div>
 
                 <!-- Sign off -->
-                <div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:17px;color:#111111;margin-bottom:6px;">
-                  All the Best,
+                <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;color:#666666;margin-bottom:4px;">
+                  Happy Gaming,
                 </div>
-                <div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:28px;font-weight:900;color:#111111;letter-spacing:-0.5px;">
-                  The Rakexura team
+                <div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:26px;font-weight:900;color:#111111;letter-spacing:-0.5px;">
+                  The Rakexura Team
                 </div>
               </td>
             </tr>
@@ -159,11 +159,11 @@ export function getSupabaseOtpEmailTemplateHtml(): string {
                 </div>
 
                 <!-- Sign off -->
-                <div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:17px;color:#111111;margin-bottom:6px;">
-                  All the Best,
+                <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;color:#666666;margin-bottom:4px;">
+                  Happy Gaming,
                 </div>
-                <div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:28px;font-weight:900;color:#111111;letter-spacing:-0.5px;">
-                  The Rakexura team
+                <div style="font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:26px;font-weight:900;color:#111111;letter-spacing:-0.5px;">
+                  The Rakexura Team
                 </div>
               </td>
             </tr>
