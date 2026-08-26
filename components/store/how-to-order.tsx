@@ -25,32 +25,32 @@ export function HowToOrder() {
           <span>Track your order</span>
         </Link>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-2.5 sm:gap-3 grid-cols-2 lg:grid-cols-4">
         {steps.map(([numberLabel, title, text, Icon]) => (
-          <article key={numberLabel} className="premium-panel rounded-xl p-5 border border-white/[.08] bg-[#0c0f18] hover:border-[#facc15]/30 transition-colors">
+          <article key={numberLabel} className="premium-panel rounded-xl p-3 sm:p-5 border border-white/[.08] bg-[#0c0f18] hover:border-[#facc15]/30 transition-colors">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-[#facc15]">STEP {numberLabel}</span>
-              <Icon size={19} className="text-[#facc15]" />
+              <span className="text-[10px] sm:text-xs font-black text-[#facc15]">STEP {numberLabel}</span>
+              <Icon size={16} className="text-[#facc15]" />
             </div>
-            <h3 className="mt-6 font-black">{title}</h3>
-            <p className="mt-2 text-sm leading-6 text-[#8991a6]">{text}</p>
+            <h3 className="mt-3 sm:mt-6 font-black text-xs sm:text-base text-white leading-tight">{title}</h3>
+            <p className="mt-1 sm:mt-2 text-[11px] sm:text-sm leading-snug sm:leading-relaxed text-[#8991a6]">{text}</p>
           </article>
         ))}
       </div>
-      <div className="mt-5 grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:items-center">
-        <Link href="/games" className="btn btn-primary text-center justify-center">
+      <div className="mt-3.5 sm:mt-5 grid grid-cols-2 gap-2 sm:gap-2.5 sm:flex sm:flex-wrap sm:items-center">
+        <Link href="/games" className="btn btn-primary text-center justify-center min-h-[40px] sm:min-h-[44px] text-xs sm:text-sm font-bold">
           Browse games
         </Link>
-        <Link href="/dashboard/library" className="btn btn-secondary text-center justify-center">
+        <Link href="/dashboard/library" className="btn btn-secondary text-center justify-center min-h-[40px] sm:min-h-[44px] text-xs sm:text-sm font-bold">
           My games
         </Link>
         <a
           href={`https://wa.me/${number}?text=${encodeURIComponent("Hi Rakexura, I need help placing an order.")}`}
           target="_blank"
           rel="noreferrer"
-          className="btn btn-secondary col-span-2 text-center justify-center hover:border-emerald-500/40 hover:text-emerald-400"
+          className="btn btn-secondary col-span-2 text-center justify-center min-h-[40px] sm:min-h-[44px] text-xs sm:text-sm font-bold hover:border-emerald-500/40 hover:text-emerald-400"
         >
-          <MessageCircle size={17} className="text-emerald-400" /> Need help?
+          <MessageCircle size={16} className="text-emerald-400" /> Need help?
         </a>
       </div>
     </section>

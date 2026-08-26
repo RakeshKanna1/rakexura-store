@@ -8,5 +8,28 @@ const questions = [
 ];
 
 export function FaqPreview() {
-  return <section className="section-space"><div className="section-head"><div><p className="eyebrow">Quick answers</p><h2 className="section-title mt-2">Buying from Rakexura</h2></div><Link href="/faq" className="flex items-center gap-2 text-sm font-bold text-[#facc15]">All questions <ArrowRight size={15} /></Link></div><div className="space-y-2">{questions.map(([question, answer]) => <details key={question} className="group rounded-md border border-white/[.08] bg-[#11131a] px-5"><summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 font-bold [&::-webkit-details-marker]:hidden"><span>{question}</span><span className="text-[#facc15] transition group-open:rotate-45">+</span></summary><p className="max-w-3xl pb-5 text-sm leading-6 text-[#9da4b5]">{answer}</p></details>)}</div></section>;
+  return (
+    <section className="section-space">
+      <div className="section-head">
+        <div>
+          <p className="eyebrow">Quick answers</p>
+          <h2 className="section-title mt-1.5 sm:mt-2">Buying from Rakexura</h2>
+        </div>
+        <Link href="/faq" className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#facc15] hover:text-white transition-colors">
+          <span>All questions</span> <ArrowRight size={13} />
+        </Link>
+      </div>
+      <div className="space-y-2">
+        {questions.map(([question, answer]) => (
+          <details key={question} className="group rounded-xl border border-white/[.08] bg-[#11131a] px-3.5 sm:px-5">
+            <summary className="flex min-h-12 sm:min-h-16 cursor-pointer list-none items-center justify-between gap-3 text-xs sm:text-sm font-bold text-white [&::-webkit-details-marker]:hidden">
+              <span>{question}</span>
+              <span className="text-[#facc15] font-black text-sm sm:text-base transition-transform duration-200 group-open:rotate-45 shrink-0">+</span>
+            </summary>
+            <p className="max-w-3xl pb-3.5 sm:pb-5 text-xs sm:text-sm leading-relaxed text-[#9da4b5]">{answer}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
 }

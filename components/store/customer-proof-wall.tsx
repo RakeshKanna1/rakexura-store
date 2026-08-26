@@ -71,12 +71,12 @@ export function CustomerProofWall({ proofs }: { proofs: CustomerProof[] }) {
         <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-16 z-10 bg-gradient-to-r from-black via-black/50 to-transparent" />
         <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-16 z-10 bg-gradient-to-l from-black via-black/50 to-transparent" />
 
-        <div className="proof-marquee-track flex gap-4" style={{ touchAction: "pan-x pan-y" }}>
+        <div className="proof-marquee-track flex gap-2.5 sm:gap-4" style={{ touchAction: "pan-x pan-y" }}>
           {displayProofs.map((proof, idx) => (
             <article
               key={`${proof.id}-${idx}`}
               onClick={() => setSelectedProofIndex(idx % proofs.length)}
-              className="group cursor-pointer w-[190px] sm:w-[220px] md:w-[240px] shrink-0 flex flex-col overflow-hidden rounded-md border border-white/[.08] bg-[#11131a] transition-all hover:border-[#facc15]/40 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)]"
+              className="group cursor-pointer w-[150px] sm:w-[220px] md:w-[240px] shrink-0 flex flex-col overflow-hidden rounded-lg border border-white/[.08] bg-[#11131a] transition-all hover:border-[#facc15]/40 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)]"
             >
               {/* Image Container */}
               <div className="relative aspect-[4/5] overflow-hidden bg-black/60">
@@ -84,28 +84,28 @@ export function CustomerProofWall({ proofs }: { proofs: CustomerProof[] }) {
                   src={assetUrl(proof.image_url)}
                   alt={proof.caption || "Verified customer proof"}
                   fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 240px"
+                  sizes="(max-width: 640px) 45vw, (max-width: 1024px) 33vw, 240px"
                   className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
                 />
 
                 {/* Hover Zoom Overlay */}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/85 text-white font-bold text-xs border border-white/20 backdrop-blur-md">
-                    <ZoomIn size={13} className="text-[#facc15]" />
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-black/85 text-white font-bold text-[10px] sm:text-xs border border-white/20 backdrop-blur-md">
+                    <ZoomIn size={12} className="text-[#facc15]" />
                     <span>View Full</span>
                   </span>
                 </div>
               </div>
 
               {/* Card Footer Details */}
-              <div className="p-3 flex-1 flex flex-col justify-between">
-                <div className="flex items-start gap-2">
-                  <BadgeCheck size={16} className="mt-0.5 shrink-0 text-[#00d68f]" />
+              <div className="p-2 sm:p-3 flex-1 flex flex-col justify-between">
+                <div className="flex items-start gap-1.5 sm:gap-2">
+                  <BadgeCheck size={14} className="mt-0.5 shrink-0 text-[#00d68f]" />
                   <div className="min-w-0 flex-1">
-                    <strong className="block text-xs font-bold text-white truncate">
+                    <strong className="block text-[11px] sm:text-xs font-bold text-white truncate">
                       {proof.caption || "Verified Proof"}
                     </strong>
-                    <p className="mt-0.5 line-clamp-1 text-[11px] leading-tight text-[#8991a8]">
+                    <p className="mt-0.5 line-clamp-1 text-[10px] sm:text-[11px] leading-tight text-[#8991a8]">
                       WhatsApp Delivery
                     </p>
                   </div>

@@ -1,10 +1,10 @@
 "use client";
 
+import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, Play, X, Zap } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -106,6 +106,8 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
               modules={[Autoplay, Navigation]}
               autoplay={{ delay: AUTOPLAY_DELAY, disableOnInteraction: false }}
               loop={games.length > 1}
+              slidesPerView={1}
+              spaceBetween={0}
               observer={true}
               observeParents={true}
               onSwiper={(s) => { swiperRef.current = s; }}
@@ -296,9 +298,9 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
       </div>
 
       <aside className="featured-now min-w-0" aria-label="Featured games">
-        <div className="featured-now-heading mb-3 flex items-center justify-between">
-          <strong className="text-sm text-white">Featured now</strong>
-          <Link href="/games" className="text-xs text-[#b9a4ff] hover:underline">View all</Link>
+        <div className="featured-now-heading mb-2.5 flex items-center justify-between">
+          <strong className="text-sm font-black text-white">Featured now</strong>
+          <Link href="/games" className="text-xs text-[#b9a4ff] hover:underline font-bold">View all</Link>
         </div>
         <div className="featured-now-list hide-scrollbar">
           {games.map((game, index) => (
@@ -310,11 +312,11 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                 if (swiperRef.current) swiperRef.current.slideToLoop(index);
                 setActiveTrailerId(null);
               }}
-              className={`featured-now-item w-full rounded p-3 text-left transition duration-300 ease-out cursor-pointer group ${
+              className={`featured-now-item w-full rounded p-2.5 sm:p-3 text-left transition duration-300 ease-out cursor-pointer group ${
                 active === index ? "is-active" : ""
               }`}
             >
-              <span className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-black/40">
+              <span className="relative h-11 w-8 sm:h-12 sm:w-9 shrink-0 overflow-hidden rounded bg-black/40">
                 <Image
                   src={assetUrl(game.cover_image)}
                   alt=""
