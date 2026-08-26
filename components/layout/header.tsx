@@ -44,7 +44,7 @@ export function Header() {
         <div className="flex items-center gap-2.5 sm:gap-3">
           <Link href="/" className="flex shrink-0 items-center gap-2 sm:gap-3 font-black tracking-wide" aria-label="Rakexura home">
             <Image src="/Assets/RakeLogo.png" width={38} height={38} alt="Rakexura" className="rounded-md sm:w-[42px] sm:h-[42px]" priority />
-            <span className="block text-sm sm:text-base tracking-wider">RAKEXURA</span>
+            <span className="hidden sm:block text-base tracking-wider">RAKEXURA</span>
           </Link>
         </div>
 

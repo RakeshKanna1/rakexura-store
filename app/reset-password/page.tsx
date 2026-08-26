@@ -11,9 +11,9 @@ export default function ResetPasswordPage() {
   return (
     <>
       <ChampagneFizz />
-      <div className="relative z-10 page-shell py-6">
-        <BackButton href="/" label="Back to Store" className="mb-2" />
-        <div className="grid min-h-[calc(100vh-180px)] items-center gap-10 lg:grid-cols-2">
+      <div className="relative z-10 page-shell pt-4 pb-8 sm:py-8">
+        <BackButton href="/" label="Back to Store" className="mb-5 sm:mb-6" />
+        <div className="grid min-h-0 lg:min-h-[calc(100vh-180px)] items-start lg:items-center gap-6 lg:gap-10 lg:grid-cols-2">
         <section className="hidden lg:block">
           <KeyRound size={42} className="text-[#facc15]" />
           <h1 className="mt-7 max-w-lg text-6xl font-black leading-[1.02]">
