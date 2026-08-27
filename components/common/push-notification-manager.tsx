@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { Bell, BellOff, Loader2, Sparkles } from "lucide-react";
+import { Bell, BellOff, Loader2, Zap } from "lucide-react";
 
 // Helper to convert VAPID key
 function urlBase64ToUint8Array(base64String: string) {
@@ -17,10 +17,17 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray;
 }
 
-export function PushNotificationToggle({ isAdmin = false }: { isAdmin?: boolean }) {
+export function PushNotificationToggle({
+  isAdmin = false,
+  compact = false,
+}: {
+  isAdmin?: boolean;
+  compact?: boolean;
+}) {
   const [isSupported, setIsSupported] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [testing, setTesting] = useState(false);
 
   const supabase = createClient();
 
@@ -58,48 +65,33 @@ export function PushNotificationToggle({ isAdmin = false }: { isAdmin?: boolean 
       await navigator.serviceWorker.ready;
 
       const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      if (!publicVapidKey) {
-        throw new Error("Push VAPID key is missing.");
-      }
+      if (!publicVapidKey) throw new Error("Push notifications are currently unavailable.");
 
-      // Handle standard and callback requestPermission structures
-      let permissionResult = Notification.permission;
-      if (permissionResult === "default") {
-        permissionResult = await new Promise<NotificationPermission>((resolve) => {
-          const res = Notification.requestPermission(resolve);
-          if (res && typeof res.then === "function") {
-            res.then(resolve);
-          }
-        });
-      }
-
-      if (permissionResult !== "granted") {
-        throw new Error("Notification permission denied. Please click 'Allow' when the browser asks for permission.");
-      }
-
-      const subscription = await reg.pushManager.subscribe({
+      const subscription = await reg?.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+        applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
       });
 
-      const p256dh = btoa(String.fromCharCode(...new Uint8Array(subscription.getKey("p256dh") as ArrayBuffer)));
-      const auth = btoa(String.fromCharCode(...new Uint8Array(subscription.getKey("auth") as ArrayBuffer)));
+      if (!subscription) throw new Error("Failed to subscribe device");
 
+      // Save to Supabase
       const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const subJson = subscription.toJSON();
+        const { error } = await supabase.from("push_subscriptions").upsert({
+          user_id: user.id,
+          endpoint: subJson.endpoint,
+          p256dh: subJson.keys?.p256dh,
+          auth: subJson.keys?.auth,
+          user_agent: navigator.userAgent,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "endpoint" });
 
-      const { error } = await supabase.from("push_subscriptions").insert({
-        user_id: user?.id || null,
-        endpoint: subscription.endpoint,
-        p256dh,
-        auth
-      });
-
-      if (error && error.code !== "23505") {
-        throw error;
+        if (error) throw error;
       }
 
       setIsSubscribed(true);
-      toast.success("Phone notifications enabled successfully!");
+      toast.success("Notifications enabled on this device!");
     } catch (err) {
       console.error(err);
       toast.error(err instanceof Error ? err.message : "Failed to enable notifications");
@@ -115,37 +107,28 @@ export function PushNotificationToggle({ isAdmin = false }: { isAdmin?: boolean 
       const subscription = await reg.pushManager.getSubscription();
       if (subscription) {
         await subscription.unsubscribe();
-        await supabase
-          .from("push_subscriptions")
-          .delete()
-          .eq("endpoint", subscription.endpoint);
+        const subJson = subscription.toJSON();
+        if (subJson.endpoint) {
+          await supabase.from("push_subscriptions").delete().eq("endpoint", subJson.endpoint);
+        }
       }
-
       setIsSubscribed(false);
-      toast.success("Phone notifications disabled.");
+      toast.info("Notifications disabled on this device.");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to disable notifications");
+      toast.error("Failed to unsubscribe");
     } finally {
       setLoading(false);
     }
   };
 
-  const [testing, setTesting] = useState(false);
-
   const sendTestPush = async () => {
     setTesting(true);
     try {
-      const res = await fetch("/api/notifications/test-push", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
-      });
+      const res = await fetch("/api/push/test", { method: "POST" });
       const data = await res.json();
-      if (data.success) {
-        toast.success("Test push triggered! Check your phone/system notifications.");
-      } else {
-        throw new Error(data.error || "Failed to trigger push.");
-      }
+      if (!res.ok) throw new Error(data.error || "Failed to send test push");
+      toast.success("Test notification sent! Check your device.");
     } catch (err) {
       console.error(err);
       toast.error(err instanceof Error ? err.message : "Test push failed");
@@ -156,8 +139,53 @@ export function PushNotificationToggle({ isAdmin = false }: { isAdmin?: boolean 
 
   if (!isSupported) {
     return (
-      <div className="rounded-lg border border-white/5 bg-black/15 p-4 text-xs text-[#8991a6]">
-        Browser push notifications are not supported on this device or connection.
+      <div className="rounded-lg border border-white/5 bg-black/15 p-3 text-xs text-[#8991a6]">
+        Browser push notifications are not supported on this device.
+      </div>
+    );
+  }
+
+  if (compact) {
+    return (
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className={`grid h-9 w-9 place-items-center rounded-lg shrink-0 ${isSubscribed ? "bg-emerald-500/15 text-emerald-300" : "bg-white/5 text-[#8991a6]"}`}>
+            {isSubscribed ? <Bell size={16} /> : <BellOff size={16} />}
+          </div>
+          <div>
+            <strong className="text-xs font-bold text-white block">
+              {isSubscribed ? "Browser Push Alerts Active" : "Browser Push Alerts Off"}
+            </strong>
+            <p className="text-[11px] text-[#8991a6]">
+              {isSubscribed ? "Receiving instant order & key updates on this browser." : "Enable for instant slot delivery and game restock pings."}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {isSubscribed && isAdmin && (
+            <button
+              onClick={sendTestPush}
+              disabled={testing || loading}
+              className="text-[11px] font-semibold py-1.5 px-3 rounded-lg border border-white/10 text-[#8991a6] hover:text-white hover:bg-white/5 transition"
+            >
+              {testing ? <Loader2 size={12} className="animate-spin" /> : "Test"}
+            </button>
+          )}
+          
+          {/* Refined Frosted Secondary Action (Avoids Dual Primary White Buttons) */}
+          <button
+            onClick={isSubscribed ? unsubscribeUser : subscribeUser}
+            disabled={loading || testing}
+            className={`text-xs font-semibold py-1.5 px-4 rounded-lg transition duration-150 select-none cursor-pointer ${
+              isSubscribed
+                ? "bg-red-500/10 text-red-300 border border-red-500/20 hover:bg-red-500/20"
+                : "border border-white/15 bg-white/[0.06] text-white hover:bg-white/[0.12] hover:border-white/30 shadow-sm"
+            }`}
+          >
+            {loading ? <Loader2 size={13} className="animate-spin" /> : isSubscribed ? "Disable" : "Enable Alerts"}
+          </button>
+        </div>
       </div>
     );
   }
@@ -189,33 +217,33 @@ export function PushNotificationToggle({ isAdmin = false }: { isAdmin?: boolean 
               {testing ? <Loader2 size={14} className="animate-spin" /> : "Send Test Push"}
             </button>
           )}
-        <button
-          onClick={isSubscribed ? unsubscribeUser : subscribeUser}
-          disabled={loading || testing}
-          className={`btn text-xs font-bold py-2 px-4 rounded-lg flex items-center gap-1.5 ${
-            isSubscribed 
-              ? "btn-secondary text-[#ff8585] border-red-500/20 hover:bg-red-500/10" 
-              : "btn-primary bg-white text-black"
-          }`}
-        >
-          {loading ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : isSubscribed ? (
-            "Disable"
-          ) : (
-            "Enable Notifications"
-          )}
-        </button>
+          <button
+            onClick={isSubscribed ? unsubscribeUser : subscribeUser}
+            disabled={loading || testing}
+            className={`btn text-xs font-bold py-2 px-4 rounded-lg flex items-center gap-1.5 ${
+              isSubscribed 
+                ? "btn-secondary text-[#ff8585] border-red-500/20 hover:bg-red-500/10" 
+                : "btn-primary bg-white text-black"
+            }`}
+          >
+            {loading ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : isSubscribed ? (
+              "Disable"
+            ) : (
+              "Enable Notifications"
+            )}
+          </button>
+        </div>
       </div>
+      {!isSubscribed && (
+        <div className="rounded-lg border border-[#facc15]/10 bg-[#facc15]/[0.02] p-4 text-[11px] leading-relaxed text-[#facc15]/90 flex items-start gap-2">
+          <Zap size={14} className="text-[#facc15] shrink-0 mt-0.5" />
+          <p>
+            <strong>Note:</strong> Enable device notifications to get live order updates, game deliveries, and rank rewards directly on your phone lockscreen.
+          </p>
+        </div>
+      )}
     </div>
-    {!isSubscribed && (
-      <div className="rounded-lg border border-[#facc15]/10 bg-[#facc15]/[0.02] p-4 text-[11px] leading-relaxed text-[#facc15]/90 flex items-start gap-2">
-        <Sparkles size={14} className="text-[#facc15] shrink-0 mt-0.5" />
-        <p>
-          <strong>Instruction:</strong> Enable device notifications to get live order updates, game deliveries, and rank rewards directly on your phone lockscreen!
-        </p>
-      </div>
-    )}
-  </div>
   );
 }

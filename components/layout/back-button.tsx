@@ -75,13 +75,12 @@ export function BackButton({ label, href, className = "" }: BackButtonProps) {
         ? "Back to Cart"
         : pathname.startsWith("/admin/")
           ? "Back to Admin"
-          : pathname.startsWith("/dashboard/")
-            ? "Back to Dashboard"
-            : "Back";
+          : "Back";
 
   const displayLabel = label ?? defaultLabel;
 
-  const btnClasses = "group inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#121212]/80 px-3 py-1.5 text-xs font-semibold tracking-wide text-[#a0a8c0] backdrop-blur-md transition-all duration-150 hover:border-white/20 hover:bg-[#202020] hover:text-white active:scale-95 cursor-pointer select-none shadow-[0_4px_16px_rgba(0,0,0,0.5)]";
+  // Small & compact back button styling
+  const btnClasses = "group inline-flex items-center gap-1 rounded-md border border-white/10 bg-[#121212]/80 px-2.5 py-1 text-[11px] font-medium tracking-wide text-[#a0a8c0] backdrop-blur-md transition-all duration-150 hover:border-white/20 hover:bg-[#1a1a1a] hover:text-white active:scale-95 cursor-pointer select-none shadow-sm";
 
   if (href) {
     return (
@@ -91,7 +90,7 @@ export function BackButton({ label, href, className = "" }: BackButtonProps) {
           className={btnClasses}
           aria-label={displayLabel}
         >
-          <ChevronLeft size={16} className="shrink-0 transition-transform duration-150 group-hover:-translate-x-0.5" />
+          <ChevronLeft size={13} className="shrink-0 transition-transform duration-150 group-hover:-translate-x-0.5" />
           <span>{displayLabel}</span>
         </Link>
       </div>
@@ -107,7 +106,7 @@ export function BackButton({ label, href, className = "" }: BackButtonProps) {
         className={btnClasses}
         aria-label={displayLabel}
       >
-        <ChevronLeft size={16} className="shrink-0 transition-transform duration-150 group-hover:-translate-x-0.5" />
+        <ChevronLeft size={13} className="shrink-0 transition-transform duration-150 group-hover:-translate-x-0.5" />
         <span>{displayLabel}</span>
       </button>
     </div>

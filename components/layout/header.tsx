@@ -10,11 +10,20 @@ import { PremiumSearch } from "@/components/store/premium-search";
 import { HeaderNotificationButton } from "@/components/layout/header-notification-button";
 import { useCartStore } from "@/stores/cart-store";
 
-const links = [{ href: "/", label: "Discover" }, { href: "/games", label: "Browse" }, { href: "/bundles", label: "Bundles" }, { href: "/subscriptions", label: "Subscriptions" }, { href: "/support", label: "Support" }];
+const links = [
+  { href: "/", label: "Discover" },
+  { href: "/games", label: "Browse" },
+  { href: "/bundles", label: "Bundles" },
+  { href: "/subscriptions", label: "Subscriptions" },
+  { href: "/support", label: "Support" },
+];
 
 export function Header() {
   const path = usePathname();
-  const count = useCartStore((state) => state.lines.reduce((sum, line) => sum + line.quantity, 0) + state.bundleLines.reduce((sum, line) => sum + line.quantity, 0));
+  const count = useCartStore((state) =>
+    state.lines.reduce((sum, line) => sum + line.quantity, 0) +
+    state.bundleLines.reduce((sum, line) => sum + line.quantity, 0)
+  );
   const setCartOpen = useCartStore((state) => state.setDrawerOpen);
   const [mounted, setMounted] = useState(false);
 
