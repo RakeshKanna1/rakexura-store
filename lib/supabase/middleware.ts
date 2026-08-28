@@ -21,6 +21,21 @@ export async function updateSession(request: NextRequest) {
       },
     },
   });
-  await supabase.auth.getUser();
+  // Fast path: if no auth cookies present, skip network getUser check
+  const allCookies = request.cookies.getAll();
+  const hasAuthCookie = allCookies.some(
+    (c) => c.name.startsWith("sb-") || c.name.includes("auth-token")
+  );
+  if (!hasAuthCookie) return response;
+
+  try {
+    const authPromise = supabase.auth.getUser();
+    const timeoutPromise = new Promise<{ data: { user: null }; error: Error }>((_, reject) =>
+      setTimeout(() => reject(new Error("Supabase auth check timed out")), 3500)
+    );
+    await Promise.race([authPromise, timeoutPromise]);
+  } catch {
+    // Ignore auth check error during session refresh in middleware
+  }
   return response;
 }

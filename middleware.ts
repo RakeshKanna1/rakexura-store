@@ -28,6 +28,19 @@ export async function middleware(request: NextRequest) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return NextResponse.next();
   }
+  // Check if any Supabase auth cookie is present
+  const allCookies = request.cookies.getAll();
+  const hasAuthCookie = allCookies.some(
+    (c) => c.name.startsWith("sb-") || c.name.includes("auth-token")
+  );
+
+  // Fast path: If accessing a protected route without any auth cookie, redirect immediately (0ms)
+  if (!hasAuthCookie) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
   let response = NextResponse.next({ request });
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -48,11 +61,20 @@ export async function middleware(request: NextRequest) {
       },
     },
   );
-  const { data: { user } } = await supabase.auth.getUser();
 
-  if (isProtectedRoute) {
-    if (!user) {
-      const redirectResponse = NextResponse.redirect(new URL("/login?next=" + encodeURIComponent(request.nextUrl.pathname), request.url));
+  try {
+    // Timeout guard: prevent middleware from hanging more than 3.5s on external auth calls
+    const authPromise = supabase.auth.getUser();
+    const timeoutPromise = new Promise<{ data: { user: null }; error: Error }>((_, reject) =>
+      setTimeout(() => reject(new Error("Supabase auth check timed out")), 3500)
+    );
+
+    const { data: { user }, error } = await Promise.race([authPromise, timeoutPromise]);
+
+    if (!user || error) {
+      const redirectResponse = NextResponse.redirect(
+        new URL("/login?next=" + encodeURIComponent(request.nextUrl.pathname), request.url)
+      );
       response.cookies.getAll().forEach((cookie) => {
         redirectResponse.cookies.set(cookie.name, cookie.value, {
           path: cookie.path,
@@ -66,6 +88,13 @@ export async function middleware(request: NextRequest) {
       });
       return redirectResponse;
     }
+  } catch (error) {
+    console.error("Middleware auth check failed or timed out:", error);
+    // On timeout or failure, redirect to login cleanly instead of hanging until 504
+    const redirectResponse = NextResponse.redirect(
+      new URL("/login?next=" + encodeURIComponent(request.nextUrl.pathname), request.url)
+    );
+    return redirectResponse;
   }
 
   return response;
