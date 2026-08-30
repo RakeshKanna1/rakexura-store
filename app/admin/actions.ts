@@ -1903,6 +1903,109 @@ export async function bulkUpdateFlashSalesSchedule(formData: FormData) {
   revalidateTag("flash-sales");
 }
 
+export async function bulkUpdateFlashSalesRates(formData: FormData) {
+  await writeAuditLog("BULK_UPDATE_FLASH_SALES_RATES", "flash_sales", formData);
+  const supabase = await getAdminClient();
+  const idsRaw = formData.getAll("ids");
+  const ids = idsRaw.map(Number).filter((id) => !isNaN(id) && id > 0);
+
+  if (ids.length === 0) throw new Error("No flash sales selected");
+
+  const discount_type = String(formData.get("discount_type") ?? "percentage");
+  const discount_value = Math.max(1, Number(formData.get("discount_value") ?? 20));
+  const base_source = String(formData.get("base_source") ?? "catalog");
+
+  // Fetch sales with corresponding game records
+  const { data: sales, error } = await supabase
+    .from("flash_sales")
+    .select("id, game_id, sale_price, price_2m, price_3m, price_6m, price_12m, games:game_id(id, original_price, sale_price, steam_price, epic_price, is_subscription, price_1m, price_2m, price_3m, price_6m, price_12m)")
+    .in("id", ids);
+
+  if (error || !sales) throw new Error(error?.message || "Failed to load flash sales for rate update");
+
+  for (const sale of sales) {
+    const rawGame = Array.isArray(sale.games) ? sale.games[0] : sale.games;
+    const game = rawGame as {
+      id: number;
+      original_price?: number | null;
+      sale_price?: number | null;
+      steam_price?: number | null;
+      epic_price?: number | null;
+      is_subscription?: boolean | null;
+      price_1m?: number | null;
+      price_2m?: number | null;
+      price_3m?: number | null;
+      price_6m?: number | null;
+      price_12m?: number | null;
+    } | null;
+
+    if (!game) continue;
+
+    const basePrice = base_source === "original"
+      ? Number(game.original_price ?? game.sale_price ?? 0)
+      : Number(game.price_1m ?? game.sale_price ?? game.original_price ?? 0);
+
+    if (basePrice <= 0) continue;
+
+    let newSalePrice = basePrice;
+    if (discount_type === "percentage") {
+      newSalePrice = Math.max(1, Math.round(basePrice * (1 - discount_value / 100)));
+    } else if (discount_type === "flat") {
+      newSalePrice = Math.max(1, Math.round(basePrice - discount_value));
+    } else if (discount_type === "fixed") {
+      newSalePrice = Math.max(1, Math.round(discount_value));
+    }
+
+    const payload: Record<string, unknown> = {
+      sale_price: newSalePrice,
+    };
+
+    if (game.is_subscription && discount_type === "percentage") {
+      if (Number(game.price_2m ?? 0) > 0) {
+        payload.price_2m = Math.max(1, Math.round(Number(game.price_2m) * (1 - discount_value / 100)));
+      }
+      if (Number(game.price_3m ?? 0) > 0) {
+        payload.price_3m = Math.max(1, Math.round(Number(game.price_3m) * (1 - discount_value / 100)));
+      }
+      if (Number(game.price_6m ?? 0) > 0) {
+        payload.price_6m = Math.max(1, Math.round(Number(game.price_6m) * (1 - discount_value / 100)));
+      }
+      if (Number(game.price_12m ?? 0) > 0) {
+        payload.price_12m = Math.max(1, Math.round(Number(game.price_12m) * (1 - discount_value / 100)));
+      }
+    }
+
+    await supabase.from("flash_sales").update(payload).eq("id", Number(sale.id));
+  }
+
+  revalidatePath("/admin/flash-sales");
+  revalidatePath("/");
+  revalidateTag("games");
+  revalidateTag("flash-sales");
+}
+
+export async function bulkToggleFlashSalesActive(formData: FormData) {
+  await writeAuditLog("BULK_TOGGLE_FLASH_SALES_ACTIVE", "flash_sales", formData);
+  const supabase = await getAdminClient();
+  const idsRaw = formData.getAll("ids");
+  const ids = idsRaw.map(Number).filter((id) => !isNaN(id) && id > 0);
+  const active = formData.get("active") === "true";
+
+  if (ids.length === 0) throw new Error("No flash sales selected");
+
+  const { error } = await supabase
+    .from("flash_sales")
+    .update({ active })
+    .in("id", ids);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/flash-sales");
+  revalidatePath("/");
+  revalidateTag("games");
+  revalidateTag("flash-sales");
+}
+
 export async function cleanupDuplicateFlashSales() {
   const supabase = await getAdminClient();
   

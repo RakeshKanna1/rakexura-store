@@ -28,7 +28,7 @@ const sources = {
   media: { title: "Media manager", table: "customer_proofs", select: "id,image_url,caption,proof_type,approved,created_at", order: "created_at" },
   analytics: { title: "Analytics & Visitor Monitor", table: "visitor_logs", select: "id,visitor_id,user_name,path,referrer,device_type,created_at", order: "created_at" },
   visitors: { title: "Live Visitors & Traffic", table: "visitor_logs", select: "id,visitor_id,user_name,path,referrer,device_type,created_at", order: "created_at" },
-  "flash-sales": { title: "Flash sale management", table: "flash_sales", select: "id,game_id,sale_price,starts_at,ends_at,active", order: "ends_at" },
+  "flash-sales": { title: "Flash sale management", table: "flash_sales", select: "id,game_id,sale_price,price_2m,price_3m,price_6m,price_12m,starts_at,ends_at,active", order: "ends_at" },
   "audit-logs": { title: "Admin audit logs", table: "audit_logs", select: "id,admin_id,action,affected_entity,entity_id,ip_address,created_at", order: "created_at" },
   campaigns: { title: "Campaign management", table: "campaigns", select: "id,name,slug,starts_at,ends_at,active", order: "id" },
   "campaign-games": { title: "Campaign game overrides", table: "campaign_games", select: "id,campaign_id,game_id,campaign_price,stock_limit", order: "id" },
@@ -98,6 +98,11 @@ export default async function AdminSection({ params, searchParams }: { params: P
         row.cover_image = g.cover_image;
         row.is_subscription = g.is_subscription;
         row.duration = g.duration;
+        row.game_original_price = g.original_price;
+        row.game_sale_price = g.sale_price;
+        row.game_price_1m = g.price_1m;
+        row.game_price_2m = g.price_2m;
+        row.game_price_3m = g.price_3m;
       }
     });
     if (query.edit && /^\d+$/.test(query.edit)) {

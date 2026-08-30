@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
-import { Search, ExternalLink, ChevronLeft, ChevronRight, Copy, Check, Gamepad2, Zap, MessageCircle, Trash2, Clock, Sparkles, CheckSquare } from "lucide-react";
+import { Search, ExternalLink, ChevronLeft, ChevronRight, Copy, Check, Gamepad2, Zap, MessageCircle, Trash2, Clock, Sparkles, CheckSquare, Percent, Calendar, Flame, Eye, CheckCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -11,7 +11,7 @@ import { OrderActions } from "@/components/admin/order-actions";
 import { DeleteCustomerButton } from "@/components/admin/delete-customer-button";
 import { ResellerCustomerButton } from "@/components/admin/reseller-customer-button";
 import { ResellerBadge } from "@/components/ui/reseller-badge";
-import { archiveGame, moderateProof, moderateReview, toggleCoupon, deleteCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale, toggleCampaign, deleteCampaign, deleteCampaignGame, bulkDeleteFlashSales, bulkUpdateFlashSalesSchedule, cleanupDuplicateFlashSales } from "@/app/admin/actions";
+import { archiveGame, moderateProof, moderateReview, toggleCoupon, deleteCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale, toggleCampaign, deleteCampaign, deleteCampaignGame, bulkDeleteFlashSales, bulkUpdateFlashSalesSchedule, bulkUpdateFlashSalesRates, bulkToggleFlashSalesActive, cleanupDuplicateFlashSales } from "@/app/admin/actions";
 
 type AdminRow = Record<string, unknown> & { id?: number | string; screenshot_url?: string; proof_url?: string; media_urls?: string[]; media_links?: string[] };
 
@@ -256,8 +256,15 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [bulkEndTime, setBulkEndTime] = useState("");
   const pageSize = 15;
+
+  // Flash sales bulk editor states
+  const [bulkTab, setBulkTab] = useState<"rates" | "dates" | "status">("rates");
+  const [bulkDiscountType, setBulkDiscountType] = useState<"percentage" | "flat" | "fixed">("percentage");
+  const [bulkDiscountValue, setBulkDiscountValue] = useState<number>(25);
+  const [bulkBaseSource, setBulkBaseSource] = useState<"catalog" | "original">("catalog");
+  const [bulkStartTime, setBulkStartTime] = useState("");
+  const [bulkEndTime, setBulkEndTime] = useState("");
 
   const filtered = rows.filter((row) => {
     if (!query.trim()) return true;
@@ -286,16 +293,54 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
     }
   };
 
+  const selectAllFiltered = () => {
+    const ids = filtered.map((r) => Number(r.id)).filter((id) => !isNaN(id) && id > 0);
+    setSelectedIds(ids);
+  };
+
+  const liveRows = section === "flash-sales" ? rows.filter((r) => {
+    const now = Date.now();
+    const starts = r.starts_at ? new Date(String(r.starts_at)).getTime() : 0;
+    const ends = r.ends_at ? new Date(String(r.ends_at)).getTime() : Infinity;
+    return Boolean(r.active) && starts <= now && ends > now;
+  }) : [];
+
+  const expiredRows = section === "flash-sales" ? rows.filter((r) => {
+    const now = Date.now();
+    const ends = r.ends_at ? new Date(String(r.ends_at)).getTime() : 0;
+    return ends > 0 && ends <= now;
+  }) : [];
+
+  const selectLiveOnly = () => {
+    const ids = liveRows.map((r) => Number(r.id)).filter((id) => !isNaN(id) && id > 0);
+    setSelectedIds(ids);
+  };
+
+  const selectExpiredOnly = () => {
+    const ids = expiredRows.map((r) => Number(r.id)).filter((id) => !isNaN(id) && id > 0);
+    setSelectedIds(ids);
+  };
+
+  const toLocalInputString = (d: Date) => {
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
   const setPresetHours = (hours: number) => {
     const now = new Date();
     const end = new Date(now.getTime() + hours * 60 * 60 * 1000);
-    const pad = (n: number) => String(n).padStart(2, "0");
-    const localStr = `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}T${pad(end.getHours())}:${pad(end.getMinutes())}`;
-    setBulkEndTime(localStr);
+    setBulkStartTime(toLocalInputString(now));
+    setBulkEndTime(toLocalInputString(end));
+  };
+
+  const setDiscountPreset = (pct: number) => {
+    setBulkDiscountType("percentage");
+    setBulkDiscountValue(pct);
   };
 
   return (
     <div className="space-y-4">
+      {/* Top Search & Filter Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-1 max-w-md items-center gap-3 rounded-md border border-white/10 bg-black/25 px-4 py-1 text-sm outline-none focus-within:border-white/30">
           <Search size={16} className="text-[#8991a6] shrink-0" />
@@ -312,7 +357,35 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
         </div>
 
         {section === "flash-sales" && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {liveRows.length > 0 && (
+              <button
+                type="button"
+                onClick={selectLiveOnly}
+                className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-bold text-emerald-400 hover:bg-emerald-500/20 transition cursor-pointer"
+              >
+                <Flame size={13} className="text-emerald-400 animate-pulse" />
+                Select Live ({liveRows.length})
+              </button>
+            )}
+            {expiredRows.length > 0 && (
+              <button
+                type="button"
+                onClick={selectExpiredOnly}
+                className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-[#8991a6] hover:text-white transition cursor-pointer"
+              >
+                <Clock size={13} />
+                Select Expired ({expiredRows.length})
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={selectAllFiltered}
+              className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-[#c8cedc] hover:text-white transition cursor-pointer"
+            >
+              <CheckCheck size={13} />
+              Select All ({filtered.length})
+            </button>
             <form action={cleanupDuplicateFlashSales}>
               <SubmitButton tone="neutral">
                 <Sparkles size={13} className="text-[#facc15]" />
@@ -323,86 +396,269 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
         )}
       </div>
 
+      {/* ================= FLASH SALES UNIFIED BULK COMMAND CENTER ================= */}
       {section === "flash-sales" && selectedIds.length > 0 && (
-        <div className="rounded-lg border border-[#facc15]/30 bg-[#facc15]/10 p-3.5 space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded bg-[#facc15] px-2.5 py-1 text-xs font-black text-black">
-                <CheckSquare size={13} /> {selectedIds.length} Selected
+        <div className="rounded-xl border border-[#facc15]/40 bg-gradient-to-b from-[#facc15]/[0.12] to-[#0d0b1a]/95 p-4 sm:p-5 shadow-2xl space-y-4">
+          {/* Header Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-[#facc15] px-3 py-1 text-xs font-black text-black shadow">
+                <CheckSquare size={14} /> {selectedIds.length} Sales Selected
               </span>
               <button
                 type="button"
                 onClick={() => setSelectedIds([])}
-                className="rounded border border-white/10 bg-black/30 px-2.5 py-1 text-xs font-semibold text-[#8991a6] hover:text-white"
+                className="rounded-md border border-white/15 bg-black/40 px-3 py-1 text-xs font-bold text-[#a0a8c0] hover:text-white transition cursor-pointer"
               >
                 Deselect All
               </button>
             </div>
 
-            <form action={bulkDeleteFlashSales}>
+            {/* Bulk Tab Switcher */}
+            <div className="flex items-center gap-1.5 bg-black/40 p-1 rounded-lg border border-white/10">
+              <button
+                type="button"
+                onClick={() => setBulkTab("rates")}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold transition cursor-pointer ${
+                  bulkTab === "rates"
+                    ? "bg-[#facc15] text-black shadow"
+                    : "text-[#8991a6] hover:text-white"
+                }`}
+              >
+                <Percent size={13} /> Edit % Rates
+              </button>
+              <button
+                type="button"
+                onClick={() => setBulkTab("dates")}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold transition cursor-pointer ${
+                  bulkTab === "dates"
+                    ? "bg-[#facc15] text-black shadow"
+                    : "text-[#8991a6] hover:text-white"
+                }`}
+              >
+                <Calendar size={13} /> Edit Dates & Schedule
+              </button>
+              <button
+                type="button"
+                onClick={() => setBulkTab("status")}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold transition cursor-pointer ${
+                  bulkTab === "status"
+                    ? "bg-[#facc15] text-black shadow"
+                    : "text-[#8991a6] hover:text-white"
+                }`}
+              >
+                <Zap size={13} /> Status & Delete
+              </button>
+            </div>
+          </div>
+
+          {/* TAB 1: BULK DISCOUNT RATES (%) */}
+          {bulkTab === "rates" && (
+            <form action={bulkUpdateFlashSalesRates} className="space-y-3">
               {selectedIds.map((id) => (
                 <input key={id} type="hidden" name="ids" value={id} />
               ))}
-              <SubmitButton tone="danger">
-                <Trash2 size={13} /> Delete {selectedIds.length} Selected
-              </SubmitButton>
+
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Percent size={14} className="text-[#facc15]" /> Quick % Discount Presets:
+                </span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {[10, 15, 20, 25, 30, 35, 40, 50, 60].map((pct) => (
+                    <button
+                      key={pct}
+                      type="button"
+                      onClick={() => setDiscountPreset(pct)}
+                      className={`rounded px-2.5 py-1 text-xs font-black transition cursor-pointer border ${
+                        bulkDiscountType === "percentage" && bulkDiscountValue === pct
+                          ? "bg-[#facc15] text-black border-[#facc15]"
+                          : "bg-black/40 text-white border-white/15 hover:border-[#facc15] hover:text-[#facc15]"
+                      }`}
+                    >
+                      -{pct}%
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3 pt-2">
+                <label className="flex flex-col text-xs font-bold">
+                  <span className="text-[#8991a6] mb-1">Discount Type</span>
+                  <select
+                    name="discount_type"
+                    value={bulkDiscountType}
+                    onChange={(e) => setBulkDiscountType(e.target.value as "percentage" | "flat" | "fixed")}
+                    className="h-9 rounded-md border border-white/15 bg-black/40 px-3 text-xs text-white outline-none focus:border-[#facc15]"
+                  >
+                    <option value="percentage">Percentage Discount (% OFF)</option>
+                    <option value="flat">Flat Amount Reduction (₹ OFF)</option>
+                    <option value="fixed">Set Exact Price (₹)</option>
+                  </select>
+                </label>
+
+                <label className="flex flex-col text-xs font-bold">
+                  <span className="text-[#8991a6] mb-1">
+                    {bulkDiscountType === "percentage" ? "Discount Rate (%)" : bulkDiscountType === "flat" ? "Reduction Amount (₹)" : "Fixed Price (₹)"}
+                  </span>
+                  <input
+                    name="discount_value"
+                    type="number"
+                    min="1"
+                    max={bulkDiscountType === "percentage" ? 99 : 99999}
+                    required
+                    value={bulkDiscountValue}
+                    onChange={(e) => setBulkDiscountValue(Math.max(1, Number(e.target.value)))}
+                    className="h-9 rounded-md border border-white/15 bg-black/40 px-3 text-xs text-white font-bold outline-none focus:border-[#facc15]"
+                  />
+                </label>
+
+                <label className="flex flex-col text-xs font-bold">
+                  <span className="text-[#8991a6] mb-1">Calculate From</span>
+                  <select
+                    name="base_source"
+                    value={bulkBaseSource}
+                    onChange={(e) => setBulkBaseSource(e.target.value as "catalog" | "original")}
+                    className="h-9 rounded-md border border-white/15 bg-black/40 px-3 text-xs text-white outline-none focus:border-[#facc15]"
+                  >
+                    <option value="catalog">Standard Catalog Price (Default)</option>
+                    <option value="original">Original Retail / MRP</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                <p className="text-xs text-[#fbeab8] font-medium">
+                  ⚡ Will recalculate flash selling prices for all <b className="text-white">{selectedIds.length} selected games</b> (and scale multi-month subscription durations proportionally).
+                </p>
+                <SubmitButton tone="positive">
+                  <Percent size={14} /> Apply Rates to ({selectedIds.length}) Sales
+                </SubmitButton>
+              </div>
             </form>
-          </div>
+          )}
 
-          <form action={bulkUpdateFlashSalesSchedule} className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/10">
-            {selectedIds.map((id) => (
-              <input key={id} type="hidden" name="ids" value={id} />
-            ))}
-            <input type="hidden" name="tz_offset" value={new Date().getTimezoneOffset()} />
-            
-            <span className="text-xs text-[#8991a6] font-semibold flex items-center gap-1">
-              <Clock size={12} /> Set New End Date:
-            </span>
+          {/* TAB 2: BULK DATES & SCHEDULE */}
+          {bulkTab === "dates" && (
+            <form action={bulkUpdateFlashSalesSchedule} className="space-y-3">
+              {selectedIds.map((id) => (
+                <input key={id} type="hidden" name="ids" value={id} />
+              ))}
+              <input type="hidden" name="tz_offset" value={new Date().getTimezoneOffset()} />
 
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setPresetHours(24)}
-                className="rounded border border-white/10 bg-black/40 px-2 py-1 text-[11px] font-bold text-white hover:border-[#facc15] hover:text-[#facc15]"
-              >
-                24h
-              </button>
-              <button
-                type="button"
-                onClick={() => setPresetHours(48)}
-                className="rounded border border-white/10 bg-black/40 px-2 py-1 text-[11px] font-bold text-white hover:border-[#facc15] hover:text-[#facc15]"
-              >
-                48h
-              </button>
-              <button
-                type="button"
-                onClick={() => setPresetHours(72)}
-                className="rounded border border-white/10 bg-black/40 px-2 py-1 text-[11px] font-bold text-white hover:border-[#facc15] hover:text-[#facc15]"
-              >
-                3 Days
-              </button>
-              <button
-                type="button"
-                onClick={() => setPresetHours(168)}
-                className="rounded border border-white/10 bg-black/40 px-2 py-1 text-[11px] font-bold text-white hover:border-[#facc15] hover:text-[#facc15]"
-              >
-                7 Days
-              </button>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Clock size={14} className="text-[#facc15]" /> Quick Time Extensions:
+                </span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setPresetHours(12)}
+                    className="rounded border border-white/15 bg-black/40 px-2.5 py-1 text-xs font-bold text-white hover:border-[#facc15] hover:text-[#facc15] transition cursor-pointer"
+                  >
+                    +12h
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPresetHours(24)}
+                    className="rounded border border-white/15 bg-black/40 px-2.5 py-1 text-xs font-bold text-white hover:border-[#facc15] hover:text-[#facc15] transition cursor-pointer"
+                  >
+                    +24h (1 Day)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPresetHours(48)}
+                    className="rounded border border-white/15 bg-black/40 px-2.5 py-1 text-xs font-bold text-white hover:border-[#facc15] hover:text-[#facc15] transition cursor-pointer"
+                  >
+                    +48h (2 Days)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPresetHours(72)}
+                    className="rounded border border-white/15 bg-black/40 px-2.5 py-1 text-xs font-bold text-white hover:border-[#facc15] hover:text-[#facc15] transition cursor-pointer"
+                  >
+                    +3 Days
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPresetHours(168)}
+                    className="rounded border border-white/15 bg-black/40 px-2.5 py-1 text-xs font-bold text-white hover:border-[#facc15] hover:text-[#facc15] transition cursor-pointer"
+                  >
+                    +7 Days
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 pt-2">
+                <label className="flex flex-col text-xs font-bold">
+                  <span className="text-[#8991a6] mb-1">Starts At (Optional update)</span>
+                  <input
+                    type="datetime-local"
+                    name="starts_at"
+                    value={bulkStartTime}
+                    onChange={(e) => setBulkStartTime(e.target.value)}
+                    className="h-9 rounded-md border border-white/15 bg-black/40 px-3 text-xs text-white outline-none focus:border-[#facc15]"
+                  />
+                </label>
+
+                <label className="flex flex-col text-xs font-bold">
+                  <span className="text-[#8991a6] mb-1">Ends At (Required)</span>
+                  <input
+                    type="datetime-local"
+                    name="ends_at"
+                    required
+                    value={bulkEndTime}
+                    onChange={(e) => setBulkEndTime(e.target.value)}
+                    className="h-9 rounded-md border border-white/15 bg-black/40 px-3 text-xs text-white outline-none focus:border-[#facc15]"
+                  />
+                </label>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                <p className="text-xs text-[#8991a6]">
+                  📅 Updates start and expiration countdown timers for all <b className="text-white">{selectedIds.length} selected flash sales</b>.
+                </p>
+                <SubmitButton tone="positive">
+                  <Clock size={14} /> Apply Schedule to ({selectedIds.length}) Sales
+                </SubmitButton>
+              </div>
+            </form>
+          )}
+
+          {/* TAB 3: BULK STATUS & DELETE */}
+          {bulkTab === "status" && (
+            <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <form action={bulkToggleFlashSalesActive}>
+                  {selectedIds.map((id) => (
+                    <input key={id} type="hidden" name="ids" value={id} />
+                  ))}
+                  <input type="hidden" name="active" value="true" />
+                  <SubmitButton tone="positive">
+                    <Flame size={14} /> Enable &amp; Make Live ({selectedIds.length})
+                  </SubmitButton>
+                </form>
+
+                <form action={bulkToggleFlashSalesActive}>
+                  {selectedIds.map((id) => (
+                    <input key={id} type="hidden" name="ids" value={id} />
+                  ))}
+                  <input type="hidden" name="active" value="false" />
+                  <SubmitButton tone="neutral">
+                    <Clock size={14} /> Disable Active Status ({selectedIds.length})
+                  </SubmitButton>
+                </form>
+              </div>
+
+              <form action={bulkDeleteFlashSales}>
+                {selectedIds.map((id) => (
+                  <input key={id} type="hidden" name="ids" value={id} />
+                ))}
+                <SubmitButton tone="danger">
+                  <Trash2 size={14} /> Permanently Delete ({selectedIds.length})
+                </SubmitButton>
+              </form>
             </div>
-
-            <input
-              type="datetime-local"
-              name="ends_at"
-              required
-              value={bulkEndTime}
-              onChange={(e) => setBulkEndTime(e.target.value)}
-              className="h-8 rounded border border-white/10 bg-black/40 px-2.5 text-xs text-white outline-none focus:border-[#facc15]"
-            />
-
-            <SubmitButton tone="positive">
-              <Clock size={13} /> Apply Schedule to ({selectedIds.length})
-            </SubmitButton>
-          </form>
+          )}
         </div>
       )}
 
@@ -668,19 +924,41 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                         </div>
                       </td>
                       <td className="p-4">
-                        {isSub ? (
-                          <div className="flex flex-wrap gap-1.5 text-xs">
-                            {row.sale_price ? <span className="rounded bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 font-bold text-[#facc15]">1M: ₹{String(row.sale_price)}</span> : null}
-                            {row.price_2m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">2M: ₹{String(row.price_2m)}</span> : null}
-                            {row.price_3m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">3M: ₹{String(row.price_3m)}</span> : null}
-                            {row.price_6m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">6M: ₹{String(row.price_6m)}</span> : null}
-                            {row.price_12m ? <span className="rounded bg-black/40 border border-white/10 px-2 py-0.5 font-bold text-white">12M: ₹{String(row.price_12m)}</span> : null}
-                          </div>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 rounded bg-[#facc15]/10 border border-[#facc15]/30 px-2.5 py-1 text-xs font-black text-[#facc15]">
-                            ₹{String(row.sale_price)}
-                          </span>
-                        )}
+                        {(() => {
+                          const regularPrice = isSub
+                            ? Number(row.game_price_1m ?? row.game_sale_price ?? row.game_original_price ?? 0)
+                            : Number(row.game_sale_price ?? row.game_original_price ?? 0);
+                          const flashPrice = Number(row.sale_price ?? 0);
+                          const discountPct = regularPrice > 0 && flashPrice < regularPrice ? Math.round(((regularPrice - flashPrice) / regularPrice) * 100) : null;
+
+                          return (
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="inline-flex items-center gap-1 rounded bg-[#facc15]/15 border border-[#facc15]/35 px-2.5 py-0.5 text-xs font-black text-[#facc15]">
+                                  ₹{String(row.sale_price)}
+                                </span>
+                                {regularPrice > 0 && regularPrice !== flashPrice && (
+                                  <span className="text-xs text-[#8991a6] line-through font-semibold">
+                                    ₹{regularPrice}
+                                  </span>
+                                )}
+                                {discountPct ? (
+                                  <span className="rounded bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.5 text-[10px] font-black text-emerald-400">
+                                    -{discountPct}%
+                                  </span>
+                                ) : null}
+                              </div>
+                              {isSub && (
+                                <div className="flex flex-wrap gap-1 text-[10px] mt-0.5">
+                                  {row.price_2m ? <span className="rounded bg-black/40 border border-white/10 px-1.5 py-0.5 text-white/90 font-bold">2M: ₹{String(row.price_2m)}</span> : null}
+                                  {row.price_3m ? <span className="rounded bg-black/40 border border-white/10 px-1.5 py-0.5 text-white/90 font-bold">3M: ₹{String(row.price_3m)}</span> : null}
+                                  {row.price_6m ? <span className="rounded bg-black/40 border border-white/10 px-1.5 py-0.5 text-white/90 font-bold">6M: ₹{String(row.price_6m)}</span> : null}
+                                  {row.price_12m ? <span className="rounded bg-black/40 border border-white/10 px-1.5 py-0.5 text-white/90 font-bold">12M: ₹{String(row.price_12m)}</span> : null}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="p-4 text-xs text-[#c8cedc] font-medium whitespace-nowrap">
                         {row.starts_at ? formatDate12h(String(row.starts_at)) : "-"}
@@ -735,6 +1013,12 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
               const isLive = isActive && startsDate && endsDate && startsDate.getTime() <= now && endsDate.getTime() > now;
               const isUpcoming = isActive && startsDate && startsDate.getTime() > now;
 
+              const regularPrice = isSub
+                ? Number(row.game_price_1m ?? row.game_sale_price ?? row.game_original_price ?? 0)
+                : Number(row.game_sale_price ?? row.game_original_price ?? 0);
+              const flashPrice = Number(row.sale_price ?? 0);
+              const discountPct = regularPrice > 0 && flashPrice < regularPrice ? Math.round(((regularPrice - flashPrice) / regularPrice) * 100) : null;
+
               return (
                 <article
                   key={String(row.id ?? index)}
@@ -769,15 +1053,21 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                           <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">Expired</span>
                         )}
                       </div>
-                      <div className="mt-1 flex items-center gap-2 text-xs text-[#8991a6]">
+                      <div className="mt-1.5 flex items-center gap-2 text-xs flex-wrap">
                         <span className="font-mono font-bold text-white/80">#{String(row.id)}</span>
-                        {isSub ? (
-                          <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-[#facc15]"><Zap size={11} /> Sub</span>
-                        ) : (
-                          <span className="rounded bg-[#facc15]/10 border border-[#facc15]/30 px-2 py-0.5 text-[11px] font-black text-[#facc15]">
-                            ₹{String(row.sale_price)}
+                        <span className="rounded bg-[#facc15]/15 border border-[#facc15]/30 px-2 py-0.5 text-[11px] font-black text-[#facc15]">
+                          ₹{String(row.sale_price)}
+                        </span>
+                        {regularPrice > 0 && regularPrice !== flashPrice && (
+                          <span className="text-[11px] text-[#8991a6] line-through font-semibold">
+                            ₹{regularPrice}
                           </span>
                         )}
+                        {discountPct ? (
+                          <span className="rounded bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.2 text-[10px] font-black text-emerald-400">
+                            -{discountPct}%
+                          </span>
+                        ) : null}
                       </div>
                     </div>
                   </div>
