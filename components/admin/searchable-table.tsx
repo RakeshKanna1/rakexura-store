@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
-import { Search, ExternalLink, ChevronLeft, ChevronRight, Copy, Check, Gamepad2, Zap, MessageCircle, Trash2, Clock, Sparkles, CheckSquare, Percent, Calendar, Flame, Eye, CheckCheck } from "lucide-react";
+import { Search, ExternalLink, ChevronLeft, ChevronRight, Copy, Check, Gamepad2, Zap, MessageCircle, Trash2, Clock, Sparkles, CheckSquare, Percent, Calendar, Flame, CheckCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
