@@ -14,6 +14,19 @@ import { PlatformIcon } from "./platform-icon";
 import { ResellerIcon } from "@/components/ui/reseller-badge";
 
 function gamePrice(game: Game) {
+  if (game.active_flash_sale) {
+    const flashPrices = [
+      game.active_flash_sale.sale_price,
+      game.active_flash_sale.price_2m,
+      game.active_flash_sale.price_3m,
+      game.active_flash_sale.price_6m,
+      game.active_flash_sale.price_12m,
+    ]
+      .map(Number)
+      .filter((v) => v > 0);
+    if (flashPrices.length > 0) return Math.min(...flashPrices);
+  }
+
   const prices = [
     game.price_1m,
     game.price_2m,
@@ -30,7 +43,7 @@ function gamePrice(game: Game) {
     .map(Number)
     .filter((value) => value > 0);
 
-  return prices.length ? Math.min(...prices) : 0;
+  return prices.length ? Math.min(...prices) : Number(game.sale_price || 0);
 }
 
 export function availablePlatforms(game: Game): Platform[] {
@@ -140,6 +153,10 @@ function GameCardInner({
       <div className="absolute left-2.5 top-2.5 flex flex-col gap-1 items-start z-10 pointer-events-none">
         {game.out_of_stock ? (
           <span className="rounded-md bg-red-600/90 backdrop-blur-sm px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Out of Stock</span>
+        ) : game.active_flash_sale ? (
+          <span className="rounded-md bg-gradient-to-r from-amber-500 to-yellow-400 px-2 py-0.5 text-[9px] font-black text-black uppercase tracking-wider shadow-md shadow-black/80 flex items-center gap-1">
+            <Zap size={10} className="fill-black" /> Flash Deal
+          </span>
         ) : game.preorder ? (
           <span suppressHydrationWarning className="rounded-md bg-purple-600/90 backdrop-blur-sm px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Pre-order</span>
         ) : game.is_premium ? (

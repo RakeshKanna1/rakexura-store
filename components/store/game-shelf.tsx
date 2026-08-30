@@ -46,15 +46,12 @@ export function GameShelf({
         </Link>
       </div>
       <div
-        data-lenis-prevent="true"
-        data-lenis-prevent-wheel="true"
-        data-lenis-prevent-touch="true"
         className={`hide-scrollbar grid w-full max-w-full auto-cols-[170px] grid-flow-col gap-4 overflow-x-auto pb-3 sm:auto-cols-[210px] md:auto-cols-[240px] lg:grid-flow-row lg:grid-cols-6 lg:overflow-visible lg:pb-0 ${
           rows === 2 ? "lg:gap-y-6" : ""
         }`}
         style={{
           WebkitOverflowScrolling: "touch",
-          touchAction: "pan-y pan-x",
+          touchAction: "pan-y",
         }}
       >
         {displayGames.map((game, index) => {

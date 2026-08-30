@@ -2,19 +2,17 @@ import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { AdminAccessDenied } from "@/components/admin/access-denied";
 import { BackButton } from "@/components/layout/back-button";
-import { getAuthenticatedUser, getCurrentUserProfile } from "@/lib/supabase/server";
+import { getCurrentUserProfile } from "@/lib/supabase/server";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const user = await getAuthenticatedUser();
+  const profile = await getCurrentUserProfile();
 
-  if (!user) {
+  if (!profile) {
     redirect("/login?next=/admin");
   }
 
-  const profile = await getCurrentUserProfile();
-
-  if (profile?.role !== "admin") {
-    return <AdminAccessDenied email={user.email} />;
+  if (profile.role !== "admin") {
+    return <AdminAccessDenied email={profile.email} />;
   }
 
   return (

@@ -4,19 +4,12 @@ import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Minus, Package, Plus, ShoppingBag, Trash2, X } from "lucide-react";
-import { assetUrl, calculateResellerPrice, formatPrice, gameUrl } from "@/lib/utils";
+import { assetUrl, calculatePlatformPrice, calculateResellerPrice, formatPrice, gameUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { DustDisintegration } from "@/components/common/dust-disintegration";
 
 function price(line: ReturnType<typeof useCartStore.getState>["lines"][number]) {
-  const p = line.platform;
-  const g = line.game;
-  if (p === "Epic") return Number(g.epic_price ?? g.sale_price ?? 0);
-  if (p === "Offline") return Number(g.offline_price ?? 0);
-  if (p === "Online") return Number(g.online_price ?? 0);
-  if (p === "Xbox") return Number(g.xbox_price ?? 0);
-  if (p === "Nvidia GeForce") return Number(g.geforce_price ?? 0);
-  return Number(g.steam_price ?? g.sale_price ?? 0);
+  return calculatePlatformPrice(line.game, line.platform);
 }
 
 function Stepper({ value, down, up }: { value: number; down: () => void; up: () => void }) { 

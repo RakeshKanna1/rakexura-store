@@ -32,11 +32,8 @@ export function BundleShelf({ bundles }: { bundles: Bundle[] }) {
         </Link>
       </div>
       <div
-        data-lenis-prevent="true"
-        data-lenis-prevent-wheel="true"
-        data-lenis-prevent-touch="true"
         className="hide-scrollbar grid w-full max-w-full auto-cols-[86%] sm:auto-cols-[70%] grid-flow-col gap-3 sm:gap-4 overflow-x-auto md:grid-flow-row md:grid-cols-2 md:overflow-visible"
-        style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y pan-x" }}
+        style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
       >
         {bundles.map((bundle, index) => {
           const isSecond = index === 1;

@@ -56,6 +56,7 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
         <div className="flex items-center gap-2 flex-wrap">
           <button
+            suppressHydrationWarning
             type="button"
             onClick={() => { setActiveFilter("all"); setSelectedProofIndex(null); }}
             className={`rounded px-3.5 py-1.5 text-xs font-bold transition-all ${
@@ -67,6 +68,7 @@ export function ProofsGallery({ proofs }: { proofs: CustomerProof[] }) {
             All Proofs ({proofs.length})
           </button>
           <button
+            suppressHydrationWarning
             type="button"
             onClick={() => { setActiveFilter("whatsapp"); setSelectedProofIndex(null); }}
             className={`rounded px-3.5 py-1.5 text-xs font-bold transition-all ${

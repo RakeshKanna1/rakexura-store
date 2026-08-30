@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, Check, ShieldCheck, ShoppingBag, TicketPercent, Zap } from "lucide-react";
+import { BadgeCheck, Check, Clock3, ShieldCheck, ShoppingBag, TicketPercent, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -10,9 +10,9 @@ import { ReviewForm } from "@/components/reviews/review-form";
 import { createClient } from "@/lib/supabase/client";
 import { AuthModal } from "@/components/auth/auth-modal";
 import type { User } from "@supabase/supabase-js";
-import { calculateResellerPrice, formatPrice, isDiamondOrPlatinumCoupon } from "@/lib/utils";
+import { calculatePlatformPrice, calculateResellerPrice, formatPrice, getPlatformRegularPrice, isDiamondOrPlatinumCoupon } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
-import type { Game, Platform } from "@/types/store";
+import type { Game, Platform, FlashSale } from "@/types/store";
 import { availablePlatforms } from "./game-card";
 import { OfferCountdown } from "./offer-countdown";
 import { Confetti } from "@/components/common/confetti";
@@ -21,19 +21,7 @@ import { WishlistButton } from "./wishlist-button";
 import { PlatformIcon } from "./platform-icon";
 import { ResellerIcon } from "@/components/ui/reseller-badge";
 
-function price(game: Game, platform: Platform) {
-  if (platform === "1 Month") return Number(game.price_1m ?? game.xbox_price ?? game.steam_price ?? 0);
-  if (platform === "2 Months") return Number(game.price_2m ?? 0);
-  if (platform === "3 Months") return Number(game.price_3m ?? 0);
-  if (platform === "6 Months") return Number(game.price_6m ?? 0);
-  if (platform === "12 Months") return Number(game.price_12m ?? 0);
-  if (platform === "Epic") return Number(game.epic_price ?? 0);
-  if (platform === "Offline") return Number(game.offline_price ?? 0);
-  if (platform === "Online") return Number(game.online_price ?? 0);
-  if (platform === "Xbox") return Number(game.xbox_price ?? 0);
-  if (platform === "Nvidia GeForce") return Number(game.geforce_price ?? 0);
-  return Number(game.steam_price ?? 0);
-}
+const price = calculatePlatformPrice;
 
 export function ProductActions({ game }: { game: Game }) {
   const [celebrate, setCelebrate] = useState(false);
@@ -59,9 +47,11 @@ export function ProductActions({ game }: { game: Game }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkedAuth, setCheckedAuth] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
     setMounted(true);
+    const timer = setInterval(() => setNow(Date.now()), 1000);
     const supabase = createClient();
     supabase.auth.getUser().then(async ({ data: { user } }: { data: { user: User | null } }) => {
       setUser(user);
@@ -71,7 +61,21 @@ export function ProductActions({ game }: { game: Game }) {
         setIsAdmin(profile?.role === "admin" || profile?.role === "owner" || user.email === "12k21rakeshkannam@gmail.com");
       }
     });
+    return () => clearInterval(timer);
   }, []);
+
+  const isFlashSaleActive = Boolean(
+    game.active_flash_sale &&
+    game.active_flash_sale.active !== false &&
+    (!game.active_flash_sale.starts_at || new Date(game.active_flash_sale.starts_at).getTime() <= now) &&
+    (!game.active_flash_sale.ends_at || new Date(game.active_flash_sale.ends_at).getTime() > now)
+  );
+
+  const activeFlashSale = isFlashSaleActive ? game.active_flash_sale : null;
+  const gameWithActiveFlash: Game = {
+    ...game,
+    active_flash_sale: activeFlashSale,
+  };
 
   // Dynamic validation check for RAKETHREE quantity constraints on the game details page (bypassed for admin)
   useEffect(() => {
@@ -102,7 +106,7 @@ export function ProductActions({ game }: { game: Game }) {
         return;
       }
       if (!isDiamondOrPlatinumCoupon(coupon.code)) {
-        const basePrice = price(game, selected);
+        const basePrice = price(game, selected, activeFlashSale);
         if (basePrice * quantity < 99) {
           setCoupon(null);
           setCouponCode("");
@@ -110,12 +114,16 @@ export function ProductActions({ game }: { game: Game }) {
         }
       }
     }
-  }, [selected, coupon, game, quantity, isAdmin, setCoupon]);
+  }, [selected, coupon, game, quantity, isAdmin, setCoupon, activeFlashSale]);
 
-  const basePrice = price(game, selected);
+  const regularPrice = price(game, selected, null);
+  const basePrice = price(game, selected, activeFlashSale);
   const gameSubtotal = basePrice * quantity;
+  const regularSubtotal = regularPrice * quantity;
   const originalUnitPrice = Number(game.original_price ?? 0);
-  const originalSubtotal = originalUnitPrice > basePrice ? originalUnitPrice * quantity : 0;
+  const comparePrice = originalUnitPrice > regularPrice ? originalUnitPrice : regularPrice;
+  const compareSubtotal = comparePrice * quantity;
+
   const activeCoupon = mounted ? coupon : null;
   const couponSavings = activeCoupon && gameSubtotal >= activeCoupon.minimum_order ? Math.min(gameSubtotal, activeCoupon.discount_type === "percentage" ? gameSubtotal * activeCoupon.discount_value / 100 : activeCoupon.discount_value) : 0;
   const discountedPrice = Math.max(0, gameSubtotal - couponSavings);
@@ -123,6 +131,10 @@ export function ProductActions({ game }: { game: Game }) {
   const isWholesaleActive = Boolean(isReseller && resellerDiscount > 0);
   const resellerCalc = calculateResellerPrice(gameSubtotal, resellerDiscount, resellerDiscountType);
   const wholesalePrice = isWholesaleActive ? resellerCalc.price : gameSubtotal;
+
+  const currentPayable = isWholesaleActive ? wholesalePrice : couponSavings > 0 ? discountedPrice : gameSubtotal;
+  const strikethroughSubtotal = compareSubtotal > currentPayable ? compareSubtotal : 0;
+  const discountPercent = strikethroughSubtotal > currentPayable ? Math.round(((strikethroughSubtotal - currentPayable) / strikethroughSubtotal) * 100) : 0;
 
   async function checkCoupon() {
     const normalized = couponCode.trim().toUpperCase();
@@ -174,7 +186,29 @@ export function ProductActions({ game }: { game: Game }) {
   return (
     <div className="space-y-4">
       <div className="glass min-w-0 space-y-5 overflow-hidden rounded-lg p-4 sm:p-5">
-        <OfferCountdown end={game.offer_end_date} />
+        {isFlashSaleActive ? (
+          <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] px-3.5 py-2.5 shadow-sm select-none">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-6 w-6 items-center justify-center rounded bg-[#facc15]/15 text-[#facc15] shrink-0">
+                <Zap size={14} className="fill-[#facc15]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-black uppercase tracking-wider text-white">
+                  Flash Sale Event
+                </span>
+                <span className="text-[10px] font-medium text-[#8991a8]">
+                  Promotional pricing active
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Clock3 size={13} className="text-[#facc15]" />
+              <OfferCountdown end={activeFlashSale?.ends_at} inline />
+            </div>
+          </div>
+        ) : game.offer_end_date ? (
+          <OfferCountdown end={game.offer_end_date} />
+        ) : null}
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-[#8991a8]">
             {game.is_subscription ? "Choose Plan Duration" : "Choose platform"}
@@ -284,12 +318,19 @@ export function ProductActions({ game }: { game: Game }) {
                     exit={{ opacity: 0, y: 5 }}
                     className="flex flex-wrap items-baseline gap-2.5"
                   >
-                    <del className="text-base font-medium text-[#8991a8] line-through select-none">
-                      {formatPrice(gameSubtotal)}
-                    </del>
+                    {strikethroughSubtotal > currentPayable && (
+                      <del className="text-base font-medium text-[#8991a8] line-through select-none">
+                        {formatPrice(strikethroughSubtotal)}
+                      </del>
+                    )}
                     <strong className="text-3xl font-black bg-gradient-to-r from-[#fff5d6] via-[#e8d59e] to-[#d6bd78] bg-clip-text text-transparent tracking-tight">
-                      {formatPrice(wholesalePrice)}
+                      {formatPrice(currentPayable)}
                     </strong>
+                    {discountPercent > 0 && (
+                      <span className="inline-flex items-center rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-xs font-extrabold text-emerald-400">
+                        -{discountPercent}%
+                      </span>
+                    )}
                     <span className="inline-flex items-center gap-1.5 rounded-md bg-gradient-to-b from-[#1a1722] to-[#0f0c18] border border-[#e0ce9a]/25 px-2.5 py-1 text-xs font-black tracking-tight shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_2px_6px_rgba(0,0,0,0.3)] select-none">
                       <ResellerIcon className="w-3.5 h-3.5 shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]" />
                       <span className="bg-gradient-to-r from-[#fff5d6] via-[#e8d59e] to-[#d6bd78] bg-clip-text text-transparent font-black">
@@ -305,37 +346,40 @@ export function ProductActions({ game }: { game: Game }) {
                     exit={{ opacity: 0, y: 5 }}
                     className="flex flex-wrap items-baseline gap-2.5"
                   >
-                    {originalSubtotal > 0 && (
-                      <del className="text-sm font-medium text-[#8991a8] line-through decoration-red-500/60 select-none">{formatPrice(originalSubtotal)}</del>
+                    {strikethroughSubtotal > currentPayable && (
+                      <del className="text-sm font-medium text-[#8991a8] line-through decoration-red-500/60 select-none">
+                        {formatPrice(strikethroughSubtotal)}
+                      </del>
                     )}
-                    <del className="text-sm font-medium text-[#8991a8] line-through decoration-red-500/60 select-none">{formatPrice(gameSubtotal)}</del>
-                    <strong className="text-3xl font-black text-[#70efbb] tracking-tight">{formatPrice(discountedPrice)}</strong>
+                    <strong className="text-3xl font-black text-[#70efbb] tracking-tight">
+                      {formatPrice(currentPayable)}
+                    </strong>
+                    {discountPercent > 0 && (
+                      <span className="inline-flex items-center rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-xs font-extrabold text-emerald-400">
+                        -{discountPercent}%
+                      </span>
+                    )}
                   </motion.div>
                 ) : (
                   <motion.div 
-                    key="regular"
+                    key={isFlashSaleActive ? "flash" : "regular"}
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 5 }}
                     className="flex flex-wrap items-baseline gap-2.5"
                   >
-                    {originalSubtotal > wholesalePrice && (
-                      <>
-                        <del className="text-base font-medium text-[#8991a8] line-through decoration-red-500/60 select-none">
-                          {formatPrice(originalSubtotal)}
-                        </del>
-                        <strong className="text-3xl font-black text-[#facc15] tracking-tight">
-                          {formatPrice(wholesalePrice)}
-                        </strong>
-                        <span className="inline-flex items-center rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-extrabold text-emerald-400 shadow-sm backdrop-blur-sm">
-                          -{Math.round(((originalSubtotal - wholesalePrice) / originalSubtotal) * 100)}%
-                        </span>
-                      </>
+                    {strikethroughSubtotal > currentPayable && (
+                      <del className="text-base font-medium text-[#8991a8] line-through decoration-red-500/60 select-none">
+                        {formatPrice(strikethroughSubtotal)}
+                      </del>
                     )}
-                    {originalSubtotal <= wholesalePrice && (
-                      <strong className="block text-3xl font-black text-[#facc15] tracking-tight">
-                        {formatPrice(wholesalePrice)}
-                      </strong>
+                    <strong className="text-3xl font-black text-[#facc15] tracking-tight">
+                      {formatPrice(currentPayable)}
+                    </strong>
+                    {discountPercent > 0 && (
+                      <span className="inline-flex items-center rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-xs font-extrabold text-emerald-400">
+                        -{discountPercent}%
+                      </span>
                     )}
                   </motion.div>
                 )}
@@ -422,7 +466,7 @@ export function ProductActions({ game }: { game: Game }) {
 
                     // 4. Added text springs in
                     setTimeout(() => {
-                      add(game, selected);
+                      add(gameWithActiveFlash, selected);
                       setStoreQuantity(game.id, selected, quantity);
                       setBtnStatus("added");
                       toast.success(`${game.title} added to cart!`);
@@ -526,7 +570,7 @@ export function ProductActions({ game }: { game: Game }) {
                   const action = () => {
                     setBuyPop(true);
                     setTimeout(() => setBuyPop(false), 600);
-                    add(game, selected); 
+                    add(gameWithActiveFlash, selected); 
                     setStoreQuantity(game.id, selected, quantity);
                     setTimeout(() => {
                       router.push("/checkout"); 

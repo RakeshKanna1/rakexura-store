@@ -75,40 +75,38 @@ export function HeaderNotificationButton() {
   const fetchUserNotifications = useCallback(async (uid: string) => {
     try {
       const supabase = createClient();
-      const { data } = await supabase
+      const res = await supabase
         .from("notifications")
         .select("id,title,message,read,link,created_at,type")
         .eq("user_id", uid)
         .order("created_at", { ascending: false })
-        .limit(10);
-      if (data) setNotifications(data);
-    } catch (e) {
-      console.warn("Failed to fetch user notifications:", e);
+        .limit(10)
+        .catch(() => null);
+      if (res?.data) setNotifications(res.data);
+    } catch {
+      // Gracefully silent for offline / network transitions
     }
   }, []);
 
   const fetchAnnouncements = useCallback(async () => {
     try {
       const supabase = createClient();
-      const { data } = await supabase
+      const res = await supabase
         .from("marquee_messages")
         .select("id,message,icon_key")
         .eq("active", true)
-        .limit(5);
-      if (data) setAnnouncements(data);
-    } catch (e) {
-      console.warn("Failed to fetch announcements:", e);
+        .limit(5)
+        .catch(() => null);
+      if (res?.data) setAnnouncements(res.data);
+    } catch {
+      // Gracefully silent for offline / network transitions
     }
   }, []);
 
   const loadData = useCallback(async () => {
     try {
       const supabase = createClient();
-      const userRes = await supabase.auth.getUser().catch((err: unknown) => {
-        const msg = err instanceof Error ? err.message : String(err);
-        console.warn("Supabase auth offline:", msg);
-        return null;
-      });
+      const userRes = await supabase.auth.getUser().catch(() => null);
       const user = userRes?.data?.user;
       if (!user) {
         setUserId(null);
@@ -119,8 +117,7 @@ export function HeaderNotificationButton() {
       setUserId(user.id);
       void fetchUserNotifications(user.id);
       void fetchAnnouncements();
-    } catch (e) {
-      console.warn("Error loading user notification state:", e);
+    } catch {
       setUserId(null);
       setNotifications([]);
       void fetchAnnouncements();

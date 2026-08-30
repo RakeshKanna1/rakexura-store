@@ -74,21 +74,43 @@ export const getGames = unstable_cache(
   async (): Promise<Game[]> => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return fallbackGames;
     const supabase = getStaticClient();
-    const { data, error } = await supabase
-      .from("games")
-      .select(GAME_CATALOG_COLUMNS)
-      .or("archived.is.null,archived.eq.false")
-      .order("title");
+    const now = new Date().toISOString();
+    const [{ data: games, error }, { data: flashSales }] = await Promise.all([
+      supabase
+        .from("games")
+        .select(GAME_CATALOG_COLUMNS)
+        .or("archived.is.null,archived.eq.false")
+        .order("title"),
+      supabase
+        .from("flash_sales")
+        .select("*")
+        .eq("active", true)
+        .lte("starts_at", now)
+        .gt("ends_at", now),
+    ]);
 
-    if (error || !data?.length) return fallbackGames;
-    return data as Game[];
+    if (error || !games?.length) return fallbackGames;
+
+    const flashMap = new Map<number, FlashSale>();
+    if (flashSales) {
+      for (const fs of flashSales as FlashSale[]) {
+        if (!flashMap.has(fs.game_id)) {
+          flashMap.set(fs.game_id, fs);
+        }
+      }
+    }
+
+    return (games as Game[]).map((game) => ({
+      ...game,
+      active_flash_sale: flashMap.get(game.id) ?? null,
+    }));
   },
   ["games-list"],
-  { revalidate: 60, tags: ["games"] }
+  { revalidate: 30, tags: ["games", "flash-sales"] }
 );
 
 /**
- * Fetch a single game by its ID with full details.
+ * Fetch a single game by its ID with full details and any active flash sale.
  */
 export const getGame = (id: number) =>
   unstable_cache(
@@ -97,14 +119,31 @@ export const getGame = (id: number) =>
         return fallbackGames.find((game) => game.id === id) ?? null;
       }
       const supabase = getStaticClient();
-      const { data, error } = await supabase.from("games").select("*").eq("id", id).maybeSingle();
+      const now = new Date().toISOString();
+      const [{ data, error }, { data: flashSale }] = await Promise.all([
+        supabase.from("games").select("*").eq("id", id).maybeSingle(),
+        supabase
+          .from("flash_sales")
+          .select("*")
+          .eq("game_id", id)
+          .eq("active", true)
+          .lte("starts_at", now)
+          .gt("ends_at", now)
+          .order("ends_at", { ascending: true })
+          .limit(1)
+          .maybeSingle(),
+      ]);
+
       if (error || !data) {
         return fallbackGames.find((game) => game.id === id) ?? null;
       }
-      return data as Game;
+      return {
+        ...(data as Game),
+        active_flash_sale: (flashSale as FlashSale | null) ?? null,
+      };
     },
     ["game-detail", String(id)],
-    { revalidate: 60, tags: ["games", `game-${id}`] }
+    { revalidate: 30, tags: ["games", `game-${id}`, "flash-sales"] }
   )();
 
 /**
@@ -355,6 +394,94 @@ export const getStoreCategories = unstable_cache(
   ["store-categories-list"],
   { revalidate: 60, tags: ["categories"] }
 );
+
+export interface AdminOverviewStats {
+  games: number;
+  customers: number;
+  pending: number;
+  pendingReviews: number;
+  pendingRequests: number;
+  activeCoupons: number;
+  openTickets: number;
+  lowStock: number;
+  deliveries: Array<{ id: number | string; game_title: string; delivered_at: string }>;
+  todayRevenue: number;
+  todayOrdersCount: number;
+  latestOrders: Array<{
+    id: number;
+    order_reference?: string | null;
+    customer_name?: string | null;
+    order_status?: string | null;
+    total_price?: number | null;
+    created_at: string;
+  }>;
+}
+
+/**
+ * Fetch consolidated admin overview summary with 15-second SWR caching
+ * and instant tag invalidation via revalidateTag('admin-overview').
+ */
+export const getAdminOverviewData = unstable_cache(
+  async (): Promise<AdminOverviewStats> => {
+    const supabase = getStaticClient();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [
+      { count: games },
+      { count: customers },
+      { count: pending },
+      { count: pendingReviews },
+      { count: pendingRequests },
+      { count: activeCoupons },
+      { count: openTickets },
+      { count: lowStock },
+      { data: deliveries },
+      { data: todayOrders },
+      { data: latestOrders },
+    ] = await Promise.all([
+      supabase.from("games").select("id", { count: "exact", head: true }).eq("archived", false),
+      supabase.from("profiles").select("id", { count: "exact", head: true }),
+      supabase.from("orders").select("id", { count: "exact", head: true }).ilike("order_status", "%pending%"),
+      supabase.from("reviews").select("id", { count: "exact", head: true }).eq("approved", false),
+      supabase.from("game_requests").select("id", { count: "exact", head: true }).in("status", ["requested", "reviewing"]),
+      supabase.from("coupons").select("id", { count: "exact", head: true }).eq("active", true),
+      supabase.from("support_tickets").select("id", { count: "exact", head: true }).neq("status", "closed"),
+      supabase.from("games").select("id", { count: "exact", head: true }).gt("activation_slots", 0).lte("activation_slots", 3).eq("archived", false),
+      supabase.from("recent_deliveries").select("id,game_title,delivered_at").order("delivered_at", { ascending: false }).limit(4),
+      supabase.from("orders").select("total_price,payment_status,order_status").gte("created_at", today.toISOString()),
+      supabase.from("orders").select("id,order_reference,customer_name,order_status,total_price,created_at").order("created_at", { ascending: false }).limit(7),
+    ]);
+
+    const typedTodayOrders = (todayOrders ?? []) as Array<{ total_price?: number | null; payment_status?: string | null; order_status?: string | null }>;
+
+    const todayRevenue = typedTodayOrders
+      .filter(
+        (order) =>
+          ["Approved", "Delivered", "Completed"].includes(String(order.payment_status || "")) ||
+          ["Verified", "Delivered", "Completed"].includes(String(order.order_status || ""))
+      )
+      .reduce((sum, order) => sum + Number(order.total_price ?? 0), 0);
+
+    return {
+      games: games ?? 0,
+      customers: customers ?? 0,
+      pending: pending ?? 0,
+      pendingReviews: pendingReviews ?? 0,
+      pendingRequests: pendingRequests ?? 0,
+      activeCoupons: activeCoupons ?? 0,
+      openTickets: openTickets ?? 0,
+      lowStock: lowStock ?? 0,
+      deliveries: (deliveries ?? []) as Array<{ id: number | string; game_title: string; delivered_at: string }>,
+      todayRevenue,
+      todayOrdersCount: typedTodayOrders.length,
+      latestOrders: (latestOrders ?? []) as AdminOverviewStats["latestOrders"],
+    };
+  },
+  ["admin-overview-summary"],
+  { revalidate: 15, tags: ["admin-overview", "admin-stats"] }
+);
+
 
 
 

@@ -42,6 +42,145 @@ export function assetUrl(value?: string | null) {
   return `/${value.replace(/\\/g, "/")}`;
 }
 
+export function getPlatformRegularPrice(game: {
+  steam_price?: number | null;
+  epic_price?: number | null;
+  offline_price?: number | null;
+  online_price?: number | null;
+  xbox_price?: number | null;
+  geforce_price?: number | null;
+  price_1m?: number | null;
+  price_2m?: number | null;
+  price_3m?: number | null;
+  price_6m?: number | null;
+  price_12m?: number | null;
+  sale_price?: number | null;
+}, platform: string): number {
+  if (platform === "1 Month") return Number(game.price_1m ?? game.xbox_price ?? game.steam_price ?? 0);
+  if (platform === "2 Months") return Number(game.price_2m ?? 0);
+  if (platform === "3 Months") return Number(game.price_3m ?? 0);
+  if (platform === "6 Months") return Number(game.price_6m ?? 0);
+  if (platform === "12 Months") return Number(game.price_12m ?? 0);
+  if (platform === "Epic") return Number(game.epic_price ?? game.steam_price ?? game.sale_price ?? 0);
+  if (platform === "Offline") return Number(game.offline_price ?? game.steam_price ?? game.sale_price ?? 0);
+  if (platform === "Online") return Number(game.online_price ?? game.steam_price ?? game.sale_price ?? 0);
+  if (platform === "Xbox") return Number(game.xbox_price ?? 0);
+  if (platform === "Nvidia GeForce") return Number(game.geforce_price ?? 0);
+  return Number(game.steam_price ?? game.sale_price ?? 0);
+}
+
+export function calculatePlatformPrice(
+  game: {
+    steam_price?: number | null;
+    epic_price?: number | null;
+    offline_price?: number | null;
+    online_price?: number | null;
+    xbox_price?: number | null;
+    geforce_price?: number | null;
+    price_1m?: number | null;
+    price_2m?: number | null;
+    price_3m?: number | null;
+    price_6m?: number | null;
+    price_12m?: number | null;
+    sale_price?: number | null;
+    original_price?: number | null;
+    is_subscription?: boolean | null;
+    active_flash_sale?: {
+      sale_price?: number | null;
+      price_1m?: number | null;
+      price_2m?: number | null;
+      price_3m?: number | null;
+      price_6m?: number | null;
+      price_12m?: number | null;
+      ends_at?: string | null;
+      starts_at?: string | null;
+      active?: boolean | null;
+    } | null;
+  },
+  platform: string,
+  activeFlashSale?: {
+    sale_price?: number | null;
+    price_1m?: number | null;
+    price_2m?: number | null;
+    price_3m?: number | null;
+    price_6m?: number | null;
+    price_12m?: number | null;
+    ends_at?: string | null;
+    starts_at?: string | null;
+    active?: boolean | null;
+  } | null
+): number {
+  const regular = getPlatformRegularPrice(game, platform);
+  const fs = activeFlashSale !== undefined ? activeFlashSale : game.active_flash_sale;
+  if (!fs || fs.active === false) {
+    return regular;
+  }
+
+  const isOngoing = (!fs.starts_at || new Date(fs.starts_at).getTime() <= Date.now()) && (!fs.ends_at || new Date(fs.ends_at).getTime() > Date.now());
+  if (!isOngoing) {
+    return regular;
+  }
+
+  // 1. Subscription plan durations (1M, 2M, 3M, 6M, 12M)
+  if (game.is_subscription) {
+    const regular1m = Number(game.price_1m ?? game.xbox_price ?? game.steam_price ?? 0);
+    const flash1m = Number(fs.price_1m || fs.sale_price || 0);
+
+    if (platform === "1 Month" && flash1m > 0) return flash1m;
+
+    const subsDiscountRatio = regular1m > 0 && flash1m > 0 ? flash1m / regular1m : 1;
+
+    if (platform === "2 Months") {
+      if (fs.price_2m && Number(fs.price_2m) > 0) return Number(fs.price_2m);
+      if (subsDiscountRatio < 1 && regular > 0) return Math.max(1, Math.round(regular * subsDiscountRatio));
+    }
+    if (platform === "3 Months") {
+      if (fs.price_3m && Number(fs.price_3m) > 0) return Number(fs.price_3m);
+      if (subsDiscountRatio < 1 && regular > 0) return Math.max(1, Math.round(regular * subsDiscountRatio));
+    }
+    if (platform === "6 Months") {
+      if (fs.price_6m && Number(fs.price_6m) > 0) return Number(fs.price_6m);
+      if (subsDiscountRatio < 1 && regular > 0) return Math.max(1, Math.round(regular * subsDiscountRatio));
+    }
+    if (platform === "12 Months") {
+      if (fs.price_12m && Number(fs.price_12m) > 0) return Number(fs.price_12m);
+      if (subsDiscountRatio < 1 && regular > 0) return Math.max(1, Math.round(regular * subsDiscountRatio));
+    }
+    return regular;
+  }
+
+  // 2. Standard PC Games (Steam, Epic, Offline, Online, Xbox, Nvidia)
+  const flashSalePrice = Number(fs.sale_price);
+  if (flashSalePrice <= 0) return regular;
+
+  const catalogPrices = [
+    Number(game.sale_price),
+    Number(game.steam_price),
+    Number(game.epic_price),
+    Number(game.offline_price),
+    Number(game.online_price)
+  ].filter((p) => !isNaN(p) && p > 0);
+
+  const maxCatalogPrice = catalogPrices.length ? Math.max(...catalogPrices) : regular;
+  const minCatalogPrice = catalogPrices.length ? Math.min(...catalogPrices) : regular;
+  const defaultCatalogPrice = Number(game.sale_price || minCatalogPrice || regular);
+
+  const refPrice = defaultCatalogPrice > flashSalePrice ? defaultCatalogPrice : maxCatalogPrice;
+
+  if (refPrice > flashSalePrice) {
+    const discountRatio = flashSalePrice / refPrice;
+    if (discountRatio < 1 && regular > 0) {
+      return Math.max(1, Math.round(regular * discountRatio));
+    }
+  }
+
+  if (flashSalePrice < regular) {
+    return flashSalePrice;
+  }
+
+  return regular;
+}
+
 export function lowestPrice(game: {
   steam_price?: number | null;
   epic_price?: number | null;
@@ -55,22 +194,27 @@ export function lowestPrice(game: {
   price_6m?: number | null;
   price_12m?: number | null;
   sale_price?: number | null;
+  is_subscription?: boolean | null;
+  active_flash_sale?: {
+    sale_price?: number | null;
+    price_1m?: number | null;
+    price_2m?: number | null;
+    price_3m?: number | null;
+    price_6m?: number | null;
+    price_12m?: number | null;
+    ends_at?: string | null;
+    starts_at?: string | null;
+    active?: boolean | null;
+  } | null;
 }) {
-  const prices = [
-    game.price_1m,
-    game.price_2m,
-    game.price_3m,
-    game.price_6m,
-    game.price_12m,
-    game.steam_price,
-    game.epic_price,
-    game.offline_price,
-    game.online_price,
-    game.xbox_price,
-    game.geforce_price,
-  ]
-    .map(Number)
-    .filter((price) => price > 0);
+  const platforms = game.is_subscription
+    ? ["1 Month", "2 Months", "3 Months", "6 Months", "12 Months"]
+    : ["Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce"];
+
+  const prices = platforms
+    .map((p) => calculatePlatformPrice(game, p))
+    .filter((p) => p > 0);
+
   return prices.length ? Math.min(...prices) : Number(game.sale_price ?? 0);
 }
 

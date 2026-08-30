@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { OWNER_EMAIL } from "@/lib/config";
 
@@ -16,5 +16,7 @@ export async function activateOwnerAdmin() {
   if (profile?.role !== "admin") return { ok: false, message: "Supabase did not persist the admin role. Run the diagnostic SQL and share the result." };
   revalidatePath("/admin");
   revalidatePath("/dashboard");
+  revalidateTag("admin-overview");
+  revalidateTag("admin-stats");
   return { ok: true, message: "Admin access activated. Refreshing your control center." };
 }

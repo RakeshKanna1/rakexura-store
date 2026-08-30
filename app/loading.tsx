@@ -13,8 +13,8 @@ export default function Loading() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-[99999] flex items-center justify-center overflow-hidden bg-[#05070f] select-none"
+      transition={{ duration: 0.15 }}
+      className="fixed inset-0 z-[99999] flex items-center justify-center overflow-hidden bg-[#05070f]/90 backdrop-blur-md select-none pointer-events-none"
       role="status"
       aria-label="Loading Rakexura"
     >

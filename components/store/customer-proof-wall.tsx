@@ -61,11 +61,8 @@ export function CustomerProofWall({ proofs }: { proofs: CustomerProof[] }) {
 
       {/* Seamless Infinite Marquee Track with Fade Edges */}
       <div 
-        data-lenis-prevent="true"
-        data-lenis-prevent-wheel="true"
-        data-lenis-prevent-touch="true"
         className="proof-marquee-container relative w-full max-w-full overflow-hidden py-1"
-        style={{ touchAction: "pan-x pan-y" }}
+        style={{ touchAction: "pan-y" }}
       >
         {/* Soft edge gradients */}
         <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-16 z-10 bg-gradient-to-r from-black via-black/50 to-transparent" />

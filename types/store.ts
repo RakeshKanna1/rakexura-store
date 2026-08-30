@@ -73,6 +73,7 @@ export interface Game {
   premium_theme?: string | null;
   out_of_stock?: boolean | null;
   reseller_price?: number | null;
+  active_flash_sale?: FlashSale | null;
 }
 
 export interface Profile {
@@ -124,6 +125,7 @@ export interface FlashSale {
   id: number;
   game_id: number;
   sale_price: number;
+  price_1m?: number | null;
   price_2m?: number | null;
   price_3m?: number | null;
   price_6m?: number | null;

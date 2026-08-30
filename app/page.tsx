@@ -24,8 +24,13 @@ export const revalidate = 60;
 export default async function Home() {
   const [games, bundles, reviews, sales, deliveries, proofs] = await Promise.all([getGames(), getBundles(), getReviews(10), getFlashSales(), getRecentDeliveries(), getCustomerProofs(24)]);
   
+  const now = Date.now();
+  const liveFlashSales = sales.filter(
+    (s) => s.active && (!s.starts_at || new Date(s.starts_at).getTime() <= now) && (!s.ends_at || new Date(s.ends_at).getTime() > now)
+  );
+
   // 1. Identify active Flash Sale games & prioritize them at the front of the Spotlight Banner
-  const flashGameIds = new Set(sales.filter((s) => s.active).map((s) => s.game_id));
+  const flashGameIds = new Set(liveFlashSales.map((s) => s.game_id));
   const flashGames = games.filter((g) => flashGameIds.has(g.id));
   const hero = games.filter((game) => game.show_in_hero && !flashGameIds.has(game.id));
   const fallbackHero = games.filter((g) => !g.is_subscription && !flashGameIds.has(g.id));
@@ -50,11 +55,11 @@ export default async function Home() {
       <FireflyCanvas />
 
       <div className="shell pt-5 md:pt-8">
-        <HeroCarousel games={heroGames} flashSales={sales} />
+        <HeroCarousel games={heroGames} flashSales={liveFlashSales} />
         <LiveDeliveryTicker deliveries={deliveries} />
         <WhatsAppCommunity />
         <TrustStats />
-        <Reveal><FlashSaleBlock sales={sales} /></Reveal>
+        {liveFlashSales.length > 0 && <Reveal><FlashSaleBlock sales={liveFlashSales} /></Reveal>}
         {upcoming.length > 0 && <Reveal><GameShelf title="Pre-order games" subtitle="Secure your copy of upcoming titles" games={upcoming} href="/games?category=Pre-order" rows={1} /></Reveal>}
         <Reveal><GameShelf title="Gamer's choice" subtitle="Popular picks selected by Rakexura players" games={highlightGames} href="/games?sort=featured" rows={2} /></Reveal>
         <Reveal><CategoryRail /></Reveal>

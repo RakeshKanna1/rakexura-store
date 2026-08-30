@@ -128,26 +128,40 @@ export default async function AdminSection({ params, searchParams }: { params: P
   if (section === "orders") {
     const proofPaths = rows.map((r) => String(r.screenshot_url || "")).filter(Boolean);
     if (proofPaths.length > 0) {
-      const { data: signedList } = await supabase.storage.from("payment-proofs").createSignedUrls(proofPaths, 120);
-      const urlMap = new Map((signedList || []).map((item) => [item.path, item.signedUrl]));
-      rows.forEach((row) => {
-        if (row.screenshot_url) {
-          row.proof_url = urlMap.get(String(row.screenshot_url)) || undefined;
-        }
-      });
+      try {
+        const { data: signedList } = await Promise.race([
+          supabase.storage.from("payment-proofs").createSignedUrls(proofPaths.slice(0, 30), 300),
+          new Promise<{ data: null }>((resolve) => setTimeout(() => resolve({ data: null }), 600)),
+        ]);
+        const urlMap = new Map((signedList || []).map((item) => [item.path, item.signedUrl]));
+        rows.forEach((row) => {
+          if (row.screenshot_url) {
+            row.proof_url = urlMap.get(String(row.screenshot_url)) || undefined;
+          }
+        });
+      } catch (err) {
+        console.warn("Could not batch sign order proof URLs:", err);
+      }
     }
   }
 
   if (section === "reviews") {
     const mediaPaths = rows.flatMap((r) => Array.isArray(r.media_urls) ? r.media_urls.map(String) : []);
     if (mediaPaths.length > 0) {
-      const { data: signedList } = await supabase.storage.from("review-media").createSignedUrls(mediaPaths, 120);
-      const urlMap = new Map((signedList || []).map((item) => [item.path, item.signedUrl]));
-      rows.forEach((row) => {
-        if (Array.isArray(row.media_urls) && row.media_urls.length) {
-          row.media_links = row.media_urls.map((path: string) => urlMap.get(String(path))).filter((url): url is string => Boolean(url));
-        }
-      });
+      try {
+        const { data: signedList } = await Promise.race([
+          supabase.storage.from("review-media").createSignedUrls(mediaPaths.slice(0, 30), 300),
+          new Promise<{ data: null }>((resolve) => setTimeout(() => resolve({ data: null }), 600)),
+        ]);
+        const urlMap = new Map((signedList || []).map((item) => [item.path, item.signedUrl]));
+        rows.forEach((row) => {
+          if (Array.isArray(row.media_urls) && row.media_urls.length) {
+            row.media_links = row.media_urls.map((path: string) => urlMap.get(String(path))).filter((url): url is string => Boolean(url));
+          }
+        });
+      } catch (err) {
+        console.warn("Could not batch sign review media URLs:", err);
+      }
     }
   }
 

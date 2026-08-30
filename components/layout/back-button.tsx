@@ -21,43 +21,30 @@ export function BackButton({ label, href, className = "" }: BackButtonProps) {
     if (href) return;
     e.preventDefault();
 
-    // 1. Admin hierarchy
-    if (pathname.startsWith("/admin/") && pathname !== "/admin") {
-      router.push("/admin");
-      return;
-    }
-    if (pathname === "/admin") {
-      router.push("/");
-      return;
-    }
+    // 1. If user has internal navigation history, naturally go back to their previous page/filter/scroll state
+    const isInternalReferrer = 
+      typeof document !== "undefined" && 
+      document.referrer && 
+      (document.referrer.includes(window.location.host) || document.referrer.startsWith("/"));
 
-    // 2. Dashboard hierarchy
-    if (pathname.startsWith("/dashboard/") && pathname !== "/dashboard") {
-      router.push("/dashboard");
-      return;
-    }
-    if (pathname === "/dashboard" || pathname === "/profile") {
-      router.push("/");
-      return;
-    }
-
-    // 3. Checkout flow
-    if (pathname === "/checkout") {
-      router.push("/cart");
-      return;
-    }
-
-    // 4. Safe internal history check
-    const isInternalReferrer = typeof document !== "undefined" && document.referrer && document.referrer.includes(window.location.host);
-
-    if (isInternalReferrer && window.history.length > 1) {
+    if (typeof window !== "undefined" && window.history.length > 1 && (isInternalReferrer || !document.referrer)) {
       router.back();
       return;
     }
 
-    // 5. Intelligent Fallback Routing
-    if (pathname.startsWith("/games/")) {
-      router.push("/games");
+    // 2. Intelligent Hierarchy Fallback when landing directly on a sub-page without history
+    if (pathname.startsWith("/admin/") && pathname !== "/admin") {
+      router.push("/admin");
+    } else if (pathname === "/admin") {
+      router.push("/");
+    } else if (pathname.startsWith("/dashboard/") && pathname !== "/dashboard") {
+      router.push("/dashboard");
+    } else if (pathname === "/dashboard" || pathname === "/profile") {
+      router.push("/");
+    } else if (pathname === "/checkout") {
+      router.push("/cart");
+    } else if (pathname.startsWith("/games/")) {
+      router.push("/");
     } else if (pathname.startsWith("/bundles/")) {
       router.push("/bundles");
     } else if (pathname === "/cart") {
@@ -67,26 +54,48 @@ export function BackButton({ label, href, className = "" }: BackButtonProps) {
     }
   }
 
-  const defaultLabel = pathname.startsWith("/games/")
-    ? "Back to Games"
-    : pathname.startsWith("/bundles/")
-      ? "Back to Bundles"
-      : pathname === "/checkout"
-        ? "Back to Cart"
-        : pathname.startsWith("/admin/")
-          ? "Back to Admin"
-          : "Back";
+  const defaultLabel = pathname.startsWith("/admin/")
+    ? "Back to Admin"
+    : "Back";
 
   const displayLabel = label ?? defaultLabel;
 
   // Small & compact back button styling
   const btnClasses = "group inline-flex items-center gap-1 rounded-md border border-white/10 bg-[#121212]/80 px-2.5 py-1 text-[11px] font-medium tracking-wide text-[#a0a8c0] backdrop-blur-md transition-all duration-150 hover:border-white/20 hover:bg-[#1a1a1a] hover:text-white active:scale-95 cursor-pointer select-none shadow-sm";
 
+  const handleMouseEnter = () => {
+    if (href) {
+      router.prefetch(href);
+      return;
+    }
+    if (pathname.startsWith("/admin/") && pathname !== "/admin") {
+      router.prefetch("/admin");
+    } else if (pathname === "/admin") {
+      router.prefetch("/");
+    } else if (pathname.startsWith("/dashboard/") && pathname !== "/dashboard") {
+      router.prefetch("/dashboard");
+    } else if (pathname === "/dashboard" || pathname === "/profile") {
+      router.prefetch("/");
+    } else if (pathname === "/checkout") {
+      router.prefetch("/cart");
+    } else if (pathname.startsWith("/games/")) {
+      router.prefetch("/");
+    } else if (pathname.startsWith("/bundles/")) {
+      router.prefetch("/bundles");
+    } else if (pathname === "/cart") {
+      router.prefetch("/games");
+    } else {
+      router.prefetch("/");
+    }
+  };
+
   if (href) {
     return (
       <div className={`relative z-30 pointer-events-auto ${className}`}>
         <Link
           href={href}
+          prefetch={true}
+          onMouseEnter={handleMouseEnter}
           className={btnClasses}
           aria-label={displayLabel}
         >
@@ -103,6 +112,8 @@ export function BackButton({ label, href, className = "" }: BackButtonProps) {
         suppressHydrationWarning
         type="button"
         onClick={goBack}
+        onMouseEnter={handleMouseEnter}
+        onFocus={handleMouseEnter}
         className={btnClasses}
         aria-label={displayLabel}
       >

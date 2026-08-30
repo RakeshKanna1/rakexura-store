@@ -26,20 +26,39 @@ export function VisitorTracker() {
       return;
     }
 
-    const visitorId = getOrSetVisitorId();
-    const referrer = typeof document !== "undefined" ? document.referrer : "";
+    const track = () => {
+      try {
+        const visitorId = getOrSetVisitorId();
+        const referrer = typeof document !== "undefined" ? document.referrer : "";
 
-    fetch("/api/track-visitor", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        path: pathname,
-        visitorId,
-        referrer,
-      }),
-    }).catch(() => {
-      // Ignore background tracking errors silently
-    });
+        fetch("/api/track-visitor", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            path: pathname,
+            visitorId,
+            referrer,
+          }),
+          keepalive: true,
+        }).catch(() => {
+          // Ignore background tracking errors silently
+        });
+      } catch {
+        // Ignore background tracking errors silently
+      }
+    };
+
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      const handle = (window as unknown as { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback(track, { timeout: 2000 });
+      return () => {
+        if ("cancelIdleCallback" in window) {
+          (window as unknown as { cancelIdleCallback: (h: number) => void }).cancelIdleCallback(handle);
+        }
+      };
+    } else {
+      const timeout = setTimeout(track, 500);
+      return () => clearTimeout(timeout);
+    }
   }, [pathname]);
 
   return null;

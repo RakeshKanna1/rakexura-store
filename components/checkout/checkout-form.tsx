@@ -12,7 +12,7 @@ import { z } from "zod";
 import { Button } from "@/components/common/button";
 import { OnboardingHint } from "@/components/common/onboarding-hint";
 import { createClient } from "@/lib/supabase/client";
-import { calculateResellerPrice, formatPrice, gameUrl, isDiamondOrPlatinumCoupon } from "@/lib/utils";
+import { calculatePlatformPrice, calculateResellerPrice, formatPrice, gameUrl, isDiamondOrPlatinumCoupon } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
 import type { Game } from "@/types/store";
@@ -34,19 +34,7 @@ const schema = z.object({ name: z.string().min(2), whatsapp: z.string().regex(/^
 type Data = z.infer<typeof schema>;
 const UPI_ID = process.env.NEXT_PUBLIC_UPI_ID || "12k21rakeshkannam@oksbi";
 
-function getCheckoutLinePrice(g: Game, platform: string) {
-  if (platform === "1 Month") return Number(g.price_1m ?? g.xbox_price ?? g.steam_price ?? g.sale_price ?? 0);
-  if (platform === "2 Months") return Number(g.price_2m ?? 0);
-  if (platform === "3 Months") return Number(g.price_3m ?? 0);
-  if (platform === "6 Months") return Number(g.price_6m ?? 0);
-  if (platform === "12 Months") return Number(g.price_12m ?? 0);
-  if (platform === "Epic") return Number(g.epic_price ?? g.sale_price ?? 0);
-  if (platform === "Offline") return Number(g.offline_price ?? 0);
-  if (platform === "Online") return Number(g.online_price ?? 0);
-  if (platform === "Xbox") return Number(g.xbox_price ?? 0);
-  if (platform === "Nvidia GeForce") return Number(g.geforce_price ?? 0);
-  return Number(g.steam_price ?? g.sale_price ?? 0);
-}
+const getCheckoutLinePrice = calculatePlatformPrice;
 
 function FocusModeWhatsAppPrinter({
   orderReference,

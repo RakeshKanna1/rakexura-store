@@ -303,49 +303,61 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
           <Link href="/games" className="text-xs text-[#b9a4ff] hover:underline font-bold">View all</Link>
         </div>
         <div className="featured-now-list hide-scrollbar">
-          {games.map((game, index) => (
-            <button
-              key={game.id}
-              type="button"
-              suppressHydrationWarning
-              onClick={() => {
-                if (swiperRef.current) swiperRef.current.slideToLoop(index);
-                setActiveTrailerId(null);
-              }}
-              className={`featured-now-item w-full rounded p-2.5 sm:p-3 text-left transition duration-300 ease-out cursor-pointer group ${
-                active === index ? "is-active" : ""
-              }`}
-            >
-              <span className="relative h-11 w-8 sm:h-12 sm:w-9 shrink-0 overflow-hidden rounded bg-black/40">
-                <Image
-                  src={assetUrl(game.cover_image)}
-                  alt=""
-                  fill
-                  sizes="36px"
-                  fetchPriority="low"
-                  className="object-cover transition duration-300 group-hover:scale-105"
-                />
-              </span>
-              <span className="min-w-0 flex-1">
-                <strong className="line-clamp-1 text-xs font-bold leading-relaxed text-white group-hover:text-[#facc15] transition-colors">
-                  {game.title}
-                </strong>
-                <small className="mt-0.5 block text-[10px] text-[#8991a6]">
-                  {(() => {
-                    const p = getDisplayPrice(game);
-                    if (p.isWholesale && p.isDiscount) {
-                      return (
-                        <span className="text-[#e0ce9a] font-bold">
-                          From {formatPrice(p.price)} ({p.label})
-                        </span>
-                      );
-                    }
-                    return `From ${formatPrice(p.price)}`;
-                  })()}
-                </small>
-              </span>
-            </button>
-          ))}
+          {games.map((game, index) => {
+            const matchingFlashSale = flashSales.find((s) => s.game_id === game.id && s.active);
+            const isFlashActive = Boolean(matchingFlashSale && (!mounted || (new Date(matchingFlashSale.starts_at).getTime() <= now && new Date(matchingFlashSale.ends_at).getTime() > now)));
+            const p = getDisplayPrice(game, isFlashActive ? matchingFlashSale : null);
+
+            return (
+              <button
+                key={game.id}
+                type="button"
+                suppressHydrationWarning
+                onClick={() => {
+                  if (swiperRef.current) swiperRef.current.slideToLoop(index);
+                  setActiveTrailerId(null);
+                }}
+                className={`featured-now-item w-full rounded p-2.5 sm:p-3 text-left transition duration-300 ease-out cursor-pointer group ${
+                  active === index ? "is-active" : ""
+                }`}
+              >
+                <span className="relative h-11 w-8 sm:h-12 sm:w-9 shrink-0 overflow-hidden rounded bg-black/40">
+                  <Image
+                    src={assetUrl(game.cover_image)}
+                    alt=""
+                    fill
+                    sizes="36px"
+                    fetchPriority="low"
+                    className="object-cover transition duration-300 group-hover:scale-105"
+                  />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <strong className="line-clamp-1 text-xs font-bold leading-relaxed text-white group-hover:text-[#facc15] transition-colors">
+                    {game.title}
+                  </strong>
+                  <small className="mt-0.5 block text-[10px] text-[#8991a6]">
+                    {(() => {
+                      if (isFlashActive && matchingFlashSale?.sale_price) {
+                        return (
+                          <span className="text-[#facc15] font-black tracking-wide">
+                            Flash {formatPrice(matchingFlashSale.sale_price)}
+                          </span>
+                        );
+                      }
+                      if (p.isWholesale && p.isDiscount) {
+                        return (
+                          <span className="text-[#e0ce9a] font-bold">
+                            From {formatPrice(p.price)} ({p.label})
+                          </span>
+                        );
+                      }
+                      return `From ${formatPrice(p.price)}`;
+                    })()}
+                  </small>
+                </span>
+              </button>
+            );
+          })}
         </div>
       </aside>
     </div>

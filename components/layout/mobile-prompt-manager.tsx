@@ -81,7 +81,7 @@ export function MobilePromptManager() {
   useEffect(() => {
     const pushTimer = setTimeout(async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
         if (session) {
           if ("Notification" in window) {
             if (Notification.permission !== "granted" && Notification.permission !== "denied") {
@@ -91,14 +91,18 @@ export function MobilePromptManager() {
               const hasPromptedRecently = lastPushPrompt && (now - Number(lastPushPrompt) < oneDay);
 
               if (!hasPromptedRecently) {
-                const { sendPushEncouragement } = await import("@/app/admin/actions");
-                await sendPushEncouragement();
+                try {
+                  const { sendPushEncouragement } = await import("@/app/admin/actions");
+                  await sendPushEncouragement();
+                } catch {
+                  // Ignore background push encouragement network error silently
+                }
               }
             }
           }
         }
-      } catch (err) {
-        console.error("Error in push notification encouragement:", err);
+      } catch {
+        // Ignore background check error silently
       }
     }, 10000); // 10 seconds delay
 
@@ -163,7 +167,8 @@ export function MobilePromptManager() {
       const p256dh = btoa(String.fromCharCode(...new Uint8Array(subscription.getKey("p256dh") as ArrayBuffer)));
       const auth = btoa(String.fromCharCode(...new Uint8Array(subscription.getKey("auth") as ArrayBuffer)));
 
-      const { data: { user } } = await supabase.auth.getUser();
+      const userRes = await supabase.auth.getUser().catch(() => null);
+      const user = userRes?.data?.user;
 
       const { error } = await supabase.from("push_subscriptions").insert({
         user_id: user?.id || null,

@@ -7,7 +7,7 @@ import { GameShelf } from "@/components/store/game-shelf";
 import { MediaGallery } from "@/components/store/media-gallery";
 import { ProductActions } from "@/components/store/product-actions";
 import { RecentlyViewedTracker } from "@/components/store/recently-viewed";
-import { assetUrl, formatPrice, gameUrl, parseGameId, slugify } from "@/lib/utils";
+import { assetUrl, calculatePlatformPrice, formatPrice, gameUrl, parseGameId, slugify } from "@/lib/utils";
 import { getGame, getGames, getGameReviews } from "@/lib/supabase/queries";
 import type { Platform, Game } from "@/types/store";
 import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
@@ -25,19 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return game ? { title: game.title, description: game.description ?? game.tagline, openGraph: { images: [assetUrl(game.banner_image || game.cover_image)] } } : { title: "Game not found" };
 }
 
-function platformPrice(game: Game, platform: Platform) {
-  if (platform === "1 Month") return Number(game.price_1m ?? game.xbox_price ?? game.steam_price ?? 0);
-  if (platform === "2 Months") return Number(game.price_2m ?? 0);
-  if (platform === "3 Months") return Number(game.price_3m ?? 0);
-  if (platform === "6 Months") return Number(game.price_6m ?? 0);
-  if (platform === "12 Months") return Number(game.price_12m ?? 0);
-  if (platform === "Epic") return Number(game.epic_price ?? 0);
-  if (platform === "Offline") return Number(game.offline_price ?? 0);
-  if (platform === "Online") return Number(game.online_price ?? 0);
-  if (platform === "Xbox") return Number(game.xbox_price ?? 0);
-  if (platform === "Nvidia GeForce") return Number(game.geforce_price ?? 0);
-  return Number(game.steam_price ?? 0);
-}
+const platformPrice = calculatePlatformPrice;
 
 function gameAccent(game: Game) {
   const customTheme = (game as unknown as Record<string, unknown>).theme_color as string | undefined;
@@ -423,7 +411,7 @@ export default async function GamePage({ params }: Props) {
 
       {/* Top-Left Corner Back Button */}
       <div className="absolute top-4 left-4 sm:top-5 sm:left-6 md:top-6 md:left-8 z-30 pointer-events-auto">
-        <BackButton href="/games" label="Back to Games" />
+        <BackButton />
       </div>
 
       <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-end p-7 md:p-14">

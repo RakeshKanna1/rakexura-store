@@ -51,7 +51,7 @@ export function Header() {
         }`}
       >
         <div className="flex items-center gap-2.5 sm:gap-3">
-          <Link href="/" className="flex shrink-0 items-center gap-2 sm:gap-3 font-black tracking-wide" aria-label="Rakexura home">
+          <Link href="/" prefetch={true} className="flex shrink-0 items-center gap-2 sm:gap-3 font-black tracking-wide" aria-label="Rakexura home">
             <Image src="/Assets/RakeLogo.png" width={38} height={38} alt="Rakexura" className="rounded-md sm:w-[42px] sm:h-[42px]" priority />
             <span className="hidden sm:block text-base tracking-wider">RAKEXURA</span>
           </Link>
@@ -63,6 +63,7 @@ export function Header() {
               <Link
                 key={link.href}
                 href={link.href}
+                prefetch={true}
                 className={`text-sm transition-colors ${path === link.href ? "text-white font-semibold" : "text-[#a0a8c0] hover:text-white"}`}
               >
                 {link.label}

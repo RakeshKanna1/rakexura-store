@@ -1618,19 +1618,6 @@ export async function saveFlashSale(formData: FormData) {
   const { error } = await query;
   if (error) throw new Error(error.message);
 
-  // Sync active flash prices directly to the game catalog so product page, cart, and catalog use discounted rate
-  if (active) {
-    const gameUpdate: Record<string, unknown> = {
-      sale_price,
-    };
-    if (price_2m !== null && price_2m > 0) gameUpdate.price_2m = price_2m;
-    if (price_3m !== null && price_3m > 0) gameUpdate.price_3m = price_3m;
-    if (price_6m !== null && price_6m > 0) gameUpdate.price_6m = price_6m;
-    if (price_12m !== null && price_12m > 0) gameUpdate.price_12m = price_12m;
-    
-    await supabase.from("games").update(gameUpdate).eq("id", game_id);
-  }
-
   // Send push notification if set to active
   if (active) {
     try {
@@ -1734,6 +1721,9 @@ export async function saveBulkFlashSale(formData: FormData) {
       );
     }
   }
+
+  // 1.5 Clean up prior flash sales for the same games to prevent duplicates
+  await supabase.from("flash_sales").delete().in("game_id", gameIds);
 
   // 2. Insert into flash_sales
   const { error: insertErr } = await supabase.from("flash_sales").insert(flashSalePayloads);
@@ -1855,6 +1845,99 @@ export async function deleteFlashSale(formData: FormData) {
   revalidatePath("/admin/flash-sales");
   revalidatePath("/");
   revalidateTag("games");
+  revalidateTag("flash-sales");
+}
+
+export async function bulkDeleteFlashSales(formData: FormData) {
+  await writeAuditLog("BULK_DELETE_FLASH_SALES", "flash_sales", formData);
+  const supabase = await getAdminClient();
+  const idsRaw = formData.getAll("ids");
+  const ids = idsRaw.map(Number).filter((id) => !isNaN(id) && id > 0);
+
+  if (ids.length === 0) throw new Error("No flash sales selected to delete");
+
+  const { error } = await supabase
+    .from("flash_sales")
+    .delete()
+    .in("id", ids);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/flash-sales");
+  revalidatePath("/");
+  revalidateTag("games");
+  revalidateTag("flash-sales");
+}
+
+export async function bulkUpdateFlashSalesSchedule(formData: FormData) {
+  await writeAuditLog("BULK_UPDATE_FLASH_SALES_SCHEDULE", "flash_sales", formData);
+  const supabase = await getAdminClient();
+  const idsRaw = formData.getAll("ids");
+  const ids = idsRaw.map(Number).filter((id) => !isNaN(id) && id > 0);
+
+  if (ids.length === 0) throw new Error("No flash sales selected");
+
+  const starts_at = String(formData.get("starts_at") ?? "");
+  const ends_at = String(formData.get("ends_at") ?? "");
+  const tz_offset = formData.get("tz_offset");
+
+  if (!ends_at) throw new Error("End date and time is required");
+
+  const updatePayload: Record<string, unknown> = {
+    ends_at: parseFormDate(ends_at, tz_offset),
+  };
+  if (starts_at) {
+    updatePayload.starts_at = parseFormDate(starts_at, tz_offset);
+  }
+
+  const { error } = await supabase
+    .from("flash_sales")
+    .update(updatePayload)
+    .in("id", ids);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/flash-sales");
+  revalidatePath("/");
+  revalidateTag("games");
+  revalidateTag("flash-sales");
+}
+
+export async function cleanupDuplicateFlashSales() {
+  const supabase = await getAdminClient();
+  
+  const { data: sales, error } = await supabase
+    .from("flash_sales")
+    .select("id, game_id, created_at, ends_at")
+    .order("id", { ascending: false });
+
+  if (error || !sales) throw new Error("Failed to load flash sales for cleanup");
+
+  const seenGameIds = new Set<number>();
+  const duplicateIdsToDelete: number[] = [];
+
+  for (const sale of sales) {
+    const gId = Number(sale.game_id);
+    if (seenGameIds.has(gId)) {
+      duplicateIdsToDelete.push(Number(sale.id));
+    } else {
+      seenGameIds.add(gId);
+    }
+  }
+
+  if (duplicateIdsToDelete.length > 0) {
+    const { error: deleteErr } = await supabase
+      .from("flash_sales")
+      .delete()
+      .in("id", duplicateIdsToDelete);
+
+    if (deleteErr) throw new Error(deleteErr.message);
+  }
+
+  revalidatePath("/admin/flash-sales");
+  revalidatePath("/");
+  revalidateTag("games");
+  revalidateTag("flash-sales");
 }
 
 export async function saveCampaign(formData: FormData) {

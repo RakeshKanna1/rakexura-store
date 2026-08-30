@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
-import { Search, ExternalLink, ChevronLeft, ChevronRight, Copy, Check, Gamepad2, Zap, MessageCircle } from "lucide-react";
+import { Search, ExternalLink, ChevronLeft, ChevronRight, Copy, Check, Gamepad2, Zap, MessageCircle, Trash2, Clock, Sparkles, CheckSquare, Square } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -11,7 +11,7 @@ import { OrderActions } from "@/components/admin/order-actions";
 import { DeleteCustomerButton } from "@/components/admin/delete-customer-button";
 import { ResellerCustomerButton } from "@/components/admin/reseller-customer-button";
 import { ResellerBadge } from "@/components/ui/reseller-badge";
-import { archiveGame, moderateProof, moderateReview, toggleCoupon, deleteCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale, toggleCampaign, deleteCampaign, deleteCampaignGame } from "@/app/admin/actions";
+import { archiveGame, moderateProof, moderateReview, toggleCoupon, deleteCoupon, updateRequestStatus, toggleFlashSale, deleteFlashSale, toggleCampaign, deleteCampaign, deleteCampaignGame, bulkDeleteFlashSales, bulkUpdateFlashSalesSchedule, cleanupDuplicateFlashSales } from "@/app/admin/actions";
 
 type AdminRow = Record<string, unknown> & { id?: number | string; screenshot_url?: string; proof_url?: string; media_urls?: string[]; media_links?: string[] };
 
@@ -255,6 +255,8 @@ function display(value: unknown) {
 export function SearchableTable({ rows, headers, section, hasActions }: { rows: AdminRow[]; headers: string[]; section: string; hasActions: boolean }) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [bulkEndTime, setBulkEndTime] = useState("");
   const pageSize = 15;
 
   const filtered = rows.filter((row) => {
@@ -269,21 +271,140 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
   const totalPages = Math.ceil(filtered.length / pageSize);
   const paginated = filtered.slice(page * pageSize, (page + 1) * pageSize);
 
+  const toggleSelectId = (id: number) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+  };
+
+  const allPageIds = paginated.map((r) => Number(r.id)).filter((id) => !isNaN(id) && id > 0);
+  const isAllPageSelected = allPageIds.length > 0 && allPageIds.every((id) => selectedIds.includes(id));
+
+  const toggleSelectAllPage = () => {
+    if (isAllPageSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !allPageIds.includes(id)));
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...allPageIds])));
+    }
+  };
+
+  const setPresetHours = (hours: number) => {
+    const now = new Date();
+    const end = new Date(now.getTime() + hours * 60 * 60 * 1000);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const localStr = `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}T${pad(end.getHours())}:${pad(end.getMinutes())}`;
+    setBulkEndTime(localStr);
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex max-w-md items-center gap-3 rounded-md border border-white/10 bg-black/25 px-4 py-1 text-sm outline-none focus-within:border-white/30">
-        <Search size={16} className="text-[#8991a6] shrink-0" />
-        <input
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setPage(0);
-          }}
-          placeholder={`Search ${section}...`}
-          suppressHydrationWarning={true}
-          className="h-10 w-full bg-transparent outline-none placeholder:text-[#767e90] text-white"
-        />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-1 max-w-md items-center gap-3 rounded-md border border-white/10 bg-black/25 px-4 py-1 text-sm outline-none focus-within:border-white/30">
+          <Search size={16} className="text-[#8991a6] shrink-0" />
+          <input
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setPage(0);
+            }}
+            placeholder={`Search ${section}...`}
+            suppressHydrationWarning={true}
+            className="h-10 w-full bg-transparent outline-none placeholder:text-[#767e90] text-white"
+          />
+        </div>
+
+        {section === "flash-sales" && (
+          <div className="flex items-center gap-2">
+            <form action={cleanupDuplicateFlashSales}>
+              <SubmitButton tone="neutral">
+                <Sparkles size={13} className="text-[#facc15]" />
+                <span>Clean Duplicates</span>
+              </SubmitButton>
+            </form>
+          </div>
+        )}
       </div>
+
+      {section === "flash-sales" && selectedIds.length > 0 && (
+        <div className="rounded-lg border border-[#facc15]/30 bg-[#facc15]/10 p-3.5 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded bg-[#facc15] px-2.5 py-1 text-xs font-black text-black">
+                <CheckSquare size={13} /> {selectedIds.length} Selected
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedIds([])}
+                className="rounded border border-white/10 bg-black/30 px-2.5 py-1 text-xs font-semibold text-[#8991a6] hover:text-white"
+              >
+                Deselect All
+              </button>
+            </div>
+
+            <form action={bulkDeleteFlashSales}>
+              {selectedIds.map((id) => (
+                <input key={id} type="hidden" name="ids" value={id} />
+              ))}
+              <SubmitButton tone="danger">
+                <Trash2 size={13} /> Delete {selectedIds.length} Selected
+              </SubmitButton>
+            </form>
+          </div>
+
+          <form action={bulkUpdateFlashSalesSchedule} className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/10">
+            {selectedIds.map((id) => (
+              <input key={id} type="hidden" name="ids" value={id} />
+            ))}
+            <input type="hidden" name="tz_offset" value={new Date().getTimezoneOffset()} />
+            
+            <span className="text-xs text-[#8991a6] font-semibold flex items-center gap-1">
+              <Clock size={12} /> Set New End Date:
+            </span>
+
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setPresetHours(24)}
+                className="rounded border border-white/10 bg-black/40 px-2 py-1 text-[11px] font-bold text-white hover:border-[#facc15] hover:text-[#facc15]"
+              >
+                24h
+              </button>
+              <button
+                type="button"
+                onClick={() => setPresetHours(48)}
+                className="rounded border border-white/10 bg-black/40 px-2 py-1 text-[11px] font-bold text-white hover:border-[#facc15] hover:text-[#facc15]"
+              >
+                48h
+              </button>
+              <button
+                type="button"
+                onClick={() => setPresetHours(72)}
+                className="rounded border border-white/10 bg-black/40 px-2 py-1 text-[11px] font-bold text-white hover:border-[#facc15] hover:text-[#facc15]"
+              >
+                3 Days
+              </button>
+              <button
+                type="button"
+                onClick={() => setPresetHours(168)}
+                className="rounded border border-white/10 bg-black/40 px-2 py-1 text-[11px] font-bold text-white hover:border-[#facc15] hover:text-[#facc15]"
+              >
+                7 Days
+              </button>
+            </div>
+
+            <input
+              type="datetime-local"
+              name="ends_at"
+              required
+              value={bulkEndTime}
+              onChange={(e) => setBulkEndTime(e.target.value)}
+              className="h-8 rounded border border-white/10 bg-black/40 px-2.5 text-xs text-white outline-none focus:border-[#facc15]"
+            />
+
+            <SubmitButton tone="positive">
+              <Clock size={13} /> Apply Schedule to ({selectedIds.length})
+            </SubmitButton>
+          </form>
+        </div>
+      )}
 
       {section === "games" ? (
         <>
@@ -469,6 +590,14 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
             <table className="w-full min-w-[800px] border-collapse text-left text-sm">
               <thead className="bg-white/[.04] text-[#8991a6]">
                 <tr>
+                  <th className="p-4 w-10">
+                    <input
+                      type="checkbox"
+                      checked={isAllPageSelected}
+                      onChange={toggleSelectAllPage}
+                      className="h-4 w-4 rounded border-white/20 bg-black text-[#facc15] cursor-pointer"
+                    />
+                  </th>
                   <th className="p-4 w-16">ID</th>
                   <th className="p-4">Game / Product</th>
                   <th className="p-4">Flash Pricing</th>
@@ -480,6 +609,8 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
               </thead>
               <tbody>
                 {paginated.map((row, index) => {
+                  const idNum = Number(row.id);
+                  const isSelected = selectedIds.includes(idNum);
                   const isSub = Boolean(row.is_subscription);
                   const isActive = Boolean(row.active);
                   const startsDate = row.starts_at ? new Date(String(row.starts_at)) : null;
@@ -490,7 +621,20 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                   const isExpired = endsDate && endsDate.getTime() <= now;
 
                   return (
-                    <tr key={String(row.id ?? index)} className="border-t border-white/[.07] hover:bg-white/[.025]">
+                    <tr
+                      key={String(row.id ?? index)}
+                      className={`border-t border-white/[.07] transition-colors ${
+                        isSelected ? "bg-[#facc15]/[0.08]" : "hover:bg-white/[.025]"
+                      }`}
+                    >
+                      <td className="p-4 w-10">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelectId(idNum)}
+                          className="h-4 w-4 rounded border-white/20 bg-black text-[#facc15] cursor-pointer"
+                        />
+                      </td>
                       <td className="p-4 font-mono font-bold text-[#8991a6]">
                         #{String(row.id)}
                       </td>
@@ -581,6 +725,8 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
           {/* Mobile Card View */}
           <div className="space-y-3 md:hidden">
             {paginated.map((row, index) => {
+              const idNum = Number(row.id);
+              const isSelected = selectedIds.includes(idNum);
               const isSub = Boolean(row.is_subscription);
               const isActive = Boolean(row.active);
               const startsDate = row.starts_at ? new Date(String(row.starts_at)) : null;
@@ -592,9 +738,17 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
               return (
                 <article
                   key={String(row.id ?? index)}
-                  className="rounded-xl border border-white/10 bg-[#0d0b1a]/90 p-4 space-y-3 shadow-sm"
+                  className={`rounded-xl border p-4 space-y-3 shadow-sm transition-colors ${
+                    isSelected ? "border-[#facc15]/50 bg-[#facc15]/[0.08]" : "border-white/10 bg-[#0d0b1a]/90"
+                  }`}
                 >
                   <div className="flex gap-3">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleSelectId(idNum)}
+                      className="mt-1 h-4 w-4 rounded border-white/20 bg-black text-[#facc15] cursor-pointer shrink-0"
+                    />
                     {row.cover_image ? (
                       <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-black/40 border border-white/10">
                         <Image src={assetUrl(String(row.cover_image))} alt="" fill sizes="48px" className="object-cover" />

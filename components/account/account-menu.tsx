@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Bell, ChevronDown, Gamepad2, Heart, LayoutDashboard, PackageSearch, Settings, ShieldCheck, UserRound } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { LogoutButton } from "./logout-button";
@@ -16,6 +16,7 @@ type Account = { email: string; name: string; role: string; avatarUrl?: string |
 
 export function AccountMenu() {
   const pathname = usePathname();
+  const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
   const [account, setAccount] = useState<Account>(null);
   const [ready, setReady] = useState(false);
@@ -72,8 +73,21 @@ export function AccountMenu() {
 
   useEffect(() => setOpen(false), [pathname]);
 
+  // Proactive prefetch on hover/open to eliminate perceived navigation delay
+  const handleMouseEnter = () => {
+    if (account?.role === "admin" || account?.email.toLowerCase() === OWNER_EMAIL) {
+      router.prefetch("/admin");
+    }
+    router.prefetch("/dashboard");
+  };
+
   useEffect(() => {
     if (!open) return;
+    if (account?.role === "admin" || account?.email.toLowerCase() === OWNER_EMAIL) {
+      router.prefetch("/admin");
+    }
+    router.prefetch("/dashboard");
+
     function closeOutside(event: PointerEvent) {
       if (!menuRef.current?.contains(event.target as Node)) setOpen(false);
     }
@@ -86,14 +100,14 @@ export function AccountMenu() {
       document.removeEventListener("pointerdown", closeOutside);
       document.removeEventListener("keydown", closeOnEscape);
     };
-  }, [open]);
+  }, [open, account, router]);
 
   if (!ready || !account) return <Link href="/login" className="btn btn-secondary relative h-10 sm:h-11 min-h-10 sm:min-h-11 px-2.5 sm:px-3 flex items-center justify-center" aria-label="Sign in to your account"><UserRound size={18} /></Link>;
 
   const links = [["/dashboard", "Dashboard", LayoutDashboard], ["/dashboard/orders", "My orders", PackageSearch], ["/dashboard/library", "My games", Gamepad2], ["/wishlist", "Wishlist", Heart], ["/dashboard/notifications", "Notifications", Bell], ["/dashboard/settings", "Account settings", Settings]] as const;
   const owner = account.email.toLowerCase() === OWNER_EMAIL;
 
-  return <div ref={menuRef} className="relative">
+  return <div ref={menuRef} className="relative" onMouseEnter={handleMouseEnter}>
     <button
       suppressHydrationWarning
       type="button"
@@ -115,9 +129,10 @@ export function AccountMenu() {
         </div>
         <span className="mt-1 block truncate text-xs text-[#8991a6]">{account.email}</span>
       </div>
-      {(account.role === "admin" || owner) && <Link href="/admin" className="mt-2 flex min-h-12 items-center gap-3 rounded-md border border-[#8b5cf6]/25 bg-[#8b5cf6]/[.08] px-3 text-sm font-black text-[#d4caff]"><ShieldCheck size={18} /> {account.role === "admin" ? "Admin dashboard" : "Activate admin access"}</Link>}
-      <nav className="py-2">{links.map(([href, label, Icon]) => <Link key={href} href={href} className="flex min-h-11 items-center gap-3 rounded-md px-3 text-sm text-[#b8bfd0] transition hover:bg-white/[.06] hover:text-white"><Icon size={17} />{label}</Link>)}</nav>
+      {(account.role === "admin" || owner) && <Link href="/admin" prefetch={true} className="mt-2 flex min-h-12 items-center gap-3 rounded-md border border-[#8b5cf6]/25 bg-[#8b5cf6]/[.08] px-3 text-sm font-black text-[#d4caff]"><ShieldCheck size={18} /> {account.role === "admin" ? "Admin dashboard" : "Activate admin access"}</Link>}
+      <nav className="py-2">{links.map(([href, label, Icon]) => <Link key={href} href={href} prefetch={true} className="flex min-h-11 items-center gap-3 rounded-md px-3 text-sm text-[#b8bfd0] transition hover:bg-white/[.06] hover:text-white"><Icon size={17} />{label}</Link>)}</nav>
       <LogoutButton compact className="flex min-h-11 w-full items-center gap-3 rounded-md px-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10" />
     </div>}
   </div>;
 }
+

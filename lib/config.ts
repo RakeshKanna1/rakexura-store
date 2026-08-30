@@ -9,7 +9,7 @@ export const SITE_CONFIG = {
   currency: "₹",
   ownerEmail: (process.env.OWNER_EMAIL ?? process.env.NEXT_PUBLIC_OWNER_EMAIL ?? "12k21rakeshkannam@gmail.com").trim().toLowerCase(),
   whatsappNumber: (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "918317416695").trim(),
-  siteUrl: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://rakexura.store").trim(),
+  siteUrl: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://rakexura-store.vercel.app").trim(),
   supportEmail: (process.env.SUPPORT_EMAIL ?? "support@rakexura.com").trim(),
 } as const;
 

@@ -41,63 +41,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  let response = NextResponse.next({ request });
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => request.cookies.getAll(),
-        setAll: (items) => {
-          items.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
-          items.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, {
-              ...options,
-              maxAge: 60 * 60 * 24 * 365 * 10, // 10 years
-            });
-          });
-        },
-      },
-    },
-  );
-
-  try {
-    // Timeout guard: prevent middleware from hanging more than 3.5s on external auth calls
-    const authPromise = supabase.auth.getUser();
-    const timeoutPromise = new Promise<{ data: { user: null }; error: Error }>((_, reject) =>
-      setTimeout(() => reject(new Error("Supabase auth check timed out")), 3500)
-    );
-
-    const { data: { user }, error } = await Promise.race([authPromise, timeoutPromise]);
-
-    if (!user || error) {
-      const redirectResponse = NextResponse.redirect(
-        new URL("/login?next=" + encodeURIComponent(request.nextUrl.pathname), request.url)
-      );
-      response.cookies.getAll().forEach((cookie) => {
-        redirectResponse.cookies.set(cookie.name, cookie.value, {
-          path: cookie.path,
-          domain: cookie.domain,
-          maxAge: cookie.maxAge,
-          secure: cookie.secure,
-          sameSite: cookie.sameSite,
-          expires: cookie.expires,
-          httpOnly: cookie.httpOnly,
-        });
-      });
-      return redirectResponse;
-    }
-  } catch (error) {
-    console.error("Middleware auth check failed or timed out:", error);
-    // On timeout or failure, redirect to login cleanly instead of hanging until 504
-    const redirectResponse = NextResponse.redirect(
-      new URL("/login?next=" + encodeURIComponent(request.nextUrl.pathname), request.url)
-    );
-    return redirectResponse;
-  }
-
-  return response;
+  // Fast path: Pass through to Server Component layout which performs full secure session & role checks
+  return NextResponse.next();
 }
 
 export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"] };
+
