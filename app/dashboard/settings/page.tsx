@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Gamepad2, Gift, PackageSearch, ShieldCheck, UserCheck, MessageSquare, BellRing, Shield, ChevronRight, Lock, CheckCircle2 } from "lucide-react";
+import { Gamepad2, Gift, PackageSearch, ShieldCheck, UserCheck, Shield, ChevronRight, Lock, CheckCircle2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { AvatarUploader } from "@/components/account/avatar-uploader";
 import { LogoutButton } from "@/components/account/logout-button";
@@ -175,7 +175,6 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               initialDisplayName={displayName}
               initialWhatsapp={savedWhatsapp}
               userEmail={userEmail}
-              role={role}
             />
           </div>
 

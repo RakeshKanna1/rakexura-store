@@ -10,14 +10,12 @@ interface SettingsFormProps {
   initialDisplayName: string;
   initialWhatsapp: string;
   userEmail: string;
-  role: string;
 }
 
 export function SettingsForm({
   initialDisplayName,
   initialWhatsapp,
   userEmail,
-  role,
 }: SettingsFormProps) {
   const router = useRouter();
   const [displayName, setDisplayName] = useState(initialDisplayName);

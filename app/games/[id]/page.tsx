@@ -9,7 +9,7 @@ import { ProductActions } from "@/components/store/product-actions";
 import { RecentlyViewedTracker } from "@/components/store/recently-viewed";
 import { assetUrl, calculatePlatformPrice, formatPrice, gameUrl, parseGameId, slugify } from "@/lib/utils";
 import { getGame, getGames, getGameReviews } from "@/lib/supabase/queries";
-import type { Platform, Game } from "@/types/store";
+import type { Game } from "@/types/store";
 import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
 import { PremiumAmbientEffect } from "@/components/animations/premium-ambient";
 import { fetchOfficialSteamRequirements } from "@/lib/steam-requirements";
