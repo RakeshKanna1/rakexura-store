@@ -1918,7 +1918,7 @@ export async function bulkUpdateFlashSalesRates(formData: FormData) {
   // Fetch sales with corresponding game records
   const { data: sales, error } = await supabase
     .from("flash_sales")
-    .select("id, game_id, sale_price, price_2m, price_3m, price_6m, price_12m, games:game_id(id, original_price, sale_price, steam_price, epic_price, is_subscription, price_1m, price_2m, price_3m, price_6m, price_12m)")
+    .select("id, game_id, sale_price, price_2m, price_3m, price_6m, price_12m, games:game_id(id, original_price, sale_price, steam_price, epic_price, offline_price, online_price, xbox_price, geforce_price, is_subscription, price_1m, price_2m, price_3m, price_6m, price_12m)")
     .in("id", ids);
 
   if (error || !sales) throw new Error(error?.message || "Failed to load flash sales for rate update");
@@ -1931,6 +1931,10 @@ export async function bulkUpdateFlashSalesRates(formData: FormData) {
       sale_price?: number | null;
       steam_price?: number | null;
       epic_price?: number | null;
+      offline_price?: number | null;
+      online_price?: number | null;
+      xbox_price?: number | null;
+      geforce_price?: number | null;
       is_subscription?: boolean | null;
       price_1m?: number | null;
       price_2m?: number | null;
@@ -1941,9 +1945,21 @@ export async function bulkUpdateFlashSalesRates(formData: FormData) {
 
     if (!game) continue;
 
+    const catalogPrices = [
+      Number(game.price_1m),
+      Number(game.steam_price),
+      Number(game.offline_price),
+      Number(game.epic_price),
+      Number(game.online_price),
+      Number(game.xbox_price),
+      Number(game.geforce_price),
+      Number(game.sale_price)
+    ].filter((p) => !isNaN(p) && p > 0);
+
+    const minCatalogPrice = catalogPrices.length ? Math.min(...catalogPrices) : 0;
     const basePrice = base_source === "original"
-      ? Number(game.original_price ?? game.sale_price ?? 0)
-      : Number(game.price_1m ?? game.sale_price ?? game.original_price ?? 0);
+      ? Number(game.original_price ?? minCatalogPrice ?? game.sale_price ?? 0)
+      : Number(minCatalogPrice || game.sale_price || game.original_price || 0);
 
     if (basePrice <= 0) continue;
 

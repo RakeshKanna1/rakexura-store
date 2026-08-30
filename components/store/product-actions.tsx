@@ -133,7 +133,9 @@ export function ProductActions({ game }: { game: Game }) {
   const basePrice = price(game, selected, activeFlashSale);
   const gameSubtotal = basePrice * quantity;
   const originalUnitPrice = Number(game.original_price ?? 0);
-  const comparePrice = originalUnitPrice > regularPrice ? originalUnitPrice : regularPrice;
+  const comparePrice = isFlashSaleActive
+    ? (regularPrice > basePrice ? regularPrice : (originalUnitPrice > basePrice ? originalUnitPrice : regularPrice))
+    : (originalUnitPrice > regularPrice ? originalUnitPrice : regularPrice);
   const compareSubtotal = comparePrice * quantity;
 
   const activeCoupon = mounted ? coupon : null;
