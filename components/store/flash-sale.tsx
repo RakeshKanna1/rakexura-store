@@ -9,6 +9,7 @@ import { assetUrl, calculateResellerPrice, formatPrice, gameUrl } from "@/lib/ut
 import type { FlashSale } from "@/types/store";
 import { BorderGlow } from "@/components/animations/border-glow";
 import { useCartStore } from "@/stores/cart-store";
+import { availablePlatforms } from "./game-card";
 
 function remaining(end: string, now: number) {
   const distance = Math.max(0, new Date(end).getTime() - now);
@@ -209,6 +210,8 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
               ? Math.round(((game.original_price - rawPrice) / game.original_price) * 100)
               : null;
 
+          const gamePlatforms = availablePlatforms(game);
+
           return (
             <div key={sale.id} className="snap-start will-change-transform transform-gpu h-full">
               <BorderGlow
@@ -271,11 +274,11 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                       )}
                       {game.is_subscription && (
                         <div className="mt-1 sm:mt-2 flex flex-wrap gap-1 text-[9px] sm:text-[10px]">
-                          {sale.sale_price ? <span className="rounded bg-white/[0.06] border border-white/10 px-1.5 py-0.5 font-bold text-white">1M: ₹{sale.sale_price}</span> : null}
-                          {sale.price_2m ? <span className="rounded bg-white/[0.06] border border-white/10 px-1.5 py-0.5 font-bold text-white">2M: ₹{sale.price_2m}</span> : null}
-                          {sale.price_3m ? <span className="rounded bg-[#facc15]/15 border border-[#facc15]/30 px-1.5 py-0.5 font-bold text-[#facc15]">3M: ₹{sale.price_3m}</span> : null}
-                          {sale.price_6m ? <span className="rounded bg-white/[0.06] border border-white/10 px-1.5 py-0.5 font-bold text-white">6M: ₹{sale.price_6m}</span> : null}
-                          {sale.price_12m ? <span className="rounded bg-white/[0.06] border border-white/10 px-1.5 py-0.5 font-bold text-white">12M: ₹{sale.price_12m}</span> : null}
+                          {gamePlatforms.includes("1 Month") && sale.sale_price ? <span className="rounded bg-white/[0.06] border border-white/10 px-1.5 py-0.5 font-bold text-white">1M: ₹{sale.sale_price}</span> : null}
+                          {gamePlatforms.includes("2 Months") && sale.price_2m ? <span className="rounded bg-white/[0.06] border border-white/10 px-1.5 py-0.5 font-bold text-white">2M: ₹{sale.price_2m}</span> : null}
+                          {gamePlatforms.includes("3 Months") && sale.price_3m ? <span className="rounded bg-[#facc15]/15 border border-[#facc15]/30 px-1.5 py-0.5 font-bold text-[#facc15]">3M: ₹{sale.price_3m}</span> : null}
+                          {gamePlatforms.includes("6 Months") && sale.price_6m ? <span className="rounded bg-white/[0.06] border border-white/10 px-1.5 py-0.5 font-bold text-white">6M: ₹{sale.price_6m}</span> : null}
+                          {gamePlatforms.includes("12 Months") && sale.price_12m ? <span className="rounded bg-white/[0.06] border border-white/10 px-1.5 py-0.5 font-bold text-white">12M: ₹{sale.price_12m}</span> : null}
                         </div>
                       )}
                     </div>
