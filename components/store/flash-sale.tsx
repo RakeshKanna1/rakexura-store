@@ -88,6 +88,10 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
   };
 
   useEffect(() => {
+    setItems(sales);
+  }, [sales]);
+
+  useEffect(() => {
     setMounted(true);
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     const supabase = createClient();

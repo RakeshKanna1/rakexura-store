@@ -232,7 +232,7 @@ export const getFlashSales = unstable_cache(
     return (data ?? []) as FlashSale[];
   },
   ["flash-sales-list"],
-  { revalidate: 60, tags: ["games", "flash-sales"] }
+  { revalidate: 15, tags: ["games", "flash-sales"] }
 );
 
 /* -------------------------------------------------------------------------- */
