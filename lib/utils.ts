@@ -111,6 +111,10 @@ export function calculatePlatformPrice(
   } | null
 ): number {
   const regular = getPlatformRegularPrice(game, platform);
+  if (regular <= 0) {
+    return 0;
+  }
+
   const fs = activeFlashSale !== undefined ? activeFlashSale : game.active_flash_sale;
   if (!fs || fs.active === false) {
     return regular;
@@ -168,16 +172,16 @@ export function calculatePlatformPrice(
 
   // If this platform is the lowest base edition, return exact flashSalePrice:
   if (regular <= basePrice) {
-    return Math.min(regular, flashSalePrice);
+    return flashSalePrice > 0 ? flashSalePrice : regular;
   }
 
   // If this platform is a higher tier edition (e.g. Epic/Online), scale proportionally:
-  if (basePrice > 0 && flashSalePrice < basePrice) {
+  if (basePrice > 0 && flashSalePrice > 0 && flashSalePrice < basePrice) {
     const discountRatio = flashSalePrice / basePrice;
     return Math.max(1, Math.round(regular * discountRatio));
   }
 
-  return Math.min(regular, flashSalePrice);
+  return flashSalePrice > 0 && flashSalePrice < regular ? flashSalePrice : regular;
 }
 
 export function lowestPrice(game: {
@@ -206,6 +210,14 @@ export function lowestPrice(game: {
     active?: boolean | null;
   } | null;
 }) {
+  const fs = game.active_flash_sale;
+  const isFlashOngoing = Boolean(
+    fs &&
+    fs.active !== false &&
+    (!fs.starts_at || new Date(fs.starts_at).getTime() <= Date.now()) &&
+    (!fs.ends_at || new Date(fs.ends_at).getTime() > Date.now())
+  );
+
   const platforms = game.is_subscription
     ? ["1 Month", "2 Months", "3 Months", "6 Months", "12 Months"]
     : ["Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce"];
@@ -214,7 +226,15 @@ export function lowestPrice(game: {
     .map((p) => calculatePlatformPrice(game, p))
     .filter((p) => p > 0);
 
-  return prices.length ? Math.min(...prices) : Number(game.sale_price ?? 0);
+  if (prices.length > 0) {
+    return Math.min(...prices);
+  }
+
+  if (isFlashOngoing && fs && Number(fs.sale_price || fs.price_1m) > 0) {
+    return Number(fs.sale_price || fs.price_1m);
+  }
+
+  return Number(game.sale_price ?? 0);
 }
 
 export function isHighEndDevice(): boolean {

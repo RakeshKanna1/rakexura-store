@@ -30,7 +30,8 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         msg.includes("connection") ||
         msg.includes("aborted") ||
         msg.includes("fetch") ||
-        name === "typeerror"
+        name === "typeerror" ||
+        msg.includes("typeerror")
       ) {
         event.preventDefault();
         event.stopImmediatePropagation?.();
@@ -40,6 +41,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     const handleWindowError = (event: ErrorEvent | Event) => {
       const err = (event as ErrorEvent).error;
       const msg = ((event as ErrorEvent).message || (err?.message) || String(err || "")).toLowerCase();
+      const name = String(err?.name || "").toLowerCase();
       const target = event.target;
       if (
         err instanceof Event ||
@@ -50,6 +52,8 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         msg.includes("failed to fetch") ||
         msg.includes("load failed") ||
         msg.includes("fetch") ||
+        name === "typeerror" ||
+        msg.includes("typeerror") ||
         (target && target !== window && (target instanceof HTMLElement || target instanceof HTMLImageElement || target instanceof HTMLMediaElement))
       ) {
         event.preventDefault();

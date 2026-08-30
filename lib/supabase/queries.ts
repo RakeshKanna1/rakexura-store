@@ -223,7 +223,7 @@ export const getFlashSales = unstable_cache(
     const now = new Date().toISOString();
     const { data } = await supabase
       .from("flash_sales")
-      .select("*, games(id,title,cover_image,duration,is_subscription)")
+      .select("*, games(id,title,cover_image,duration,is_subscription,available_platforms,sale_price,original_price,steam_price,epic_price,offline_price,online_price,xbox_price,geforce_price,price_1m,price_2m,price_3m,price_6m,price_12m)")
       .eq("active", true)
       .lte("starts_at", now)
       .gt("ends_at", now)

@@ -199,7 +199,8 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
           const game = sale.games;
           if (!game) return null;
 
-          const rawPrice = lowestPrice({ ...game, active_flash_sale: sale });
+          const directSalePrice = Number(sale.sale_price || sale.price_1m || 0);
+          const rawPrice = directSalePrice > 0 ? directSalePrice : lowestPrice({ ...game, active_flash_sale: sale });
           const isMarkup = resellerDiscountType === "markup_flat" || resellerDiscountType === "markup_percentage";
           const resellerCalc =
             isReseller && isMarkup && resellerDiscount > 0
