@@ -109,7 +109,15 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
     return () => { window.clearInterval(timer); void supabase.removeChannel(channel); };
   }, []);
 
-  const active = useMemo(() => items.filter((sale) => sale.active && (!sale.starts_at || new Date(sale.starts_at).getTime() <= now) && (!sale.ends_at || new Date(sale.ends_at).getTime() > now)), [items, now]);
+  const active = useMemo(() => {
+    if (!mounted) return items.filter((sale) => sale.active);
+    return items.filter(
+      (sale) =>
+        sale.active &&
+        (!sale.starts_at || new Date(sale.starts_at).getTime() <= now) &&
+        (!sale.ends_at || new Date(sale.ends_at).getTime() > now)
+    );
+  }, [items, now, mounted]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -201,9 +209,12 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
               ? calculateResellerPrice(rawPrice, resellerDiscount, resellerDiscountType)
               : null;
 
-          const timeBlocks = timer.d > 0
-            ? [[timer.d, "D"], [timer.h, "H"], [timer.m, "M"], [timer.s, "S"]]
-            : [[timer.h, "H"], [timer.m, "M"], [timer.s, "S"]];
+          const timeBlocks: Array<[number, string]> = [
+            [timer.d, "D"],
+            [timer.h, "H"],
+            [timer.m, "M"],
+            [timer.s, "S"],
+          ];
 
           const discountPercent =
             game.original_price && game.original_price > rawPrice
