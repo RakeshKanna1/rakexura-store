@@ -7,7 +7,7 @@ import { GameShelf } from "@/components/store/game-shelf";
 import { MediaGallery } from "@/components/store/media-gallery";
 import { ProductActions } from "@/components/store/product-actions";
 import { RecentlyViewedTracker } from "@/components/store/recently-viewed";
-import { assetUrl, calculatePlatformPrice, formatPrice, gameUrl, parseGameId, slugify } from "@/lib/utils";
+import { assetUrl, calculatePlatformPrice, formatPrice, gameUrl, lowestPrice, parseGameId, slugify } from "@/lib/utils";
 import { getGame, getGames, getGameReviews } from "@/lib/supabase/queries";
 import type { Game } from "@/types/store";
 import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
@@ -381,7 +381,7 @@ export default async function GamePage({ params }: Props) {
     },
     "offers": {
       "@type": "Offer",
-      "price": game.sale_price || game.original_price || 0,
+      "price": lowestPrice(game),
       "priceCurrency": "INR",
       "availability": game.out_of_stock ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
       "url": `${process.env.NEXT_PUBLIC_SITE_URL || "https://rakeon-store.vercel.app"}${gameUrl(game)}`,

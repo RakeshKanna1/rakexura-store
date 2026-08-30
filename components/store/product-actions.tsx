@@ -1,7 +1,7 @@
 "use client";
 
 import { BadgeCheck, Check, Clock3, ShieldCheck, ShoppingBag, TicketPercent, Zap } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
@@ -28,7 +28,20 @@ export function ProductActions({ game }: { game: Game }) {
   const [buyPop, setBuyPop] = useState(false);
   const [btnStatus, setBtnStatus] = useState<"idle" | "arriving" | "dropping" | "exiting" | "added">("idle");
   const platforms = availablePlatforms(game);
-  const [selected, setSelected] = useState<Platform>(platforms[0] ?? "Steam");
+  const defaultPlatform = useMemo(() => {
+    if (!platforms.length) return "Steam" as Platform;
+    let lowestP = platforms[0];
+    let minPrice = Infinity;
+    for (const p of platforms) {
+      const pr = price(game, p, game.active_flash_sale);
+      if (pr > 0 && pr < minPrice) {
+        minPrice = pr;
+        lowestP = p;
+      }
+    }
+    return lowestP;
+  }, [game, platforms]);
+  const [selected, setSelected] = useState<Platform>(defaultPlatform);
   const add = useCartStore((state) => state.add);
   const setStoreQuantity = useCartStore((state) => state.setQuantity);
   const setDrawerOpen = useCartStore((state) => state.setDrawerOpen);

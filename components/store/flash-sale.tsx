@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, Clock3 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { assetUrl, calculateResellerPrice, formatPrice, gameUrl } from "@/lib/utils";
+import { assetUrl, calculateResellerPrice, formatPrice, gameUrl, lowestPrice } from "@/lib/utils";
 import type { FlashSale } from "@/types/store";
 import { BorderGlow } from "@/components/animations/border-glow";
 import { useCartStore } from "@/stores/cart-store";
@@ -199,10 +199,7 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
           const game = sale.games;
           if (!game) return null;
 
-          const activeDurationPrices = [sale.sale_price, sale.price_2m, sale.price_3m, sale.price_6m, sale.price_12m]
-            .map(Number)
-            .filter((p) => p > 0);
-          const rawPrice = activeDurationPrices.length > 0 ? activeDurationPrices[0] : Number(sale.sale_price || 0);
+          const rawPrice = lowestPrice({ ...game, active_flash_sale: sale });
           const isMarkup = resellerDiscountType === "markup_flat" || resellerDiscountType === "markup_percentage";
           const resellerCalc =
             isReseller && isMarkup && resellerDiscount > 0

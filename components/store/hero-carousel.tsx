@@ -42,10 +42,10 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
   const isWholesaleActive = Boolean(isReseller && resellerDiscount > 0);
 
   const getDisplayPrice = (game: Game, flashSale?: FlashSale | null) => {
+    const rawLowest = lowestPrice(flashSale ? { ...game, active_flash_sale: flashSale } : game);
     if (flashSale && flashSale.sale_price) {
-      return { price: flashSale.sale_price, label: "Flash Sale", raw: flashSale.sale_price, isWholesale: false, isDiscount: true };
+      return { price: rawLowest, label: "Flash Sale", raw: rawLowest, isWholesale: false, isDiscount: true };
     }
-    const rawLowest = lowestPrice(game);
     if (!isWholesaleActive || rawLowest <= 0) return { price: rawLowest, label: "", isWholesale: false, isDiscount: false };
     const calc = calculateResellerPrice(rawLowest, resellerDiscount, resellerDiscountType);
     return { price: calc.price, label: calc.label, raw: rawLowest, isWholesale: true, isDiscount: calc.isDiscount };

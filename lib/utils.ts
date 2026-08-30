@@ -154,31 +154,30 @@ export function calculatePlatformPrice(
   if (flashSalePrice <= 0) return regular;
 
   const catalogPrices = [
-    Number(game.sale_price),
     Number(game.steam_price),
-    Number(game.epic_price),
     Number(game.offline_price),
-    Number(game.online_price)
+    Number(game.epic_price),
+    Number(game.online_price),
+    Number(game.xbox_price),
+    Number(game.geforce_price),
+    Number(game.sale_price)
   ].filter((p) => !isNaN(p) && p > 0);
 
-  const maxCatalogPrice = catalogPrices.length ? Math.max(...catalogPrices) : regular;
   const minCatalogPrice = catalogPrices.length ? Math.min(...catalogPrices) : regular;
-  const defaultCatalogPrice = Number(game.sale_price || minCatalogPrice || regular);
+  const basePrice = minCatalogPrice > 0 ? minCatalogPrice : regular;
 
-  const refPrice = defaultCatalogPrice > flashSalePrice ? defaultCatalogPrice : maxCatalogPrice;
-
-  if (refPrice > flashSalePrice) {
-    const discountRatio = flashSalePrice / refPrice;
-    if (discountRatio < 1 && regular > 0) {
-      return Math.max(1, Math.round(regular * discountRatio));
-    }
+  // If this platform is the lowest base edition, return exact flashSalePrice:
+  if (regular <= basePrice) {
+    return Math.min(regular, flashSalePrice);
   }
 
-  if (flashSalePrice < regular) {
-    return flashSalePrice;
+  // If this platform is a higher tier edition (e.g. Epic/Online), scale proportionally:
+  if (basePrice > 0 && flashSalePrice < basePrice) {
+    const discountRatio = flashSalePrice / basePrice;
+    return Math.max(1, Math.round(regular * discountRatio));
   }
 
-  return regular;
+  return Math.min(regular, flashSalePrice);
 }
 
 export function lowestPrice(game: {
