@@ -20,10 +20,43 @@ function remaining(end: string, now: number) {
   return { d, h, m, s };
 }
 
+function FlashSaleCountdown({ endsAt }: { endsAt: string }) {
+  const [now, setNow] = useState(Date.now());
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const timer = mounted ? remaining(endsAt, now) : { d: 0, h: 0, m: 0, s: 0 };
+  const timeBlocks: Array<[number, string]> = [
+    [timer.d, "D"],
+    [timer.h, "H"],
+    [timer.m, "M"],
+    [timer.s, "S"],
+  ];
+
+  return (
+    <div className="mt-2.5 sm:mt-4 flex items-center gap-1 sm:gap-1.5 w-full">
+      {timeBlocks.map(([value, label]) => (
+        <div key={label} className="flex-1 rounded bg-[#0a0d14] py-1 px-0.5 sm:py-1.5 sm:px-1 text-center border border-white/10">
+          <b suppressHydrationWarning className="block text-[11px] sm:text-sm font-black text-white font-mono tabular-nums leading-tight">
+            {mounted ? String(value).padStart(2, "0") : "--"}
+          </b>
+          <small className="text-[8px] sm:text-[9px] uppercase tracking-wider font-bold text-[#8991a6] block leading-none mt-0.5">
+            {label}
+          </small>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [items, setItems] = useState(sales);
-  const [now, setNow] = useState(Date.now());
   const [mounted, setMounted] = useState(false);
   const [isGrabbing, setIsGrabbing] = useState(false);
 
@@ -93,7 +126,6 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
 
   useEffect(() => {
     setMounted(true);
-    const timer = window.setInterval(() => setNow(Date.now()), 1000);
     const supabase = createClient();
     const channel = supabase
       .channel("flash-sales-storefront")
@@ -110,18 +142,18 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
         setItems((current) => current.filter((item) => item.id !== removed.id));
       })
       .subscribe();
-    return () => { window.clearInterval(timer); void supabase.removeChannel(channel); };
+    return () => { void supabase.removeChannel(channel); };
   }, []);
 
   const active = useMemo(() => {
-    if (!mounted) return items.filter((sale) => sale.active);
+    const nowMs = Date.now();
     return items.filter(
       (sale) =>
         sale.active &&
-        (!sale.starts_at || new Date(sale.starts_at).getTime() <= now) &&
-        (!sale.ends_at || new Date(sale.ends_at).getTime() > now)
+        (!sale.starts_at || new Date(sale.starts_at).getTime() <= nowMs) &&
+        (!sale.ends_at || new Date(sale.ends_at).getTime() > nowMs)
     );
-  }, [items, now, mounted]);
+  }, [items]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -199,7 +231,6 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
         }}
       >
         {active.map((sale) => {
-          const timer = mounted ? remaining(sale.ends_at, now) : { d: 0, h: 0, m: 0, s: 0 };
           const game = sale.games;
           if (!game) return null;
 
@@ -210,13 +241,6 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
             isReseller && isMarkup && resellerDiscount > 0
               ? calculateResellerPrice(rawPrice, resellerDiscount, resellerDiscountType)
               : null;
-
-          const timeBlocks: Array<[number, string]> = [
-            [timer.d, "D"],
-            [timer.h, "H"],
-            [timer.m, "M"],
-            [timer.s, "S"],
-          ];
 
           const discountPercent =
             game.original_price && game.original_price > rawPrice
@@ -243,7 +267,7 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                   onClickCapture={handleCardClickCapture}
                   className="group grid grid-cols-[115px_1fr] sm:grid-cols-[170px_1fr] md:grid-cols-[190px_1fr] overflow-hidden w-full h-full select-none"
                 >
-                  <div className="relative w-full h-full min-h-[155px] sm:min-h-[190px] overflow-hidden bg-[#07090e] border-r border-white/10">
+                  <div className="relative w-full h-full min-h-[155px] sm:min-h-[190px] overflow-hidden bg-[#07090e] border-r border-white/10 shrink-0">
                     <Image 
                       src={assetUrl(game.cover_image)} 
                       alt={game.title} 
@@ -276,7 +300,7 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                         </div>
                       ) : (
                         <div className="mt-1.5 sm:mt-2.5 flex items-baseline gap-1.5 flex-wrap">
-                          {game.is_subscription && <span className="text-[10px] sm:text-xs text-[#8991a6] font-bold">From</span>}
+                          {game.is_subscription && <span className="text-[10px] sm:text-xs text-[#8991a8] font-bold">From</span>}
                           <strong className="text-base sm:text-2xl font-black text-[#facc15]">{formatPrice(rawPrice)}</strong>
                           {game.original_price && game.original_price > rawPrice && (
                             <span className="text-[10px] sm:text-xs text-[#8991a6] line-through font-semibold">
@@ -295,16 +319,7 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
                         </div>
                       )}
                     </div>
-                    <div className="mt-2.5 sm:mt-4 flex items-center gap-1 sm:gap-1.5 w-full">
-                      {timeBlocks.map(([value, label]) => (
-                        <div key={String(label)} className="flex-1 rounded bg-[#0a0d14] py-1 px-0.5 sm:py-1.5 sm:px-1 text-center border border-white/10">
-                          <b suppressHydrationWarning className="block text-[11px] sm:text-sm font-black text-white font-mono leading-tight">
-                            {mounted ? String(value).padStart(2, "0") : "--"}
-                          </b>
-                          <small className="text-[8px] sm:text-[9px] uppercase tracking-wider font-bold text-[#8991a6] block leading-none mt-0.5">{label}</small>
-                        </div>
-                      ))}
-                    </div>
+                    <FlashSaleCountdown endsAt={sale.ends_at} />
                   </div>
                 </Link>
               </BorderGlow>

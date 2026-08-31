@@ -1679,7 +1679,7 @@ export async function saveBulkFlashSale(formData: FormData) {
   // 1. Fetch current prices for selected games
   const { data: dbGames, error: fetchErr } = await supabase
     .from("games")
-    .select("id, title, original_price, sale_price")
+    .select("id, title, original_price, sale_price, is_subscription, price_1m, price_2m, price_3m, price_6m, price_12m")
     .in("id", gameIds);
 
   if (fetchErr || !dbGames?.length) throw new Error("Failed to load selected games");
@@ -1687,25 +1687,50 @@ export async function saveBulkFlashSale(formData: FormData) {
   const flashSalePayloads = [];
   const gameUpdatePromises = [];
 
-  for (const game of dbGames) {
-    const basePrice = Number(game.sale_price ?? game.original_price ?? 0);
-    let calculatedSalePrice = basePrice;
-
+  const calcDiscount = (price: number) => {
+    if (price <= 0) return null;
     if (discountType === "percentage") {
-      calculatedSalePrice = Math.max(1, Math.round(basePrice * (1 - discountValue / 100)));
+      return Math.max(1, Math.round(price * (1 - discountValue / 100)));
     } else if (discountType === "flat") {
-      calculatedSalePrice = Math.max(1, Math.round(basePrice - discountValue));
+      return Math.max(1, Math.round(price - discountValue));
     } else if (discountType === "fixed") {
-      calculatedSalePrice = Math.max(1, Math.round(discountValue));
+      return Math.max(1, Math.round(discountValue));
     }
+    return price;
+  };
 
-    flashSalePayloads.push({
+  for (const game of dbGames) {
+    const isSub = Boolean(game.is_subscription);
+    const basePrice = isSub
+      ? Number(game.price_1m ?? game.sale_price ?? game.original_price ?? 0)
+      : Number(game.sale_price ?? game.original_price ?? 0);
+    
+    const calculatedSalePrice = calcDiscount(basePrice) ?? basePrice;
+
+    const payload: Record<string, unknown> = {
       game_id: game.id,
       sale_price: calculatedSalePrice,
       starts_at: startsIso,
       ends_at: endsIso,
       active,
-    });
+    };
+
+    if (isSub) {
+      if (Number(game.price_2m ?? 0) > 0) {
+        payload.price_2m = calcDiscount(Number(game.price_2m));
+      }
+      if (Number(game.price_3m ?? 0) > 0) {
+        payload.price_3m = calcDiscount(Number(game.price_3m));
+      }
+      if (Number(game.price_6m ?? 0) > 0) {
+        payload.price_6m = calcDiscount(Number(game.price_6m));
+      }
+      if (Number(game.price_12m ?? 0) > 0) {
+        payload.price_12m = calcDiscount(Number(game.price_12m));
+      }
+    }
+
+    flashSalePayloads.push(payload);
 
     if (updateCatalog) {
       gameUpdatePromises.push(
@@ -1945,49 +1970,60 @@ export async function bulkUpdateFlashSalesRates(formData: FormData) {
 
     if (!game) continue;
 
-    const catalogPrices = [
-      Number(game.price_1m),
-      Number(game.steam_price),
-      Number(game.offline_price),
-      Number(game.epic_price),
-      Number(game.online_price),
-      Number(game.xbox_price),
-      Number(game.geforce_price),
-      Number(game.sale_price)
-    ].filter((p) => !isNaN(p) && p > 0);
+    let basePrice = 0;
+    if (game.is_subscription) {
+      basePrice = base_source === "original"
+        ? Number(game.original_price ?? game.price_1m ?? game.sale_price ?? 0)
+        : Number(game.price_1m ?? game.sale_price ?? game.original_price ?? 0);
+    } else {
+      const catalogPrices = [
+        Number(game.steam_price),
+        Number(game.offline_price),
+        Number(game.epic_price),
+        Number(game.online_price),
+        Number(game.xbox_price),
+        Number(game.geforce_price),
+        Number(game.sale_price)
+      ].filter((p) => !isNaN(p) && p > 0);
 
-    const minCatalogPrice = catalogPrices.length ? Math.min(...catalogPrices) : 0;
-    const basePrice = base_source === "original"
-      ? Number(game.original_price ?? minCatalogPrice ?? game.sale_price ?? 0)
-      : Number(minCatalogPrice || game.sale_price || game.original_price || 0);
+      const minCatalogPrice = catalogPrices.length ? Math.min(...catalogPrices) : 0;
+      basePrice = base_source === "original"
+        ? Number(game.original_price ?? minCatalogPrice ?? game.sale_price ?? 0)
+        : Number(minCatalogPrice || game.sale_price || game.original_price || 0);
+    }
 
     if (basePrice <= 0) continue;
 
-    let newSalePrice = basePrice;
-    if (discount_type === "percentage") {
-      newSalePrice = Math.max(1, Math.round(basePrice * (1 - discount_value / 100)));
-    } else if (discount_type === "flat") {
-      newSalePrice = Math.max(1, Math.round(basePrice - discount_value));
-    } else if (discount_type === "fixed") {
-      newSalePrice = Math.max(1, Math.round(discount_value));
-    }
+    const calcDiscount = (price: number) => {
+      if (price <= 0) return null;
+      if (discount_type === "percentage") {
+        return Math.max(1, Math.round(price * (1 - discount_value / 100)));
+      } else if (discount_type === "flat") {
+        return Math.max(1, Math.round(price - discount_value));
+      } else if (discount_type === "fixed") {
+        return Math.max(1, Math.round(discount_value));
+      }
+      return price;
+    };
+
+    const newSalePrice = calcDiscount(basePrice) ?? basePrice;
 
     const payload: Record<string, unknown> = {
       sale_price: newSalePrice,
     };
 
-    if (game.is_subscription && discount_type === "percentage") {
+    if (game.is_subscription) {
       if (Number(game.price_2m ?? 0) > 0) {
-        payload.price_2m = Math.max(1, Math.round(Number(game.price_2m) * (1 - discount_value / 100)));
+        payload.price_2m = calcDiscount(Number(game.price_2m));
       }
       if (Number(game.price_3m ?? 0) > 0) {
-        payload.price_3m = Math.max(1, Math.round(Number(game.price_3m) * (1 - discount_value / 100)));
+        payload.price_3m = calcDiscount(Number(game.price_3m));
       }
       if (Number(game.price_6m ?? 0) > 0) {
-        payload.price_6m = Math.max(1, Math.round(Number(game.price_6m) * (1 - discount_value / 100)));
+        payload.price_6m = calcDiscount(Number(game.price_6m));
       }
       if (Number(game.price_12m ?? 0) > 0) {
-        payload.price_12m = Math.max(1, Math.round(Number(game.price_12m) * (1 - discount_value / 100)));
+        payload.price_12m = calcDiscount(Number(game.price_12m));
       }
     }
 

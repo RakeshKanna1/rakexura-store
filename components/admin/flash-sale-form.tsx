@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Zap, Layers, Search, CheckSquare, Square, Clock } from "lucide-react";
@@ -57,6 +57,7 @@ export function FlashSaleForm({
   const [searchQuery, setSearchQuery] = useState("");
   const [discountType, setDiscountType] = useState<"percentage" | "flat" | "fixed">("percentage");
   const [discountValue, setDiscountValue] = useState<number>(20);
+  const [tzOffset, setTzOffset] = useState<number>(0);
 
   // Time calculations preserving local browser timezone
   const toLocalInputString = (d: Date) => {
@@ -64,14 +65,19 @@ export function FlashSaleForm({
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
-  const nowLocal = useMemo(() => toLocalInputString(new Date()), []);
-  const in3DaysLocal = useMemo(() => toLocalInputString(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)), []);
+  const [bulkStartsAt, setBulkStartsAt] = useState("");
+  const [bulkEndsAt, setBulkEndsAt] = useState("");
 
-  const [bulkStartsAt, setBulkStartsAt] = useState(nowLocal);
-  const [bulkEndsAt, setBulkEndsAt] = useState(in3DaysLocal);
+  useEffect(() => {
+    setTzOffset(new Date().getTimezoneOffset());
+    const now = new Date();
+    const in3Days = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+    setBulkStartsAt(toLocalInputString(now));
+    setBulkEndsAt(toLocalInputString(in3Days));
+  }, []);
 
-  const starts = flashSale?.starts_at ? toLocalInputString(new Date(flashSale.starts_at)) : nowLocal;
-  const ends = flashSale?.ends_at ? toLocalInputString(new Date(flashSale.ends_at)) : in3DaysLocal;
+  const starts = flashSale?.starts_at ? toLocalInputString(new Date(flashSale.starts_at)) : bulkStartsAt;
+  const ends = flashSale?.ends_at ? toLocalInputString(new Date(flashSale.ends_at)) : bulkEndsAt;
 
   // Filtered games
   const filteredGames = useMemo(() => {
@@ -107,7 +113,9 @@ export function FlashSaleForm({
 
   // Preview price calculator based on current active selling price
   const calculatePreviewPrice = (game: FullGameInfo) => {
-    const basePrice = Number(game.sale_price ?? game.original_price ?? 0);
+    const basePrice = game.is_subscription
+      ? Number(game.price_1m ?? game.sale_price ?? game.original_price ?? 0)
+      : Number(game.sale_price ?? game.original_price ?? 0);
     if (basePrice <= 0) return 0;
     if (discountType === "percentage") {
       return Math.max(1, Math.round(basePrice * (1 - discountValue / 100)));
@@ -122,7 +130,7 @@ export function FlashSaleForm({
   };
 
   return (
-    <div className="premium-panel mt-8 rounded-md p-5 md:p-7">
+    <div suppressHydrationWarning={true} className="premium-panel mt-8 rounded-md p-5 md:p-7">
       {/* Header & Tabs */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -135,6 +143,7 @@ export function FlashSaleForm({
         {!flashSale ? (
           <div className="flex items-center gap-2">
             <button
+              suppressHydrationWarning={true}
               type="button"
               onClick={() => setActiveTab("bulk")}
               className={`btn text-xs ${activeTab === "bulk" ? "btn-primary" : "btn-secondary"}`}
@@ -142,6 +151,7 @@ export function FlashSaleForm({
               <Layers size={14} /> Multi-game bulk sale
             </button>
             <button
+              suppressHydrationWarning={true}
               type="button"
               onClick={() => setActiveTab("single")}
               className={`btn text-xs ${activeTab === "single" ? "btn-primary" : "btn-secondary"}`}
@@ -162,9 +172,10 @@ export function FlashSaleForm({
           action={saveBulkFlashSale}
           onChange={() => setIsDirty(true)}
           onSubmit={() => setIsSubmitting(true)}
+          suppressHydrationWarning={true}
           className="mt-6 space-y-6"
         >
-          <input type="hidden" name="tz_offset" value={new Date().getTimezoneOffset()} />
+          <input type="hidden" name="tz_offset" value={tzOffset} suppressHydrationWarning={true} />
           {/* Step 1: Discount Settings */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <label className="flex flex-col text-sm font-bold">
@@ -176,6 +187,7 @@ export function FlashSaleForm({
                 name="discount_type"
                 value={discountType}
                 onChange={(e) => setDiscountType(e.target.value as "percentage" | "flat" | "fixed")}
+                suppressHydrationWarning={true}
                 className={input}
               >
                 <option value="percentage">Percentage discount (% OFF)</option>
@@ -199,6 +211,7 @@ export function FlashSaleForm({
                 required
                 value={discountValue}
                 onChange={(e) => setDiscountValue(Math.max(1, Number(e.target.value)))}
+                suppressHydrationWarning={true}
                 className={input}
               />
             </label>
@@ -224,6 +237,7 @@ export function FlashSaleForm({
                 <button
                   type="button"
                   onClick={() => setDurationPreset(24)}
+                  suppressHydrationWarning={true}
                   className="rounded border border-white/10 bg-black/25 px-2.5 py-1 text-xs hover:border-[#facc15] hover:text-[#facc15] transition-colors"
                 >
                   24h
@@ -231,6 +245,7 @@ export function FlashSaleForm({
                 <button
                   type="button"
                   onClick={() => setDurationPreset(48)}
+                  suppressHydrationWarning={true}
                   className="rounded border border-white/10 bg-black/25 px-2.5 py-1 text-xs hover:border-[#facc15] hover:text-[#facc15] transition-colors"
                 >
                   48h
@@ -238,6 +253,7 @@ export function FlashSaleForm({
                 <button
                   type="button"
                   onClick={() => setDurationPreset(72)}
+                  suppressHydrationWarning={true}
                   className="rounded border border-white/10 bg-black/25 px-2.5 py-1 text-xs hover:border-[#facc15] hover:text-[#facc15] transition-colors"
                 >
                   3 Days
@@ -245,6 +261,7 @@ export function FlashSaleForm({
                 <button
                   type="button"
                   onClick={() => setDurationPreset(168)}
+                  suppressHydrationWarning={true}
                   className="rounded border border-white/10 bg-black/25 px-2.5 py-1 text-xs hover:border-[#facc15] hover:text-[#facc15] transition-colors"
                 >
                   7 Days
@@ -264,6 +281,7 @@ export function FlashSaleForm({
                   required
                   value={bulkStartsAt}
                   onChange={(e) => setBulkStartsAt(e.target.value)}
+                  suppressHydrationWarning={true}
                   className={input}
                 />
               </label>
@@ -299,6 +317,7 @@ export function FlashSaleForm({
                 <button
                   type="button"
                   onClick={selectAllFiltered}
+                  suppressHydrationWarning={true}
                   className="btn btn-secondary text-xs"
                 >
                   <CheckSquare size={13} /> Select all ({filteredGames.length})
@@ -307,6 +326,7 @@ export function FlashSaleForm({
                   <button
                     type="button"
                     onClick={deselectAll}
+                    suppressHydrationWarning={true}
                     className="btn btn-secondary text-xs"
                   >
                     <Square size={13} /> Deselect all
@@ -323,6 +343,7 @@ export function FlashSaleForm({
                 placeholder="Search games by title..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                suppressHydrationWarning={true}
                 className="h-10 w-full rounded-md border border-white/10 bg-black/25 pl-9 pr-3 text-sm text-white placeholder-[#8991a8] outline-none focus:border-[#facc15]"
               />
             </div>
@@ -363,6 +384,7 @@ export function FlashSaleForm({
                           value={game.id}
                           checked={isSelected}
                           onChange={() => {}}
+                          suppressHydrationWarning={true}
                           className="h-4 w-4 rounded border-white/20 bg-black text-[#facc15] cursor-pointer"
                         />
                         <div className="relative h-9 w-7 shrink-0 overflow-hidden rounded bg-black/50 border border-white/10">
@@ -417,12 +439,12 @@ export function FlashSaleForm({
           {/* Options */}
           <div className="flex flex-wrap gap-4 pt-2">
             <label className="flex min-h-11 items-center gap-2 rounded-md border border-white/10 bg-black/20 px-4 text-sm cursor-pointer select-none">
-              <input type="checkbox" name="active" defaultChecked className="cursor-pointer" />
+              <input type="checkbox" name="active" defaultChecked suppressHydrationWarning={true} className="cursor-pointer" />
               <span>Active in flash sale carousel</span>
             </label>
 
             <label className="flex min-h-11 items-center gap-2 rounded-md border border-white/10 bg-black/20 px-4 text-sm cursor-pointer select-none">
-              <input type="checkbox" name="update_catalog" defaultChecked className="cursor-pointer" />
+              <input type="checkbox" name="update_catalog" defaultChecked suppressHydrationWarning={true} className="cursor-pointer" />
               <span>Also update catalog price & countdown on game pages</span>
             </label>
           </div>
@@ -432,6 +454,7 @@ export function FlashSaleForm({
             <button
               type="submit"
               disabled={selectedGameIds.length === 0}
+              suppressHydrationWarning={true}
               className={`btn btn-primary ${selectedGameIds.length === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <Zap size={17} /> Launch bulk sale ({selectedGameIds.length} games)
@@ -447,9 +470,10 @@ export function FlashSaleForm({
           action={saveFlashSale}
           onChange={() => setIsDirty(true)}
           onSubmit={() => setIsSubmitting(true)}
+          suppressHydrationWarning={true}
           className="mt-6"
         >
-          <input type="hidden" name="tz_offset" value={new Date().getTimezoneOffset()} />
+          <input type="hidden" name="tz_offset" value={tzOffset} suppressHydrationWarning={true} />
           {flashSale && <input type="hidden" name="id" value={flashSale.id} />}
           
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -466,6 +490,7 @@ export function FlashSaleForm({
                   setSingleGameId(e.target.value);
                   setIsDirty(true);
                 }} 
+                suppressHydrationWarning={true}
                 className={input}
               >
                 <option value="" disabled>Select a game or subscription...</option>
@@ -498,6 +523,7 @@ export function FlashSaleForm({
                       min="0" 
                       defaultValue={flashSale?.sale_price ?? ""} 
                       placeholder={`Original (${formatPrice(selectedSingleGame.price_1m ?? selectedSingleGame.sale_price ?? selectedSingleGame.original_price ?? 0)})`} 
+                      suppressHydrationWarning={true}
                       className={input} 
                     />
                   </label>
@@ -513,6 +539,7 @@ export function FlashSaleForm({
                       min="0" 
                       defaultValue={flashSale?.price_2m ?? ""} 
                       placeholder={selectedSingleGame.price_2m ? `Original (${formatPrice(selectedSingleGame.price_2m)})` : "Leave empty"} 
+                      suppressHydrationWarning={true}
                       className={input} 
                     />
                   </label>
@@ -528,6 +555,7 @@ export function FlashSaleForm({
                       min="0" 
                       defaultValue={flashSale?.price_3m ?? ""} 
                       placeholder={selectedSingleGame.price_3m ? `Original (${formatPrice(selectedSingleGame.price_3m)})` : "Leave empty"} 
+                      suppressHydrationWarning={true}
                       className={input} 
                     />
                   </label>
@@ -543,6 +571,7 @@ export function FlashSaleForm({
                       min="0" 
                       defaultValue={flashSale?.price_6m ?? ""} 
                       placeholder={selectedSingleGame.price_6m ? `Original (${formatPrice(selectedSingleGame.price_6m)})` : "Leave empty"} 
+                      suppressHydrationWarning={true}
                       className={input} 
                     />
                   </label>
@@ -558,6 +587,7 @@ export function FlashSaleForm({
                       min="0" 
                       defaultValue={flashSale?.price_12m ?? ""} 
                       placeholder={selectedSingleGame.price_12m ? `Original (${formatPrice(selectedSingleGame.price_12m)})` : "Leave empty"} 
+                      suppressHydrationWarning={true}
                       className={input} 
                     />
                   </label>
@@ -569,7 +599,7 @@ export function FlashSaleForm({
                 <span className="mt-1 text-[11px] font-normal text-[#8991a8] leading-relaxed">
                   The temporary discounted price displayed on the storefront.
                 </span>
-                <input name="sale_price" type="number" min="0" required defaultValue={flashSale?.sale_price} className={input} />
+                <input name="sale_price" type="number" min="0" required defaultValue={flashSale?.sale_price} suppressHydrationWarning={true} className={input} />
               </label>
             )}
             
@@ -578,7 +608,7 @@ export function FlashSaleForm({
               <span className="mt-1 text-[11px] font-normal text-[#8991a8] leading-relaxed">
                 Date and time when the sale and countdown will become active.
               </span>
-              <input name="starts_at" type="datetime-local" required defaultValue={starts} className={input} />
+              <input name="starts_at" type="datetime-local" required defaultValue={starts} suppressHydrationWarning={true} className={input} />
             </label>
             
             <label className="flex flex-col text-sm font-bold">
@@ -586,7 +616,7 @@ export function FlashSaleForm({
               <span className="mt-1 text-[11px] font-normal text-[#8991a8] leading-relaxed">
                 Date and time when the sale will automatically end.
               </span>
-              <input name="ends_at" type="datetime-local" required defaultValue={ends} className={input} />
+              <input name="ends_at" type="datetime-local" required defaultValue={ends} suppressHydrationWarning={true} className={input} />
             </label>
 
             <label className="flex min-h-11 items-center gap-2 rounded-md border border-white/10 bg-black/20 px-4 mt-auto text-sm cursor-pointer select-none">
@@ -594,6 +624,7 @@ export function FlashSaleForm({
                 type="checkbox" 
                 name="active" 
                 defaultChecked={flashSale ? Boolean(flashSale.active) : true} 
+                suppressHydrationWarning={true}
                 className="cursor-pointer"
               />
               <span>Active</span>
@@ -601,7 +632,7 @@ export function FlashSaleForm({
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <button className="btn btn-primary">
+            <button suppressHydrationWarning={true} className="btn btn-primary">
               <Zap size={17} /> {flashSale ? "Save changes" : "Create flash sale"}
             </button>
             {flashSale && (

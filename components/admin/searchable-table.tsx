@@ -362,6 +362,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
               <button
                 type="button"
                 onClick={selectLiveOnly}
+                suppressHydrationWarning={true}
                 className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-bold text-emerald-400 hover:bg-emerald-500/20 transition cursor-pointer"
               >
                 <Flame size={13} className="text-emerald-400 animate-pulse" />
@@ -372,6 +373,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
               <button
                 type="button"
                 onClick={selectExpiredOnly}
+                suppressHydrationWarning={true}
                 className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-[#8991a6] hover:text-white transition cursor-pointer"
               >
                 <Clock size={13} />
@@ -381,6 +383,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
             <button
               type="button"
               onClick={selectAllFiltered}
+              suppressHydrationWarning={true}
               className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-[#c8cedc] hover:text-white transition cursor-pointer"
             >
               <CheckCheck size={13} />
@@ -408,6 +411,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
               <button
                 type="button"
                 onClick={() => setSelectedIds([])}
+                suppressHydrationWarning={true}
                 className="rounded-md border border-white/15 bg-black/40 px-3 py-1 text-xs font-bold text-[#a0a8c0] hover:text-white transition cursor-pointer"
               >
                 Deselect All
@@ -419,6 +423,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
               <button
                 type="button"
                 onClick={() => setBulkTab("rates")}
+                suppressHydrationWarning={true}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold transition cursor-pointer ${
                   bulkTab === "rates"
                     ? "bg-[#facc15] text-black shadow"
@@ -430,6 +435,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
               <button
                 type="button"
                 onClick={() => setBulkTab("dates")}
+                suppressHydrationWarning={true}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold transition cursor-pointer ${
                   bulkTab === "dates"
                     ? "bg-[#facc15] text-black shadow"
@@ -441,6 +447,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
               <button
                 type="button"
                 onClick={() => setBulkTab("status")}
+                suppressHydrationWarning={true}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-bold transition cursor-pointer ${
                   bulkTab === "status"
                     ? "bg-[#facc15] text-black shadow"
