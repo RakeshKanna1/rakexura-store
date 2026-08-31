@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BarChart3, Boxes, ImageIcon, LifeBuoy, MessageSquareText, PackageCheck, Plus, Send, TicketPercent, Trophy, Users, ArrowUpRight, Layers, Flame, CalendarRange, Percent } from "lucide-react";
 import { AdminOnboarding } from "@/components/admin/admin-onboarding";
-import { getAdminOverviewData } from "@/lib/supabase/queries";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
 
 const sections = [
@@ -23,25 +23,53 @@ const sections = [
   ["audit-logs", "Audit logs", "Detailed administrator action trails", BarChart3]
 ] as const;
 
-export const revalidate = 15;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function AdminPage() {
-  const {
-    games,
-    customers,
-    pending,
-    pendingReviews,
-    pendingRequests,
-    activeCoupons,
-    openTickets,
-    lowStock,
-    deliveries,
-    todayRevenue,
-    todayOrdersCount,
-    latestOrders,
-  } = await getAdminOverviewData();
+  const supabase = process.env.SUPABASE_SERVICE_ROLE_KEY ? createAdminClient() : await createClient();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const stats = [["Orders today", todayOrdersCount, PackageCheck], ["Revenue today", formatPrice(todayRevenue), BarChart3], ["Pending payments", pending, TicketPercent], ["Active games", games, Boxes]] as const;
+  const [
+    { count: games },
+    { count: customers },
+    { count: pending },
+    { count: pendingReviews },
+    { count: pendingRequests },
+    { count: activeCoupons },
+    { count: openTickets },
+    { count: lowStock },
+    { data: deliveries },
+    { data: todayOrders },
+    { data: latestOrders },
+  ] = await Promise.all([
+    supabase.from("games").select("id", { count: "exact", head: true }).eq("archived", false),
+    supabase.from("profiles").select("id", { count: "exact", head: true }),
+    supabase.from("orders").select("id", { count: "exact", head: true }).ilike("order_status", "%pending%"),
+    supabase.from("reviews").select("id", { count: "exact", head: true }).eq("approved", false),
+    supabase.from("game_requests").select("id", { count: "exact", head: true }).in("status", ["requested", "reviewing"]),
+    supabase.from("coupons").select("id", { count: "exact", head: true }).eq("active", true),
+    supabase.from("support_tickets").select("id", { count: "exact", head: true }).neq("status", "closed"),
+    supabase.from("games").select("id", { count: "exact", head: true }).gt("activation_slots", 0).lte("activation_slots", 3).eq("archived", false),
+    supabase.from("recent_deliveries").select("id,game_title,delivered_at").order("delivered_at", { ascending: false }).limit(4),
+    supabase.from("orders").select("total_price,payment_status,order_status").gte("created_at", today.toISOString()),
+    supabase.from("orders").select("id,order_reference,customer_name,order_status,total_price,created_at").order("created_at", { ascending: false }).limit(7),
+  ]);
+
+  const typedTodayOrders = (todayOrders ?? []) as Array<{ total_price?: number | null; payment_status?: string | null; order_status?: string | null }>;
+
+  const todayRevenue = typedTodayOrders
+    .filter(
+      (order) =>
+        ["Approved", "Delivered", "Completed"].includes(String(order.payment_status || "")) ||
+        ["Verified", "Delivered", "Completed"].includes(String(order.order_status || ""))
+    )
+    .reduce((sum, order) => sum + Number(order.total_price ?? 0), 0);
+
+  const todayOrdersCount = typedTodayOrders.length;
+
+  const stats = [["Orders today", todayOrdersCount, PackageCheck], ["Revenue today", formatPrice(todayRevenue), BarChart3], ["Pending payments", pending ?? 0, TicketPercent], ["Active games", games ?? 0, Boxes]] as const;
   const quick = [["/admin/games", "Add Game", Plus], ["/admin/coupons", "Add Coupon", TicketPercent], ["/admin/orders", "View Orders", PackageCheck], ["/admin/reviews", "Approve Reviews", MessageSquareText], ["/admin/requests", "Manage Requests", ArrowUpRight], ["/admin/support", "Answer Support", LifeBuoy]] as const;
 
 

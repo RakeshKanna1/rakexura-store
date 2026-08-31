@@ -106,8 +106,8 @@ export function HeaderNotificationButton() {
   const loadData = useCallback(async () => {
     try {
       const supabase = createClient();
-      const userRes = await supabase.auth.getUser().catch(() => null);
-      const user = userRes?.data?.user;
+      const { data: { session } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+      const user = session?.user ?? (await supabase.auth.getUser().catch(() => null))?.data?.user;
       if (!user) {
         setUserId(null);
         setNotifications([]);
