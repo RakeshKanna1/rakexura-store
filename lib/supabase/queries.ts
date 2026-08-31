@@ -417,9 +417,19 @@ export interface AdminOverviewStats {
   }>;
 }
 
-
-
-
-
-
+export const getTotalCompletedOrdersCount = unstable_cache(
+  async (): Promise<number> => {
+    try {
+      const supabase = getStaticClient();
+      const { count } = await supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true });
+      return count ?? 0;
+    } catch {
+      return 0;
+    }
+  },
+  ["total-orders-count"],
+  { revalidate: 60, tags: ["orders"] }
+);
 

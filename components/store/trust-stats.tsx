@@ -3,14 +3,16 @@
 import { BadgeCheck, Headphones, ShieldCheck, Zap } from "lucide-react";
 import { AnimatedCounter } from "@/components/animations/animated-counter";
 
-const stats = [
-  { icon: BadgeCheck, value: 250, suffix: "+", label: "orders completed" },
-  { icon: Zap, value: 95, suffix: "%", label: "same-day responses" },
-  { icon: ShieldCheck, value: 100, suffix: "%", label: "protected tracking" },
-  { icon: Headphones, value: 24, suffix: "/7", label: "support access" },
-];
+export function TrustStats({ totalOrders = 0 }: { totalOrders?: number }) {
+  const completedOrders = 250 + totalOrders;
 
-export function TrustStats() {
+  const stats = [
+    { icon: BadgeCheck, value: completedOrders, suffix: "+", label: "orders completed" },
+    { icon: Zap, value: 95, suffix: "%", label: "same-day responses" },
+    { icon: ShieldCheck, value: 100, suffix: "%", label: "protected tracking" },
+    { icon: Headphones, value: 24, suffix: "/7", label: "support access" },
+  ];
+
   return (
     <section className="my-4 sm:my-8 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/[.08] bg-white/[.04] lg:grid-cols-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
       {stats.map(({ icon: Icon, value, suffix, label }) => (

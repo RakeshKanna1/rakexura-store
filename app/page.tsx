@@ -16,13 +16,21 @@ import { TrustStats } from "@/components/store/trust-stats";
 import { WhatsAppCommunity } from "@/components/store/whatsapp-community";
 import { WhatsAppCta } from "@/components/store/whatsapp-cta";
 import { OfferMarquee } from "@/components/store/offer-marquee";
-import { getBundles, getCustomerProofs, getFlashSales, getGames, getRecentDeliveries, getReviews } from "@/lib/supabase/queries";
+import { getBundles, getCustomerProofs, getFlashSales, getGames, getRecentDeliveries, getReviews, getTotalCompletedOrdersCount } from "@/lib/supabase/queries";
 import { lowestPrice } from "@/lib/utils";
 
 export const revalidate = 60;
 
 export default async function Home() {
-  const [games, bundles, reviews, sales, deliveries, proofs] = await Promise.all([getGames(), getBundles(), getReviews(10), getFlashSales(), getRecentDeliveries(), getCustomerProofs(24)]);
+  const [games, bundles, reviews, sales, deliveries, proofs, totalOrdersCount] = await Promise.all([
+    getGames(),
+    getBundles(),
+    getReviews(10),
+    getFlashSales(),
+    getRecentDeliveries(),
+    getCustomerProofs(24),
+    getTotalCompletedOrdersCount(),
+  ]);
   
   const now = Date.now();
   const liveFlashSales = sales.filter(
@@ -58,7 +66,7 @@ export default async function Home() {
         <HeroCarousel games={heroGames} flashSales={liveFlashSales} />
         <LiveDeliveryTicker deliveries={deliveries} />
         <WhatsAppCommunity />
-        <TrustStats />
+        <TrustStats totalOrders={totalOrdersCount} />
         {liveFlashSales.length > 0 && <Reveal><FlashSaleBlock sales={liveFlashSales} /></Reveal>}
         {upcoming.length > 0 && <Reveal><GameShelf title="Pre-order games" subtitle="Secure your copy of upcoming titles" games={upcoming} href="/games?category=Pre-order" rows={1} /></Reveal>}
         <Reveal><GameShelf title="Gamer's choice" subtitle="Popular picks selected by Rakexura players" games={highlightGames} href="/games?sort=featured" rows={2} /></Reveal>
