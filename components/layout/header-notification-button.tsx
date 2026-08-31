@@ -6,6 +6,8 @@ import { Bell, Check, ExternalLink, Package, ShieldCheck, AlertTriangle, Info, M
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
+import { useRouter } from "next/navigation";
+
 type Notification = {
   id: number;
   title: string;
@@ -65,6 +67,7 @@ const getNotificationTheme = (title: string) => {
 };
 
 export function HeaderNotificationButton() {
+  const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
@@ -75,14 +78,15 @@ export function HeaderNotificationButton() {
   const fetchUserNotifications = useCallback(async (uid: string) => {
     try {
       const supabase = createClient();
-      const res = await supabase
+      const { data } = await supabase
         .from("notifications")
         .select("id,title,message,read,link,created_at,type")
         .eq("user_id", uid)
         .order("created_at", { ascending: false })
-        .limit(10)
-        .catch(() => null);
-      if (res?.data) setNotifications(res.data);
+        .limit(10);
+      if (data && Array.isArray(data)) {
+        setNotifications(data);
+      }
     } catch {
       // Gracefully silent for offline / network transitions
     }
@@ -91,13 +95,14 @@ export function HeaderNotificationButton() {
   const fetchAnnouncements = useCallback(async () => {
     try {
       const supabase = createClient();
-      const res = await supabase
+      const { data } = await supabase
         .from("marquee_messages")
         .select("id,message,icon_key")
         .eq("active", true)
-        .limit(5)
-        .catch(() => null);
-      if (res?.data) setAnnouncements(res.data);
+        .limit(5);
+      if (data && Array.isArray(data)) {
+        setAnnouncements(data);
+      }
     } catch {
       // Gracefully silent for offline / network transitions
     }
@@ -115,7 +120,7 @@ export function HeaderNotificationButton() {
         return;
       }
       setUserId(user.id);
-      void fetchUserNotifications(user.id);
+      await fetchUserNotifications(user.id);
       void fetchAnnouncements();
     } catch {
       setUserId(null);
@@ -127,7 +132,14 @@ export function HeaderNotificationButton() {
   useEffect(() => {
     void loadData();
     const supabase = createClient();
-    const { data: authListener } = supabase.auth.onAuthStateChange(() => void loadData());
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event: unknown, session: { user?: { id: string } } | null) => {
+      if (session?.user) {
+        setUserId(session.user.id);
+        void fetchUserNotifications(session.user.id);
+      } else {
+        void loadData();
+      }
+    });
 
     const handleUpdate = () => void loadData();
     window.addEventListener("rakexura-notifications-updated", handleUpdate);
@@ -200,13 +212,19 @@ export function HeaderNotificationButton() {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div ref={dropdownRef} className="relative">
+    <div ref={dropdownRef} className="relative" onMouseEnter={() => router.prefetch("/dashboard/notifications")}>
       <button
         suppressHydrationWarning
         onClick={() => {
           setRinging(true);
           setTimeout(() => setRinging(false), 800);
-          setOpen(!open);
+          setOpen((prev) => {
+            const next = !prev;
+            if (next) {
+              void loadData();
+            }
+            return next;
+          });
         }}
         className="btn btn-secondary relative h-10 sm:h-11 min-h-10 sm:min-h-11 px-2.5 sm:px-3 hover:border-[#facc15]/30 hover:bg-white/[.08] cursor-pointer flex items-center justify-center"
         aria-label="Open notifications"
@@ -240,7 +258,7 @@ export function HeaderNotificationButton() {
               />
             </>
           )}
-          <Bell size={19} className={ringing ? "text-[#facc15]" : "text-[#aeb5c6] transition-colors hover:text-white"} />
+          <Bell size={19} className={ringing || unreadCount > 0 ? "text-[#facc15]" : "text-[#aeb5c6] transition-colors hover:text-white"} />
         </motion.div>
 
         {unreadCount > 0 && (
@@ -363,6 +381,19 @@ export function HeaderNotificationButton() {
               </div>
             )}
           </div>
+
+          {userId && (
+            <div className="border-t border-white/[0.07] px-3 pt-2 mt-1 text-center">
+              <Link
+                href="/dashboard/notifications"
+                prefetch={true}
+                onClick={() => setOpen(false)}
+                className="text-[11px] font-bold text-[#b9a4ff] hover:text-white transition-colors inline-flex items-center justify-center gap-1.5 py-1"
+              >
+                <span>View all notifications &rarr;</span>
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>

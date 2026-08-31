@@ -16,30 +16,34 @@ export default async function NotificationsPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/dashboard/notifications");
 
-  // Fetch notifications with filter support
-  let query = supabase
+  // Fetch notifications and counts concurrently in parallel for maximum speed
+  let notifsQuery = supabase
     .from("notifications")
     .select("id,title,message,read,link,type,created_at")
     .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(100);
 
   if (currentFilter === "unread") {
-    query = query.eq("read", false);
+    notifsQuery = notifsQuery.eq("read", false);
   }
 
-  const { data: notifications = [] } = await query;
+  const [notifsRes, totalCountRes, unreadCountRes] = await Promise.all([
+    notifsQuery,
+    supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id),
+    supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("read", false),
+  ]);
 
-  // Stats for Filter Pills
-  const { count: totalCount } = await supabase
-    .from("notifications")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", user.id);
-
-  const { count: unreadCount } = await supabase
-    .from("notifications")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", user.id)
-    .eq("read", false);
+  const notifications = notifsRes.data ?? [];
+  const totalCount = totalCountRes.count ?? 0;
+  const unreadCount = unreadCountRes.count ?? 0;
 
   const hasUnreadGift = notifications?.some((n) => {
     const isGift = n.title === "Gift Received!" ||
@@ -69,6 +73,7 @@ export default async function NotificationsPage({
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard/notifications"
+            prefetch={true}
             className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition duration-150 ${
               currentFilter === "all"
                 ? "bg-white text-black shadow-sm"
@@ -79,6 +84,7 @@ export default async function NotificationsPage({
           </Link>
           <Link
             href="/dashboard/notifications?filter=unread"
+            prefetch={true}
             className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition duration-150 flex items-center gap-1.5 ${
               currentFilter === "unread"
                 ? "bg-white text-black shadow-sm"
