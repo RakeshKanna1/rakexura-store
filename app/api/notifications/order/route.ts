@@ -575,10 +575,20 @@ export async function POST(request: Request) {
       // 4. Send database in-app & push notification to admins
       try {
         const supabase = createAdminClient();
-        const { data: admins } = await supabase.from("profiles").select("id").eq("role", "admin");
-        if (admins && admins.length > 0) {
-          const adminNotifs = admins.map((admin) => ({
-            user_id: admin.id,
+        let adminIds: string[] = [];
+        const { data: rpcAdmins } = await supabase.rpc("get_admin_user_ids" as never);
+        if (rpcAdmins && Array.isArray(rpcAdmins) && rpcAdmins.length > 0) {
+          adminIds = (rpcAdmins as Array<{ id: string }>).map((a) => a.id);
+        } else {
+          const { data: admins } = await supabase.from("profiles").select("id").eq("role", "admin");
+          if (admins && admins.length > 0) {
+            adminIds = admins.map((a) => a.id);
+          }
+        }
+
+        if (adminIds.length > 0) {
+          const adminNotifs = adminIds.map((adminId) => ({
+            user_id: adminId,
             title: `New Order Placed`,
             message: `Order ${order.reference ?? ""} placed by ${order.customerName ?? "Customer"} for Rs. ${Number(orderTotal(order)).toLocaleString("en-IN")}.`,
             type: "order",
@@ -586,7 +596,14 @@ export async function POST(request: Request) {
           }));
           await supabase.from("notifications").insert(adminNotifs);
           await Promise.all(
-            adminNotifs.map((n) => sendPushNotification(n.user_id, n.title, n.message, n.link))
+            adminIds.map((adminId) =>
+              sendPushNotification(
+                adminId,
+                `New Order: ${order.reference ?? ""}`,
+                `Order ${order.reference ?? ""} placed by ${order.customerName ?? "Customer"} for Rs. ${Number(orderTotal(order)).toLocaleString("en-IN")}.`,
+                `/admin/orders`
+              )
+            )
           );
         }
       } catch (dbError) {

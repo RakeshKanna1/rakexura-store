@@ -26,15 +26,21 @@ export async function sendPushNotification(userId: string, title: string, messag
   try {
     const supabase = await getSupabaseAdmin();
     
-    // Fetch all push subscriptions for this user
-    const { data: subscriptions, error } = await supabase
-      .from("push_subscriptions")
-      .select("endpoint, p256dh, auth")
-      .eq("user_id", userId);
-
-    if (error) {
-      console.error("Error fetching push subscriptions:", error);
-      return { success: false, error: error.message };
+    // Fetch all push subscriptions for this user using security definer RPC
+    const { data: rpcSubs, error: rpcErr } = await supabase
+      .rpc("get_user_push_subscriptions" as never, { p_user_id: userId } as never);
+    
+    let subscriptions = rpcSubs as Array<{ endpoint: string; p256dh: string; auth: string }> | null;
+    if (rpcErr || !subscriptions) {
+      const { data: directSubs, error } = await supabase
+        .from("push_subscriptions")
+        .select("endpoint, p256dh, auth")
+        .eq("user_id", userId);
+      if (error && !subscriptions) {
+        console.error("Error fetching push subscriptions:", error);
+        return { success: false, error: error.message };
+      }
+      subscriptions = directSubs;
     }
 
     if (!subscriptions || subscriptions.length === 0) {
