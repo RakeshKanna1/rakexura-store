@@ -352,16 +352,25 @@ export function BroadcastComposer({
         setLink(template.link);
       }
     } else if (key === "review") {
+      const custName = customer?.display_name || (targetEmail ? targetEmail.split("@")[0] : "");
+      const greeting = custName ? `Hi ${custName}!\n\n` : "";
+
       if (game) {
         setTitle(`How is ${game.title}? Leave a review!`);
-        setMessage(`Hope you are enjoying ${game.title}! Please take 30 seconds to rate your experience and leave a review on Rakexura Store.`);
+        setMessage(
+          `${greeting}Thank you for shopping at Rakexura Store! We hope you are enjoying ${game.title}.\n\n` +
+          `Please take 30 seconds to rate your experience and leave a review. Your feedback helps fellow gamers!`
+        );
         setShortMessage(`Leave a review for ${game.title}! Share your experience.`);
         setLink(`${gameUrl(game)}#reviews`);
       } else {
-        setTitle(template.title);
-        setMessage(template.message);
-        setShortMessage(template.shortMessage || template.title);
-        setLink("/reviews");
+        setTitle("How was your gaming experience? Leave a review!");
+        setMessage(
+          `${greeting}Thank you for shopping at Rakexura Store! We hope you are enjoying your new game.\n\n` +
+          `Please take 30 seconds to rate your experience and leave a review. Your feedback helps fellow gamers!`
+        );
+        setShortMessage("Leave a review on Rakexura Store! Share your gaming experience.");
+        setLink("/dashboard/orders");
       }
     } else {
       if (game) {

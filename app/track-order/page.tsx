@@ -201,22 +201,26 @@ function TrackOrderContent() {
     const isDelivered = casted.status === "Delivered" || casted.status === "Completed";
     let isShowingAnim = false;
     if (isDelivered) {
-      setShowConfetti(true);
-      const key = `animated_points_${casted.order_ref}`;
-      if (typeof window !== "undefined" && !sessionStorage.getItem(key)) {
+      const key = `claimed_points_${casted.order_ref}`;
+      const alreadyClaimed = typeof window !== "undefined" && (localStorage.getItem(key) === "true" || sessionStorage.getItem(key) === "true");
+      if (!alreadyClaimed) {
         setShowPointsAnimation(true);
-        sessionStorage.setItem(key, "true");
+        setShowConfetti(true);
+        if (typeof window !== "undefined") {
+          localStorage.setItem(key, "true");
+          sessionStorage.setItem(key, "true");
+        }
         isShowingAnim = true;
       }
     }
 
     if (!isShowingAnim) {
       setTimeout(() => {
-        const el = document.getElementById("order-tracking-result");
+        const el = document.getElementById("credentials-section") || document.getElementById("order-tracking-result");
         if (el) {
           el.scrollIntoView({ behavior: "smooth", block: "start" });
         }
-      }, 300);
+      }, 150);
     }
   }, [order, phone, currentUser]);
 
@@ -560,6 +564,22 @@ function TrackOrderContent() {
 
               {(result.status === "Delivered" || result.status === "Completed") && (
                 <div id="credentials-section" className="space-y-4 mt-6">
+                  {/* Loyalty Points Already Credited Banner */}
+                  <div className="flex items-center gap-3.5 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent p-4 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.25)]">
+                      <Sparkles size={20} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black uppercase tracking-wider text-amber-300">Loyalty Rewards Credited</span>
+                        <span className="rounded-full bg-amber-500/25 px-2 py-0.5 text-[10px] font-black text-amber-200 border border-amber-500/40">+{hasSubscription ? "200" : "100"} XP</span>
+                      </div>
+                      <p className="mt-0.5 text-xs text-[#cad1de] leading-relaxed">
+                        +{hasSubscription ? "200" : "100"} Rank Points have been added to your profile for this purchase!
+                      </p>
+                    </div>
+                  </div>
+
                   <div className="text-center p-6 rounded-lg border border-emerald-500/20 bg-emerald-500/[.03] space-y-2">
                     <h3 className="text-emerald-400 font-extrabold text-xl">Thank you for your purchase!</h3>
                     <p className="text-sm text-[#a4abbc]">

@@ -1374,11 +1374,16 @@ export async function sendSingleEmailNotification(formData: FormData) {
     });
   } else if (title.toLowerCase().includes("review") || message.toLowerCase().includes("review") || title.toLowerCase().includes("experience")) {
     const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
-    const customerName = targetEmail.split("@")[0] || "Valued Customer";
+    let customerName = targetEmail.split("@")[0] || "Valued Customer";
+    if (userId) {
+      const { data: prof } = await supabase.from("profiles").select("display_name").eq("id", userId).maybeSingle();
+      if (prof?.display_name) customerName = prof.display_name;
+    }
+    const resolvedReviewUrl = link && link !== "/reviews" ? `${siteUrl}${link.startsWith("/") ? link : `/${link}`}` : `${siteUrl}/dashboard/orders`;
     emailHtml = buildReviewRequestEmailHtml({
       customerName,
       message,
-      reviewUrl: `${siteUrl}${link.startsWith("/") ? link : `/${link}`}`,
+      reviewUrl: resolvedReviewUrl,
     });
   } else {
     emailHtml = buildProfessionalEmailHtml({
