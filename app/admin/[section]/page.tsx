@@ -68,6 +68,32 @@ export default async function AdminSection({ params, searchParams }: { params: P
       }
     }
   }
+
+  if (section === "customers" && rows.length > 0) {
+    const missingWhatsappIds = rows
+      .filter((r) => !r.whatsapp && r.id)
+      .map((r) => String(r.id));
+    if (missingWhatsappIds.length > 0) {
+      const { data: orderPhones } = await supabase
+        .from("orders")
+        .select("user_id,customer_whatsapp")
+        .in("user_id", missingWhatsappIds)
+        .order("created_at", { ascending: false });
+      if (orderPhones) {
+        const phoneMap = new Map<string, string>();
+        for (const op of orderPhones) {
+          if (op.user_id && op.customer_whatsapp && !phoneMap.has(op.user_id)) {
+            phoneMap.set(op.user_id, op.customer_whatsapp);
+          }
+        }
+        for (const row of rows) {
+          if (!row.whatsapp && row.id && phoneMap.has(String(row.id))) {
+            row.whatsapp = phoneMap.get(String(row.id));
+          }
+        }
+      }
+    }
+  }
   const query = await searchParams;
   let editingGame: Game | null = null;
   let editingCoupon: { id: number; code: string; discount_type: string; discount_value: number; minimum_order: number | null; usage_limit: number | null; per_user_limit: number | null; expires_at: string | null; applicable_to?: string | null } | null = null;
