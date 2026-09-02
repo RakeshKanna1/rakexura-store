@@ -157,17 +157,29 @@ export default async function AdminSection({ params, searchParams }: { params: P
   }
 
   if (section === "orders") {
-    const proofPaths = rows.map((r) => String(r.screenshot_url || "")).filter(Boolean);
+    const proofPaths = rows
+      .map((r) => String(r.screenshot_url || ""))
+      .filter((p) => p && !p.startsWith("FREEBIE-"));
     if (proofPaths.length > 0) {
       try {
         const { data: signedList } = await Promise.race([
-          supabase.storage.from("payment-proofs").createSignedUrls(proofPaths.slice(0, 30), 300),
-          new Promise<{ data: null }>((resolve) => setTimeout(() => resolve({ data: null }), 600)),
+          supabase.storage.from("payment-proofs").createSignedUrls(proofPaths.slice(0, 50), 3600),
+          new Promise<{ data: null }>((resolve) => setTimeout(() => resolve({ data: null }), 4000)),
         ]);
-        const urlMap = new Map((signedList || []).map((item) => [item.path, item.signedUrl]));
+        const urlMap = new Map<string, string>();
+        if (signedList) {
+          for (const item of signedList) {
+            const signed = item.signedUrl || (item as unknown as { signedURL?: string }).signedURL;
+            if (signed && item.path) {
+              urlMap.set(item.path, signed);
+              urlMap.set(item.path.replace(/^\//, ""), signed);
+            }
+          }
+        }
         rows.forEach((row) => {
           if (row.screenshot_url) {
-            row.proof_url = urlMap.get(String(row.screenshot_url)) || undefined;
+            const pathStr = String(row.screenshot_url);
+            row.proof_url = urlMap.get(pathStr) || urlMap.get(pathStr.replace(/^\//, "")) || undefined;
           }
         });
       } catch (err) {
@@ -177,17 +189,28 @@ export default async function AdminSection({ params, searchParams }: { params: P
   }
 
   if (section === "reviews") {
-    const mediaPaths = rows.flatMap((r) => Array.isArray(r.media_urls) ? r.media_urls.map(String) : []);
+    const mediaPaths = rows.flatMap((r) => Array.isArray(r.media_urls) ? r.media_urls.map(String) : []).filter(Boolean);
     if (mediaPaths.length > 0) {
       try {
         const { data: signedList } = await Promise.race([
-          supabase.storage.from("review-media").createSignedUrls(mediaPaths.slice(0, 30), 300),
-          new Promise<{ data: null }>((resolve) => setTimeout(() => resolve({ data: null }), 600)),
+          supabase.storage.from("review-media").createSignedUrls(mediaPaths.slice(0, 50), 3600),
+          new Promise<{ data: null }>((resolve) => setTimeout(() => resolve({ data: null }), 4000)),
         ]);
-        const urlMap = new Map((signedList || []).map((item) => [item.path, item.signedUrl]));
+        const urlMap = new Map<string, string>();
+        if (signedList) {
+          for (const item of signedList) {
+            const signed = item.signedUrl || (item as unknown as { signedURL?: string }).signedURL;
+            if (signed && item.path) {
+              urlMap.set(item.path, signed);
+              urlMap.set(item.path.replace(/^\//, ""), signed);
+            }
+          }
+        }
         rows.forEach((row) => {
           if (Array.isArray(row.media_urls) && row.media_urls.length) {
-            row.media_links = row.media_urls.map((path: string) => urlMap.get(String(path))).filter((url): url is string => Boolean(url));
+            row.media_links = row.media_urls
+              .map((path: string) => urlMap.get(String(path)) || urlMap.get(String(path).replace(/^\//, "")))
+              .filter((url): url is string => Boolean(url));
           }
         });
       } catch (err) {

@@ -18,7 +18,7 @@ export async function CategoryRail() {
       </div>
       <div
         className="hide-scrollbar grid auto-cols-[125px] sm:auto-cols-[140px] grid-flow-col gap-2.5 overflow-x-auto pb-2 sm:gap-3 lg:grid-flow-row lg:grid-cols-8"
-        style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
+        style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}
       >
         {categories.map(({ id, name, icon_key }) => {
           const Icon = iconMap[icon_key] ?? Gamepad2;

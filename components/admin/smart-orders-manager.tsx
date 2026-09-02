@@ -32,10 +32,43 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isPending, startTransition] = useTransition();
 
-  // Sync state if initialOrders prop changes from server
-  useEffect(() => {
-    setOrders(initialOrders);
-  }, [initialOrders]);
+  const [loadingProofId, setLoadingProofId] = useState<number | null>(null);
+
+  const handleOpenProof = async (row: OrderRow) => {
+    if (row.proof_url) {
+      window.open(row.proof_url, "_blank", "noreferrer");
+      return;
+    }
+
+    if (!row.screenshot_url || row.screenshot_url.startsWith("FREEBIE-")) {
+      toast.info("No payment screenshot was required or attached for this order.");
+      return;
+    }
+
+    try {
+      setLoadingProofId(row.id);
+      const supabase = createClient();
+      const cleanPath = row.screenshot_url.replace(/^\//, "");
+      const { data, error } = await supabase.storage
+        .from("payment-proofs")
+        .createSignedUrl(cleanPath, 3600);
+
+      if (error || !data?.signedUrl) {
+        toast.error("Could not load proof: " + (error?.message || "File not found"));
+        return;
+      }
+
+      const signedUrl = data.signedUrl;
+      setOrders((prev) =>
+        prev.map((o) => (o.id === row.id ? { ...o, proof_url: signedUrl } : o))
+      );
+      window.open(signedUrl, "_blank", "noreferrer");
+    } catch {
+      toast.error("Failed to generate payment proof link");
+    } finally {
+      setLoadingProofId(null);
+    }
+  };
 
   // Real-time live synchronization with Supabase orders table
   useEffect(() => {
@@ -392,9 +425,18 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
                       >
                         <ExternalLink size={13} /> View payment proof
                       </a>
+                    ) : row.screenshot_url && !row.screenshot_url.startsWith("FREEBIE-") ? (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenProof(row)}
+                        disabled={loadingProofId === row.id}
+                        className="btn btn-secondary flex-1 text-xs inline-flex items-center justify-center gap-1.5 py-2 cursor-pointer"
+                      >
+                        <ExternalLink size={13} /> {loadingProofId === row.id ? "Loading..." : "View payment proof"}
+                      </button>
                     ) : (
                       <p className="flex-1 rounded-md border border-amber-400/20 bg-amber-400/[.06] px-3 py-1.5 text-center text-xs text-amber-200">
-                        No payment proof
+                        {Number(row.total_price || 0) === 0 ? "Free loyalty order" : "No payment proof"}
                       </p>
                     )}
 

@@ -53,7 +53,7 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
   },
   poweredByHeader: false,
-  serverExternalPackages: ["@opentelemetry/api"],
+  serverExternalPackages: ["@opentelemetry/api", "@sentry/nextjs"],
   async headers() {
     return [
       {

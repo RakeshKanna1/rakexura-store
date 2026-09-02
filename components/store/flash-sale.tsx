@@ -226,7 +226,7 @@ export function FlashSaleBlock({ sales }: { sales: FlashSale[] }) {
         }`}
         style={{
           WebkitOverflowScrolling: "touch",
-          touchAction: "pan-y",
+          touchAction: "pan-x pan-y",
           scrollBehavior: isGrabbing ? "auto" : "smooth",
         }}
       >

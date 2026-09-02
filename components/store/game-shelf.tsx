@@ -51,7 +51,7 @@ export function GameShelf({
         }`}
         style={{
           WebkitOverflowScrolling: "touch",
-          touchAction: "pan-y",
+          touchAction: "pan-x pan-y",
         }}
       >
         {displayGames.map((game, index) => {
