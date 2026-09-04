@@ -522,7 +522,10 @@ export function AuthForm({ mode, next = "/dashboard" }: { mode: "login" | "regis
   async function social(provider: "google" | "discord") { 
     const { error } = await createClient().auth.signInWithOAuth({ 
       provider, 
-      options: { redirectTo: redirectTo() } 
+      options: { 
+        redirectTo: redirectTo(),
+        ...(provider === "google" ? { queryParams: { prompt: "select_account" } } : {})
+      } 
     }); 
     if (error) toast.error(friendlyAuthError(error)); 
   }

@@ -22,7 +22,10 @@ export function AuthModal({ isOpen, onClose, onContinueAsGuest }: AuthModalProps
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo },
+      options: { 
+        redirectTo,
+        ...(provider === "google" ? { queryParams: { prompt: "select_account" } } : {})
+      },
     });
     if (error) {
       toast.error(error.message);
