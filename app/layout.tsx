@@ -46,10 +46,6 @@ export const viewport: Viewport = { themeColor: "#05070f", colorScheme: "dark", 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning className={geist.variable}>
-      <head>
-        <link rel="preconnect" href="https://cwvfgxdhearouclomjeq.supabase.co" />
-        <link rel="dns-prefetch" href="https://cwvfgxdhearouclomjeq.supabase.co" />
-      </head>
       <body className={geist.className} suppressHydrationWarning>
         <AppProviders>
           <ClickSpark sparkColor="#facc15" sparkSize={10} sparkRadius={24} sparkCount={10} duration={450} />

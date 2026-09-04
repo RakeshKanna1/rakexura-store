@@ -1,5 +1,4 @@
 import { Suspense, type CSSProperties } from "react";
-import { preload } from "react-dom";
 import type { Metadata } from "next";
 import { BadgeCheck, Check, Clock, Info, KeyRound, MessageSquare, MonitorCog, ShieldCheck, Sparkles, Star, Zap } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
@@ -222,7 +221,6 @@ export default async function GamePage({ params }: Props) {
   }
 
   const bannerUrl = assetUrl(game.banner_image || game.cover_image);
-  preload(bannerUrl, { as: "image", fetchPriority: "high", crossOrigin: "anonymous" });
 
   const tags = [...(game.genres ?? []), ...(game.tags ?? [])].slice(0, 7);
   const screenshots = (game.screenshots ?? []).filter(Boolean);
