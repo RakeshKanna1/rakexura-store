@@ -17,7 +17,7 @@ import { WhatsAppCommunity } from "@/components/store/whatsapp-community";
 import { WhatsAppCta } from "@/components/store/whatsapp-cta";
 import { OfferMarquee } from "@/components/store/offer-marquee";
 import { getBundles, getCustomerProofs, getFlashSales, getGames, getRecentDeliveries, getReviews, getTotalCompletedOrdersCount } from "@/lib/supabase/queries";
-import { lowestPrice } from "@/lib/utils";
+import { lowestPrice, isPreorderActive } from "@/lib/utils";
 
 export const revalidate = 60;
 
@@ -49,7 +49,7 @@ export default async function Home() {
   const bestSellers = trending.length ? trending : games.filter((game) => (game.featured_deal || game.show_in_trending) && !game.is_subscription).slice(0, 12);
   const budget = games.filter((game) => lowestPrice(game) > 0 && lowestPrice(game) <= 299 && !game.is_subscription).slice(0, 12);
   const subscriptions = games.filter((game) => game.is_subscription).slice(0, 12);
-  const upcoming = games.filter((game) => game.preorder && !game.is_subscription).slice(0, 12);
+  const upcoming = games.filter((game) => isPreorderActive(game) && !game.is_subscription).slice(0, 12);
   const arrivals = [...games].filter((game) => !game.is_subscription).sort((a, b) => b.id - a.id).slice(0, 12);
   const highlightGames = featured.length ? featured : games.filter((g) => !g.is_subscription);
 

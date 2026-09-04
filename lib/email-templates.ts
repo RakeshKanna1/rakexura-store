@@ -54,17 +54,17 @@ export function buildOtpVerificationEmailHtml(options: OtpEmailOptions) {
                 </p>
 
                 <!-- Code prompt label -->
-                <div style="font-size:13px;font-weight:600;color:#111111;margin-bottom:10px;text-align:left;max-width:420px;padding-left:4px;">
+                <div style="font-size:13px;font-weight:600;color:#333333;margin-bottom:12px;text-align:center;">
                   Your login code is:
                 </div>
 
-                <!-- Clean white code pill container -->
-                <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:420px;margin:0 auto;background-color:#ffffff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.04);">
+                <!-- Clean white code pill container (Bulletproof for Gmail, Outlook, Apple Mail) -->
+                <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:380px;margin:0 auto;border-collapse:separate;">
                   <tr>
-                    <td align="center" style="padding:22px 24px;">
-                      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:34px;font-weight:700;letter-spacing:14px;color:#111111;line-height:1;margin-left:14px;">
+                    <td align="center" bgcolor="#ffffff" style="background-color:#ffffff;background:#ffffff;padding:22px 20px;border-radius:12px;border:1.5px solid #e2e8f0;box-shadow:0 4px 16px rgba(0,0,0,0.06);text-align:center;font-family:'Courier New',Consolas,Menlo,'Lucida Console',monospace;font-size:38px;font-weight:900;color:#111111;line-height:1;letter-spacing:8px;">
+                      <span style="font-family:'Courier New',Consolas,Menlo,'Lucida Console',monospace;font-size:38px;font-weight:900;color:#111111;letter-spacing:8px;line-height:1;display:inline-block;margin-left:8px;">
                         ${escapeHtml(formattedCode)}
-                      </div>
+                      </span>
                     </td>
                   </tr>
                 </table>
@@ -130,17 +130,17 @@ export function getSupabaseOtpEmailTemplateHtml(): string {
                 </p>
 
                 <!-- Code prompt label -->
-                <div style="font-size:13px;font-weight:600;color:#111111;margin-bottom:10px;text-align:left;max-width:420px;padding-left:4px;">
+                <div style="font-size:13px;font-weight:600;color:#333333;margin-bottom:12px;text-align:center;">
                   Your login code is:
                 </div>
 
-                <!-- Clean white code pill container -->
-                <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:420px;margin:0 auto;background-color:#ffffff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.04);">
+                <!-- Clean white code pill container (Bulletproof for Gmail, Outlook, Apple Mail) -->
+                <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:380px;margin:0 auto;border-collapse:separate;">
                   <tr>
-                    <td align="center" style="padding:22px 24px;">
-                      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:34px;font-weight:700;letter-spacing:14px;color:#111111;line-height:1;margin-left:14px;">
+                    <td align="center" bgcolor="#ffffff" style="background-color:#ffffff;background:#ffffff;padding:22px 20px;border-radius:12px;border:1.5px solid #e2e8f0;box-shadow:0 4px 16px rgba(0,0,0,0.06);text-align:center;font-family:'Courier New',Consolas,Menlo,'Lucida Console',monospace;font-size:38px;font-weight:900;color:#111111;line-height:1;letter-spacing:8px;">
+                      <span style="font-family:'Courier New',Consolas,Menlo,'Lucida Console',monospace;font-size:38px;font-weight:900;color:#111111;letter-spacing:8px;line-height:1;display:inline-block;margin-left:8px;">
                         {{ .Token }}
-                      </div>
+                      </span>
                     </td>
                   </tr>
                 </table>

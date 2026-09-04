@@ -3,7 +3,7 @@
 import { Search, SlidersHorizontal, ChevronDown, Share2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState, useEffect, useRef } from "react";
-import { lowestPrice, matchesSearchQuery } from "@/lib/utils";
+import { lowestPrice, matchesSearchQuery, isPreorderActive } from "@/lib/utils";
 import { GameCard, availablePlatforms } from "./game-card";
 import { QuickViewModal } from "./quick-view-modal";
 import { CopyablePriceModal } from "./copyable-price-modal";
@@ -137,7 +137,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
       let matchesPlatform = true;
       if (platform !== "All") {
         if (platform === "Pre-orders") {
-          matchesPlatform = Boolean(game.preorder);
+          matchesPlatform = isPreorderActive(game);
         } else if (platform === "Subscriptions") {
           matchesPlatform = Boolean(game.is_subscription);
         } else if (platform === "Online") {
@@ -145,7 +145,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
             Number(game.online_price ?? 0) > 0 ||
             Boolean(game.online_activation);
         } else {
-          matchesPlatform = availablePlatforms(game).includes(platform as Platform) && !game.preorder;
+          matchesPlatform = availablePlatforms(game).includes(platform as Platform) && !isPreorderActive(game);
         }
       }
       

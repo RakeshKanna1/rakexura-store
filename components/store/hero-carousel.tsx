@@ -8,7 +8,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, Play, X, Zap } from "lucide-reac
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import { assetUrl, calculateResellerPrice, formatPrice, gameUrl, lowestPrice } from "@/lib/utils";
+import { assetUrl, calculateResellerPrice, formatPrice, gameUrl, lowestPrice, isPreorderActive } from "@/lib/utils";
 import type { FlashSale, Game } from "@/types/store";
 import { BlurText } from "@/components/animations/blur-text";
 import { useCartStore } from "@/stores/cart-store";
@@ -211,7 +211,7 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                               </div>
                             ) : (
                               <p className="mb-2 sm:mb-2.5 md:mb-3 text-xs sm:text-sm font-extrabold uppercase tracking-[0.16em] text-[#b9a4ff]">
-                                {game.preorder ? "Pre-order spotlight" : "Rakexura spotlight"}
+                                {isPreorderActive(game) ? "Pre-order spotlight" : "Rakexura spotlight"}
                               </p>
                             )}
                             <h3 className="text-2xl sm:text-4xl md:text-5xl lg:text-[54px] font-black tracking-tight leading-[1.08] drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
@@ -236,7 +236,7 @@ export function HeroCarousel({ games, flashSales = [] }: { games: Game[]; flashS
                                   <span className="truncate">View plans</span>
                                   <ArrowRight size={13} className="shrink-0 text-[#080a10]" />
                                 </Link>
-                              ) : game.preorder ? (
+                              ) : isPreorderActive(game) ? (
                                 <Link 
                                   href={gameUrl(game)} 
                                   className="magnetic-button inline-flex h-10 sm:h-11 md:h-12 w-full sm:w-[145px] items-center justify-center gap-1.5 rounded-xl border border-[#eab308] bg-[#eab308] px-1 sm:px-3 text-[12.5px] sm:text-[14px] font-bold text-[#080a10] leading-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#facc15] hover:border-[#facc15] shadow-[0_4px_14px_rgba(234,179,8,0.25)] active:scale-95 cursor-pointer"

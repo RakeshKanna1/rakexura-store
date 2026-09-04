@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { assetUrl, formatPrice, gameUrl } from "@/lib/utils";
+import { assetUrl, formatPrice, gameUrl, isPreorderActive } from "@/lib/utils";
 import type { Game } from "@/types/store";
 
 interface EpicTopChartsProps {
@@ -69,7 +69,7 @@ function ChartColumn({
           const price = getGamePrice(game);
           const original = Number(game.original_price ?? 0);
           const discount = original > price ? Math.round(((original - price) / original) * 100) : 0;
-          const isPreorder = Boolean(game.preorder);
+          const isPreorder = isPreorderActive(game);
 
           return (
             <Link

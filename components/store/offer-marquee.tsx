@@ -18,10 +18,10 @@ const iconMap: Record<string, LucideIcon> = {
 // Curated 10/10 gaming announcements
 const defaultAnnouncements = [
   { id: 1, icon_key: "spark", message: "COMBO DEALS: GET 2+ GAMES BUNDLED & SAVE" },
-  { id: 2, icon_key: "flame", message: "PRE-ORDER NOW" },
+  { id: 2, icon_key: "flame", message: "SECURE YOUR COPY & INSTANT DELIVERY" },
   { id: 3, icon_key: "cart", message: "BUY 3+ GAMES & SAVE 10% WITH RAKE10" },
   { id: 4, icon_key: "message", message: "JOIN THE RAKEXURA WHATSAPP COMMUNITY" },
-  { id: 5, icon_key: "gamepad", message: "ONIMUSHA AVAILABLE FOR PRE-ORDER" },
+  { id: 5, icon_key: "gamepad", message: "ONIMUSHA: WAY OF THE SWORD REMAKE OUT NOW" },
 ];
 
 /**

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const supabaseHostname = (() => {
@@ -12,6 +13,7 @@ const supabaseHostname = (() => {
 })();
 
 const nextConfig: NextConfig = {
+  outputFileTracingRoot: path.resolve(__dirname),
   reactStrictMode: true,
   compress: true,
   compiler: {

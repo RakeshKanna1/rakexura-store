@@ -39,6 +39,7 @@ const GAME_CATALOG_COLUMNS = [
   "is_premium",
   "premium_theme",
   "preorder",
+  "release_date",
   "is_subscription",
   "steam_price",
   "epic_price",
@@ -333,10 +334,10 @@ export const getMarqueeMessages = unstable_cache(
   async (): Promise<MarqueeMessage[]> => {
     const fallback: MarqueeMessage[] = [
       { id: 1, icon_key: "cart", message: "BUY 3+ GAMES & SAVE 10% WITH RAKE10" },
-      { id: 2, icon_key: "gamepad", message: "ONIMUSHA AVAILABLE FOR PRE-ORDER" },
+      { id: 2, icon_key: "gamepad", message: "ONIMUSHA: WAY OF THE SWORD REMAKE OUT NOW" },
       { id: 3, icon_key: "spark", message: "NEW GAMES ADDED" },
       { id: 4, icon_key: "message", message: "JOIN THE RAKEXURA WHATSAPP COMMUNITY" },
-      { id: 5, icon_key: "flame", message: "PRE-ORDER NOW" },
+      { id: 5, icon_key: "flame", message: "SECURE YOUR COPY & INSTANT DELIVERY" },
     ];
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return fallback;
     const supabase = getStaticClient();

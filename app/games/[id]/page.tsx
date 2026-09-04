@@ -7,7 +7,7 @@ import { GameShelf } from "@/components/store/game-shelf";
 import { MediaGallery } from "@/components/store/media-gallery";
 import { ProductActions } from "@/components/store/product-actions";
 import { RecentlyViewedTracker } from "@/components/store/recently-viewed";
-import { assetUrl, calculatePlatformPrice, formatPrice, gameUrl, lowestPrice, parseGameId, slugify } from "@/lib/utils";
+import { assetUrl, calculatePlatformPrice, formatPrice, gameUrl, lowestPrice, parseGameId, slugify, isPreorderActive } from "@/lib/utils";
 import { getGame, getGames, getGameReviews } from "@/lib/supabase/queries";
 import type { Game } from "@/types/store";
 import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
@@ -415,12 +415,12 @@ export default async function GamePage({ params }: Props) {
       </div>
 
       <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-end p-7 md:p-14">
-          {game.preorder && (
+          {isPreorderActive(game) && (
             <div suppressHydrationWarning className="mb-4 self-start inline-flex items-center rounded border border-[#facc15]/30 bg-[#facc15]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#facc15] backdrop-blur-sm">
               Pre-Order
             </div>
           )}
-          {game.is_premium && !game.preorder && (
+          {game.is_premium && !isPreorderActive(game) && (
             <div className={`mb-4 self-start inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1 text-xs font-black uppercase tracking-[.18em] backdrop-blur-sm animate-pulse ${badgeClass}`}>
               <Sparkles size={13} className="shrink-0" /> Premium Listing
             </div>
@@ -431,7 +431,7 @@ export default async function GamePage({ params }: Props) {
             </div>
           )}
           <p className="eyebrow flex items-center gap-1" style={{ color: accent }}>
-            {game.preorder ? "Pre-order title" : game.is_premium ? <><Sparkles size={13} /> RAKEXURA EXCLUSIVE</> : "Rakexura game page"}
+            {isPreorderActive(game) ? "Pre-order title" : game.is_premium ? <><Sparkles size={13} /> RAKEXURA EXCLUSIVE</> : "Rakexura game page"}
           </p>
           <h1 className={`mt-5 max-w-4xl font-black leading-[.95] ${titleSize(game.title)} ${titleGradientClass}`}>{game.title}</h1>
           <p className="mt-5 text-lg text-[#d7dae4]">{game.tagline}</p>
@@ -439,7 +439,7 @@ export default async function GamePage({ params }: Props) {
       </div>
     </section>
 
-    {game.preorder && (
+    {isPreorderActive(game) && (
       <section className="mt-8 rounded-lg border border-white/10 bg-black/40 p-5 md:p-6 backdrop-blur-md">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>

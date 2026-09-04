@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { assetUrl, calculateResellerPrice, formatPrice, gameUrl } from "@/lib/utils";
+import { assetUrl, calculateResellerPrice, formatPrice, gameUrl, isPreorderActive } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { triggerFlyToCart } from "@/components/common/fly-to-cart-animator";
 import type { Game, Platform } from "@/types/store";
@@ -157,7 +157,7 @@ function GameCardInner({
           <span className="rounded-md bg-gradient-to-r from-amber-500 to-yellow-400 px-2 py-0.5 text-[9px] font-black text-black uppercase tracking-wider shadow-md shadow-black/80 flex items-center gap-1">
             <Zap size={10} className="fill-black" /> Flash Deal
           </span>
-        ) : game.preorder ? (
+        ) : isPreorderActive(game) ? (
           <span suppressHydrationWarning className="rounded-md bg-purple-600/90 backdrop-blur-sm px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-md shadow-black/50">Pre-order</span>
         ) : game.is_premium ? (
           <span className="rounded-md bg-gradient-to-r from-[#b8860b] to-[#d4af37] px-2 py-0.5 text-[8px] font-black text-black uppercase tracking-wider shadow-md shadow-black/80">Premium</span>

@@ -10,7 +10,7 @@ import { ReviewForm } from "@/components/reviews/review-form";
 import { createClient } from "@/lib/supabase/client";
 import { AuthModal } from "@/components/auth/auth-modal";
 import type { User } from "@supabase/supabase-js";
-import { calculatePlatformPrice, calculateResellerPrice, formatPrice, isDiamondOrPlatinumCoupon } from "@/lib/utils";
+import { calculatePlatformPrice, calculateResellerPrice, formatPrice, isDiamondOrPlatinumCoupon, isPreorderActive } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import type { Game, Platform } from "@/types/store";
 import { availablePlatforms } from "./game-card";
@@ -599,7 +599,7 @@ export function ProductActions({ game }: { game: Game }) {
                 }}
               >
                 <ButtonPopRocks active={buyPop} />
-                <span>{game.preorder ? "Pre-order now" : "Buy now"}</span>
+                <span>{isPreorderActive(game) ? "Pre-order now" : "Buy now"}</span>
               </Button>
             </>
           )}

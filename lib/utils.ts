@@ -238,6 +238,22 @@ export function lowestPrice(game: {
   return Number(game.sale_price ?? 0);
 }
 
+/**
+ * Determines whether a game is currently in active pre-order status.
+ * Returns true if game.preorder is true AND (either release_date is not set OR release_date is in the future).
+ * If release_date is in the past (now >= release_date), the title is considered released and ready for normal sale.
+ */
+export function isPreorderActive(game?: {
+  preorder?: boolean | null;
+  release_date?: string | null;
+} | null): boolean {
+  if (!game || !game.preorder) return false;
+  if (!game.release_date) return true;
+  const releaseTime = new Date(game.release_date).getTime();
+  if (isNaN(releaseTime)) return true;
+  return releaseTime > Date.now();
+}
+
 export function isHighEndDevice(): boolean {
   if (typeof window === "undefined" || typeof navigator === "undefined") return false;
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
