@@ -31,9 +31,14 @@ export const createClient = cache(async () => {
 });
 
 export const getAuthenticatedUser = cache(async () => {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data) return null;
+    return data.user ?? null;
+  } catch {
+    return null;
+  }
 });
 
 export const getCurrentUserProfile = cache(async () => {
