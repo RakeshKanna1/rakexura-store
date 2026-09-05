@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { purgeOldVisitorLogs } from "@/lib/supabase/visitor-logs";
+
+let lastPruneTime = 0;
+const PRUNE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 function getDeviceType(userAgent: string): string {
   const ua = userAgent.toLowerCase();
@@ -43,6 +47,15 @@ export async function POST(req: Request) {
     // Don't track admin pages or API routes to keep stats clean
     if (path.startsWith("/admin") || path.startsWith("/api") || path.startsWith("/_next")) {
       return NextResponse.json({ success: true, ignored: true });
+    }
+
+    // Auto-prune visitor logs older than 30 days in the background (at most once every 24 hours)
+    const now = Date.now();
+    if (now - lastPruneTime > PRUNE_INTERVAL_MS) {
+      lastPruneTime = now;
+      purgeOldVisitorLogs(30).catch((err) => {
+        console.warn("[track-visitor] Background retention purge warning:", err);
+      });
     }
 
     const headers = req.headers;

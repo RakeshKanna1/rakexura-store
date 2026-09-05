@@ -13,6 +13,7 @@ import { VisitorAnalytics } from "@/components/admin/visitor-analytics";
 
 import { SmartOrdersManager, type OrderRow } from "@/components/admin/smart-orders-manager";
 import { purgeExpiredCoupons } from "@/lib/supabase/coupons";
+import { purgeOldVisitorLogs } from "@/lib/supabase/visitor-logs";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -45,6 +46,10 @@ export default async function AdminSection({ params, searchParams }: { params: P
 
   if (section === "coupons") {
     await purgeExpiredCoupons(supabase);
+  }
+
+  if (section === "analytics" || section === "visitors") {
+    await purgeOldVisitorLogs(30, supabase);
   }
 
   const dynamicClient = supabase as unknown as DynamicAdminClient;

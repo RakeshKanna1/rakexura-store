@@ -1118,7 +1118,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
                         : header === "used_count"
                         ? "Times Used"
                         : header === "created_at"
-                        ? "Joined Date"
+                        ? (section === "customers" ? "Joined Date" : section === "analytics" || section === "visitors" ? "Visited At" : "Date & Time")
                         : header === "applicable_to"
                         ? "Scope / Target"
                         : header.replaceAll("_", " ")}

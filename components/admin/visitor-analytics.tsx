@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Eye, Smartphone, Monitor, Globe, Compass, RefreshCw, ArrowUpRight, Activity, ChevronDown, ChevronUp, Layers, ListFilter } from "lucide-react";
+import { Users, Eye, Smartphone, Monitor, Globe, Compass, RefreshCw, ArrowUpRight, Activity, ChevronDown, ChevronUp, Layers, ListFilter, Trash2, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { cleanupVisitorLogsAction } from "@/app/admin/actions";
+import { toast } from "sonner";
 
 type VisitorLog = {
   id: string;
@@ -35,6 +37,27 @@ export function VisitorAnalytics() {
   const [activeCount, setActiveCount] = useState(0);
   const [viewMode, setViewMode] = useState<"grouped" | "raw">("grouped");
   const [expandedSessions, setExpandedSessions] = useState<Record<string, boolean>>({});
+  const [isPruning, setIsPruning] = useState(false);
+  const [retentionDays, setRetentionDays] = useState(30);
+
+  async function handlePrune() {
+    if (!confirm(`Are you sure you want to delete visitor logs older than ${retentionDays} days? This will permanently free up Supabase database storage.`)) {
+      return;
+    }
+    setIsPruning(true);
+    try {
+      const formData = new FormData();
+      formData.append("retention_days", String(retentionDays));
+      const result = await cleanupVisitorLogsAction(formData);
+      toast.success(`Retention cleanup complete: pruned ${result.count ?? 0} logs older than ${retentionDays} days.`);
+      await fetchLogs();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to prune visitor logs.");
+    } finally {
+      setIsPruning(false);
+    }
+  }
 
   async function fetchLogs() {
     setLoading(true);
@@ -157,15 +180,43 @@ export function VisitorAnalytics() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-right">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Retention & Storage Cleanup Control */}
+          <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-xs">
+            <div className="flex items-center gap-1.5 text-[#8991a6]" title="Automatic retention policy prevents Supabase storage bloat">
+              <ShieldCheck size={14} className="text-[#00d68f]" />
+              <span className="font-semibold text-white">Auto-prune:</span>
+              <select
+                value={retentionDays}
+                onChange={(e) => setRetentionDays(Number(e.target.value))}
+                className="rounded bg-black/60 border border-white/10 px-1.5 py-0.5 text-xs font-bold text-white focus:outline-none cursor-pointer"
+              >
+                <option value={7}>7 Days</option>
+                <option value={30}>30 Days</option>
+                <option value={60}>60 Days</option>
+                <option value={90}>90 Days</option>
+              </select>
+            </div>
+            <button
+              onClick={handlePrune}
+              disabled={isPruning || loading}
+              className="flex items-center gap-1 rounded bg-red-500/10 border border-red-500/20 px-2.5 py-1 text-[11px] font-bold text-red-300 hover:bg-red-500/20 hover:text-red-200 transition disabled:opacity-50 cursor-pointer"
+              title="Prune logs older than selected days"
+            >
+              <Trash2 size={12} className={isPruning ? "animate-spin" : ""} />
+              <span>{isPruning ? "Pruning..." : "Prune Now"}</span>
+            </button>
+          </div>
+
+          <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-right">
             <span className="block text-[10px] font-bold uppercase tracking-wider text-emerald-400">Live Active Online</span>
             <strong className="text-xl font-black text-white">{activeCount} Visitor{activeCount !== 1 ? "s" : ""}</strong>
           </div>
+
           <button
             onClick={fetchLogs}
             disabled={loading}
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-black/40 text-white transition hover:bg-white/10"
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-black/40 text-white transition hover:bg-white/10 cursor-pointer"
             title="Refresh analytics"
           >
             <RefreshCw size={16} className={loading ? "animate-spin text-[#8b5cf6]" : ""} />

@@ -7,6 +7,7 @@ import { sendEmail, buildProfessionalEmailHtml, buildCleanInvoiceEmailHtml, buil
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 import { gameUrl } from "@/lib/utils";
+import { purgeOldVisitorLogs } from "@/lib/supabase/visitor-logs";
 
 
 async function getAdminClient() {
@@ -2538,5 +2539,18 @@ export async function toggleResellerStatus(formData: FormData) {
   revalidatePath("/admin/customers");
   revalidatePath("/admin");
   revalidatePath("/dashboard");
+}
+
+export async function cleanupVisitorLogsAction(formData: FormData) {
+  const adminClient = await getAdminClient();
+  const retentionDaysRaw = formData.get("retention_days");
+  const retentionDays = retentionDaysRaw ? Math.max(1, Number(retentionDaysRaw)) : 30;
+
+  writeAuditLogAsync("prune_visitor_logs", "visitor_logs", formData);
+  const deletedCount = await purgeOldVisitorLogs(retentionDays, adminClient);
+
+  revalidatePath("/admin/analytics");
+  revalidatePath("/admin/visitors");
+  return { success: true, count: deletedCount, retentionDays };
 }
 
