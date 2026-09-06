@@ -1,0 +1,25 @@
+# Documentation and Project Notes
+*.md
+docs/
+
+# Database & Migrations (managed via Supabase directly)
+supabase/
+db-backup.ps1
+
+# Agent configs & internal tooling
+.agents/
+.impeccable/
+.github/
+scripts/
+
+# Development & IDE files
+.vscode/
+.idea/
+.editorconfig
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Local environment & caches
+.env*.local
+.npm-cache/
