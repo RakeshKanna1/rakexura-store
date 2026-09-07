@@ -97,7 +97,11 @@ function makeCustomerInvoiceMessage(order: OrderNotice) {
 }
 
 function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: boolean }) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
+  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
+  const siteUrl = (rawSiteUrl.includes("localhost") || rawSiteUrl.includes("127.0.0.1"))
+    ? "https://rakexura-store.vercel.app"
+    : rawSiteUrl.replace(/\/$/, "");
+  const logoUrl = `${siteUrl}/images/rakexura-silver-badge.png`;
   const orderRef = order.reference || "RKX-PENDING";
   const customerName = order.customerName || "Customer";
   const customerEmail = order.customerEmail || "Not provided";
@@ -169,7 +173,7 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
                   <!-- Top RX Metallic Silver Shield Badge Only -->
                   <tr>
                     <td align="center" style="padding-bottom:24px;">
-                      <img src="cid:rakexuraSilverBadge" alt="Rakexura Shield Badge" width="46" height="55" style="display:block;margin:0 auto;border:0;" />
+                      <img src="${logoUrl}" alt="Rakexura Shield Badge" width="46" height="55" style="display:block;margin:0 auto;border:0;outline:none;" />
                     </td>
                   </tr>
 
@@ -278,7 +282,7 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
                       <div style="margin-bottom:16px;">Automated Admin Notification System</div>
 
                       <div style="margin-bottom:16px;">
-                        <img src="cid:rakexuraSilverBadge" alt="Rakexura Shield Badge" width="34" height="41" style="display:block;margin:0 auto;border:0;" />
+                        <img src="${logoUrl}" alt="Rakexura Shield Badge" width="34" height="41" style="display:block;margin:0 auto;border:0;outline:none;" />
                       </div>
 
                       <div style="font-size:10px;color:#999999;">
@@ -320,7 +324,7 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
                 <!-- Top RX Metallic Silver Shield Badge Only -->
                 <tr>
                   <td align="center" style="padding-bottom:30px;">
-                    <img src="cid:rakexuraSilverBadge" alt="Rakexura Shield Badge" width="46" height="55" style="display:block;margin:0 auto;border:0;" />
+                    <img src="${logoUrl}" alt="Rakexura Shield Badge" width="46" height="55" style="display:block;margin:0 auto;border:0;outline:none;" />
                   </td>
                 </tr>
 
@@ -451,7 +455,7 @@ function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: 
 
                     <!-- Bottom RX Metallic Silver Shield Badge Only -->
                     <div style="margin-bottom:20px;">
-                      <img src="cid:rakexuraSilverBadge" alt="Rakexura Shield Badge" width="34" height="41" style="display:block;margin:0 auto;border:0;" />
+                      <img src="${logoUrl}" alt="Rakexura Shield Badge" width="34" height="41" style="display:block;margin:0 auto;border:0;outline:none;" />
                     </div>
 
                     <div style="font-size:10px;color:#999999;">

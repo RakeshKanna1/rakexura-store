@@ -122,12 +122,32 @@ export function textToHtml(text: string) {
       return;
     }
 
+    if (trimmed.includes("/dashboard/settings")) {
+      const linkBase = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
+      const resolvedLinkBase = (linkBase.includes("localhost") || linkBase.includes("127.0.0.1")) ? "https://rakexura-store.vercel.app" : linkBase;
+      formattedContent += `
+        <div style="margin:20px 0;text-align:center;">
+          <a href="${resolvedLinkBase}/dashboard/settings" target="_blank" style="display:inline-block;background-color:#7c3aed;color:#ffffff;font-weight:800;font-size:13px;padding:12px 24px;border-radius:8px;text-decoration:none;letter-spacing:0.5px;text-transform:uppercase;">
+            Open Settings &amp; Enable Notifications &rarr;
+          </a>
+        </div>
+      `;
+      return;
+    }
+
     formattedContent += `<p style="margin:6px 0;font-size:13px;line-height:1.6;color:#333333;">${escapeHtml(trimmed)}</p>`;
   });
 
   if (inItemsBlock) {
     formattedContent += `</div>`;
   }
+
+  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
+  const siteUrl = (rawSiteUrl.includes("localhost") || rawSiteUrl.includes("127.0.0.1"))
+    ? "https://rakexura-store.vercel.app"
+    : rawSiteUrl.replace(/\/$/, "");
+  const logoUrl = `${siteUrl}/images/rakexura-silver-badge.png`;
+  const hasSignOff = /thank\s*you|thanks|rakexura\s*support/i.test(text);
 
   return `
     <!DOCTYPE html>
@@ -143,7 +163,7 @@ export function textToHtml(text: string) {
               <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:580px;background-color:#ffffff;border:1px solid #e5e5e5;border-radius:12px;padding:28px 24px;text-align:center;">
                 <tr>
                   <td align="center">
-                    <img src="cid:rakexuraSilverBadge" alt="Rakexura Shield Badge" width="46" height="55" style="display:block;margin:0 auto 16px auto;border:0;" />
+                    <img src="${logoUrl}" alt="Rakexura Shield" width="44" height="52" style="display:block;margin:0 auto 14px auto;border:0;outline:none;" />
                     <div style="font-size:18px;font-weight:900;color:#000000;letter-spacing:1px;text-transform:uppercase;">
                       RAKEXURA STORE
                     </div>
@@ -155,10 +175,12 @@ export function textToHtml(text: string) {
                       ${formattedContent}
                     </div>
 
-                    <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e5e5;font-size:12px;color:#727272;text-align:left;">
-                      Thanks,<br />
-                      <strong style="color:#000000;">Rakexura Customer Support</strong>
-                    </div>
+                    ${!hasSignOff ? `
+                      <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e5e5;font-size:12px;color:#727272;text-align:left;">
+                        Thanks,<br />
+                        <strong style="color:#000000;">Rakexura Customer Support</strong>
+                      </div>
+                    ` : ''}
                   </td>
                 </tr>
               </table>
@@ -176,6 +198,8 @@ export {
   buildAdminAlertEmailHtml,
   type WishlistSaleEmailOptions,
   buildWishlistSaleEmailHtml,
+  type DeviceNotificationInviteEmailOptions,
+  buildDeviceNotificationInviteEmailHtml,
 } from "./email-templates";
 
 export type StoreEmailOptions = {
@@ -513,112 +537,141 @@ export type ReviewRequestEmailOptions = {
 };
 
 export function buildReviewRequestEmailHtml(options: ReviewRequestEmailOptions = {}) {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
+  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
+  const siteUrl = (rawSiteUrl.includes("localhost") || rawSiteUrl.includes("127.0.0.1"))
+    ? "https://rakexura-store.vercel.app"
+    : rawSiteUrl.replace(/\/$/, "");
   const logoUrl = `${siteUrl}/images/rakexura-silver-badge.png`;
   const {
-    customerName = "Valued Customer",
+    customerName = "Gamer",
     gameTitle,
-    message = "Thank you for shopping at Rakexura Store! We hope you are enjoying your new game. Please take 30 seconds to rate your experience and leave a review. Your feedback helps fellow gamers!",
+    message = "Thank you for shopping at Rakexura Store! We hope you are loving your game. Please take 30 seconds to drop your honest rating and review — it helps fellow gamers choose their next adventure.",
     reviewUrl = `${siteUrl}/reviews`,
   } = options;
 
   return `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Leave a Review - Rakexura Store</title>
+        <title>Review Your Game – Rakexura Store</title>
       </head>
-      <body style="margin:0;padding:0;background-color:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#121212;-webkit-font-smoothing:antialiased;">
-        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f5f5f7;padding:36px 12px;">
+      <body style="margin:0;padding:0;background-color:#080a11;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#e2e8f0;-webkit-font-smoothing:antialiased;">
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#080a11;padding:36px 12px;">
           <tr>
             <td align="center">
               
-              <!-- Main White Card matching Apple/Epic Gaming Style -->
-              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:580px;background-color:#ffffff;border-radius:16px;border:1px solid #e2e2e8;padding:40px 32px;box-shadow:0 12px 35px rgba(0,0,0,0.06);text-align:center;">
+              <!-- Dark Gaming Card Container (Epic / Steam Style) -->
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:560px;background-color:#111522;border-radius:16px;border:1px solid #20273b;padding:36px 28px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,0.7);">
                 <tr>
                   <td>
                     
-                    <!-- Top Logo Header -->
-                    <div style="margin-bottom:28px;">
-                      <img src="${logoUrl}" alt="Rakexura Logo" width="46" height="54" style="display:block;margin:0 auto;border:0;outline:none;" />
+                    <!-- Top Brand Lockup -->
+                    <div style="margin-bottom:24px;text-align:center;">
+                      <img src="${logoUrl}" alt="Rakexura Shield" width="46" height="54" style="display:block;margin:0 auto 12px auto;border:0;outline:none;" />
+                      <div style="font-size:19px;font-weight:900;color:#ffffff;letter-spacing:2px;text-transform:uppercase;line-height:1;">
+                        RAKEXURA STORE
+                      </div>
+                      <div style="margin-top:10px;">
+                        <span style="display:inline-block;background-color:rgba(139,92,246,0.15);color:#c084fc;font-size:10px;font-weight:800;padding:4px 12px;border-radius:12px;border:1px solid rgba(139,92,246,0.3);text-transform:uppercase;letter-spacing:1px;">
+                          VERIFIED PURCHASE REVIEW
+                        </span>
+                      </div>
                     </div>
 
-                    <!-- Glowing Star Rating Pill -->
-                    <div style="display:inline-block;background-color:#fefce8;border:1px solid #fef08a;padding:8px 20px;border-radius:999px;margin-bottom:20px;">
-                      <span style="color:#eab308;font-size:20px;letter-spacing:4px;vertical-align:middle;">★★★★★</span>
-                      <span style="font-size:12px;font-weight:800;color:#854d0e;margin-left:8px;text-transform:uppercase;letter-spacing:0.5px;vertical-align:middle;">Rate Your Experience</span>
-                    </div>
+                    <hr style="border:none;border-top:1px solid #20273b;margin:20px 0 26px 0;" />
 
-                    <!-- Main Heading -->
-                    <h1 style="font-size:28px;font-weight:900;color:#000000;margin:0 0 12px 0;letter-spacing:-0.5px;line-height:1.2;">
-                      How was your gaming experience?
+                    <!-- Headline -->
+                    <h1 style="font-size:26px;font-weight:900;color:#ffffff;margin:0 0 10px 0;letter-spacing:-0.5px;line-height:1.25;">
+                      How is your gaming experience?
                     </h1>
 
-                    <div style="font-size:15px;font-weight:700;color:#121212;margin-bottom:8px;">
-                      Hi ${escapeHtml(customerName)}!
+                    <div style="font-size:15px;font-weight:700;color:#facc15;margin-bottom:12px;">
+                      Hey ${escapeHtml(customerName)}!
                     </div>
 
-                    <!-- Subtitle / Custom Message -->
-                    <div style="font-size:14px;line-height:1.7;color:#4b5563;max-width:480px;margin:0 auto 28px auto;">
+                    <!-- Intro Body -->
+                    <p style="font-size:13.5px;line-height:1.65;color:#94a3b8;max-width:460px;margin:0 auto 24px auto;">
                       ${escapeHtml(message)}
-                    </div>
+                    </p>
 
                     ${
                       gameTitle
                         ? `
-                      <!-- Purchased Game Highlight Card -->
-                      <div style="background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;margin-bottom:28px;text-align:left;display:flex;align-items:center;justify-content:space-between;">
-                        <div>
-                          <div style="font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">PURCHASED GAME</div>
-                          <div style="font-size:15px;font-weight:900;color:#0f172a;">${escapeHtml(gameTitle)}</div>
-                        </div>
-                        <div style="background-color:#7c3aed;color:#ffffff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:0.5px;">Verified Order</div>
-                      </div>
+                      <!-- Purchased Game Showcase Deck -->
+                      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#171d2e;border:1px solid #263047;border-radius:12px;padding:16px 20px;margin-bottom:26px;text-align:left;">
+                        <tr>
+                          <td>
+                            <div style="font-size:10px;font-weight:800;color:#818cf8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">PURCHASED TITLE</div>
+                            <div style="font-size:16px;font-weight:900;color:#ffffff;">${escapeHtml(gameTitle)}</div>
+                          </td>
+                          <td align="right" style="vertical-align:middle;">
+                            <span style="background-color:rgba(0,214,143,0.12);color:#00d68f;border:1px solid rgba(0,214,143,0.3);font-size:10px;font-weight:800;padding:4px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:0.5px;">DELIVERED</span>
+                          </td>
+                        </tr>
+                      </table>
                     `
                         : ""
                     }
 
-                    <!-- 5-Star Interactive Rating Choice -->
-                    <div style="background-color:#fafafa;border:1px dashed #d1d5db;border-radius:12px;padding:20px;margin-bottom:28px;">
-                      <div style="font-size:12px;font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Tap to select your rating</div>
-                      <div style="font-size:32px;letter-spacing:8px;line-height:1;">
-                        <a href="${reviewUrl}" style="text-decoration:none;display:inline-block;transition:transform 0.2s;" title="5 Stars - Excellent">⭐</a>
-                        <a href="${reviewUrl}" style="text-decoration:none;display:inline-block;transition:transform 0.2s;" title="4 Stars - Great">⭐</a>
-                        <a href="${reviewUrl}" style="text-decoration:none;display:inline-block;transition:transform 0.2s;" title="3 Stars - Good">⭐</a>
-                        <a href="${reviewUrl}" style="text-decoration:none;display:inline-block;transition:transform 0.2s;" title="2 Stars - Fair">⭐</a>
-                        <a href="${reviewUrl}" style="text-decoration:none;display:inline-block;transition:transform 0.2s;" title="1 Star - Poor">⭐</a>
-                      </div>
-                    </div>
+                    <!-- Interactive Tactical Rating Bar -->
+                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#161c2c;border:1px solid #252d43;border-radius:14px;padding:22px 16px;margin-bottom:28px;text-align:center;">
+                      <tr>
+                        <td>
+                          <div style="font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:14px;">
+                            TAP TO SELECT YOUR RATING
+                          </div>
+                          
+                          <!-- Gold Star Deck -->
+                          <div style="font-size:36px;line-height:1;letter-spacing:12px;margin-bottom:10px;">
+                            <a href="${reviewUrl}?rating=1" style="color:#facc15;text-decoration:none;display:inline-block;" title="1 Star - Needs Improvement">&#9733;</a>
+                            <a href="${reviewUrl}?rating=2" style="color:#facc15;text-decoration:none;display:inline-block;" title="2 Stars - Fair">&#9733;</a>
+                            <a href="${reviewUrl}?rating=3" style="color:#facc15;text-decoration:none;display:inline-block;" title="3 Stars - Good">&#9733;</a>
+                            <a href="${reviewUrl}?rating=4" style="color:#facc15;text-decoration:none;display:inline-block;" title="4 Stars - Great">&#9733;</a>
+                            <a href="${reviewUrl}?rating=5" style="color:#facc15;text-decoration:none;display:inline-block;" title="5 Stars - Masterpiece">&#9733;</a>
+                          </div>
 
-                    <!-- Call To Action Button -->
+                          <div style="font-size:11px;color:#64748b;">
+                            1 = Needs Work &bull; 5 = Masterpiece
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Signature Action CTA Button -->
                     <div style="margin-bottom:24px;">
-                      <a href="${reviewUrl}" style="display:inline-block;background-color:#18181b;color:#ffffff;font-size:15px;font-weight:900;text-decoration:none;padding:16px 36px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.15);letter-spacing:0.3px;">
-                        LEAVE A REVIEW ON RAKEXURA &rarr;
+                      <a href="${reviewUrl}" target="_blank" style="display:inline-block;background-color:#7c3aed;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#ffffff;font-size:14px;font-weight:900;text-decoration:none;padding:16px 36px;border-radius:10px;text-transform:uppercase;letter-spacing:0.6px;box-shadow:0 8px 25px rgba(124,58,237,0.4);border:1px solid #a78bfa;">
+                        Leave a Review on Rakexura &rarr;
                       </a>
                     </div>
 
-                    <!-- Loyalty Perk Reward Badge -->
-                    <div style="font-size:12px;font-weight:700;color:#047857;background-color:#ecfdf5;border:1px solid #a7f3d0;padding:10px 16px;border-radius:8px;display:inline-block;margin-bottom:28px;">
-                      🎁 <strong>Bonus:</strong> Verified reviews earn 50 Rakexura Loyalty Points!
-                    </div>
+                    <!-- Loyalty Perk Telemetry Banner -->
+                    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:rgba(250,204,21,0.06);border:1px solid rgba(250,204,21,0.22);border-radius:10px;padding:12px 16px;margin-bottom:28px;text-align:center;">
+                      <tr>
+                        <td align="center">
+                          <span style="font-size:12px;font-weight:800;color:#facc15;letter-spacing:0.3px;">
+                            &#10022; BONUS: Verified reviews credit +50 Loyalty Points to your account!
+                          </span>
+                        </td>
+                      </tr>
+                    </table>
 
-                    <hr style="border:none;border-top:1px solid #eeeeee;margin:24px 0 20px 0;" />
+                    <hr style="border:none;border-top:1px solid #20273b;margin:24px 0 20px 0;" />
 
-                    <!-- Footer -->
-                    <div style="text-align:center;font-size:11px;line-height:1.6;color:#777777;">
-                      <div style="font-weight:800;color:#121212;margin-bottom:2px;">Rakexura Store Gaming Pvt Ltd</div>
-                      <div style="font-size:10px;color:#888888;margin-bottom:12px;">Authorized PC Game Reseller &middot; India</div>
+                    <!-- Sleek Dark Footer -->
+                    <div style="font-size:11px;line-height:1.6;color:#64748b;text-align:center;">
+                      <div style="font-weight:700;color:#94a3b8;margin-bottom:2px;">Rakexura Store Gaming Pvt Ltd</div>
+                      <div style="font-size:10px;color:#64748b;margin-bottom:12px;">Authorized PC Game Reseller &middot; India</div>
 
-                      <img src="${logoUrl}" alt="Rakexura Shield" width="22" height="26" style="display:block;margin:0 auto 10px auto;border:0;outline:none;opacity:0.8;" />
+                      <div style="margin-bottom:8px;">
+                        <a href="${siteUrl}/terms" style="color:#64748b;text-decoration:underline;margin:0 6px;">Terms</a> &bull;
+                        <a href="${siteUrl}/privacy" style="color:#64748b;text-decoration:underline;margin:0 6px;">Privacy</a> &bull;
+                        <a href="${siteUrl}/support" style="color:#64748b;text-decoration:underline;margin:0 6px;">Support Desk</a>
+                      </div>
 
-                      <div style="font-size:10px;color:#888888;margin-bottom:8px;">&copy; 2026 Rakexura Store. All rights reserved.</div>
-
-                      <div>
-                        <a href="${siteUrl}/terms" style="color:#666666;text-decoration:underline;margin:0 6px;">Terms of Service</a> |
-                        <a href="${siteUrl}/privacy" style="color:#666666;text-decoration:underline;margin:0 6px;">Privacy Policy</a> |
-                        <a href="${siteUrl}/support" style="color:#666666;text-decoration:underline;margin:0 6px;">Support Desk</a>
+                      <div style="font-size:10px;color:#475569;">
+                        &copy; 2026 Rakexura Store. All rights reserved.
                       </div>
                     </div>
 

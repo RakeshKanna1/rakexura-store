@@ -501,3 +501,114 @@ export function buildWishlistSaleEmailHtml(options: WishlistSaleEmailOptions): s
 </html>`;
 }
 
+export type DeviceNotificationInviteEmailOptions = {
+  userName?: string;
+  settingsUrl?: string;
+};
+
+export function buildDeviceNotificationInviteEmailHtml(options: DeviceNotificationInviteEmailOptions = {}) {
+  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
+  const siteUrl = (rawSiteUrl.includes("localhost") || rawSiteUrl.includes("127.0.0.1"))
+    ? "https://rakexura-store.vercel.app"
+    : rawSiteUrl.replace(/\/$/, "");
+
+  const logoUrl = `${siteUrl}/images/rakexura-silver-badge.png`;
+  const settingsUrl = options.settingsUrl || `${siteUrl}/dashboard/settings`;
+  const displayName = options.userName?.trim() || "Gamer";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enable Device Notifications – Rakexura Store</title>
+  </head>
+  <body style="margin:0;padding:0;background-color:#0b0d14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#e2e8f0;-webkit-font-smoothing:antialiased;">
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#0b0d14;padding:36px 12px;">
+      <tr>
+        <td align="center">
+          
+          <!-- Outer Card Container -->
+          <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:540px;background-color:#121622;border:1px solid #23293a;border-radius:16px;padding:36px 28px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.6);">
+            <tr>
+              <td align="center">
+                
+                <!-- Brand Badge & Header -->
+                <div style="margin-bottom:20px;text-align:center;">
+                  <img src="${logoUrl}" alt="Rakexura Shield" width="48" height="56" style="display:block;margin:0 auto 14px auto;border:0;outline:none;" />
+                  <div style="font-size:20px;font-weight:900;color:#ffffff;letter-spacing:2px;text-transform:uppercase;line-height:1;">
+                    RAKEXURA STORE
+                  </div>
+                  <div style="margin-top:10px;">
+                    <span style="display:inline-block;background-color:rgba(139,92,246,0.15);color:#c084fc;font-size:10px;font-weight:800;padding:4px 12px;border-radius:12px;border:1px solid rgba(139,92,246,0.3);text-transform:uppercase;letter-spacing:1px;">
+                      INSTANT STATUS RADAR
+                    </span>
+                  </div>
+                </div>
+
+                <hr style="border:none;border-top:1px solid #23293a;margin:16px 0 24px 0;" />
+
+                <!-- Main Greeting & Headline -->
+                <h1 style="font-size:24px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;line-height:1.3;margin:0 0 14px 0;">
+                  Never Miss a Game Delivery!
+                </h1>
+                <p style="font-size:14px;line-height:1.65;color:#94a3b8;margin:0 auto 28px auto;max-width:440px;">
+                  Hi <strong style="color:#ffffff;">${escapeHtml(displayName)}</strong>, stay updated with instant lock-screen alerts for your game deliveries, account activations, and flash sales.
+                </p>
+
+                <!-- Value Highlights Grid / List -->
+                <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#181d2c;border:1px solid #262e42;border-radius:12px;padding:18px 20px;margin-bottom:30px;text-align:left;">
+                  <tr>
+                    <td style="padding:10px 0;border-bottom:1px solid #232a3d;font-size:13px;line-height:1.5;color:#e2e8f0;">
+                      <strong style="color:#facc15;">⚡ Instant Delivery Alerts:</strong> Get notified the moment your game credentials & keys are uploaded.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:10px 0;border-bottom:1px solid #232a3d;font-size:13px;line-height:1.5;color:#e2e8f0;">
+                      <strong style="color:#38bdf8;">🏷️ Price Drops & Flash Sales:</strong> Be the first to grab high-discount game bundles before keys sell out.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:10px 0;font-size:13px;line-height:1.5;color:#e2e8f0;">
+                      <strong style="color:#4ade80;">🛡️ Account & Order Support:</strong> Real-time status updates directly on your phone or PC.
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Primary Call to Action Button -->
+                <div style="margin-bottom:28px;">
+                  <a href="${escapeHtml(settingsUrl)}" target="_blank" style="display:inline-block;background-color:#7c3aed;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;padding:16px 36px;border-radius:10px;text-transform:uppercase;letter-spacing:0.6px;box-shadow:0 8px 25px rgba(124,58,237,0.4);border:1px solid #a78bfa;">
+                    Enable Push Notifications &rarr;
+                  </a>
+                </div>
+
+                <div style="font-size:12px;color:#64748b;line-height:1.5;margin-bottom:28px;">
+                  Takes 5 seconds: Click the button above &rarr; Go to Settings &rarr; Click <strong>"Enable Notifications"</strong> and tap <strong>Allow</strong>.
+                </div>
+
+                <hr style="border:none;border-top:1px solid #23293a;margin:24px 0 20px 0;" />
+
+                <!-- Clean Single Footer -->
+                <div style="font-size:11px;line-height:1.6;color:#64748b;text-align:center;">
+                  <div style="font-weight:700;color:#94a3b8;margin-bottom:4px;">Rakexura Store &bull; India's Trusted PC Game Store</div>
+                  <div style="margin-bottom:10px;">
+                    <a href="${siteUrl}/terms" style="color:#64748b;text-decoration:underline;margin:0 6px;">Terms</a> &bull;
+                    <a href="${siteUrl}/privacy" style="color:#64748b;text-decoration:underline;margin:0 6px;">Privacy</a> &bull;
+                    <a href="${siteUrl}/support" style="color:#64748b;text-decoration:underline;margin:0 6px;">Support Desk</a>
+                  </div>
+                  <div style="font-size:10px;color:#475569;">
+                    &copy; 2026 Rakexura Store. All rights reserved.
+                  </div>
+                </div>
+
+              </td>
+            </tr>
+          </table>
+
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+

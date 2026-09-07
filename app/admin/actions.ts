@@ -3,7 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { sendEmail, buildProfessionalEmailHtml, buildCleanInvoiceEmailHtml, buildReviewRequestEmailHtml } from "@/lib/email";
+import { sendEmail, buildProfessionalEmailHtml, buildCleanInvoiceEmailHtml, buildReviewRequestEmailHtml, buildDeviceNotificationInviteEmailHtml } from "@/lib/email";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 import { gameUrl } from "@/lib/utils";
@@ -1553,12 +1553,24 @@ export async function sendPushEncouragement() {
 
   // 2. Send email to user (if email available)
   if (user.email && user.email.includes("@")) {
-    const textContent = `Hi,\n\nStay updated with instant game deliveries and order confirmations on Rakexura Store!\n\nPlease go to your Account Settings under /dashboard/settings to enable push notifications on your device.\n\nThank you,\nRakexura Support`;
+    const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
+    const siteUrl = (rawSiteUrl.includes("localhost") || rawSiteUrl.includes("127.0.0.1"))
+      ? "https://rakexura-store.vercel.app"
+      : rawSiteUrl.replace(/\/$/, "");
+    const settingsUrl = `${siteUrl}/dashboard/settings`;
+
+    const htmlContent = buildDeviceNotificationInviteEmailHtml({
+      userName: user.user_metadata?.full_name || user.email.split("@")[0],
+      settingsUrl,
+    });
+
+    const textContent = `Hi ${user.user_metadata?.full_name || ""},\n\nStay updated with instant game deliveries and order confirmations on Rakexura Store!\n\nPlease visit your Account Settings to enable push notifications on your device: ${settingsUrl}\n\nThank you,\nRakexura Support`;
     
     await sendEmail({
       to: user.email,
       subject: "Never Miss a Game Delivery – Enable Rakexura Notifications",
-      text: textContent
+      text: textContent,
+      html: htmlContent,
     });
   }
 
