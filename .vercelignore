@@ -1,20 +1,20 @@
 # Documentation and Project Notes
-*.md
-docs/
+/*.md
+/docs/
 
 # Database & Migrations (managed via Supabase directly)
-supabase/
-db-backup.ps1
+/supabase/
+/db-backup.ps1
 
 # Agent configs & internal tooling
-.agents/
-.impeccable/
-.github/
-scripts/
+/.agents/
+/.impeccable/
+/.github/
+/scripts/
 
 # Development & IDE files
-.vscode/
-.idea/
+/.vscode/
+/.idea/
 .editorconfig
 *.log
 npm-debug.log*
