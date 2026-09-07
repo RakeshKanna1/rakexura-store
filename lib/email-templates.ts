@@ -612,3 +612,151 @@ export function buildDeviceNotificationInviteEmailHtml(options: DeviceNotificati
 </html>`;
 }
 
+export type CartRecoveryItem = {
+  title: string;
+  platform?: string | null;
+  quantity?: number | null;
+  imageUrl?: string | null;
+  price?: number | string | null;
+};
+
+export type CartRecoveryEmailOptions = {
+  customerName?: string | null;
+  brandName?: string | null;
+  items: CartRecoveryItem[];
+  checkoutUrl?: string | null;
+  storeUrl?: string | null;
+  storeAddress?: string | null;
+  unsubscribeUrl?: string | null;
+};
+
+export function buildCartRecoveryEmailHtml(options: CartRecoveryEmailOptions): string {
+  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
+  const siteUrl = (rawSiteUrl.includes("localhost") || rawSiteUrl.includes("127.0.0.1"))
+    ? "https://rakexura-store.vercel.app"
+    : rawSiteUrl.replace(/\/$/, "");
+
+  const brandName = options.brandName?.trim() || "RAKEXURA STORE";
+  const storeAddress = options.storeAddress?.trim() || "Mira Road, New Bharat, 401107 Mumbai MH, India";
+  const checkoutUrl = options.checkoutUrl || `${siteUrl}/checkout`;
+  const storeUrl = options.storeUrl || `${siteUrl}/games`;
+  const unsubscribeUrl = options.unsubscribeUrl || `${siteUrl}/dashboard/settings`;
+  const items = options.items && options.items.length > 0 ? options.items : [
+    {
+      title: "Selected PC Game",
+      platform: "PC",
+      quantity: 1,
+      imageUrl: `${siteUrl}/images/rakexura-silver-badge.png`,
+    }
+  ];
+
+  const itemsRowsHtml = items.map((item) => {
+    let imgUrl = item.imageUrl || `${siteUrl}/images/rakexura-silver-badge.png`;
+    if (imgUrl.startsWith("/")) {
+      imgUrl = `${siteUrl}${imgUrl}`;
+    }
+    const qty = Number(item.quantity || 1);
+    const platformDisplay = item.platform ? ` (${escapeHtml(item.platform)})` : "";
+    const priceDisplay = item.price ? `₹${Number(item.price).toLocaleString("en-IN")}` : "";
+
+    return `
+      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:20px;border-collapse:collapse;width:100%;">
+        <tr>
+          <td width="130" valign="top" style="width:130px;vertical-align:top;padding-right:16px;">
+            <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(item.title)}" width="128" height="128" style="display:block;width:128px;height:128px;object-fit:cover;border-radius:2px;border:1px solid #e5e5e5;background-color:#f8f8f8;" />
+          </td>
+          <td valign="top" style="vertical-align:top;text-align:left;">
+            <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;color:#111111;line-height:1.4;margin-bottom:6px;">
+              ${escapeHtml(item.title)}${platformDisplay}
+            </div>
+            <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;color:#777777;margin-bottom:4px;">
+              Quantity: ${qty}
+            </div>
+            ${priceDisplay ? `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;font-weight:700;color:#111111;">${priceDisplay}</div>` : ""}
+          </td>
+        </tr>
+      </table>
+    `;
+  }).join("");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your cart is ready for checkout</title>
+  </head>
+  <body style="margin:0;padding:0;background-color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#111111;-webkit-font-smoothing:antialiased;">
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#ffffff;padding:24px 12px;width:100%;">
+      <tr>
+        <td align="center">
+          
+          <!-- Outer Card Container -->
+          <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:540px;background-color:#ffffff;text-align:center;">
+            <tr>
+              <td>
+                
+                <!-- Centered Brand Header -->
+                <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;color:#111111;text-transform:uppercase;text-align:center;margin-top:20px;margin-bottom:20px;">
+                  ${escapeHtml(brandName)}
+                </div>
+
+                <!-- Main Bold Headline -->
+                <h1 style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:32px;font-weight:800;color:#111111;margin:0 0 28px 0;letter-spacing:-0.5px;line-height:1.2;text-align:center;">
+                  Your cart is ready for<br />checkout
+                </h1>
+
+                <!-- Crisp Thin Divider Line -->
+                <div style="border-top:1px solid #111111;margin:0 0 28px 0;width:100%;"></div>
+
+                <!-- Section Heading -->
+                <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:700;color:#111111;text-align:left;margin-bottom:20px;">
+                  Items left in shopping cart
+                </div>
+
+                <!-- Item(s) List -->
+                ${itemsRowsHtml}
+
+                <!-- Primary CTA: Solid Black Button -->
+                <div style="text-align:center;margin:36px 0 16px 0;">
+                  <a href="${escapeHtml(checkoutUrl)}" style="display:inline-block;background-color:#000000;color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:700;text-decoration:none;padding:14px 36px;border-radius:6px;letter-spacing:0.3px;line-height:1;">
+                    Continue checkout
+                  </a>
+                </div>
+
+                <!-- Secondary Text Link: Visit our store -->
+                <div style="text-align:center;margin:0 0 44px 0;">
+                  <a href="${escapeHtml(storeUrl)}" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;color:#333333;text-decoration:underline;">
+                    Visit our store
+                  </a>
+                </div>
+
+                <!-- Solid Black Full-Width Footer Block -->
+                <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#000000;background:#000000;color:#ffffff;border-radius:0;width:100%;">
+                  <tr>
+                    <td align="center" style="padding:28px 20px;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:11px;line-height:1.6;color:#ffffff;">
+                      <div style="font-weight:600;color:#ffffff;margin-bottom:6px;">
+                        ${escapeHtml(brandName)}-${escapeHtml(storeAddress)}
+                      </div>
+                      <div style="color:#cccccc;margin-bottom:8px;">
+                        No longer want to receive these emails? <a href="${escapeHtml(unsubscribeUrl)}" style="color:#ffffff;text-decoration:underline;">Unsubscribe</a>
+                      </div>
+                      <div style="color:#888888;font-size:10px;">
+                        &copy; ${new Date().getFullYear()} ${escapeHtml(brandName)}
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+
+              </td>
+            </tr>
+          </table>
+
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
+

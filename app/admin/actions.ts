@@ -3,7 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { sendEmail, buildProfessionalEmailHtml, buildCleanInvoiceEmailHtml, buildReviewRequestEmailHtml, buildDeviceNotificationInviteEmailHtml } from "@/lib/email";
+import { sendEmail, buildProfessionalEmailHtml, buildCleanInvoiceEmailHtml, buildReviewRequestEmailHtml, buildDeviceNotificationInviteEmailHtml, buildCartRecoveryEmailHtml, CartRecoveryItem } from "@/lib/email";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 import { gameUrl } from "@/lib/utils";
@@ -1385,6 +1385,110 @@ export async function sendSingleEmailNotification(formData: FormData) {
       customerName,
       message,
       reviewUrl: resolvedReviewUrl,
+    });
+  } else if (
+    title.toLowerCase().includes("cart") ||
+    message.toLowerCase().includes("cart is ready") ||
+    message.toLowerCase().includes("items left in shopping cart") ||
+    link.includes("/cart") ||
+    link.includes("/checkout")
+  ) {
+    const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
+    const siteUrl = (rawSiteUrl.includes("localhost") || rawSiteUrl.includes("127.0.0.1"))
+      ? "https://rakexura-store.vercel.app"
+      : rawSiteUrl.replace(/\/$/, "");
+
+    let customerName = targetEmail.split("@")[0] || "Customer";
+    if (userId) {
+      const { data: prof } = await supabase.from("profiles").select("display_name").eq("id", userId).maybeSingle();
+      if (prof?.display_name) customerName = prof.display_name;
+    }
+
+    const cartItems: CartRecoveryItem[] = [];
+
+    // Check if customer has active items in Supabase cart_items
+    if (userId) {
+      const { data: dbCart } = await supabase
+        .from("cart_items")
+        .select("variant_type, quantity, games(title, cover_image, sale_price, steam_price, offline_price)")
+        .eq("user_id", userId);
+
+      if (dbCart && dbCart.length > 0) {
+        dbCart.forEach((row: {
+          variant_type?: string | null;
+          quantity?: number | null;
+          games?: {
+            title?: string | null;
+            cover_image?: string | null;
+            sale_price?: number | null;
+            steam_price?: number | null;
+            offline_price?: number | null;
+          } | Array<{
+            title?: string | null;
+            cover_image?: string | null;
+            sale_price?: number | null;
+            steam_price?: number | null;
+            offline_price?: number | null;
+          }> | null;
+        }) => {
+          const game = Array.isArray(row.games) ? row.games[0] : row.games;
+          if (game) {
+            cartItems.push({
+              title: game.title || "PC Game",
+              platform: row.variant_type || "PC",
+              quantity: row.quantity || 1,
+              imageUrl: game.cover_image || `${siteUrl}/images/rakexura-silver-badge.png`,
+              price: game.sale_price || game.steam_price || game.offline_price || 0,
+            });
+          }
+        });
+      }
+    }
+
+    // Fallback 1: Admin picked a game in selector
+    if (cartItems.length === 0 && (imageUrl || price)) {
+      cartItems.push({
+        title: title.replace(/^.*:\s*/, "").replace(/Your cart is ready for checkout/i, "PC Game Selection").trim() || "PC Game Selection",
+        platform: platforms || "PC",
+        quantity: 1,
+        imageUrl: imageUrl || `${siteUrl}/images/rakexura-silver-badge.png`,
+        price: price || 0,
+      });
+    }
+
+    // Fallback 2: Parse items from message bullets
+    if (cartItems.length === 0) {
+      const bulletMatches = message.match(/•\s*(.*?)(?=\n|$)/g);
+      if (bulletMatches && bulletMatches.length > 0) {
+        bulletMatches.forEach((bullet) => {
+          const cleanItem = bullet.replace(/^•\s*/, "").replace(/\s*\(.*?\)/, "").trim();
+          cartItems.push({
+            title: cleanItem || "Selected PC Game",
+            platform: "PC",
+            quantity: 1,
+            imageUrl: `${siteUrl}/images/rakexura-silver-badge.png`,
+          });
+        });
+      }
+    }
+
+    // Final fallback
+    if (cartItems.length === 0) {
+      cartItems.push({
+        title: "Selected PC Game",
+        platform: "PC",
+        quantity: 1,
+        imageUrl: `${siteUrl}/images/rakexura-silver-badge.png`,
+      });
+    }
+
+    emailHtml = buildCartRecoveryEmailHtml({
+      customerName,
+      brandName: "RAKEXURA STORE",
+      items: cartItems,
+      checkoutUrl: `${siteUrl}/checkout`,
+      storeUrl: `${siteUrl}/games`,
+      storeAddress: "Mira Road, New Bharat, 401107 Mumbai MH, India",
     });
   } else {
     emailHtml = buildProfessionalEmailHtml({

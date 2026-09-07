@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Minus, Package, Plus, ShieldCheck, ShoppingBag, TicketPercent, Trash2 } from "lucide-react";
+import { ArrowRight, Mail, Minus, Package, Plus, ShieldCheck, ShoppingBag, TicketPercent, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
@@ -53,6 +53,65 @@ export function CartView() {
   const [isReseller, setIsReseller] = useState(false);
   const [resellerDiscount, setResellerDiscount] = useState(0);
   const [resellerDiscountType, setResellerDiscountType] = useState("percentage");
+  const [sendingReminder, setSendingReminder] = useState(false);
+  const [reminderSent, setReminderSent] = useState(false);
+
+  async function handleSendCartReminder() {
+    if (sendingReminder) return;
+    setSendingReminder(true);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      let email = user?.email;
+      if (!email) {
+        const promptEmail = window.prompt("Enter your email address to receive your cart details:");
+        if (!promptEmail || !promptEmail.includes("@")) {
+          setSendingReminder(false);
+          return;
+        }
+        email = promptEmail.trim();
+      }
+
+      const items = [
+        ...lines.map((l) => ({
+          title: l.game.title,
+          platform: l.platform,
+          quantity: l.quantity,
+          imageUrl: l.game.cover_image,
+          price: linePrice(l),
+        })),
+        ...bundles.map((b) => ({
+          title: b.bundle.title,
+          platform: "Bundle",
+          quantity: b.quantity,
+          imageUrl: b.bundle.cover_image,
+          price: Number(b.bundle.bundle_price || 0),
+        })),
+      ];
+
+      const res = await fetch("/api/notifications/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user?.id,
+          email,
+          items,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setReminderSent(true);
+        toast.success("Cart details sent to " + email);
+      } else {
+        toast.error(data.error?.message || "Failed to send cart reminder");
+      }
+    } catch {
+      toast.error("Network error while sending cart reminder");
+    } finally {
+      setSendingReminder(false);
+    }
+  }
 
   useEffect(() => {
     setMounted(true);
@@ -429,6 +488,16 @@ export function CartView() {
           >
             Checkout <ArrowRight size={16} />
           </Link>
+          <button
+            type="button"
+            onClick={handleSendCartReminder}
+            disabled={sendingReminder || (!lines.length && !bundles.length)}
+            className="mt-2.5 w-full py-2.5 px-3 rounded-md border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-[11px] sm:text-xs font-semibold text-[#c8cedc] hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+            title="Send recovery email and notification with your cart items"
+          >
+            <Mail size={13} className="text-[#facc15]" />
+            <span>{sendingReminder ? "Sending..." : reminderSent ? "Cart Sent to Email!" : "Email me this cart"}</span>
+          </button>
           <p className="mt-3.5 sm:mt-5 flex gap-2 text-[11px] sm:text-xs leading-relaxed text-[#8991a6]">
             <ShieldCheck
               size={15}

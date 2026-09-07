@@ -192,6 +192,19 @@ export function textToHtml(text: string) {
   `;
 }
 
+import {
+  type AdminAlertField,
+  type AdminAlertEmailOptions,
+  buildAdminAlertEmailHtml,
+  type WishlistSaleEmailOptions,
+  buildWishlistSaleEmailHtml,
+  type DeviceNotificationInviteEmailOptions,
+  buildDeviceNotificationInviteEmailHtml,
+  type CartRecoveryItem,
+  type CartRecoveryEmailOptions,
+  buildCartRecoveryEmailHtml,
+} from "./email-templates";
+
 export {
   type AdminAlertField,
   type AdminAlertEmailOptions,
@@ -200,7 +213,10 @@ export {
   buildWishlistSaleEmailHtml,
   type DeviceNotificationInviteEmailOptions,
   buildDeviceNotificationInviteEmailHtml,
-} from "./email-templates";
+  type CartRecoveryItem,
+  type CartRecoveryEmailOptions,
+  buildCartRecoveryEmailHtml,
+};
 
 export type StoreEmailOptions = {
   title: string;
@@ -876,3 +892,31 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
 
   return { ok: false, skipped: true, reason: "No active email transport completed successfully" };
 }
+
+export async function sendCartRecoveryEmail(options: {
+  to: string;
+  customerName?: string;
+  brandName?: string;
+  items: CartRecoveryItem[];
+  checkoutUrl?: string;
+  storeUrl?: string;
+  storeAddress?: string;
+  unsubscribeUrl?: string;
+}): Promise<EmailResult> {
+  const subject = "You left items at checkout";
+  const itemsText = options.items
+    .map((item) => `- ${item.title}${item.platform ? ` (${item.platform})` : ""}${item.quantity ? ` x${item.quantity}` : ""}`)
+    .join("\n");
+  const checkoutUrl = options.checkoutUrl || `${(process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "")}/checkout`;
+  const storeUrl = options.storeUrl || `${(process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "")}/games`;
+  const text = `Your cart is ready for checkout\n\nItems left in shopping cart:\n${itemsText}\n\nContinue checkout: ${checkoutUrl}\n\nVisit our store: ${storeUrl}`;
+  const html = buildCartRecoveryEmailHtml(options);
+
+  return await sendEmail({
+    to: options.to,
+    subject,
+    text,
+    html,
+  });
+}
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { BellRing, Gamepad2, Gift, MessageCircle, Send, Mail, Flame, Key, Megaphone, LifeBuoy, Sparkles, Receipt, Search, Star, Clock, Copy } from "lucide-react";
+import { BellRing, Gamepad2, Gift, MessageCircle, Send, Mail, Flame, Key, Megaphone, LifeBuoy, Sparkles, Receipt, Search, Star, Clock, Copy, ShoppingCart } from "lucide-react";
 import { useState, useTransition, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { sendStoreAnnouncement, sendSinglePushNotification, sendSingleEmailNotification, giftGameToCustomer, fetchOrderInvoiceData } from "@/app/admin/actions";
@@ -117,6 +117,20 @@ const templates = {
     message: "Need activation help or order assistance? Our support desk is ready to help you.",
     shortMessage: "Support Notice: Need help with your order? Contact support.",
     link: "/support",
+  },
+  cart: {
+    label: "Cart Recovery",
+    icon: ShoppingCart,
+    title: "Your cart is ready for checkout",
+    message:
+      "Your cart is ready for checkout\n\n" +
+      "Items left in shopping cart:\n" +
+      "• Selected PC Game\n" +
+      "Quantity: 1\n\n" +
+      "Continue checkout: https://rakexura-store.vercel.app/checkout\n\n" +
+      "Visit our store: https://rakexura-store.vercel.app/games",
+    shortMessage: "Your cart is ready for checkout! Complete your order before keys sell out.",
+    link: "/checkout",
   },
 };
 
@@ -372,6 +386,27 @@ export function BroadcastComposer({
         setShortMessage("Leave a review on Rakexura Store! Share your gaming experience.");
         setLink("/dashboard/orders");
       }
+    } else if (key === "cart") {
+      const custName = customer?.display_name || (targetEmail ? targetEmail.split("@")[0] : "");
+      const greeting = custName ? `Hi ${custName}!\n\n` : "";
+      if (game) {
+        setTitle("Your cart is ready for checkout");
+        setMessage(
+          `${greeting}Your cart is ready for checkout\n\n` +
+          `Items left in shopping cart:\n` +
+          `• ${game.title} (PC)\n` +
+          `Quantity: 1\n\n` +
+          `Continue checkout: https://rakexura-store.vercel.app/checkout\n\n` +
+          `Visit our store: https://rakexura-store.vercel.app/games`
+        );
+        setShortMessage(`Your cart is ready for checkout! Complete your order for ${game.title} before keys sell out.`);
+        setLink("/checkout");
+      } else {
+        setTitle(template.title);
+        setMessage(template.message);
+        setShortMessage(template.shortMessage || template.title);
+        setLink(template.link);
+      }
     } else {
       if (game) {
         const salePrice = game.sale_price || game.offline_price || game.steam_price || 0;
@@ -422,6 +457,18 @@ export function BroadcastComposer({
       setMessage(`Hope you are enjoying ${game.title}! Please take 30 seconds to rate your experience and leave a review on Rakexura Store.`);
       setShortMessage(`Leave a review for ${game.title}! Share your experience.`);
       setLink(`${gameUrl(game)}#reviews`);
+    } else if (selectedTemplateKey === "cart") {
+      setTitle("Your cart is ready for checkout");
+      setMessage(
+        `Your cart is ready for checkout\n\n` +
+        `Items left in shopping cart:\n` +
+        `• ${game.title} (PC)\n` +
+        `Quantity: 1\n\n` +
+        `Continue checkout: https://rakexura-store.vercel.app/checkout\n\n` +
+        `Visit our store: https://rakexura-store.vercel.app/games`
+      );
+      setShortMessage(`Your cart is ready for checkout! Complete your order for ${game.title} before keys sell out.`);
+      setLink("/checkout");
     } else {
       setTitle(`${game.title} is now available`);
       setMessage(`${game.title} has arrived at Rakexura. Check platforms, live pricing${priceStr !== "Special Price" ? ` (from ${priceStr})` : ''}, trailers, and current offers.`);
@@ -630,6 +677,7 @@ export function BroadcastComposer({
     { value: "offer", label: "Special Offer", sublabel: "Promote limited-time discounts & sale pricing", icon: Flame },
     { value: "invoice", label: "Order Invoice", sublabel: "Fetch & send purchase receipt to customer", icon: Receipt },
     { value: "review", label: "Review Request", sublabel: "Ask customer to leave a review & rating", icon: Star },
+    { value: "cart", label: "Cart Recovery", sublabel: "Send abandoned cart recovery email & push reminder", icon: ShoppingCart },
     { value: "giveaway", label: "Giveaway Alert", sublabel: "Announce free game giveaway or gift", icon: Gift },
     { value: "activation", label: "Activation Guide", sublabel: "Send game activation & account instructions", icon: Key },
     { value: "announcement", label: "Announcement", sublabel: "General store feature or platform update", icon: Megaphone },
@@ -720,7 +768,7 @@ export function BroadcastComposer({
           </div>
 
           {/* Optional Game Selector for Game-specific templates */}
-          {(selectedTemplateKey === "offer" || selectedTemplateKey === "preorder" || selectedTemplateKey === "review") && (
+          {(selectedTemplateKey === "offer" || selectedTemplateKey === "preorder" || selectedTemplateKey === "review" || selectedTemplateKey === "cart") && (
             <div className="rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/5 p-3.5 space-y-2">
               <label className="block text-xs font-bold text-[#b9a4ff]">Pick Game to Auto-fill Details</label>
               <CustomSelect

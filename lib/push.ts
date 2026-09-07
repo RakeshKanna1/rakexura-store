@@ -89,3 +89,24 @@ export async function sendPushNotification(userId: string, title: string, messag
     return { success: false, error: message };
   }
 }
+
+export type CartReminderPushOptions = {
+  items?: Array<{ title: string }>;
+  checkoutUrl?: string;
+};
+
+export async function sendCartReminderPush(
+  userId: string,
+  options: CartReminderPushOptions = {}
+) {
+  const title = "Your cart is ready for checkout";
+  let body = "Items are waiting in your cart. Complete your checkout before stock runs out!";
+  if (options.items && options.items.length > 0) {
+    const titles = options.items.map((i) => i.title).filter(Boolean).slice(0, 2).join(", ");
+    const remaining = options.items.length > 2 ? ` and ${options.items.length - 2} more` : "";
+    body = `Items left in shopping cart: ${titles}${remaining}. Complete your checkout now!`;
+  }
+  const link = options.checkoutUrl || "/checkout";
+  return await sendPushNotification(userId, title, body, link);
+}
+
