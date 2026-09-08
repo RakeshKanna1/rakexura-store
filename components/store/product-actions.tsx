@@ -403,7 +403,15 @@ export function ProductActions({ game }: { game: Game }) {
           <WishlistButton gameId={game.id} size={20} variant="details" />
         </div>
 
-        {typeof game.activation_slots === "number" && game.activation_slots > 0 && <div className="flex items-center gap-2 rounded-md bg-[#ffb800]/[.06] px-3 py-2 text-xs text-[#ffca55]"><Zap size={15} /> {game.activation_slots} activation slots currently available</div>}
+        {game.activation_slots === 0 ? (
+          <div className="flex items-center gap-2 rounded-md bg-red-500/[.08] border border-red-500/20 px-3 py-2 text-xs text-red-400 font-medium">
+            <Zap size={15} /> All activation slots currently occupied (Out of slots)
+          </div>
+        ) : typeof game.activation_slots === "number" && game.activation_slots > 0 ? (
+          <div className="flex items-center gap-2 rounded-md bg-[#ffb800]/[.06] px-3 py-2 text-xs text-[#ffca55]">
+            <Zap size={15} /> {game.activation_slots} activation slots currently available
+          </div>
+        ) : null}
         
         {/* Sleek, minimalist horizontal quantity selector */}
         <div className="flex items-center justify-between border-t border-white/[.08] pt-4 pb-2">

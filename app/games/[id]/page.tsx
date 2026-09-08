@@ -518,14 +518,18 @@ export default async function GamePage({ params }: Props) {
                   </span>
                 </div>
               )}
-              {typeof game.activation_slots === "number" && (
-                <div className="flex justify-between items-center gap-4">
-                  <span className="text-[#7f879d]">Activation Slots</span>
+              <div className="flex justify-between items-center gap-4">
+                <span className="text-[#7f879d]">Activation Slots</span>
+                {game.activation_slots === 0 ? (
+                  <span className="font-semibold text-red-400">Out of slots</span>
+                ) : typeof game.activation_slots === "number" && game.activation_slots > 0 ? (
                   <span className="font-semibold text-[#ffca55]">
-                    {game.activation_slots > 0 ? `${game.activation_slots} available` : "Out of slots"}
+                    {game.activation_slots} available
                   </span>
-                </div>
-              )}
+                ) : (
+                  <span className="font-semibold text-[#70efbb]">Available slots</span>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -561,8 +565,8 @@ export default async function GamePage({ params }: Props) {
                 {platforms.map((platform) => {
                   const isSharedActivation = platform === "Offline" || platform === "Online";
                   const isOutOfSlots = isSharedActivation
-                    ? (typeof game.activation_slots === "number" && game.activation_slots === 0)
-                    : game.out_of_stock;
+                    ? (game.activation_slots === 0 || Boolean(game.out_of_stock))
+                    : Boolean(game.out_of_stock);
                   const isLowSlots = isSharedActivation
                     ? (typeof game.activation_slots === "number" && game.activation_slots > 0 && game.activation_slots <= 3)
                     : false;

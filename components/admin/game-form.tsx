@@ -166,7 +166,7 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
             </div>
             <label className="text-sm font-bold capitalize">
               Activation Slots / Accounts
-              <input type="number" min="0" step="1" name="activation_slots" defaultValue={String(game?.activation_slots ?? "")} className={input} />
+              <input type="number" min="0" step="1" name="activation_slots" defaultValue={String(game?.activation_slots ?? "")} placeholder="Leave blank for Available slots, 0 for Out of slots" className={input} />
             </label>
             <label className="text-sm font-bold capitalize">
               Featured Sale Price (Fallback)
