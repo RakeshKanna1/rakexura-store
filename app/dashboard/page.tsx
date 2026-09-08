@@ -9,7 +9,7 @@ import type { LucideIcon } from "lucide-react";
 import { LogoutButton } from "@/components/account/logout-button";
 import { EmptyState } from "@/components/common/empty-state";
 import { OnboardingHint } from "@/components/common/onboarding-hint";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAuthenticatedUser } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
 import { RedeemFreebieButton } from "@/components/account/redeem-freebie-button";
 import { GiftCelebration } from "@/components/dashboard/gift-celebration";
@@ -38,9 +38,9 @@ const quickActions: QuickAction[] = [
 ];
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedUser();
   if (!user) redirect("/login");
+  const supabase = await createClient();
   const [{ data: profile }, { data: orders, count: totalOrdersCount }, { data: rewards }, { data: notifications }, { count: libraryCount }, { count: referralCount }, { data: latestTicket }, { count: purchasedLibraryCount }] = await Promise.all([
     supabase.from("profiles").select("display_name,role,avatar_url,last_request_date,is_reseller,reseller_discount,reseller_discount_type").eq("id", user.id).maybeSingle(),
     supabase.from("orders").select("id,order_reference,order_status,total_price,created_at,cart_items,payment_reference,account_access,coupon_usage(coupons(code))", { count: "exact" }).eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),

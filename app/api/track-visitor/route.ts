@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAuthenticatedUser } from "@/lib/supabase/server";
 import { purgeOldVisitorLogs } from "@/lib/supabase/visitor-logs";
 
 let lastPruneTime = 0;
@@ -64,8 +64,8 @@ export async function POST(req: Request) {
     const parsedReferrer = parseReferrer(referrer || headers.get("referer"));
     const deviceType = getDeviceType(userAgent);
 
+    const user = await getAuthenticatedUser();
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
 
     let userName: string | null = null;
     let userEmail: string | null = null;

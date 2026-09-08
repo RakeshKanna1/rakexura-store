@@ -4,14 +4,13 @@ import { redirect } from "next/navigation";
 import { Gamepad2, ShieldCheck } from "lucide-react";
 import { AuthForm } from "@/components/auth/auth-form";
 import { ChampagneFizz } from "@/components/animations/champagne-fizz";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { BackButton } from "@/components/layout/back-button";
 
 export const metadata: Metadata = { title: "Create an Account" };
 
 export default async function RegisterPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedUser();
   if (user) {
     redirect("/");
   }

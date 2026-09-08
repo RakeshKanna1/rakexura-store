@@ -16,13 +16,10 @@ export const createClient = cache(async () => {
         setAll: (items) => {
           try {
             items.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, {
-                ...options,
-                maxAge: 60 * 60 * 24 * 365 * 10, // 10 years
-              });
+              cookieStore.set(name, value, options);
             });
           } catch {
-            // Server Components cannot write cookies; middleware refreshes sessions.
+            // Server Components cannot write cookies; middleware refreshes sessions and handles cookie deletion.
           }
         },
       },

@@ -8,6 +8,7 @@ if (typeof globalRecord.__filename === "undefined") {
 }
 
 import { NextResponse, type NextRequest } from "next/server";
+import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
@@ -18,31 +19,33 @@ export async function middleware(request: NextRequest) {
   }
 
   const pathname = request.nextUrl.pathname;
-  const isProtectedRoute = pathname.startsWith("/admin") || pathname.startsWith("/account") || pathname.startsWith("/dashboard");
+  const isProtectedRoute =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/account") ||
+    pathname.startsWith("/dashboard");
 
-  if (!isProtectedRoute) {
-    return NextResponse.next();
-  }
+  // Sync Supabase session and automatically purge any dead/invalid refresh tokens
+  const { response, user } = await updateSession(request);
 
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return NextResponse.next();
-  }
-  // Check if any Supabase auth cookie is present
-  const allCookies = request.cookies.getAll();
-  const hasAuthCookie = allCookies.some(
-    (c) => c.name.startsWith("sb-") || c.name.includes("auth-token")
-  );
-
-  // Fast path: If accessing a protected route without any auth cookie, redirect immediately (0ms)
-  if (!hasAuthCookie) {
+  // If accessing a protected route without a valid session, redirect to login
+  if (isProtectedRoute && !user) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", request.nextUrl.pathname);
-    return NextResponse.redirect(loginUrl);
+    const redirectResponse = NextResponse.redirect(loginUrl);
+    // Forward Set-Cookie headers (such as purged cookies) to the redirect response
+    response.headers.forEach((value, key) => {
+      if (key.toLowerCase() === "set-cookie") {
+        redirectResponse.headers.append(key, value);
+      }
+    });
+    return redirectResponse;
   }
 
-  // Fast path: Pass through to Server Component layout which performs full secure session & role checks
-  return NextResponse.next();
+  return response;
 }
 
-export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"] };
-
+export const config = {
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
+};

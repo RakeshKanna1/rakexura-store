@@ -4,16 +4,16 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { sendEmail, buildProfessionalEmailHtml, buildCleanInvoiceEmailHtml, buildReviewRequestEmailHtml, buildDeviceNotificationInviteEmailHtml, buildCartRecoveryEmailHtml, CartRecoveryItem } from "@/lib/email";
-import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient, getAuthenticatedUser } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 import { gameUrl } from "@/lib/utils";
 import { purgeOldVisitorLogs } from "@/lib/supabase/visitor-logs";
 
 
 async function getAdminClient() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedUser();
   if (!user) throw new Error("Unauthorized. Please log in.");
+  const supabase = await createClient();
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
   if (profile?.role !== "admin") throw new Error("Access denied. Admin privileges required.");
   

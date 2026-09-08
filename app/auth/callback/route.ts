@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAuthenticatedUser } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
@@ -31,7 +31,6 @@ export async function GET(request: Request) {
     allCookies.forEach((cookie) => {
       response.cookies.set(cookie.name, cookie.value, {
         path: "/",
-        maxAge: 60 * 60 * 24 * 365 * 10, // 10 years
         sameSite: "lax",
         secure: true,
       });
@@ -43,7 +42,7 @@ export async function GET(request: Request) {
     return handleRedirect(next);
   }
   
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedUser();
   const { data: profile } = user 
     ? await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle() 
     : { data: null };

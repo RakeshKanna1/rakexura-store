@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight, Bell, Gamepad2, Gift, Key, LifeBuoy, PackageSear
 import { notFound, redirect } from "next/navigation";
 import { EmptyState } from "@/components/common/empty-state";
 import { SupportTicketForm } from "@/components/support/support-ticket-form";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getAuthenticatedUser } from "@/lib/supabase/server";
 import { assetUrl, formatPrice } from "@/lib/utils";
 import { WriteReviewTrigger } from "@/components/dashboard/write-review-trigger";
 import { TelegramLaunchButton } from "@/components/dashboard/telegram-launch-button";
@@ -31,9 +31,9 @@ function rowTitle(row: Record<string, unknown>) {
 export default async function DashboardSection({ params }: { params: Promise<{ section: string }> }) {
   const { section } = await params;
   if (!(section in config)) notFound();
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedUser();
   if (!user) redirect("/login");
+  const supabase = await createClient();
   const current = config[section as keyof typeof config];
   const Icon = current.icon;
   let rows: Array<Record<string, unknown>> = [];
