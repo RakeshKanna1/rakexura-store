@@ -1,12 +1,12 @@
 "use client";
-
+import Image from "next/image";
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { Calendar, CheckSquare, ExternalLink, HelpCircle, Phone, ReceiptText, Trash2, Filter, Search } from "lucide-react";
+import { Calendar, CheckSquare, ExternalLink, Gamepad2, HelpCircle, Phone, ReceiptText, Trash2, Filter, Search } from "lucide-react";
 import { OrderActions } from "@/components/admin/order-actions";
 import { cleanupOldDeliveredOrders, deleteSingleOrder, deleteSelectedOrders } from "@/app/admin/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { matchesSearchQuery } from "@/lib/utils";
+import { assetUrl, matchesSearchQuery } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 
 export interface OrderRow {
@@ -21,9 +21,20 @@ export interface OrderRow {
   proof_url?: string;
   created_at: string;
   account_access?: string;
+  game_id?: number;
 }
 
-export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[] }) {
+export interface SmartOrdersManagerProps {
+  initialOrders: OrderRow[];
+  gamesMap?: Record<number, { title: string; cover_image: string | null }>;
+  gamesByTitle?: Record<string, string>;
+}
+
+export function SmartOrdersManager({
+  initialOrders,
+  gamesMap = {},
+  gamesByTitle = {},
+}: SmartOrdersManagerProps) {
   const router = useRouter();
   const [orders, setOrders] = useState<OrderRow[]>(initialOrders);
   const [period, setPeriod] = useState<"all" | "today" | "week" | "month" | "older">("all");
@@ -247,6 +258,7 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
         </div>
       </div>
 
+      {/* PROTOCOL BANNER */}
       <aside className="mt-4 flex gap-3 rounded-lg border border-[#8b5cf6]/25 bg-[#8b5cf6]/[.07] p-3 sm:p-4 text-xs sm:text-sm text-[#cbbfff]">
         <HelpCircle className="mt-0.5 shrink-0" size={16} />
         <div>
@@ -355,7 +367,27 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
       <div className="mt-5 space-y-4">
         {filteredOrders.map((row) => {
           const items = Array.isArray(row.cart_items) ? (row.cart_items as Array<Record<string, unknown>>) : [];
-          const gameName = items.length ? items.map((item) => String(item.title || "Game")).join(", ") : "Order items";
+          const gameName = items.length
+            ? items.map((item) => String(item.title || "Game")).join(", ")
+            : (row.game_id && gamesMap[Number(row.game_id)]?.title) || "Order items";
+
+          const firstItem = items[0] as Record<string, unknown> | undefined;
+          const firstGameId = firstItem
+            ? Number(firstItem.game_id || firstItem.gameId || firstItem.id || 0)
+            : Number(row.game_id || 0);
+          const firstTitle = firstItem
+            ? String(firstItem.title || firstItem.name || "").trim()
+            : (firstGameId && gamesMap[firstGameId]?.title) || "";
+
+          const rawCover =
+            (firstItem?.cover_image as string) ||
+            (firstItem?.coverImage as string) ||
+            (firstItem?.imageUrl as string) ||
+            (firstGameId && gamesMap[firstGameId]?.cover_image) ||
+            (firstTitle && gamesByTitle[firstTitle.toLowerCase()]) ||
+            null;
+
+          const coverSrc = rawCover ? assetUrl(rawCover) : null;
           const isSelected = selectedIds.includes(row.id);
 
           return (
@@ -368,49 +400,80 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
               }`}
             >
               <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start">
-                <div className="min-w-0 space-y-2.5">
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                    <input
-                      suppressHydrationWarning
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleSelectOrder(row.id)}
-                      className="h-4 w-4 rounded border-white/20 bg-black/50 accent-[#8b5cf6] cursor-pointer"
-                    />
-                    <strong className="text-base sm:text-lg font-black text-white">{String(row.order_reference || `Order #${row.id}`)}</strong>
-                    <span
-                      className={`rounded-md border px-2.5 py-0.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider ${
-                        row.order_status === "Delivered"
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
-                          : row.order_status === "Verified" || row.order_status === "Processing"
-                          ? "border-sky-500/30 bg-sky-500/10 text-sky-300"
-                          : row.order_status === "Rejected"
-                          ? "border-red-500/30 bg-red-500/10 text-red-300"
-                          : "border-amber-500/30 bg-amber-500/10 text-amber-200"
-                      }`}
-                    >
-                      {String(row.order_status || "Pending")}
-                    </span>
+                <div className="flex items-start gap-3.5 sm:gap-4 min-w-0">
+                  {/* Game Poster Cover Thumbnail */}
+                  <div className="relative h-20 w-14 sm:h-24 sm:w-16 md:h-28 md:w-20 shrink-0 overflow-hidden rounded-lg border border-white/15 bg-black/60 shadow-lg group/cover">
+                    {coverSrc ? (
+                      <Image
+                        src={coverSrc}
+                        alt={firstTitle || "Game Cover"}
+                        fill
+                        sizes="(max-width: 640px) 56px, 80px"
+                        className="object-cover transition-transform duration-300 group-hover/cover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-[#1c1635] to-[#0c0919] p-1 text-center">
+                        <Gamepad2 className="text-[#8b5cf6]/70" size={24} />
+                        <span className="mt-1 line-clamp-2 text-[9px] font-bold text-white/50 leading-tight">
+                          {firstTitle || "Game"}
+                        </span>
+                      </div>
+                    )}
+                    {items.length > 1 && (
+                      <span
+                        title={`${items.length} items in this order`}
+                        className="absolute bottom-1 right-1 rounded bg-black/85 px-1.5 py-0.5 text-[10px] font-black text-[#facc15] border border-white/20 shadow"
+                      >
+                        +{items.length - 1}
+                      </span>
+                    )}
                   </div>
 
-                  <p className="text-xs sm:text-sm text-[#a0a8c0]">
-                    <strong className="text-white">{String(row.customer_name)}</strong> ·{" "}
-                    <span suppressHydrationWarning className="inline-flex items-center gap-1 font-mono text-xs">
-                      <Calendar size={12} className="text-[#8b5cf6]" />
-                      {new Date(String(row.created_at)).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
-                    </span>
-                  </p>
+                  {/* Order Meta & Info */}
+                  <div className="min-w-0 flex-1 space-y-2.5">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                      <input
+                        suppressHydrationWarning
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelectOrder(row.id)}
+                        className="h-4 w-4 rounded border-white/20 bg-black/50 accent-[#8b5cf6] cursor-pointer"
+                      />
+                      <strong className="text-base sm:text-lg font-black text-white">{String(row.order_reference || `Order #${row.id}`)}</strong>
+                      <span
+                        className={`rounded-md border px-2.5 py-0.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider ${
+                          row.order_status === "Delivered"
+                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                            : row.order_status === "Verified" || row.order_status === "Processing"
+                            ? "border-sky-500/30 bg-sky-500/10 text-sky-300"
+                            : row.order_status === "Rejected"
+                            ? "border-red-500/30 bg-red-500/10 text-red-300"
+                            : "border-amber-500/30 bg-amber-500/10 text-amber-200"
+                        }`}
+                      >
+                        {String(row.order_status || "Pending")}
+                      </span>
+                    </div>
 
-                  <div className="flex flex-wrap gap-2 sm:gap-3 text-xs text-[#8991a6] pt-1 border-t border-white/[0.06]">
-                    <span className="inline-flex items-center gap-1.5 text-zinc-300">
-                      <Phone size={12} className="text-[#20c763]" />
-                      {String(row.customer_whatsapp || "No phone")}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 text-zinc-300">
-                      <ReceiptText size={12} className="text-[#8b5cf6]" />
-                      {gameName}
-                    </span>
-                    <strong className="text-white font-mono font-bold">₹{Number(row.total_price || 0).toLocaleString("en-IN")}</strong>
+                    <p className="text-xs sm:text-sm text-[#a0a8c0]">
+                      <strong className="text-white">{String(row.customer_name)}</strong> ·{" "}
+                      <span suppressHydrationWarning className="inline-flex items-center gap-1 font-mono text-xs">
+                        <Calendar size={12} className="text-[#8b5cf6]" />
+                        {new Date(String(row.created_at)).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
+                      </span>
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 sm:gap-3 text-xs text-[#8991a6] pt-1 border-t border-white/[0.06]">
+                      <span className="inline-flex items-center gap-1.5 text-zinc-300">
+                        <Phone size={12} className="text-[#20c763]" />
+                        {String(row.customer_whatsapp || "No phone")}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 text-zinc-300">
+                        <ReceiptText size={12} className="text-[#8b5cf6]" />
+                        {gameName}
+                      </span>
+                      <strong className="text-white font-mono font-bold">₹{Number(row.total_price || 0).toLocaleString("en-IN")}</strong>
+                    </div>
                   </div>
                 </div>
 

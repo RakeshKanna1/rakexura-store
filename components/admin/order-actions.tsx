@@ -78,10 +78,8 @@ export function OrderActions({
   function update(status: string, label: string) {
     if (!window.confirm(`${label} for this order? Customer tracking will immediately show "${status}".`)) return;
 
-    // Instantly reflect state change in the UI without waiting for server response
     setOptimisticStatus(status);
 
-    // Open WhatsApp synchronously inside user click context so browser popup blockers do not intercept it!
     if (status === "Delivered") {
       const phone = cleanPhone(customerPhone);
       const order = {
@@ -116,7 +114,6 @@ export function OrderActions({
     startTransition(async () => {
       try {
         const result = await updateOrderStatus(formData);
-        
         if (result.customerEmailError) {
           toast.warning(result.message, { 
             description: `Email notification failed: ${result.customerEmailError.slice(0, 120)}` 
@@ -124,7 +121,6 @@ export function OrderActions({
         } else {
           toast.success(result.message);
         }
-
         router.refresh();
       } catch (error) {
         setOptimisticStatus(null);
@@ -151,7 +147,7 @@ export function OrderActions({
               onClick={() => update(status, label)}
               className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-md border px-3 text-xs font-bold transition ${
                 isDone
-                  ? "bg-white/[0.05] cursor-default opacity-60 pointer-events-none"
+                  ? "bg-white/[0.05] cursor-default pointer-events-none"
                   : "bg-black/20 cursor-pointer"
               } ${
                 isDone
@@ -174,7 +170,7 @@ export function OrderActions({
             value={accountAccess}
             onChange={(e) => setAccountAccess(e.target.value)}
             placeholder="e.g. Username: user123&#10;Password: pass123&#10;or Activation Key: XXXX-XXXX-XXXX"
-            className="mt-2 min-h-20 w-full rounded-md border border-white/10 bg-black/40 p-2.5 font-mono text-xs text-white outline-none focus:border-[#8b5cf6] resize-none"
+            className="mt-2 min-h-24 w-full rounded-md border border-white/10 bg-black/40 p-2.5 font-mono text-xs text-white outline-none focus:border-[#8b5cf6] resize-y"
           />
         </label>
         <button

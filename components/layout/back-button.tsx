@@ -10,116 +10,91 @@ interface BackButtonProps {
   className?: string;
 }
 
+function getNavigationInfo(pathname: string) {
+  // 1. Admin Hierarchy
+  if (pathname.startsWith("/admin/") && pathname !== "/admin") {
+    return { target: "/admin", defaultLabel: "Back to Admin", preferHistory: false };
+  }
+  if (pathname === "/admin") {
+    return { target: "/", defaultLabel: "Back to Store", preferHistory: false };
+  }
+
+  // 2. Customer Dashboard Hierarchy
+  if (pathname.startsWith("/dashboard/") && pathname !== "/dashboard") {
+    return { target: "/dashboard", defaultLabel: "Back to Dashboard", preferHistory: false };
+  }
+  if (pathname === "/dashboard" || pathname === "/profile") {
+    return { target: "/", defaultLabel: "Back to Store", preferHistory: false };
+  }
+
+  // 3. Checkout & Cart Flow
+  if (pathname === "/checkout") {
+    return { target: "/cart", defaultLabel: "Back to Cart", preferHistory: false };
+  }
+  if (pathname === "/cart") {
+    return { target: "/games", defaultLabel: "Continue Shopping", preferHistory: false };
+  }
+
+  // 4. Catalog Pages
+  if (pathname.startsWith("/games/")) {
+    return { target: "/games", defaultLabel: "Back to Games", preferHistory: true };
+  }
+  if (pathname.startsWith("/bundles/")) {
+    return { target: "/bundles", defaultLabel: "Back to Bundles", preferHistory: true };
+  }
+
+  // 5. Default Public Standalone Pages
+  return { target: "/", defaultLabel: "Back to Store", preferHistory: false };
+}
+
 export function BackButton({ label, href, className = "" }: BackButtonProps) {
   const pathname = usePathname() || "";
   const router = useRouter();
 
-  // If on homepage or otp-preview and no explicit href, don't show
+  // If on homepage or preview and no explicit href, don't show
   if (!href && (pathname === "/" || pathname === "/otp-preview")) return null;
 
-  function goBack(e: React.MouseEvent) {
+  const navInfo = getNavigationInfo(pathname);
+  const targetHref = href ?? navInfo.target;
+  const displayLabel = label ?? navInfo.defaultLabel;
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // If an explicit href is set, let Link handle it naturally
     if (href) return;
-    e.preventDefault();
 
-    // 1. If user has internal navigation history, naturally go back to their previous page/filter/scroll state
-    const isInternalReferrer = 
-      typeof document !== "undefined" && 
-      document.referrer && 
-      (document.referrer.includes(window.location.host) || document.referrer.startsWith("/"));
+    // If preferHistory is true (e.g. from a game detail back to a filtered game list),
+    // and the user has previous in-app history, use router.back() to preserve search/filters
+    if (navInfo.preferHistory && typeof window !== "undefined" && window.history.length > 1) {
+      const isInternal =
+        typeof document !== "undefined" &&
+        document.referrer &&
+        (document.referrer.includes(window.location.host) || document.referrer.startsWith("/"));
 
-    if (typeof window !== "undefined" && window.history.length > 1 && (isInternalReferrer || !document.referrer)) {
-      router.back();
-      return;
-    }
-
-    // 2. Intelligent Hierarchy Fallback when landing directly on a sub-page without history
-    if (pathname.startsWith("/admin/") && pathname !== "/admin") {
-      router.push("/admin");
-    } else if (pathname === "/admin") {
-      router.push("/");
-    } else if (pathname.startsWith("/dashboard/") && pathname !== "/dashboard") {
-      router.push("/dashboard");
-    } else if (pathname === "/dashboard" || pathname === "/profile") {
-      router.push("/");
-    } else if (pathname === "/checkout") {
-      router.push("/cart");
-    } else if (pathname.startsWith("/games/")) {
-      router.push("/");
-    } else if (pathname.startsWith("/bundles/")) {
-      router.push("/bundles");
-    } else if (pathname === "/cart") {
-      router.push("/games");
-    } else {
-      router.push("/");
-    }
-  }
-
-  const defaultLabel = pathname.startsWith("/admin/")
-    ? "Back to Admin"
-    : "Back";
-
-  const displayLabel = label ?? defaultLabel;
-
-  // Small & compact back button styling
-  const btnClasses = "group inline-flex items-center gap-1 rounded-md border border-white/10 bg-[#121212]/80 px-2.5 py-1 text-[11px] font-medium tracking-wide text-[#a0a8c0] backdrop-blur-md transition-all duration-150 hover:border-white/20 hover:bg-[#1a1a1a] hover:text-white active:scale-95 cursor-pointer select-none shadow-sm";
-
-  const handleMouseEnter = () => {
-    if (href) {
-      router.prefetch(href);
-      return;
-    }
-    if (pathname.startsWith("/admin/") && pathname !== "/admin") {
-      router.prefetch("/admin");
-    } else if (pathname === "/admin") {
-      router.prefetch("/");
-    } else if (pathname.startsWith("/dashboard/") && pathname !== "/dashboard") {
-      router.prefetch("/dashboard");
-    } else if (pathname === "/dashboard" || pathname === "/profile") {
-      router.prefetch("/");
-    } else if (pathname === "/checkout") {
-      router.prefetch("/cart");
-    } else if (pathname.startsWith("/games/")) {
-      router.prefetch("/");
-    } else if (pathname.startsWith("/bundles/")) {
-      router.prefetch("/bundles");
-    } else if (pathname === "/cart") {
-      router.prefetch("/games");
-    } else {
-      router.prefetch("/");
+      if (isInternal) {
+        e.preventDefault();
+        router.back();
+      }
     }
   };
 
-  if (href) {
-    return (
-      <div className={`relative z-30 pointer-events-auto ${className}`}>
-        <Link
-          href={href}
-          prefetch={true}
-          onMouseEnter={handleMouseEnter}
-          className={btnClasses}
-          aria-label={displayLabel}
-        >
-          <ChevronLeft size={13} className="shrink-0 transition-transform duration-150 group-hover:-translate-x-0.5" />
-          <span>{displayLabel}</span>
-        </Link>
-      </div>
-    );
-  }
+  const btnClasses =
+    "group inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-[#121212]/85 px-3 py-1.5 text-xs font-semibold tracking-wide text-[#a0a8c0] backdrop-blur-md transition-all duration-150 hover:border-white/25 hover:bg-[#1a1a1a] hover:text-white active:scale-95 cursor-pointer select-none shadow-sm";
 
   return (
     <div className={`relative z-30 pointer-events-auto ${className}`}>
-      <button
-        suppressHydrationWarning
-        type="button"
-        onClick={goBack}
-        onMouseEnter={handleMouseEnter}
-        onFocus={handleMouseEnter}
+      <Link
+        href={targetHref}
+        prefetch={true}
+        onClick={handleClick}
         className={btnClasses}
         aria-label={displayLabel}
       >
-        <ChevronLeft size={13} className="shrink-0 transition-transform duration-150 group-hover:-translate-x-0.5" />
+        <ChevronLeft
+          size={14}
+          className="shrink-0 transition-transform duration-150 group-hover:-translate-x-0.5 text-[#8b5cf6]"
+        />
         <span>{displayLabel}</span>
-      </button>
+      </Link>
     </div>
   );
 }

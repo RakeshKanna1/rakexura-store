@@ -20,7 +20,7 @@ export const revalidate = 0;
 
 const sources = {
   games: { title: "Game management", table: "games", select: "id,title,cover_image,steam_price,epic_price,offline_price,online_price,xbox_price,geforce_price,price_1m,price_2m,price_3m,price_6m,price_12m,reseller_price,is_subscription,online_activation,duration,archived", order: "id" },
-  orders: { title: "Customer orders", table: "orders", select: "id,order_reference,customer_name,customer_whatsapp,order_status,total_price,cart_items,screenshot_url,created_at,account_access", order: "created_at" },
+  orders: { title: "Customer orders", table: "orders", select: "id,order_reference,customer_name,customer_whatsapp,order_status,total_price,cart_items,screenshot_url,created_at,account_access,game_id", order: "created_at" },
   customers: { title: "Customer list", table: "profiles", select: "id,display_name,email,whatsapp,role,is_reseller,reseller_discount,reseller_discount_type,created_at", order: "created_at" },
   reviews: { title: "Review moderation", table: "reviews", select: "id,customer_name,rating,message,media_urls,verified_purchase,approved,created_at", order: "created_at" },
   coupons: { title: "Coupon management", table: "coupons", select: "id,code,discount_type,discount_value,minimum_order,usage_limit,per_user_limit,expires_at,active", order: "id" },
@@ -225,7 +225,27 @@ export default async function AdminSection({ params, searchParams }: { params: P
   }
 
   if (section === "orders") {
-    return <SmartOrdersManager initialOrders={rows as unknown as OrderRow[]} />;
+    const { data: allGames } = await supabase
+      .from("games")
+      .select("id, title, cover_image");
+    const gamesMap: Record<number, { title: string; cover_image: string | null }> = {};
+    const gamesByTitle: Record<string, string> = {};
+    if (allGames) {
+      allGames.forEach((g: { id: number; title?: string | null; cover_image?: string | null }) => {
+        gamesMap[g.id] = { title: g.title || "Game", cover_image: g.cover_image || null };
+        if (g.title && g.cover_image) {
+          gamesByTitle[g.title.toLowerCase().trim()] = g.cover_image;
+        }
+      });
+    }
+
+    return (
+      <SmartOrdersManager
+        initialOrders={rows as unknown as OrderRow[]}
+        gamesMap={gamesMap}
+        gamesByTitle={gamesByTitle}
+      />
+    );
   }
 
   const hidden = new Set(["screenshot_url", "proof_url", "media_urls", "media_links", "reseller_discount", "is_reseller", "reseller_discount_type"]);
