@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Check, Circle, Clipboard, Clock3, HelpCircle, LifeBuoy, MessageCircle, Search, X, ShieldCheck, Sparkles, FileText, Mail, Send } from "lucide-react";
+import { Check, Circle, Clipboard, Clock3, HelpCircle, LifeBuoy, MessageCircle, Search, X, ShieldCheck, Sparkles, FileText, Mail, Send, Key, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
@@ -633,61 +633,142 @@ function TrackOrderContent() {
                 </div>
               )}
 
-              {(result.status === "Delivered" || result.status === "Completed") && (
-                <div id="credentials-section" className="space-y-4 mt-6">
-                  {/* Loyalty Points Already Credited Banner */}
-                  <div className="flex items-center gap-3.5 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent p-4 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.25)]">
-                      <Sparkles size={20} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-black uppercase tracking-wider text-amber-300">Loyalty Rewards Credited</span>
-                        <span className="rounded-full bg-amber-500/25 px-2 py-0.5 text-[10px] font-black text-amber-200 border border-amber-500/40">+{hasSubscription ? "200" : "100"} XP</span>
+              {/* Account Login Credentials & Delivery Status Section */}
+              <div id="credentials-section" className="space-y-4 mt-6">
+                {(result.status === "Delivered" || result.status === "Completed") ? (
+                  <>
+                    {/* Loyalty Points Already Credited Banner */}
+                    <div className="flex items-center gap-3.5 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent p-4 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.25)]">
+                        <Sparkles size={20} />
                       </div>
-                      <p className="mt-0.5 text-xs text-[#cad1de] leading-relaxed">
-                        +{hasSubscription ? "200" : "100"} Rank Points have been added to your profile for this purchase!
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-black uppercase tracking-wider text-amber-300">Loyalty Rewards Credited</span>
+                          <span className="rounded-full bg-amber-500/25 px-2 py-0.5 text-[10px] font-black text-amber-200 border border-amber-500/40">+{hasSubscription ? "200" : "100"} XP</span>
+                        </div>
+                        <p className="mt-0.5 text-xs text-[#cad1de] leading-relaxed">
+                          +{hasSubscription ? "200" : "100"} Rank Points have been added to your profile for this purchase!
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="text-center p-6 rounded-lg border border-emerald-500/20 bg-emerald-500/[.03] space-y-2">
+                      <h3 className="text-emerald-400 font-extrabold text-xl">Thank you for your purchase!</h3>
+                      <p className="text-sm text-[#a4abbc]">
+                        Your order is completed! Thank you for shopping with Rakexura Store.
                       </p>
                     </div>
-                  </div>
 
-                  <div className="text-center p-6 rounded-lg border border-emerald-500/20 bg-emerald-500/[.03] space-y-2">
-                    <h3 className="text-emerald-400 font-extrabold text-xl">Thank you for your purchase!</h3>
-                    <p className="text-sm text-[#a4abbc]">
-                      Your order is ready! Thank you for shopping with Rakexura Store. Your game credentials/activation details are listed below.
-                    </p>
-                  </div>
-                  
-                  {result.account_access && (
-                    <div className="p-4 rounded-lg border border-[#8b5cf6]/35 bg-[#8b5cf6]/5 space-y-2">
-                      <div className="flex items-center gap-1.5 text-xs font-black text-[#c4b5fd]">
-                        <span>Game Activation / Account Details</span>
+                    {result.account_access ? (
+                      <div className="p-4.5 rounded-xl border border-[#8b5cf6]/40 bg-[#8b5cf6]/5 space-y-2.5 shadow-lg">
+                        <div className="flex items-center justify-between gap-2 border-b border-white/[0.08] pb-2.5">
+                          <div className="flex items-center gap-2 text-xs font-black text-[#c4b5fd]">
+                            <Key size={15} className="text-[#facc15]" />
+                            <span>Game Activation / Account Login Details</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(result.account_access || "");
+                              toast.success("Login details copied to clipboard!");
+                            }}
+                            className="btn btn-secondary text-[11px] font-bold py-1 px-2.5 inline-flex items-center gap-1.5 border border-white/10 hover:border-[#8b5cf6] text-white rounded cursor-pointer transition active:scale-95"
+                          >
+                            <Clipboard size={12} className="text-[#facc15]" />
+                            <span>Copy Details</span>
+                          </button>
+                        </div>
+                        <div className="font-mono bg-black/50 p-3.5 rounded-lg border border-white/5 text-xs text-slate-100 select-all whitespace-pre-wrap leading-relaxed shadow-inner">
+                          {result.account_access}
+                        </div>
+                        <p className="text-[10px] text-[#8991a6] leading-relaxed">
+                          Please use these credentials to log in or activate your game. If you face any issues, click the WhatsApp Help button below.
+                        </p>
                       </div>
-                      <div className="mt-2 font-mono bg-black/45 p-3 rounded border border-white/5 text-xs text-slate-200 select-all whitespace-pre-wrap leading-relaxed shadow-inner">
-                        {result.account_access}
+                    ) : (
+                      <div className="p-5 rounded-xl border border-amber-500/30 bg-amber-500/[0.05] space-y-3 shadow-md">
+                        <div className="flex items-center justify-between gap-2 border-b border-amber-500/20 pb-2.5">
+                          <div className="flex items-center gap-2 text-xs font-black text-amber-300">
+                            <AlertCircle size={16} className="text-amber-400 shrink-0" />
+                            <span>Account Login Credentials Notice</span>
+                          </div>
+                          <span className="rounded bg-amber-500/20 border border-amber-500/30 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-300">
+                            Not Attached to Record
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#d0d6e5] leading-relaxed">
+                          Your order is marked as <strong className="text-white">{result.status}</strong>, but specific login credentials were not saved to this web panel. They were likely sent directly to your WhatsApp number.
+                        </p>
+                        <p className="text-xs text-[#8991a6] leading-relaxed">
+                          If you haven't received your credentials yet, tap below to message our administrator on WhatsApp. Your Order Reference (<code className="text-[#facc15] font-mono">{result.order_ref}</code>) will be included automatically.
+                        </p>
+                        <div className="pt-1">
+                          <a
+                            href={whatsappUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs transition shadow-md cursor-pointer active:scale-95"
+                          >
+                            <MessageCircle size={15} />
+                            <span>Request Credentials on WhatsApp</span>
+                          </a>
+                        </div>
                       </div>
-                      <p className="text-[10px] text-[#8991a6] leading-relaxed">
-                        Please use these credentials/details to activate or access your game. If you face any issues, click the WhatsApp Help button below.
+                    )}
+
+                    {/* Customer Review Section */}
+                    {result.items && result.items.length > 0 && (
+                      <div className="mt-6 pt-6 border-t border-white/[.08] space-y-4">
+                        {result.items
+                          .filter((item) => item.game_id)
+                          .map((item) => (
+                            <ReviewForm
+                              key={item.game_id}
+                              gameId={Number(item.game_id)}
+                              gameTitle={item.title}
+                            />
+                          ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="p-5 rounded-xl border border-white/10 bg-[#0d0b1a]/90 space-y-3.5 shadow-xl">
+                    <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="grid h-8 w-8 place-items-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-[#facc15]">
+                          <Key size={15} />
+                        </div>
+                        <div>
+                          <h3 className="text-xs font-black text-white">Account Login Credentials & Delivery Status</h3>
+                          <p className="text-[10px] text-[#8991a6]">Order Reference: <span className="font-mono text-[#facc15]">{result.order_ref}</span></p>
+                        </div>
+                      </div>
+                      <span className="rounded-md bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-300 shrink-0">
+                        Details Not Provided Yet
+                      </span>
+                    </div>
+
+                    <div className="p-3.5 rounded-lg border border-white/5 bg-black/40 space-y-2 text-xs">
+                      <p className="text-[#cad1de] leading-relaxed">
+                        Account login credentials and activation keys have <strong className="text-amber-300 font-semibold">not been provided yet</strong> because your order is currently at step: <span className="text-[#facc15] font-black uppercase">{result.status}</span>.
+                      </p>
+                      <p className="text-[#8991a6] leading-relaxed">
+                        Our operations team is currently verifying your order. As soon as the administrator releases your game, your login details will instantly appear right here and will be dispatched directly to your WhatsApp.
                       </p>
                     </div>
-                  )}
 
-                  {/* Customer Review Section */}
-                  {result.items && result.items.length > 0 && (
-                    <div className="mt-6 pt-6 border-t border-white/[.08] space-y-4">
-                      {result.items
-                        .filter((item) => item.game_id)
-                        .map((item) => (
-                          <ReviewForm
-                            key={item.game_id}
-                            gameId={Number(item.game_id)}
-                            gameTitle={item.title}
-                          />
-                        ))}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-[#8991a6]">
+                      <span className="flex items-center gap-1.5 text-xs text-[#aeb5c8]">
+                        <Clock3 size={13} className="text-[#facc15]" /> Estimated fulfillment: 15–30 minutes
+                      </span>
+                      <a href={whatsappUrl} target="_blank" rel="noreferrer" className="text-[#00d68f] hover:underline font-bold flex items-center gap-1 text-xs">
+                        <MessageCircle size={13} /> Message WhatsApp Support &rarr;
+                      </a>
                     </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
 
               <div className="mt-8 space-y-0" aria-label="Order progress">
                 {stages.map((stage, index) => {

@@ -409,7 +409,7 @@ export function ProductActions({ game }: { game: Game }) {
           </div>
         ) : typeof game.activation_slots === "number" && game.activation_slots > 0 ? (
           <div className="flex items-center gap-2 rounded-md bg-[#ffb800]/[.06] px-3 py-2 text-xs text-[#ffca55]">
-            <Zap size={15} /> {game.activation_slots} activation slots currently available
+            <Zap size={15} /> {game.activation_slots} slots available
           </div>
         ) : null}
         

@@ -410,11 +410,12 @@ export function CheckoutForm() {
     reference: string, 
     orderTotal: number, 
     values: Data, 
-    items: Array<{ title: string; platform: string; quantity: number }>,
+    items: Array<{ title: string; platform: string; quantity: number; price?: number }>,
     customerEmail?: string,
     userId?: string
   ) {
     try {
+      const isGiftOrder = orderTotal === 0 || reference.toUpperCase().includes("GIFT");
       const response = await fetch("/api/notifications/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -426,6 +427,9 @@ export function CheckoutForm() {
           total: orderTotal,
           items,
           userId,
+          paymentStatus: isGiftOrder ? "Gift" : "Paid & Verified",
+          isPaid: true,
+          isGift: isGiftOrder,
         }),
       });
       const result = await response.json().catch(() => null);

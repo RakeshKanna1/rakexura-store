@@ -72,6 +72,8 @@ export async function POST(req: Request) {
       price: Number(item.unit_price || item.price || 0),
     }));
 
+    const rawStatus = String(order.order_status || "").trim();
+    const isGiftOrder = Number(order.total_price || 0) === 0 || trimmedRef.toUpperCase().includes("GIFT");
     const orderNotice: OrderNotice = {
       reference: order.order_reference ? String(order.order_reference) : undefined,
       customerName: String(order.customer_name || "Valued Customer"),
@@ -80,6 +82,9 @@ export async function POST(req: Request) {
       total: Number(order.total_price || 0),
       items: items.length > 0 ? items : [{ title: "PC Game", platform: "Rakexura Games", quantity: 1, price: Number(order.total_price || 0) }],
       userId: order.user_id ? String(order.user_id) : undefined,
+      paymentStatus: rawStatus || (isGiftOrder ? "Gift" : "Paid"),
+      isPaid: true,
+      isGift: isGiftOrder,
     };
 
     const text = makeCustomerInvoiceMessage(orderNotice);

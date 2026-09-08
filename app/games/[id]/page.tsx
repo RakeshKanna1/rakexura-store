@@ -524,10 +524,10 @@ export default async function GamePage({ params }: Props) {
                   <span className="font-semibold text-red-400">Out of slots</span>
                 ) : typeof game.activation_slots === "number" && game.activation_slots > 0 ? (
                   <span className="font-semibold text-[#ffca55]">
-                    {game.activation_slots} available
+                    {game.activation_slots} slots available
                   </span>
                 ) : (
-                  <span className="font-semibold text-[#70efbb]">Available slots</span>
+                  <span className="font-semibold text-[#70efbb]">Slots available</span>
                 )}
               </div>
             </div>

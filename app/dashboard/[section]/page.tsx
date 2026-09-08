@@ -279,7 +279,7 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
               })()}
               {section === "orders" && (
                 <Link
-                  href={orderTrackUrl}
+                  href={`${orderTrackUrl}&view=credentials#credentials-section`}
                   className="group/acc mt-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 rounded-xl border border-white/[0.08] bg-[#0d0b1a]/80 p-3.5 transition-all duration-300 hover:border-[#8b5cf6]/50 hover:bg-[#120f24] hover:shadow-[0_4px_20px_rgba(139,92,246,0.15)] active:scale-[0.985]"
                 >
                   <div className="flex items-center gap-3">
@@ -287,11 +287,24 @@ export default async function DashboardSection({ params }: { params: Promise<{ s
                       <Key size={15} />
                     </div>
                     <div className="min-w-0">
-                      <strong className="block text-xs font-bold text-white group-hover/acc:text-[#b9a4ff] transition-colors leading-snug">
-                        Account Login Credentials & Delivery Status
-                      </strong>
+                      <div className="flex items-center gap-2">
+                        <strong className="block text-xs font-bold text-white group-hover/acc:text-[#b9a4ff] transition-colors leading-snug">
+                          Account Login Credentials & Delivery Status
+                        </strong>
+                        {Boolean(row.account_access) ? (
+                          <span className="rounded bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-400">
+                            Ready
+                          </span>
+                        ) : (
+                          <span className="rounded bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-400">
+                            Pending
+                          </span>
+                        )}
+                      </div>
                       <span className="mt-0.5 block text-[10px] text-[#8991a6] leading-tight font-medium">
-                        Access your game login details & activation guidance
+                        {Boolean(row.account_access)
+                          ? "Access your game login details & activation guidance"
+                          : "Details not provided yet — click to check live status"}
                       </span>
                     </div>
                   </div>

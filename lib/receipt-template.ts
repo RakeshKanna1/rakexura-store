@@ -15,6 +15,9 @@ export type OrderNotice = {
   total?: number;
   items?: OrderNoticeItem[];
   userId?: string;
+  paymentStatus?: string;
+  isPaid?: boolean;
+  isGift?: boolean;
 };
 
 export function price(value: unknown) {
@@ -59,6 +62,33 @@ export function makeCustomerInvoiceMessage(order: OrderNotice) {
     .join("\n");
 }
 
+export function makeOwnerMessage(order: OrderNotice) {
+  const items = order.items?.length
+    ? order.items.map((item) => {
+        const title = item.title ?? "Game";
+        const platform = item.platform ? ` (${item.platform})` : "";
+        const quantity = item.quantity ?? 1;
+        const itemPrice = Number(item.price ?? 0);
+        return `- ${title}${platform} x${quantity}${itemPrice ? ` - Rs. ${price(itemPrice)}` : ""}`;
+      })
+    : ["- Order item"];
+
+  return [
+    `New Rakexura order ${order.reference ?? ""}`.trim(),
+    `Customer: ${order.customerName ?? "Customer"}`,
+    order.customerEmail ? `Email: ${order.customerEmail}` : "",
+    order.customerWhatsApp ? `WhatsApp: ${order.customerWhatsApp}` : "",
+    `Amount: Rs. ${price(orderTotal(order))}`,
+    "",
+    "Items:",
+    ...items,
+    "",
+    "Payment proof uploaded. Please verify and deliver from the admin panel.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 export function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; isAdmin: boolean }) {
   const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app";
   const siteUrl = (rawSiteUrl.includes("localhost") || rawSiteUrl.includes("127.0.0.1"))
@@ -80,24 +110,47 @@ export function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; is
     ? `${siteUrl}/admin/orders`
     : `${siteUrl}/track-order?order=${encodeURIComponent(orderRef)}&phone=${encodeURIComponent(customerWhatsApp.replace(/\D/g, ""))}`;
 
+  const rawStatus = String(order.paymentStatus || "").toLowerCase();
+  const isGift = Boolean(
+    order.isGift ||
+    (orderRef && (orderRef.toUpperCase().includes("GIFT") || orderRef.toUpperCase().includes("GIVEAWAY"))) ||
+    rawStatus.includes("gift") ||
+    total === 0
+  );
+  const isPaid = Boolean(
+    order.isPaid ||
+    isGift ||
+    ["delivered", "completed", "payment verified", "verified", "processing", "approved", "paid"].some((s) => rawStatus.includes(s))
+  );
+
+  const statusBadgeText = isGift ? "GIFTED · CLAIMED" : isPaid ? "PAID & VERIFIED" : "PAYMENT PENDING";
+  const statusBadgeColor = isGift ? "#7e22ce" : isPaid ? "#047857" : "#b45309";
+  const statusBadgeBg = isGift ? "#faf5ff" : isPaid ? "#ecfdf5" : "#fffbeb";
+  const statusBadgeBorder = isGift ? "#d8b4fe" : isPaid ? "#a7f3d0" : "#fde68a";
+
   const lineItemsHtml = (order.items && order.items.length > 0)
     ? order.items.map((item) => {
         const title = item.title || "PC Game";
-        const platform = item.platform || "Rakexura Games";
+        const platform = item.platform || "Steam";
         const qty = item.quantity || 1;
         const itemPrice = Number(item.price || 0);
         const itemTotal = itemPrice * qty;
-        const priceDisplay = `₹${itemTotal.toLocaleString('en-IN')}.00 INR`;
+        const priceDisplay = (isGift || total === 0) ? "₹0.00 (100% OFF)" : `₹${itemTotal.toLocaleString('en-IN')}.00 INR`;
 
         return `
           <tr style="border-bottom:1px solid #e5e5e5;">
-            <td style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="50%">
+            <td style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="44%">
               ${title}
             </td>
-            <td style="padding:14px 12px;font-size:12px;color:#555555;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="25%">
+            <td style="padding:14px 10px;font-size:12px;color:#555555;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="20%">
               ${platform} ${qty > 1 ? `(Qty: ${qty})` : ''}
             </td>
-            <td align="right" style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:ui-monospace,Consolas,monospace;" width="25%">
+            <td align="center" style="padding:14px 8px;" width="16%">
+              <span style="display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:800;letter-spacing:0.5px;color:${statusBadgeColor};background-color:${statusBadgeBg};border:1px solid ${statusBadgeBorder};">
+                ${isGift ? 'GIFT' : isPaid ? 'PAID' : 'PENDING'}
+              </span>
+            </td>
+            <td align="right" style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:ui-monospace,Consolas,monospace;" width="20%">
               ${priceDisplay}
             </td>
           </tr>
@@ -105,9 +158,14 @@ export function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; is
       }).join("")
     : `
       <tr style="border-bottom:1px solid #e5e5e5;">
-        <td style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">PC Game Order Item</td>
-        <td style="padding:14px 12px;font-size:12px;color:#555555;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Rakexura Games</td>
-        <td align="right" style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:ui-monospace,Consolas,monospace;">₹${total.toLocaleString('en-IN')}.00 INR</td>
+        <td style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="44%">PC Game Order Item</td>
+        <td style="padding:14px 10px;font-size:12px;color:#555555;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="20%">Rakexura Games</td>
+        <td align="center" style="padding:14px 8px;" width="16%">
+          <span style="display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:800;letter-spacing:0.5px;color:${statusBadgeColor};background-color:${statusBadgeBg};border:1px solid ${statusBadgeBorder};">
+            ${isGift ? 'GIFT' : isPaid ? 'PAID' : 'PENDING'}
+          </span>
+        </td>
+        <td align="right" style="padding:14px 12px;font-size:13px;font-weight:700;color:#121212;font-family:ui-monospace,Consolas,monospace;" width="20%">₹${total.toLocaleString('en-IN')}.00 INR</td>
       </tr>
     `;
 
@@ -172,6 +230,12 @@ export function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; is
                             <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">WhatsApp Phone:</strong>
                             <a href="https://wa.me/${customerWhatsApp.replace(/\D/g, "")}" style="color:#0066cc;text-decoration:none;font-weight:700;">${customerWhatsApp}</a>
                           </td>
+                          <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
+                            <strong style="display:block;color:#000000;font-family:'Outfit',sans-serif;">Payment Status:</strong>
+                            <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:800;letter-spacing:0.5px;color:${statusBadgeColor};background-color:${statusBadgeBg};border:1px solid ${statusBadgeBorder};">
+                              ${statusBadgeText}
+                            </span>
+                          </td>
                         </tr>
                       </table>
                     </td>
@@ -184,9 +248,10 @@ export function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; is
                       <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;">
                         <thead>
                           <tr style="background:#f2f2f2;">
-                            <th align="left" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:'Outfit',sans-serif;" width="50%">Description</th>
-                            <th align="left" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:'Outfit',sans-serif;" width="25%">Publisher</th>
-                            <th align="right" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:'Outfit',sans-serif;" width="25%">Price</th>
+                            <th align="left" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:'Outfit',sans-serif;" width="44%">Description</th>
+                            <th align="left" style="padding:10px 10px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:'Outfit',sans-serif;" width="20%">Platform</th>
+                            <th align="center" style="padding:10px 8px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:'Outfit',sans-serif;" width="16%">Status</th>
+                            <th align="right" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:'Outfit',sans-serif;" width="20%">Price</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -270,9 +335,12 @@ export function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; is
                     <div style="font-size:14px;font-weight:900;color:#000000;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
                       INVOICE ID:
                     </div>
-                    <div style="font-size:32px;font-weight:900;color:#000000;letter-spacing:1px;font-family:ui-monospace,Consolas,monospace;">
+                    <div style="font-size:32px;font-weight:900;color:#000000;letter-spacing:1px;font-family:ui-monospace,Consolas,monospace;margin-bottom:10px;">
                       ${orderRef}
                     </div>
+                    <span style="display:inline-block;padding:4px 14px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:${statusBadgeColor};background-color:${statusBadgeBg};border:1px solid ${statusBadgeBorder};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                      ● ${statusBadgeText}
+                    </span>
                   </td>
                 </tr>
                 <tr>
@@ -297,8 +365,10 @@ export function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; is
                           <span style="color:#555555;">${dateStr}</span>
                         </td>
                         <td width="50%" style="padding:6px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
-                          <strong style="display:block;color:#000000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Source:</strong>
-                          <span style="color:#555555;">Rakexura Store</span>
+                          <strong style="display:block;color:#000000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Payment Status:</strong>
+                          <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:800;letter-spacing:0.5px;color:${statusBadgeColor};background-color:${statusBadgeBg};border:1px solid ${statusBadgeBorder};">
+                            ${statusBadgeText}
+                          </span>
                         </td>
                       </tr>
                     </table>
@@ -312,9 +382,10 @@ export function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; is
                     <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;">
                       <thead>
                         <tr style="background:#f2f2f2;">
-                          <th align="left" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="50%">Description</th>
-                          <th align="left" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="25%">Publisher</th>
-                          <th align="right" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="25%">Price</th>
+                          <th align="left" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="44%">Description</th>
+                          <th align="left" style="padding:10px 10px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="20%">Platform</th>
+                          <th align="center" style="padding:10px 8px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="16%">Status</th>
+                          <th align="right" style="padding:10px 12px;font-size:11px;font-weight:900;color:#000000;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" width="20%">Price</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -333,8 +404,14 @@ export function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; is
                     </div>
                     ` : ''}
                     <div style="border-top:1px solid #e5e5e5;margin-top:16px;padding-top:14px;text-align:right;">
-                      <span style="font-size:12px;font-weight:900;color:#727272;letter-spacing:1px;text-transform:uppercase;margin-right:16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">TOTAL:</span>
-                      <span style="font-size:16px;font-weight:900;color:#000000;font-family:ui-monospace,Consolas,monospace;">₹${total.toLocaleString('en-IN')}.00 INR</span>
+                      <div style="margin-bottom:6px;">
+                        <span style="font-size:12px;font-weight:900;color:#727272;letter-spacing:1px;text-transform:uppercase;margin-right:16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">TOTAL:</span>
+                        <span style="font-size:16px;font-weight:900;color:#000000;font-family:ui-monospace,Consolas,monospace;">₹${total.toLocaleString('en-IN')}.00 INR</span>
+                      </div>
+                      <div>
+                        <span style="font-size:12px;font-weight:900;color:${statusBadgeColor};letter-spacing:1px;text-transform:uppercase;margin-right:16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">AMOUNT PAID:</span>
+                        <span style="font-size:16px;font-weight:900;color:${statusBadgeColor};font-family:ui-monospace,Consolas,monospace;">₹${total.toLocaleString('en-IN')}.00 INR (${isGift ? 'GIFT' : isPaid ? 'PAID' : 'PENDING'})</span>
+                      </div>
                     </div>
                   </td>
                 </tr>
