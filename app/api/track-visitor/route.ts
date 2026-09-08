@@ -78,6 +78,11 @@ export async function POST(req: Request) {
         .eq("id", user.id)
         .maybeSingle();
       userName = profile?.display_name || user.email?.split("@")[0] || "Customer";
+    } else if (body.guestHint) {
+      const digits = String(body.guestHint).replace(/\D/g, "");
+      if (digits.length >= 4) {
+        userName = `Guest (WA ...${digits.slice(-4)})`;
+      }
     }
 
     await supabase.from("visitor_logs").insert({

@@ -30,6 +30,7 @@ export function VisitorTracker() {
       try {
         const visitorId = getOrSetVisitorId();
         const referrer = typeof document !== "undefined" ? document.referrer : "";
+        const guestHint = typeof window !== "undefined" ? (localStorage.getItem("guest_whatsapp_phone") || "") : "";
 
         fetch("/api/track-visitor", {
           method: "POST",
@@ -38,6 +39,7 @@ export function VisitorTracker() {
             path: pathname,
             visitorId,
             referrer,
+            guestHint,
           }),
           keepalive: true,
         }).catch(() => {

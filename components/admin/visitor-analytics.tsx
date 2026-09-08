@@ -347,9 +347,23 @@ export function VisitorAnalytics() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <strong className={sess.user_name ? "text-[#70efbb] font-bold" : "text-white font-semibold"}>
-                            {sess.user_name || `Guest (${sess.visitor_id.substring(0, 10)})`}
-                          </strong>
+                          {sess.user_name ? (
+                            <strong className="text-[#70efbb] font-bold">
+                              {sess.user_name}
+                            </strong>
+                          ) : (
+                            <div className="flex items-center gap-1.5 font-semibold text-white">
+                              <span>Guest</span>
+                              <span className="text-white/30 font-normal">•</span>
+                              <span className="text-[#8991a6] font-normal text-xs">{sess.device_type || "Visitor"}</span>
+                              {sess.referrer && !sess.referrer.includes("Direct") && (
+                                <span className="rounded bg-[#8b5cf6]/20 border border-[#8b5cf6]/30 px-1.5 py-0.5 text-[10px] text-[#b9a4ff] font-bold">
+                                  {sess.referrer}
+                                </span>
+                              )}
+                              <span className="font-mono text-[10px] text-[#60697f]">#{sess.visitor_id.slice(-5)}</span>
+                            </div>
+                          )}
                           <span className="rounded bg-[#8b5cf6]/20 border border-[#8b5cf6]/30 px-2 py-0.5 text-[10px] font-black text-[#b9a4ff]">
                             {sess.total_hits} page{sess.total_hits > 1 ? "s" : ""} visited
                           </span>
@@ -430,7 +444,11 @@ export function VisitorAnalytics() {
                       {log.user_name ? (
                         <span className="font-bold text-[#70efbb] inline-flex items-center gap-1"><Users size={12} /> {log.user_name}</span>
                       ) : (
-                        <span className="font-mono text-[#8991a6]">Guest ({log.visitor_id.substring(0, 10)})</span>
+                        <span className="inline-flex items-center gap-1.5 text-xs text-white">
+                          <span className="font-medium">Guest</span>
+                          <span className="text-[#8991a6] text-[11px]">({log.device_type || "Visitor"})</span>
+                          <span className="font-mono text-[10px] text-[#60697f]">#{log.visitor_id.slice(-5)}</span>
+                        </span>
                       )}
                     </td>
                     <td className="p-3">
