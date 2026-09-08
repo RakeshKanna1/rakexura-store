@@ -15,9 +15,9 @@ function getDeviceType(userAgent: string): string {
 }
 
 function parseReferrer(rawReferrer: string | null): string {
-  if (!rawReferrer) return "Direct / None";
+  if (!rawReferrer) return "Direct";
   if (rawReferrer.includes("rakexura-store.vercel.app") || rawReferrer.includes("localhost") || rawReferrer.includes("rakeon-store")) {
-    return "Direct / Internal Navigation";
+    return "Direct";
   }
   if (rawReferrer.includes("wa.me") || rawReferrer.includes("whatsapp")) return "WhatsApp";
   if (rawReferrer.includes("google.")) return "Google Search";
@@ -28,7 +28,7 @@ function parseReferrer(rawReferrer: string | null): string {
   try {
     const url = new URL(rawReferrer);
     const host = url.hostname.replace("www.", "");
-    if (host.includes("rakexura") || host.includes("vercel.app")) return "Direct / Internal Navigation";
+    if (host.includes("rakexura") || host.includes("vercel.app")) return "Direct";
     return host;
   } catch {
     return "External Link";

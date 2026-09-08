@@ -148,7 +148,8 @@ export function VisitorAnalytics() {
   // Top referrers breakdown
   const refMap: Record<string, number> = {};
   logs.forEach((l) => {
-    const src = l.referrer || "Direct / None";
+    const raw = l.referrer || "Direct";
+    const src = raw.startsWith("Direct") ? "Direct" : raw;
     refMap[src] = (refMap[src] || 0) + 1;
   });
   const topReferrers = Object.entries(refMap)
@@ -369,7 +370,7 @@ export function VisitorAnalytics() {
                           </span>
                         </div>
                         <span className="text-xs text-[#8991a6]">
-                          Latest page: <code className="text-white font-mono">{latestPage}</code>
+                          Latest page: <code className="text-white font-mono">{latestPage === "/" ? "Home (/)" : latestPage}</code>
                         </span>
                       </div>
                     </div>
@@ -380,7 +381,7 @@ export function VisitorAnalytics() {
                         {sess.device_type || "Desktop"}
                       </span>
                       <span className="rounded bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-white">
-                        {sess.referrer || "Direct"}
+                        {sess.referrer?.startsWith("Direct") ? "Direct" : (sess.referrer || "Direct")}
                       </span>
                       <span className="font-mono text-[11px]">
                         {new Date(sess.latest_time).toLocaleDateString("en-US", { month: "short", day: "numeric" })},{" "}
@@ -403,10 +404,11 @@ export function VisitorAnalytics() {
                             href={p}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 rounded border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs text-white hover:border-[#8b5cf6] hover:text-[#b9a4ff]"
+                            className="inline-flex items-center gap-1.5 rounded border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs text-white hover:border-[#8b5cf6] hover:bg-[#8b5cf6]/10 hover:text-[#b9a4ff] transition"
                           >
                             <span className="text-[10px] text-[#656d82] font-mono">#{sess.pages.length - idx}</span>
-                            {p} <ArrowUpRight size={10} />
+                            <span className="font-mono">{p === "/" ? "Home (/)" : p}</span>
+                            <ArrowUpRight size={12} className="text-[#8991a6]" />
                           </a>
                         ))}
                       </div>
@@ -453,11 +455,11 @@ export function VisitorAnalytics() {
                     </td>
                     <td className="p-3">
                       <a href={log.path} target="_blank" rel="noreferrer" className="font-mono text-white hover:text-[#8b5cf6] underline flex items-center gap-1">
-                        {log.path} <ArrowUpRight size={12} />
+                        {log.path === "/" ? "Home (/)" : log.path} <ArrowUpRight size={12} />
                       </a>
                     </td>
                     <td className="p-3 font-semibold text-[#d0d6e5]">{log.device_type}</td>
-                    <td className="p-3"><span className="rounded bg-white/10 px-2 py-0.5 text-[10px] text-white">{log.referrer || "Direct"}</span></td>
+                    <td className="p-3"><span className="rounded bg-white/10 px-2 py-0.5 text-[10px] text-white">{log.referrer?.startsWith("Direct") ? "Direct" : (log.referrer || "Direct")}</span></td>
                   </tr>
                 ))}
               </tbody>
