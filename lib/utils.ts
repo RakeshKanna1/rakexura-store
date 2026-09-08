@@ -344,6 +344,26 @@ export function matchesSearchQuery(
     return true;
   }
 
+  // 4. Smart topic & theme aliases (e.g. "Story Rich" -> RPG / Adventure, "Co-op" -> Multiplayer / Survival)
+  if ((value.includes("story") || value.includes("rich")) && (genres?.includes("RPG") || genres?.includes("Adventure") || fullText.includes("story") || fullText.includes("campaign"))) {
+    return true;
+  }
+  if ((value.includes("coop") || value.includes("co-op") || value.includes("multiplayer")) && (fullText.includes("multiplayer") || fullText.includes("online") || fullText.includes("survival") || fullText.includes("co-op") || fullText.includes("coop") || genres?.includes("Survival"))) {
+    return true;
+  }
+  if ((value.includes("pass") || value.includes("subscription")) && (fullText.includes("subscription") || fullText.includes("pass") || cleanTitle.includes("pass"))) {
+    return true;
+  }
+
+  // 5. Multi-word search: all significant words in query exist in title or tags
+  const tokens = value.split(/\s+/).map((t) => t.replace(/[^a-z0-9]/g, "")).filter((t) => t.length > 1);
+  if (tokens.length > 1) {
+    const combinedSpace = `${cleanTitle} ${fullText.replace(/[^a-z0-9\s]/g, "")}`;
+    if (tokens.every((t) => combinedSpace.includes(t))) {
+      return true;
+    }
+  }
+
   return false;
 }
 

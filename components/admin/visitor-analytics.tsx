@@ -36,6 +36,7 @@ export function VisitorAnalytics() {
   const [loading, setLoading] = useState(true);
   const [activeCount, setActiveCount] = useState(0);
   const [viewMode, setViewMode] = useState<"grouped" | "raw">("grouped");
+  const [filterType, setFilterType] = useState<"all" | "customers" | "admin">("all");
   const [expandedSessions, setExpandedSessions] = useState<Record<string, boolean>>({});
   const [isPruning, setIsPruning] = useState(false);
   const [retentionDays, setRetentionDays] = useState(30);
@@ -131,6 +132,23 @@ export function VisitorAnalytics() {
   const sessions = Object.values(sessionsMap).sort(
     (a, b) => new Date(b.latest_time).getTime() - new Date(a.latest_time).getTime()
   );
+
+  const adminSessions = sessions.filter((s) => s.user_name?.startsWith("Admin"));
+  const customerSessions = sessions.filter((s) => !s.user_name?.startsWith("Admin"));
+
+  const filteredSessions =
+    filterType === "customers"
+      ? customerSessions
+      : filterType === "admin"
+      ? adminSessions
+      : sessions;
+
+  const filteredLogs =
+    filterType === "customers"
+      ? logs.filter((l) => !l.user_name?.startsWith("Admin"))
+      : filterType === "admin"
+      ? logs.filter((l) => l.user_name?.startsWith("Admin"))
+      : logs;
 
   const toggleExpand = (visitorId: string) => {
     setExpandedSessions((prev) => ({ ...prev, [visitorId]: !prev[visitorId] }));
@@ -310,32 +328,67 @@ export function VisitorAnalytics() {
             <p className="text-xs text-[#8991a6]">Grouped by customer sessions to avoid duplicate rows when users browse multiple pages.</p>
           </div>
 
-          <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-black/40 p-1 text-xs">
-            <button
-              onClick={() => setViewMode("grouped")}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 font-bold transition-colors ${
-                viewMode === "grouped" ? "bg-[#8b5cf6] text-white" : "text-[#8991a6] hover:text-white"
-              }`}
-            >
-              <Layers size={14} /> Grouped Sessions ({sessions.length})
-            </button>
-            <button
-              onClick={() => setViewMode("raw")}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 font-bold transition-colors ${
-                viewMode === "raw" ? "bg-[#8b5cf6] text-white" : "text-[#8991a6] hover:text-white"
-              }`}
-            >
-              <ListFilter size={14} /> All Hits ({logs.length})
-            </button>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Audience Segment Filter */}
+            <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-black/40 p-1 text-xs">
+              <button
+                type="button"
+                onClick={() => setFilterType("all")}
+                className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                  filterType === "all" ? "bg-white/20 text-white" : "text-[#8991a6] hover:text-white"
+                }`}
+              >
+                All ({sessions.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterType("customers")}
+                className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                  filterType === "customers" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "text-[#8991a6] hover:text-white"
+                }`}
+              >
+                Customers Only ({customerSessions.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterType("admin")}
+                className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                  filterType === "admin" ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" : "text-[#8991a6] hover:text-white"
+                }`}
+              >
+                Admin Activity ({adminSessions.length})
+              </button>
+            </div>
+
+            {/* View Mode */}
+            <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-black/40 p-1 text-xs">
+              <button
+                onClick={() => setViewMode("grouped")}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1 font-bold transition-colors ${
+                  viewMode === "grouped" ? "bg-[#8b5cf6] text-white" : "text-[#8991a6] hover:text-white"
+                }`}
+              >
+                <Layers size={13} /> Grouped ({filteredSessions.length})
+              </button>
+              <button
+                onClick={() => setViewMode("raw")}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1 font-bold transition-colors ${
+                  viewMode === "raw" ? "bg-[#8b5cf6] text-white" : "text-[#8991a6] hover:text-white"
+                }`}
+              >
+                <ListFilter size={13} /> All Hits ({filteredLogs.length})
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Grouped View */}
         {viewMode === "grouped" ? (
           <div className="space-y-3">
-            {sessions.map((sess) => {
+            {filteredSessions.map((sess) => {
               const isExpanded = Boolean(expandedSessions[sess.visitor_id]);
               const latestPage = sess.pages[0];
+              const isAdmin = sess.user_name?.startsWith("Admin");
               return (
                 <div key={sess.visitor_id} className="rounded-lg border border-white/10 bg-black/30 overflow-hidden transition-colors">
                   <div
@@ -343,15 +396,22 @@ export function VisitorAnalytics() {
                     className="flex flex-wrap items-center justify-between gap-3 p-4 cursor-pointer hover:bg-white/[0.02]"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="grid h-9 w-9 place-items-center rounded-lg bg-[#8b5cf6]/10 text-[#b9a4ff] font-bold text-sm">
-                        {sess.user_name ? <Users size={18} /> : <Globe size={18} />}
+                      <div className={`grid h-9 w-9 place-items-center rounded-lg font-bold text-sm ${isAdmin ? "bg-amber-500/10 text-amber-400 border border-amber-500/30" : "bg-[#8b5cf6]/10 text-[#b9a4ff]"}`}>
+                        {isAdmin ? <ShieldCheck size={18} /> : sess.user_name ? <Users size={18} /> : <Globe size={18} />}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
                           {sess.user_name ? (
-                            <strong className="text-[#70efbb] font-bold">
-                              {sess.user_name}
-                            </strong>
+                            <div className="flex items-center gap-1.5">
+                              {isAdmin && (
+                                <span className="rounded bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-300">
+                                  ADMIN
+                                </span>
+                              )}
+                              <strong className={isAdmin ? "text-amber-300 font-bold" : "text-[#70efbb] font-bold"}>
+                                {sess.user_name}
+                              </strong>
+                            </div>
                           ) : (
                             <div className="flex items-center gap-1.5 font-semibold text-white">
                               <span>Guest</span>
@@ -418,8 +478,10 @@ export function VisitorAnalytics() {
               );
             })}
 
-            {sessions.length === 0 && !loading && (
-              <div className="py-8 text-center text-xs text-[#8991a6]">No visitor sessions recorded yet</div>
+            {filteredSessions.length === 0 && !loading && (
+              <div className="py-8 text-center text-xs text-[#8991a6]">
+                {filterType === "customers" ? "No customer sessions recorded yet" : filterType === "admin" ? "No admin activity recorded yet" : "No visitor sessions recorded yet"}
+              </div>
             )}
           </div>
         ) : (
@@ -436,32 +498,44 @@ export function VisitorAnalytics() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.05]">
-                {logs.map((log) => (
-                  <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="p-3 font-mono text-[#8991a6] whitespace-nowrap">
-                      {new Date(log.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })},{" "}
-                      {new Date(log.created_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })}
-                    </td>
-                    <td className="p-3">
-                      {log.user_name ? (
-                        <span className="font-bold text-[#70efbb] inline-flex items-center gap-1"><Users size={12} /> {log.user_name}</span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 text-xs text-white">
-                          <span className="font-medium">Guest</span>
-                          <span className="text-[#8991a6] text-[11px]">({log.device_type || "Visitor"})</span>
-                          <span className="font-mono text-[10px] text-[#60697f]">#{log.visitor_id.slice(-5)}</span>
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      <a href={log.path} target="_blank" rel="noreferrer" className="font-mono text-white hover:text-[#8b5cf6] underline flex items-center gap-1">
-                        {log.path === "/" ? "Home (/)" : log.path} <ArrowUpRight size={12} />
-                      </a>
-                    </td>
-                    <td className="p-3 font-semibold text-[#d0d6e5]">{log.device_type}</td>
-                    <td className="p-3"><span className="rounded bg-white/10 px-2 py-0.5 text-[10px] text-white">{log.referrer?.startsWith("Direct") ? "Direct" : (log.referrer || "Direct")}</span></td>
-                  </tr>
-                ))}
+                {filteredLogs.map((log) => {
+                  const isAdmin = log.user_name?.startsWith("Admin");
+                  return (
+                    <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="p-3 font-mono text-[#8991a6] whitespace-nowrap">
+                        {new Date(log.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })},{" "}
+                        {new Date(log.created_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })}
+                      </td>
+                      <td className="p-3">
+                        {log.user_name ? (
+                          <span className={`font-bold inline-flex items-center gap-1.5 ${isAdmin ? "text-amber-300" : "text-[#70efbb]"}`}>
+                            {isAdmin ? (
+                              <span className="rounded bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider text-amber-300">
+                                ADMIN
+                              </span>
+                            ) : (
+                              <Users size={12} />
+                            )}
+                            {log.user_name}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 text-xs text-white">
+                            <span className="font-medium">Guest</span>
+                            <span className="text-[#8991a6] text-[11px]">({log.device_type || "Visitor"})</span>
+                            <span className="font-mono text-[10px] text-[#60697f]">#{log.visitor_id.slice(-5)}</span>
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3">
+                        <a href={log.path} target="_blank" rel="noreferrer" className="font-mono text-white hover:text-[#8b5cf6] underline flex items-center gap-1">
+                          {log.path === "/" ? "Home (/)" : log.path} <ArrowUpRight size={12} />
+                        </a>
+                      </td>
+                      <td className="p-3 font-semibold text-[#d0d6e5]">{log.device_type}</td>
+                      <td className="p-3"><span className="rounded bg-white/10 px-2 py-0.5 text-[10px] text-white">{log.referrer?.startsWith("Direct") ? "Direct" : (log.referrer || "Direct")}</span></td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

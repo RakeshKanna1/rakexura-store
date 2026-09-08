@@ -74,14 +74,24 @@ export async function POST(req: Request) {
       userEmail = user.email || null;
       const { data: profile } = await supabase
         .from("profiles")
-        .select("display_name")
+        .select("display_name, role")
         .eq("id", user.id)
         .maybeSingle();
-      userName = profile?.display_name || user.email?.split("@")[0] || "Customer";
+
+      if (profile?.role === "admin") {
+        userName = `Admin (${profile?.display_name || "Rakexura"})`;
+      } else {
+        userName = profile?.display_name || user.email?.split("@")[0] || "Customer";
+      }
     } else if (body.guestHint) {
       const digits = String(body.guestHint).replace(/\D/g, "");
       if (digits.length >= 4) {
-        userName = `Guest (WA ...${digits.slice(-4)})`;
+        // Recognize store administrator even if browsing without an active session
+        if (digits.endsWith("6369628215") || digits.endsWith("8215")) {
+          userName = "Admin (Rakexura)";
+        } else {
+          userName = `Guest (WA ...${digits.slice(-4)})`;
+        }
       }
     }
 
