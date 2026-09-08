@@ -409,7 +409,18 @@ function TrackOrderContent() {
               <button
                 suppressHydrationWarning
                 type="button"
-                onClick={() => setShowReceipt(!showReceipt)}
+                onClick={() => {
+                  const nextState = !showReceipt;
+                  setShowReceipt(nextState);
+                  if (nextState) {
+                    setTimeout(() => {
+                      const el = document.getElementById("thermal-receipt-section");
+                      if (el) {
+                        el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                      }
+                    }, 80);
+                  }
+                }}
                 className={`btn btn-secondary text-xs font-bold py-1.5 px-3 inline-flex items-center gap-1.5 border rounded-md shadow-sm cursor-pointer transition mt-1 ${
                   showReceipt
                     ? "border-[#facc15] bg-[#facc15]/10 text-[#facc15] shadow-[0_0_12px_rgba(250,204,21,0.25)]"
@@ -424,7 +435,10 @@ function TrackOrderContent() {
 
           {/* Thermal Order Receipt Printer unfolding above with Email Invoice Resend Card */}
           {showReceipt && (
-            <div className="my-6 p-4 rounded-lg border border-white/10 bg-black/40 flex flex-col items-center animate-in fade-in duration-300">
+            <div
+              id="thermal-receipt-section"
+              className="my-6 p-4 rounded-lg border border-white/10 bg-black/40 flex flex-col items-center animate-in fade-in duration-300"
+            >
               <ThermalReceiptPrinter
                 orderReference={result.order_ref}
                 customerName={result.customer_name || "Rakexura Customer"}

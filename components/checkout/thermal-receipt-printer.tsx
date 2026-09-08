@@ -33,6 +33,7 @@ interface ThermalReceiptPrinterProps {
 
 export function ThermalReceiptPrinter({
   orderReference,
+  customerName,
   items,
   total,
   taxRate = 0,
@@ -48,7 +49,7 @@ export function ThermalReceiptPrinter({
   hideActions = false,
   onTearComplete,
 }: ThermalReceiptPrinterProps) {
-  const [isPrinting, setIsPrinting] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(Boolean(autoPrint));
   const [isPrinted, setIsPrinted] = useState(false);
   const [isTorn, setIsTorn] = useState(false);
   const [tearDirection, setTearDirection] = useState<"right" | "left">("right");
@@ -56,8 +57,7 @@ export function ThermalReceiptPrinter({
   const [bladeFlash, setBladeFlash] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
-  const hasAutoPrintedRef = useRef<string | null>(null);
-  const isPrintingRef = useRef(false);
+  const isPrintingRef = useRef(Boolean(autoPrint));
 
   const formattedDate = date || new Date().toLocaleDateString("en-US", {
     day: "numeric",
@@ -82,89 +82,101 @@ export function ThermalReceiptPrinter({
 
   // Initialize Web Audio API
   const initAudio = () => {
-    if (!audioCtxRef.current) {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (AudioCtx) {
-        audioCtxRef.current = new AudioCtx();
+    try {
+      if (!audioCtxRef.current) {
+        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        if (AudioCtx) {
+          audioCtxRef.current = new AudioCtx();
+        }
       }
-    }
-    if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
-      void audioCtxRef.current.resume();
+      if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+        void audioCtxRef.current.resume().catch(() => {});
+      }
+    } catch {
+      // Suppress audio init errors if browser blocks autoplay
     }
   };
 
   // Play thermal motor sound
   const playPrinterSound = useCallback((durationMs: number) => {
     if (!soundEnabled) return;
-    initAudio();
-    const ctx = audioCtxRef.current;
-    if (!ctx) return;
+    try {
+      initAudio();
+      const ctx = audioCtxRef.current;
+      if (!ctx) return;
 
-    const now = ctx.currentTime;
-    const duration = durationMs / 1000;
-    const bufferSize = Math.floor(ctx.sampleRate * duration);
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const output = buffer.getChannelData(0);
+      const now = ctx.currentTime;
+      const duration = durationMs / 1000;
+      const bufferSize = Math.floor(ctx.sampleRate * duration);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = buffer.getChannelData(0);
 
-    for (let i = 0; i < bufferSize; i++) {
-      output[i] = Math.random() * 2 - 1;
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+
+      const whiteNoise = ctx.createBufferSource();
+      whiteNoise.buffer = buffer;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(620, now);
+      filter.Q.setValueAtTime(3.5, now);
+
+      const gainNode = ctx.createGain();
+      gainNode.gain.setValueAtTime(0.001, now);
+      gainNode.gain.linearRampToValueAtTime(0.04, now + 0.08);
+      gainNode.gain.setValueAtTime(0.04, now + duration - 0.12);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+      whiteNoise.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      whiteNoise.start(now);
+      whiteNoise.stop(now + duration);
+    } catch {
+      // Audio playback safely ignored if blocked
     }
-
-    const whiteNoise = ctx.createBufferSource();
-    whiteNoise.buffer = buffer;
-
-    const filter = ctx.createBiquadFilter();
-    filter.type = "bandpass";
-    filter.frequency.setValueAtTime(620, now);
-    filter.Q.setValueAtTime(3.5, now);
-
-    const gainNode = ctx.createGain();
-    gainNode.gain.setValueAtTime(0.001, now);
-    gainNode.gain.linearRampToValueAtTime(0.04, now + 0.08);
-    gainNode.gain.setValueAtTime(0.04, now + duration - 0.12);
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-
-    whiteNoise.connect(filter);
-    filter.connect(gainNode);
-    gainNode.connect(ctx.destination);
-
-    whiteNoise.start(now);
-    whiteNoise.stop(now + duration);
   }, [soundEnabled]);
 
   const playTearSound = () => {
     if (!soundEnabled) return;
-    initAudio();
-    const ctx = audioCtxRef.current;
-    if (!ctx) return;
+    try {
+      initAudio();
+      const ctx = audioCtxRef.current;
+      if (!ctx) return;
 
-    const now = ctx.currentTime;
-    const duration = 0.35;
-    const bufferSize = Math.floor(ctx.sampleRate * duration);
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const output = buffer.getChannelData(0);
+      const now = ctx.currentTime;
+      const duration = 0.35;
+      const bufferSize = Math.floor(ctx.sampleRate * duration);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = buffer.getChannelData(0);
 
-    for (let i = 0; i < bufferSize; i++) {
-      output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.06));
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.06));
+      }
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = "highpass";
+      filter.frequency.setValueAtTime(1400, now);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.22, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      noise.start(now);
+      noise.stop(now + duration);
+    } catch {
+      // Audio playback safely ignored if blocked
     }
-
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-
-    const filter = ctx.createBiquadFilter();
-    filter.type = "highpass";
-    filter.frequency.setValueAtTime(1400, now);
-
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.22, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-    noise.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-
-    noise.start(now);
-    noise.stop(now + duration);
   };
 
   const triggerPrint = useCallback(() => {
@@ -174,7 +186,7 @@ export function ThermalReceiptPrinter({
     setIsPrinted(false);
     setIsPrinting(true);
 
-    const duration = 2200;
+    const duration = 2000;
     playPrinterSound(duration);
 
     setTimeout(() => {
@@ -201,16 +213,29 @@ export function ThermalReceiptPrinter({
     }, 550);
   };
 
-  // Auto-print immediately when mounted/opened
+  // Auto-print immediately when mounted or when orderReference changes
   useEffect(() => {
-    if (autoPrint && hasAutoPrintedRef.current !== orderReference) {
-      hasAutoPrintedRef.current = orderReference;
-      const timer = setTimeout(() => {
-        triggerPrint();
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [orderReference, autoPrint, triggerPrint]);
+    if (!autoPrint) return;
+
+    isPrintingRef.current = true;
+    setIsTorn(false);
+    setIsPrinted(false);
+    setIsPrinting(true);
+
+    const duration = 2000;
+    playPrinterSound(duration);
+
+    const timer = setTimeout(() => {
+      isPrintingRef.current = false;
+      setIsPrinting(false);
+      setIsPrinted(true);
+    }, duration);
+
+    return () => {
+      clearTimeout(timer);
+      isPrintingRef.current = false;
+    };
+  }, [orderReference, autoPrint, playPrinterSound]);
 
   return (
     <div className="w-full flex flex-col items-center select-none py-2 font-sans">
