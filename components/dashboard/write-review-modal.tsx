@@ -79,31 +79,31 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
     switch (val) {
       case 1:
         return (
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#ff4757] bg-[#ff4757]/15 border border-[#ff4757]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#ff4757] bg-[#ff4757]/15 border border-[#ff4757]/30 px-2.5 py-0.5 rounded-md uppercase tracking-wider">
             <Frown size={11} /> Poor
           </span>
         );
       case 2:
         return (
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#ffa502] bg-[#ffa502]/15 border border-[#ffa502]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#ffa502] bg-[#ffa502]/15 border border-[#ffa502]/30 px-2.5 py-0.5 rounded-md uppercase tracking-wider">
             <Meh size={11} /> Fair
           </span>
         );
       case 3:
         return (
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#00d68f] bg-[#00d68f]/15 border border-[#00d68f]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#00d68f] bg-[#00d68f]/15 border border-[#00d68f]/30 px-2.5 py-0.5 rounded-md uppercase tracking-wider">
             <Smile size={11} /> Good
           </span>
         );
       case 4:
         return (
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#38bdf8] bg-[#38bdf8]/15 border border-[#38bdf8]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#38bdf8] bg-[#38bdf8]/15 border border-[#38bdf8]/30 px-2.5 py-0.5 rounded-md uppercase tracking-wider">
             <ThumbsUp size={11} /> Very Good
           </span>
         );
       case 5:
         return (
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#facc15] bg-[#facc15]/15 border border-[#facc15]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-[0_0_10px_rgba(250,204,21,0.2)]">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#facc15] bg-[#facc15]/15 border border-[#facc15]/30 px-2.5 py-0.5 rounded-md uppercase tracking-wider shadow-[0_0_10px_rgba(250,204,21,0.2)]">
             <Sparkles size={11} /> Excellent
           </span>
         );
