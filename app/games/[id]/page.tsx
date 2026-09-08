@@ -234,8 +234,6 @@ export default async function GamePage({ params }: Props) {
     game.title.toLowerCase().includes("geforce now") ||
     game.title.toLowerCase().includes("nvidia geforce");
 
-  const officialSteamReqs = !isSubscriptionOrCloudOnly ? await fetchOfficialSteamRequirements(game.title) : null;
-
   let backgroundStyle = "";
   if (premiumTheme === "jungle") {
     backgroundStyle = `
@@ -542,53 +540,11 @@ export default async function GamePage({ params }: Props) {
         </section>
         <MediaGallery title={game.title} trailer={game.trailer_url} screenshots={screenshots} />
         {features.length > 0 && <section><h2 className="section-title mb-5">Key features</h2><div className="grid gap-3 sm:grid-cols-2">{features.map((feature) => <div key={feature} className={`flex gap-3 rounded-md border p-4 text-sm ${featureItemClass}`}><Check size={17} className="shrink-0 text-[#00d68f]" />{feature}</div>)}</div></section>}
-        {!isSubscriptionOrCloudOnly && (() => {
-          const fallbackReqs = resolveSystemRequirements(game);
-          const reqs = {
-            minimum: game.minimum_requirements || officialSteamReqs?.minimum || fallbackReqs.minimum,
-            recommended: game.recommended_requirements || officialSteamReqs?.recommended || fallbackReqs.recommended,
-          };
-          return (
-            <section>
-              <div className="mb-5 flex items-center gap-3">
-                <MonitorCog size={21} style={{ color: accent }} />
-                <h2 className="section-title">System requirements</h2>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <article className="rounded-xl p-6 border border-white/10 bg-[#08090c]">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#8991a8]">MINIMUM SPECS</span>
-                  <div className="mt-4 space-y-2.5 text-sm leading-6 text-[#d7dae4]">
-                    {reqs.minimum.split("\n").filter(Boolean).map((line, idx) => (
-                      <div key={idx} className="flex items-start gap-2.5">
-                        <span className="text-[#00d68f] font-bold shrink-0">•</span>
-                        <span>{line.replace(/^•\s*/, "")}</span>
-                      </div>
-                    ))}
-                  </div>
-                </article>
-                <article className="relative overflow-hidden rounded-xl p-6 pt-7 border border-[#facc15]/25 bg-[#0e1017]">
-                  {/* Top-Right Corner Flat Yellow Recommended Badge */}
-                  <div className="absolute top-0 right-0 rounded-bl-xl bg-[#facc15] px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-black">
-                    RECOMMENDED
-                  </div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#facc15]">Recommended Specs</span>
-                  <div className="mt-4 space-y-2.5 text-sm leading-6 text-white">
-                    {reqs.recommended.split("\n").filter(Boolean).map((line, idx) => (
-                      <div key={idx} className="flex items-start gap-2.5">
-                        <span className="text-[#facc15] font-bold shrink-0">•</span>
-                        <span className="font-semibold text-white/95">{line.replace(/^•\s*/, "")}</span>
-                      </div>
-                    ))}
-                  </div>
-                </article>
-              </div>
-              <div className="mt-3.5 rounded-md bg-white/[0.02] border border-white/[0.05] px-4 py-2.5 text-xs text-[#8991a8] flex items-center gap-2">
-                <Info size={15} className="text-[#8b5cf6] shrink-0" />
-                <span><strong>Note:</strong> Specifications are official developer guidelines. An SSD is recommended for optimal loading performance.</span>
-              </div>
-            </section>
-          );
-        })()}
+        {!isSubscriptionOrCloudOnly && (
+          <Suspense fallback={<SystemRequirementsSkeleton accent={accent} />}>
+            <SystemRequirementsSection game={game} accent={accent} />
+          </Suspense>
+        )}
         <section className={panelClass}>
           <h2 className="section-title mb-5">Compare platforms</h2>
           <div className="overflow-x-auto rounded-md border border-white/[.08]">
@@ -718,5 +674,85 @@ function ShelfSkeleton() {
         ))}
       </div>
     </div>
+  );
+}
+
+async function SystemRequirementsSection({
+  game,
+  accent,
+}: {
+  game: Game;
+  accent: string;
+}) {
+  const fallbackReqs = resolveSystemRequirements(game);
+  let officialSteamReqs: { minimum: string; recommended: string } | null = null;
+
+  // Only query Steam if custom requirements aren't provided in DB
+  if (!game.minimum_requirements || !game.recommended_requirements) {
+    try {
+      officialSteamReqs = await fetchOfficialSteamRequirements(game.title);
+    } catch {
+      officialSteamReqs = null;
+    }
+  }
+
+  const reqs = {
+    minimum: game.minimum_requirements || officialSteamReqs?.minimum || fallbackReqs.minimum,
+    recommended: game.recommended_requirements || officialSteamReqs?.recommended || fallbackReqs.recommended,
+  };
+
+  return (
+    <section>
+      <div className="mb-5 flex items-center gap-3">
+        <MonitorCog size={21} style={{ color: accent }} />
+        <h2 className="section-title">System requirements</h2>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <article className="rounded-xl p-6 border border-white/10 bg-[#08090c]">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#8991a8]">MINIMUM SPECS</span>
+          <div className="mt-4 space-y-2.5 text-sm leading-6 text-[#d7dae4]">
+            {reqs.minimum.split("\n").filter(Boolean).map((line, idx) => (
+              <div key={idx} className="flex items-start gap-2.5">
+                <span className="text-[#00d68f] font-bold shrink-0">•</span>
+                <span>{line.replace(/^•\s*/, "")}</span>
+              </div>
+            ))}
+          </div>
+        </article>
+        <article className="relative overflow-hidden rounded-xl p-6 pt-7 border border-[#facc15]/25 bg-[#0e1017]">
+          <div className="absolute top-0 right-0 rounded-bl-xl bg-[#facc15] px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-black">
+            RECOMMENDED
+          </div>
+          <span className="text-xs font-bold uppercase tracking-wider text-[#facc15]">Recommended Specs</span>
+          <div className="mt-4 space-y-2.5 text-sm leading-6 text-white">
+            {reqs.recommended.split("\n").filter(Boolean).map((line, idx) => (
+              <div key={idx} className="flex items-start gap-2.5">
+                <span className="text-[#facc15] font-bold shrink-0">•</span>
+                <span className="font-semibold text-white/95">{line.replace(/^•\s*/, "")}</span>
+              </div>
+            ))}
+          </div>
+        </article>
+      </div>
+      <div className="mt-3.5 rounded-md bg-white/[0.02] border border-white/[0.05] px-4 py-2.5 text-xs text-[#8991a8] flex items-center gap-2">
+        <Info size={15} className="text-[#8b5cf6] shrink-0" />
+        <span><strong>Note:</strong> Specifications are official developer guidelines. An SSD is recommended for optimal loading performance.</span>
+      </div>
+    </section>
+  );
+}
+
+function SystemRequirementsSkeleton({ accent }: { accent: string }) {
+  return (
+    <section>
+      <div className="mb-5 flex items-center gap-3">
+        <MonitorCog size={21} style={{ color: accent }} />
+        <div className="h-6 w-48 rounded bg-white/10 animate-pulse" />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="h-44 rounded-xl border border-white/10 bg-[#08090c] p-6 animate-pulse" />
+        <div className="h-44 rounded-xl border border-white/10 bg-[#0e1017] p-6 animate-pulse" />
+      </div>
+    </section>
   );
 }

@@ -15,6 +15,7 @@ import { MobilePromptManager } from "@/components/layout/mobile-prompt-manager";
 import { VisitorTracker } from "@/components/common/visitor-tracker";
 import { FlyToCartAnimator } from "@/components/common/fly-to-cart-animator";
 import { WhatsAppFloat } from "@/components/common/whatsapp-float";
+import { PageTransitionLoader } from "@/components/common/page-transition-loader";
 import "./globals.css";
 
 const geist = Geist({
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" suppressHydrationWarning className={geist.variable}>
       <body className={geist.className} suppressHydrationWarning>
         <AppProviders>
+          <PageTransitionLoader />
           <ClickSpark sparkColor="#facc15" sparkSize={10} sparkRadius={24} sparkCount={10} duration={450} />
           <VisitorTracker />
           <FlyToCartAnimator />

@@ -41,6 +41,19 @@ export function PlatformIcon({
     );
   }
 
+  // Ubisoft / Ubisoft Connect
+  if (p.includes("ubisoft") || p.includes("uplay") || title.includes("ubisoft") || title.includes("uplay")) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src="/Assets/ubisoft-logo.png"
+        alt="Ubisoft"
+        className={`${className} object-contain`}
+        style={{ filter: active ? "brightness(0)" : "brightness(0) invert(1)" }}
+      />
+    );
+  }
+
   // Epic Games
   if (p.includes("epic") || title.includes("epic")) {
     return (

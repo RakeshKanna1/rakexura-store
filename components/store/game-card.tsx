@@ -1,5 +1,6 @@
 "use client";
 
+import { useTransition } from "react";
 import { Eye, ShoppingCart, X, Zap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,6 +13,7 @@ import type { Game, Platform } from "@/types/store";
 import { WishlistButton } from "./wishlist-button";
 import { PlatformIcon } from "./platform-icon";
 import { ResellerIcon } from "@/components/ui/reseller-badge";
+import { triggerPageTransition } from "@/components/common/page-transition-loader";
 
 function gamePrice(game: Game) {
   if (game.active_flash_sale) {
@@ -89,6 +91,7 @@ interface GameCardInnerProps {
   original: number;
   discount: number;
   platforms: Platform[];
+  isPending?: boolean;
 }
 
 function GameCardInner({
@@ -100,10 +103,12 @@ function GameCardInner({
   original,
   discount,
   platforms,
+  isPending = false,
 }: GameCardInnerProps) {
   const router = useRouter();
+  const url = gameUrl(game);
   const handleMouseEnter = () => {
-    router.prefetch(gameUrl(game));
+    router.prefetch(url);
   };
 
   const lines = useCartStore((state) => state.lines);
@@ -118,6 +123,10 @@ function GameCardInner({
 
   return (
     <>
+      {isPending && (
+        <div className="absolute top-0 inset-x-0 h-[2.5px] z-30 bg-gradient-to-r from-transparent via-[#facc15] to-transparent animate-pulse shadow-[0_0_10px_#facc15]" />
+      )}
+
       {game.is_premium && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
           <div 
@@ -130,8 +139,8 @@ function GameCardInner({
         </div>
       )}
       <Link 
-        href={gameUrl(game)} 
-        prefetch={false} 
+        href={url} 
+        prefetch={priority ? true : undefined} 
         draggable={false}
         onMouseEnter={handleMouseEnter}
         className="block aspect-[3/4] w-full shrink-0 overflow-hidden bg-[#08090c] relative select-none"
@@ -167,13 +176,14 @@ function GameCardInner({
         )}
       </div>
 
-      <div className="absolute right-2.5 top-2.5 flex gap-1.5 z-10">
+      <div className="absolute right-2.5 top-2.5 flex gap-1.5 z-10" data-action-button="true">
         <WishlistButton gameId={game.id} size={14} variant="card" />
 
         {onQuickView && (
           <button
             type="button"
             suppressHydrationWarning={true}
+            data-action-button="true"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -191,7 +201,12 @@ function GameCardInner({
         <div>
           <p className="mb-1 truncate text-[9px] font-extrabold uppercase tracking-wider text-[#81889a]">{game.is_subscription ? "Service Membership" : (game.genres?.slice(0, 2).join(" / ") || "PC Game")}</p>
 
-          <Link href={gameUrl(game)} prefetch={false} onMouseEnter={handleMouseEnter} className="line-clamp-2 min-h-[2.5rem] text-sm font-extrabold leading-snug text-white group-hover:text-[#facc15] transition-colors">
+          <Link 
+            href={url} 
+            prefetch={priority ? true : undefined} 
+            onMouseEnter={handleMouseEnter} 
+            className="line-clamp-2 min-h-[2.5rem] text-sm font-extrabold leading-snug text-white group-hover:text-[#facc15] transition-colors"
+          >
             {game.title}
           </Link>
 
@@ -243,8 +258,12 @@ function GameCardInner({
           )}
 
           <button
+            type="button"
             suppressHydrationWarning={true}
+            data-action-button="true"
             onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               if (game.out_of_stock) {
                 toast.info("This game is currently out of stock. Please check back later, we will notify you once it becomes available!", {
                   duration: 5000,
@@ -285,11 +304,30 @@ export function GameCard({
   priority?: boolean;
   onQuickView?: (game: Game) => void;
 }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const add = useCartStore((state) => state.add);
   const price = gamePrice(game);
   const original = Number(game.original_price ?? 0);
   const discount = original > price && price > 0 ? Math.round((1 - price / original) * 100) : 0;
   const platforms = availablePlatforms(game);
+  const url = gameUrl(game);
+
+  const prefetchTarget = () => {
+    router.prefetch(url);
+  };
+
+  const handleCardClick = (event: React.MouseEvent<HTMLElement>) => {
+    const target = event.target as HTMLElement;
+    // Don't trigger card navigation if user clicked an interactive button or control
+    if (target.closest("button, a, [data-action-button]")) {
+      return;
+    }
+    triggerPageTransition();
+    startTransition(() => {
+      router.push(url);
+    });
+  };
 
   const props: GameCardInnerProps = {
     game,
@@ -300,6 +338,7 @@ export function GameCard({
     original,
     discount,
     platforms,
+    isPending,
   };
 
   const move = (event: React.MouseEvent<HTMLElement>) => {
@@ -314,9 +353,12 @@ export function GameCard({
 
   return (
     <article
+      onClick={handleCardClick}
       onMouseMove={move}
+      onMouseEnter={prefetchTarget}
+      onTouchStart={prefetchTarget}
       style={{ touchAction: "pan-y pan-x" }}
-      className={`spotlight-card group relative flex h-full flex-col overflow-hidden rounded-xl border transition-colors duration-200 md:transition-all md:duration-300 md:hover:-translate-y-1.5 transform-gpu shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] select-none ${themeClasses}`}
+      className={`spotlight-card group relative flex h-full flex-col overflow-hidden rounded-xl border transition-colors duration-200 md:transition-all md:duration-300 md:hover:-translate-y-1.5 active:scale-[0.985] active:brightness-95 cursor-pointer transform-gpu shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] select-none ${isPending ? "opacity-80 pointer-events-none" : ""} ${themeClasses}`}
     >
       <GameCardInner {...props} />
     </article>

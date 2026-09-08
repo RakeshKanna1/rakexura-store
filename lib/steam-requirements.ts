@@ -77,7 +77,10 @@ export async function fetchOfficialSteamRequirements(gameTitle: string): Promise
     if (!query) return null;
 
     const searchUrl = `https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(query)}&l=english&cc=US`;
-    const searchRes = await fetch(searchUrl, { next: { revalidate: 86400 } });
+    const searchRes = await fetch(searchUrl, { 
+      next: { revalidate: 86400 },
+      signal: AbortSignal.timeout(2000),
+    });
     if (!searchRes.ok) return null;
 
     const searchData = (await searchRes.json()) as { items?: Array<{ id: number; name: string }> };
@@ -85,7 +88,10 @@ export async function fetchOfficialSteamRequirements(gameTitle: string): Promise
 
     const appId = searchData.items[0].id;
     const detailsUrl = `https://store.steampowered.com/api/appdetails?appids=${appId}&l=english`;
-    const detailsRes = await fetch(detailsUrl, { next: { revalidate: 86400 } });
+    const detailsRes = await fetch(detailsUrl, { 
+      next: { revalidate: 86400 },
+      signal: AbortSignal.timeout(2000),
+    });
     if (!detailsRes.ok) return null;
 
     const detailsData = (await detailsRes.json()) as Record<string, { success?: boolean; data?: { pc_requirements?: { minimum?: string; recommended?: string } } }>;
