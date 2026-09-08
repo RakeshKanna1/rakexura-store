@@ -80,13 +80,34 @@ function TrackOrderContent() {
   };
 
   async function handleSendEmailInvoice(targetEmail?: string) {
-    const emailToSend = targetEmail || currentUser?.email || "registered customer email";
+    const emailToSend = targetEmail || currentUser?.email;
+    if (!emailToSend) {
+      toast.error("Please enter or verify your email address to receive the invoice.");
+      return;
+    }
+    if (!result?.order_ref) {
+      toast.error("No active order to send invoice for.");
+      return;
+    }
+
     setSendingEmail(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 850));
+      const res = await fetch("/api/notifications/invoice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderReference: result.order_ref,
+          email: emailToSend,
+          customerPhone: phone || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to dispatch invoice");
+      }
       toast.success(`Official invoice receipt emailed to ${emailToSend}!`);
-    } catch {
-      toast.error("Failed to send invoice email. Please try again.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to send invoice email. Please try again.");
     } finally {
       setSendingEmail(false);
     }
