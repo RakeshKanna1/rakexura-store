@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { MathCurveLoader } from "@/components/ui/math-curve-loader";
+import { TextType } from "@/components/animations/text-type";
 
 export function triggerPageTransition() {
   if (typeof window !== "undefined") {
@@ -165,14 +166,29 @@ function PageTransitionLoaderInner() {
               </div>
 
               {/* Minimalist brand title */}
-              <span className="text-[11px] font-black uppercase tracking-[0.35em] text-white">
+              <span className="text-[12px] font-black uppercase tracking-[0.35em] text-white">
                 RAKEXURA
               </span>
 
-              {/* Status micro-pill */}
-              <div className="mt-2.5 inline-flex items-center gap-2 rounded-full border border-[#facc15]/25 bg-[#facc15]/10 px-3 py-0.5 text-[9.5px] font-bold tracking-[0.2em] text-[#facc15]">
+              {/* Dynamic cycling typewriter text for PC Games & Store Features */}
+              <div className="mt-2.5 flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.25em] text-[#facc15]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#facc15] animate-pulse" />
-                <span>LOADING EXPERIENCE...</span>
+                <TextType
+                  text={[
+                    "PC GAMES STORE",
+                    "INSTANT DIGITAL KEYS",
+                    "VERIFIED GAME DEALS",
+                    "BEST PRICES IN INDIA",
+                    "24/7 WHATSAPP SUPPORT"
+                  ]}
+                  typingSpeed={40}
+                  pauseDuration={1500}
+                  deletingSpeed={25}
+                  loop={true}
+                  showCursor={true}
+                  cursorCharacter="|"
+                  cursorClassName="text-[#facc15] ml-0.5 animate-pulse"
+                />
               </div>
             </div>
           </motion.div>
