@@ -445,8 +445,8 @@ export function ThermalReceiptPrinter({
                         </span>
                       )}
                     </div>
-                    <div className="text-[8px] text-[#6a7282] uppercase mt-0.5 font-sans">
-                      {formattedDate} | {orderReference}
+                    <div className="text-[8px] text-[#6a7282] uppercase mt-0.5 font-sans truncate">
+                      {customerName ? `${customerName} • ` : ""}{formattedDate} | {orderReference}
                     </div>
                   </div>
 

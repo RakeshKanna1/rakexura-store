@@ -58,7 +58,7 @@ export async function updateSession(request: NextRequest) {
     }
 
     return { response, user: data?.user ?? null };
-  } catch (_err) {
+  } catch {
     // If an error or exception occurs, purge corrupted auth cookies so browser stops repeating the error
     purgeAuthCookies();
     return { response, user: null };

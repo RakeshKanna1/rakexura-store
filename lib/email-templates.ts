@@ -75,10 +75,10 @@ export function buildOtpVerificationEmailHtml(options: OtpEmailOptions) {
                   </div>
                 </div>
 
-                <!-- Security Pill Badge -->
-                <div style="display:inline-block;background-color:#fefce8;border:1px solid #fef08a;padding:6px 16px;border-radius:999px;margin-bottom:20px;">
-                  <span style="font-size:11px;font-weight:900;color:#854d0e;text-transform:uppercase;letter-spacing:1px;">
-                    &#128737;&#65039; ONE-TIME SECURITY CODE
+                <!-- Security Badge -->
+                <div style="margin-bottom:22px;text-align:center;">
+                  <span style="display:inline-block;padding:5px 12px;background-color:#0f172a;border:1px solid #1e293b;border-radius:4px;font-size:10px;font-weight:900;color:#ffffff;letter-spacing:1.8px;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+                    SECURITY VERIFICATION CODE
                   </span>
                 </div>
 
@@ -182,10 +182,10 @@ export function getSupabaseOtpEmailTemplateHtml(): string {
                   </div>
                 </div>
 
-                <!-- Security Pill Badge -->
-                <div style="display:inline-block;background-color:#fefce8;border:1px solid #fef08a;padding:6px 16px;border-radius:999px;margin-bottom:20px;">
-                  <span style="font-size:11px;font-weight:900;color:#854d0e;text-transform:uppercase;letter-spacing:1px;">
-                    &#128737;&#65039; ONE-TIME SECURITY CODE
+                <!-- Security Badge -->
+                <div style="margin-bottom:22px;text-align:center;">
+                  <span style="display:inline-block;padding:5px 12px;background-color:#0f172a;border:1px solid #1e293b;border-radius:4px;font-size:10px;font-weight:900;color:#ffffff;letter-spacing:1.8px;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+                    SECURITY VERIFICATION CODE
                   </span>
                 </div>
 
