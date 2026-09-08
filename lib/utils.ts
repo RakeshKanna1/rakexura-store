@@ -405,3 +405,74 @@ export function getResellerBadgeText(discountValue: number | string | null | und
   if (type === "markup_percentage") return isAdmin ? `Reseller (+${num}%)` : "Verified Reseller";
   return `Reseller (${num}% OFF)`;
 }
+
+/**
+ * Formats a phone number for display with international country code (+91 for India).
+ * Handles the distinction between:
+ * - 12-digit Indian numbers starting with country code "91" (e.g. "916369628215" -> "+91 6369628215")
+ * - 10-digit mobile numbers whose actual number starts with "91" (e.g. "9187654321" -> "+91 9187654321")
+ */
+export function formatWhatsAppDisplay(value?: string | null): string {
+  if (!value) return "";
+  const trimmed = String(value).trim();
+  if (!trimmed) return "";
+
+  // If already starts with "+91"
+  if (trimmed.startsWith("+91")) {
+    const rest = trimmed.slice(3).trim().replace(/\D/g, "");
+    if (rest.length === 10) {
+      return `+91 ${rest}`;
+    }
+    return trimmed;
+  }
+
+  // If starts with another country code like "+1", "+44", etc.
+  if (trimmed.startsWith("+")) {
+    return trimmed;
+  }
+
+  const digits = trimmed.replace(/\D/g, "");
+
+  // 12 digits starting with "91": the leading "91" is the country code!
+  // e.g. "916369628215" -> "+91 6369628215"
+  if (digits.length === 12 && digits.startsWith("91")) {
+    return `+91 ${digits.slice(2)}`;
+  }
+
+  // 10 digits: this is the full local mobile number!
+  // Even if it starts with "91" (e.g. "9187654321"), the "91" is part of the actual 10-digit phone number, NOT the country code!
+  // So it correctly formats as "+91 9187654321"
+  if (digits.length === 10) {
+    return `+91 ${digits}`;
+  }
+
+  // 11 digits starting with "0": domestic trunk prefix, e.g. "06369628215"
+  if (digits.length === 11 && digits.startsWith("0")) {
+    return `+91 ${digits.slice(1)}`;
+  }
+
+  // If starts with "91" and longer than 10 digits (e.g. 13-14 digits)
+  if (digits.startsWith("91") && digits.length > 10) {
+    return `+91 ${digits.slice(2)}`;
+  }
+
+  return trimmed;
+}
+
+/**
+ * Extracts clean digits for searching/querying orders in the database.
+ * If a 12-digit number starting with "91" is provided (e.g. "916369628215"),
+ * extracts the 10-digit mobile number ("6369628215").
+ * For a 10-digit number (even starting with 91, e.g. "9187654321"), retains all 10 digits.
+ */
+export function extractPhoneLookup(value?: string | null): string {
+  if (!value) return "";
+  const digits = String(value).replace(/\D/g, "");
+  if (digits.length === 12 && digits.startsWith("91")) {
+    return digits.slice(2);
+  }
+  if (digits.length === 11 && digits.startsWith("0")) {
+    return digits.slice(1);
+  }
+  return digits;
+}

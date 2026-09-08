@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, formatWhatsAppDisplay, extractPhoneLookup } from "@/lib/utils";
 import { Confetti } from "@/components/common/confetti";
 import { WHATSAPP_NUMBER } from "@/lib/config";
 
@@ -32,7 +32,7 @@ function estimate(status: string) {
 export function TrackingForm() {
   const params = useSearchParams();
   const [order, setOrder] = useState(params.get("order") ?? "");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(formatWhatsAppDisplay(params.get("phone") ?? ""));
   const [result, setResult] = useState<TrackedOrder | null>(null);
   const [loading, setLoading] = useState(false);
   const [whatsappActivated, setWhatsappActivated] = useState(false);
@@ -40,10 +40,23 @@ export function TrackingForm() {
   const [showConfetti, setShowConfetti] = useState(false);
 
   async function track() {
-    if (!order.trim() || phone.replace(/\D/g, "").length < 10) return toast.error("Enter your order reference and full WhatsApp number");
+    const cleanRaw = phone.replace(/\D/g, "");
+    const phoneLookup = extractPhoneLookup(phone);
+    if (!order.trim() || (phoneLookup.length < 10 && cleanRaw.length < 10)) {
+      return toast.error("Enter your order reference and full WhatsApp number");
+    }
     setLoading(true);
     const supabase = createClient();
-    const { data, error } = await supabase.rpc("track_store_order", { p_order_reference: order.trim(), p_phone_suffix: phone.replace(/\D/g, "") });
+    const searchSuffix = phoneLookup.length >= 10 ? phoneLookup : cleanRaw;
+    let { data, error } = await supabase.rpc("track_store_order", { p_order_reference: order.trim(), p_phone_suffix: searchSuffix });
+
+    if (!data && cleanRaw !== searchSuffix && cleanRaw.length >= 10) {
+      const retry = await supabase.rpc("track_store_order", { p_order_reference: order.trim(), p_phone_suffix: cleanRaw });
+      if (retry.data) {
+        data = retry.data;
+        error = retry.error;
+      }
+    }
     setLoading(false);
     const row = Array.isArray(data) ? data[0] : data;
     if (error || !row) { setResult(null); return toast.error("Order not found. Check both details."); }
@@ -87,7 +100,20 @@ export function TrackingForm() {
             <label htmlFor="tracking-form-phone" className="text-xs font-bold text-[#aeb5c8]">
               WhatsApp number
             </label>
-            <input id="tracking-form-phone" name="phone" value={phone} onChange={(event) => setPhone(event.target.value)} autoComplete="tel" placeholder="91 98765 43210" inputMode="tel" className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none transition focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15]/30 text-white" />
+            <input
+              id="tracking-form-phone"
+              name="phone"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              onBlur={(event) => {
+                const formatted = formatWhatsAppDisplay(event.target.value);
+                if (formatted) setPhone(formatted);
+              }}
+              autoComplete="tel"
+              placeholder="+91 98765 43210"
+              inputMode="tel"
+              className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none transition focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15]/30 text-white"
+            />
           </div>
           <button 
             onClick={track} 

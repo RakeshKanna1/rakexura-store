@@ -7,7 +7,7 @@ import { Check, Circle, Clipboard, Clock3, HelpCircle, LifeBuoy, MessageCircle, 
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, formatWhatsAppDisplay, extractPhoneLookup } from "@/lib/utils";
 import { Confetti } from "@/components/common/confetti";
 import { AnimatePresence, motion } from "framer-motion";
 import dynamic from "next/dynamic";
@@ -138,9 +138,25 @@ function TrackOrderContent() {
     const supabase = createClient();
     let row: Record<string, unknown> | null = null;
 
-    if (phone.replace(/\D/g, "").length >= 10) {
-      const { data } = await supabase.rpc("track_store_order", { p_order_reference: order.trim(), p_phone_suffix: phone.replace(/\D/g, "") });
+    const cleanRaw = phone.replace(/\D/g, "");
+    const phoneLookup = extractPhoneLookup(phone);
+
+    if (phoneLookup.length >= 10 || cleanRaw.length >= 10) {
+      const searchSuffix = phoneLookup.length >= 10 ? phoneLookup : cleanRaw;
+      const { data } = await supabase.rpc("track_store_order", {
+        p_order_reference: order.trim(),
+        p_phone_suffix: searchSuffix,
+      });
       row = (Array.isArray(data) ? data[0] : data) as Record<string, unknown> | null;
+
+      // Fallback: if search with phoneLookup didn't match and cleanRaw is different, try cleanRaw
+      if (!row && cleanRaw !== searchSuffix && cleanRaw.length >= 10) {
+        const { data: retryData } = await supabase.rpc("track_store_order", {
+          p_order_reference: order.trim(),
+          p_phone_suffix: cleanRaw,
+        });
+        row = (Array.isArray(retryData) ? retryData[0] : retryData) as Record<string, unknown> | null;
+      }
     }
 
     if (!row && currentUser) {
@@ -166,7 +182,7 @@ function TrackOrderContent() {
           auth_required: false
         };
         if (userOrder.customer_whatsapp && !phone) {
-          setPhone(userOrder.customer_whatsapp);
+          setPhone(formatWhatsAppDisplay(userOrder.customer_whatsapp));
         }
       }
     }
@@ -253,7 +269,7 @@ function TrackOrderContent() {
       setOrder(orderParam);
     }
     if (phoneParam) {
-      setPhone(phoneParam);
+      setPhone(formatWhatsAppDisplay(phoneParam));
     }
   }, [params]);
 
@@ -364,7 +380,27 @@ function TrackOrderContent() {
             <label htmlFor="track-order-phone" className="text-xs font-bold text-[#aeb5c8]">
               WhatsApp number
             </label>
-            <input suppressHydrationWarning id="track-order-phone" name="phone" value={phone} onChange={(event) => setPhone(event.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void track(); } }} autoComplete="tel" placeholder="91 98765 43210" inputMode="tel" className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none transition focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15]/30 text-white" />
+            <input
+              suppressHydrationWarning
+              id="track-order-phone"
+              name="phone"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              onBlur={(event) => {
+                const formatted = formatWhatsAppDisplay(event.target.value);
+                if (formatted) setPhone(formatted);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  void track();
+                }
+              }}
+              autoComplete="tel"
+              placeholder="+91 98765 43210"
+              inputMode="tel"
+              className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none transition focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15]/30 text-white"
+            />
           </div>
           <button 
             suppressHydrationWarning 

@@ -12,7 +12,7 @@ import { z } from "zod";
 import { Button } from "@/components/common/button";
 import { OnboardingHint } from "@/components/common/onboarding-hint";
 import { createClient } from "@/lib/supabase/client";
-import { calculatePlatformPrice, calculateResellerPrice, formatPrice, gameUrl, isDiamondOrPlatinumCoupon } from "@/lib/utils";
+import { calculatePlatformPrice, calculateResellerPrice, formatPrice, formatWhatsAppDisplay, gameUrl, isDiamondOrPlatinumCoupon } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
 import type { Game } from "@/types/store";
@@ -594,7 +594,7 @@ export function CheckoutForm() {
         {step === 1 && <motion.section key="details" initial={{ opacity: 0, x: 14 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -14 }} className="glass mx-auto max-w-2xl space-y-5 rounded-lg p-6">
           <div><p className="eyebrow">Step 1 of 3</p><h2 className="mt-2 text-xl font-bold">Where should we send your game?</h2><p className="muted mt-2 text-sm">These details are private and used only for payment review, delivery, and support.</p></div>
           <label className="block text-sm font-semibold">Name<input suppressHydrationWarning {...register("name")} autoComplete="name" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#facc15]" />{errors.name && <small className="text-[#ff7373]">Enter your name</small>}</label>
-          <label className="block text-sm font-semibold">WhatsApp number<input suppressHydrationWarning {...register("whatsapp")} inputMode="tel" autoComplete="tel" placeholder="Enter WhatsApp number (e.g., 919876543210)" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#facc15]" />{errors.whatsapp && <small className="text-[#ff7373]">{errors.whatsapp.message}</small>}</label>
+          <label className="block text-sm font-semibold">WhatsApp number<input suppressHydrationWarning {...register("whatsapp", { onBlur: (e) => { const formatted = formatWhatsAppDisplay(e.target.value); if (formatted) setValue("whatsapp", formatted); } })} inputMode="tel" autoComplete="tel" placeholder="Enter WhatsApp number (e.g., +91 98765 43210)" className="mt-2 h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 outline-none focus:border-[#facc15]" />{errors.whatsapp && <small className="text-[#ff7373]">{errors.whatsapp.message}</small>}</label>
           <Button type="button" onClick={nextDetails} className="w-full">Continue to payment <ChevronRight size={17} /></Button>
         </motion.section>}
         {step === 2 && <motion.section key="payment" initial={{ opacity: 0, x: 14 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -14 }} className="glass mx-auto max-w-2xl rounded-lg p-6">

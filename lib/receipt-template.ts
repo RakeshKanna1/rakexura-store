@@ -1,3 +1,5 @@
+import { formatWhatsAppDisplay } from "@/lib/utils";
+
 export type OrderNoticeItem = {
   title?: string;
   platform?: string;
@@ -66,7 +68,7 @@ export function makeEpicReceiptHtml({ order, isAdmin }: { order: OrderNotice; is
   const orderRef = order.reference || "RKX-PENDING";
   const customerName = order.customerName || "Customer";
   const customerEmail = order.customerEmail || "Not provided";
-  const customerWhatsApp = order.customerWhatsApp || "Not provided";
+  const customerWhatsApp = order.customerWhatsApp ? formatWhatsAppDisplay(order.customerWhatsApp) : "Not provided";
   const total = orderTotal(order);
   const dateStr = new Date().toLocaleDateString("en-US", {
     month: "long",
