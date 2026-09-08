@@ -267,9 +267,11 @@ export default async function AdminSection({ params, searchParams }: { params: P
         </div>
       )}
       
-      <div className="mt-8">
-        <SearchableTable rows={rows} headers={headers} section={section} hasActions={hasActions} />
-      </div>
+      {section !== "analytics" && section !== "visitors" && (
+        <div className="mt-8">
+          <SearchableTable rows={rows} headers={headers} section={section} hasActions={hasActions} />
+        </div>
+      )}
     </div>
   );
 }

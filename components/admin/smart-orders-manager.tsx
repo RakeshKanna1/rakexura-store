@@ -379,7 +379,7 @@ export function SmartOrdersManager({ initialOrders }: { initialOrders: OrderRow[
                     />
                     <strong className="text-base sm:text-lg font-black text-white">{String(row.order_reference || `Order #${row.id}`)}</strong>
                     <span
-                      className={`rounded-full border px-2.5 py-0.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider ${
+                      className={`rounded-md border px-2.5 py-0.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider ${
                         row.order_status === "Delivered"
                           ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
                           : row.order_status === "Verified" || row.order_status === "Processing"
