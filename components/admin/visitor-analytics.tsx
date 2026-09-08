@@ -182,7 +182,7 @@ export function VisitorAnalytics() {
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Retention & Storage Cleanup Control */}
-          <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-xs">
+          <div className="flex h-10 items-center gap-2 rounded-lg border border-white/10 bg-black/40 px-3 text-xs">
             <div className="flex items-center gap-1.5 text-[#8991a6]" title="Automatic retention policy prevents Supabase storage bloat">
               <ShieldCheck size={14} className="text-[#00d68f]" />
               <span className="font-semibold text-white">Auto-prune:</span>
@@ -208,9 +208,14 @@ export function VisitorAnalytics() {
             </button>
           </div>
 
-          <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-right">
-            <span className="block text-[10px] font-bold uppercase tracking-wider text-emerald-400">Live Active Online</span>
-            <strong className="text-xl font-black text-white">{activeCount} Visitor{activeCount !== 1 ? "s" : ""}</strong>
+          {/* Streamlined Live Active Counter Badge */}
+          <div className="flex h-10 items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3.5 text-xs">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span className="font-semibold text-emerald-400">Online:</span>
+            <strong className="font-black text-white">{activeCount} Visitor{activeCount !== 1 ? "s" : ""}</strong>
           </div>
 
           <button
