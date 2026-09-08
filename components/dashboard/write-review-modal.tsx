@@ -139,11 +139,13 @@ export function WriteReviewModal({ gameId, gameTitle, onClose }: WriteReviewModa
         exit={{ opacity: 0, scale: 0.96, y: 10 }}
         transition={{ type: "spring", stiffness: 350, damping: 25 }}
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-lg max-h-[88vh] overflow-y-auto rounded-xl border border-white/10 bg-[#0c0d16] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.95)] sm:p-7 backdrop-blur-2xl"
+        className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto overflow-x-hidden rounded-2xl border border-white/10 bg-[#0c0d16] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.95)] sm:p-7 backdrop-blur-2xl [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.15)_transparent]"
       >
         {/* Glow Effects */}
-        <div className="pointer-events-none absolute -left-20 -top-20 -z-10 h-44 w-44 rounded-full bg-[#8b5cf6]/10 blur-[60px]" />
-        <div className="pointer-events-none absolute -right-20 -bottom-20 -z-10 h-44 w-44 rounded-full bg-[#facc15]/8 blur-[65px]" />
+        <div className="pointer-events-none absolute inset-0 overflow-hidden -z-10 rounded-2xl">
+          <div className="absolute -left-16 -top-16 h-44 w-44 rounded-full bg-[#8b5cf6]/15 blur-[60px]" />
+          <div className="absolute -right-16 -bottom-16 h-44 w-44 rounded-full bg-[#facc15]/10 blur-[65px]" />
+        </div>
 
         <button
           type="button"

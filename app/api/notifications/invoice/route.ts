@@ -38,13 +38,25 @@ export async function POST(req: Request) {
     const targetEmail = email.trim().toLowerCase();
 
     const supabase = createAdminClient();
-    const { data: order, error: orderError } = await supabase
-      .from("orders")
-      .select("id, order_reference, order_status, total_price, created_at, cart_items, customer_name, customer_whatsapp, customer_email, user_id")
-      .eq("order_reference", trimmedRef)
-      .maybeSingle();
+    let order: Record<string, unknown> | null = null;
 
-    if (orderError || !order) {
+    const { data: rpcData, error: rpcError } = await supabase
+      .rpc("get_order_for_invoice", { p_order_reference: trimmedRef });
+
+    if (!rpcError && Array.isArray(rpcData) && rpcData.length > 0) {
+      order = rpcData[0] as Record<string, unknown>;
+    } else {
+      const { data: fallbackOrder, error: orderError } = await supabase
+        .from("orders")
+        .select("id, order_reference, order_status, total_price, created_at, cart_items, customer_name, customer_whatsapp, user_id")
+        .eq("order_reference", trimmedRef)
+        .maybeSingle();
+
+      if (orderError) console.warn("Invoice order query error:", orderError);
+      order = fallbackOrder as Record<string, unknown> | null;
+    }
+
+    if (!order) {
       return NextResponse.json(
         { success: false, error: "Order not found. Please verify your order reference." },
         { status: 404 }
@@ -61,13 +73,13 @@ export async function POST(req: Request) {
     }));
 
     const orderNotice: OrderNotice = {
-      reference: order.order_reference,
-      customerName: order.customer_name || "Valued Customer",
-      customerWhatsApp: order.customer_whatsapp || customerPhone || "",
+      reference: order.order_reference ? String(order.order_reference) : undefined,
+      customerName: String(order.customer_name || "Valued Customer"),
+      customerWhatsApp: String(order.customer_whatsapp || customerPhone || ""),
       customerEmail: targetEmail,
       total: Number(order.total_price || 0),
       items: items.length > 0 ? items : [{ title: "PC Game", platform: "Rakexura Games", quantity: 1, price: Number(order.total_price || 0) }],
-      userId: order.user_id,
+      userId: order.user_id ? String(order.user_id) : undefined,
     };
 
     const text = makeCustomerInvoiceMessage(orderNotice);
@@ -82,14 +94,6 @@ export async function POST(req: Request) {
 
     if (!emailResult.ok) {
       console.warn("Invoice email dispatch result:", emailResult);
-    }
-
-    // Non-blocking: update customer_email on the order if not already populated
-    if (!order.customer_email) {
-      void supabase
-        .from("orders")
-        .update({ customer_email: targetEmail })
-        .eq("id", order.id);
     }
 
     return NextResponse.json({
