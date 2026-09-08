@@ -739,13 +739,16 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
           auth: { user: smtpUser, pass: smtpPass },
         });
 
+        const mailHtml = html ?? textToHtml(text);
+        const needsCidAttachment = typeof mailHtml === "string" && mailHtml.includes("cid:rakexuraSilverBadge");
+
         await transporter.sendMail({
           from: `Rakexura Store <${smtpUser}>`,
           to: recipient,
           subject,
           text,
-          html: html ?? textToHtml(text),
-          attachments: getInlineAttachments(),
+          html: mailHtml,
+          ...(needsCidAttachment ? { attachments: getInlineAttachments() } : {}),
         });
 
         console.log(`[Gmail Direct SMTP] Owner email successfully delivered to ${recipient}`);
