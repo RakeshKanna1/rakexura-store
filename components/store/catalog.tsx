@@ -208,8 +208,8 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
                   title="Copy formatted price list for WhatsApp/Telegram"
                   className="flex h-7 sm:h-8 items-center justify-center rounded-md bg-[#090b10] border border-white/5 hover:border-white/15 hover:bg-white/[0.04] px-2.5 text-[11px] font-bold text-white transition-all cursor-pointer"
                 >
-                  <span className="whitespace-nowrap hidden min-[400px]:inline">Copy Price List</span>
-                  <span className="whitespace-nowrap min-[400px]:hidden">Copy Price</span>
+                  <span className="whitespace-nowrap hidden min-[400px]:inline">Copy Games</span>
+                  <span className="whitespace-nowrap min-[400px]:hidden">Copy Games</span>
                 </button>
               </div>
             )}

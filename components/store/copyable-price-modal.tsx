@@ -66,32 +66,154 @@ export function CopyablePriceModal({ games, bundles, flashSales: initialFlashSal
   // Include all non-archived games so price list is complete
   const activeGames = useMemo(() => games.filter((g) => !g.archived), [games]);
 
+  // Separate regular games from subscriptions for cleaner catalog display
+  const regularGames = useMemo(() => activeGames.filter((g) => !g.is_subscription), [activeGames]);
+  const subscriptionGames = useMemo(() => activeGames.filter((g) => Boolean(g.is_subscription)), [activeGames]);
+
   // Helper to format detailed platform prices for each game in catalog
   const formatGameLine = (g: Game) => {
     const parts: string[] = [];
-    if (g.offline_price && Number(g.offline_price) > 0) parts.push(`₹${g.offline_price} (Offline)`);
-    if (g.steam_price && Number(g.steam_price) > 0) parts.push(`₹${g.steam_price} (Steam)`);
-    if (g.online_price && Number(g.online_price) > 0) parts.push(`₹${g.online_price} (Online)`);
-    if (g.epic_price && Number(g.epic_price) > 0) parts.push(`₹${g.epic_price} (Epic)`);
-    if (g.xbox_price && Number(g.xbox_price) > 0) parts.push(`₹${g.xbox_price} (Xbox)`);
-    if (g.geforce_price && Number(g.geforce_price) > 0) parts.push(`₹${g.geforce_price} (GeForce)`);
+    const offPrice = Number(g.offline_price ?? 0);
+    const steamPrice = Number(g.steam_price ?? 0);
+    const onPrice = Number(g.online_price ?? 0);
+    const epicPrice = Number(g.epic_price ?? 0);
+    const xboxPrice = Number(g.xbox_price ?? 0);
+    const geforcePrice = Number(g.geforce_price ?? 0);
+    const platforms = (g.available_platforms ?? []).filter(Boolean);
 
-    const priceStr = parts.length > 0 ? parts.join(" | ") : `₹${lowestPrice(g)}`;
-    const statusStr = g.out_of_stock ? " [Out of Stock]" : "";
-    return `- ${g.title}: ${priceStr}${statusStr}`;
+    const hasOffline = platforms.includes("Offline") || offPrice > 0;
+    const hasOnline = platforms.includes("Online") || onPrice > 0;
+    const hasSteam = platforms.includes("Steam") || steamPrice > 0;
+    const hasEpic = platforms.includes("Epic") || epicPrice > 0;
+
+    // 1. Offline Mode handling (collapse identical platform + mode prices)
+    if (offPrice > 0 && steamPrice > 0 && offPrice === steamPrice) {
+      parts.push(`₹${offPrice} (Steam Offline)`);
+    } else if (offPrice > 0 && epicPrice > 0 && offPrice === epicPrice && !steamPrice) {
+      parts.push(`₹${offPrice} (Epic Offline)`);
+    } else if (offPrice > 0) {
+      if (hasSteam && !hasEpic) {
+        parts.push(`₹${offPrice} (Steam Offline)`);
+      } else if (hasEpic && !hasSteam && epicPrice === offPrice) {
+        parts.push(`₹${offPrice} (Epic Offline)`);
+      } else {
+        parts.push(`₹${offPrice} (Offline)`);
+      }
+    } else if (steamPrice > 0 && hasOffline && !hasOnline) {
+      parts.push(`₹${steamPrice} (Steam Offline)`);
+    } else if (epicPrice > 0 && hasOffline && !hasOnline && !steamPrice) {
+      parts.push(`₹${epicPrice} (Epic Offline)`);
+    }
+
+    // 2. Online Mode handling (collapse identical platform + mode prices)
+    if (onPrice > 0 && epicPrice > 0 && onPrice === epicPrice) {
+      parts.push(`₹${onPrice} (Online / Epic)`);
+    } else if (onPrice > 0 && steamPrice > 0 && onPrice === steamPrice && parts.length === 0) {
+      parts.push(`₹${onPrice} (Steam Online)`);
+    } else if (onPrice > 0) {
+      if (hasEpic && !hasSteam) {
+        parts.push(`₹${onPrice} (Online / Epic)`);
+      } else if (hasSteam && parts.length === 0) {
+        parts.push(`₹${onPrice} (Steam Online)`);
+      } else {
+        parts.push(`₹${onPrice} (Online)`);
+      }
+    }
+
+    // 3. Any separate Steam price not covered above
+    if (steamPrice > 0) {
+      const alreadyHandled = parts.some((p) => p.includes(`₹${steamPrice}`) && p.includes("Steam"));
+      if (!alreadyHandled) {
+        if (hasOffline && parts.length === 0) {
+          parts.push(`₹${steamPrice} (Steam Offline)`);
+        } else if (hasOnline && parts.length === 0) {
+          parts.push(`₹${steamPrice} (Steam Online)`);
+        } else {
+          parts.push(`₹${steamPrice} (Steam)`);
+        }
+      }
+    }
+
+    // 4. Any separate Epic price not covered above
+    if (epicPrice > 0) {
+      const alreadyHandled = parts.some((p) => p.includes(`₹${epicPrice}`) && p.includes("Epic"));
+      if (!alreadyHandled) {
+        if (hasOffline && parts.length === 0) {
+          parts.push(`₹${epicPrice} (Epic Offline)`);
+        } else if (hasOnline && parts.length === 0) {
+          parts.push(`₹${epicPrice} (Epic Online)`);
+        } else {
+          parts.push(`₹${epicPrice} (Epic)`);
+        }
+      }
+    }
+
+    // 5. Xbox & GeForce
+    if (xboxPrice > 0 && !parts.some((p) => p.includes("Xbox"))) {
+      parts.push(`₹${xboxPrice} (Xbox)`);
+    }
+    if (geforcePrice > 0 && !parts.some((p) => p.includes("GeForce"))) {
+      parts.push(`₹${geforcePrice} (GeForce)`);
+    }
+
+    const uniqueParts = Array.from(new Set(parts));
+    const priceStr = uniqueParts.length > 0 ? uniqueParts.join(" | ") : `₹${lowestPrice(g)}`;
+    const statusStr = g.out_of_stock || g.activation_slots === 0 ? " [Out of Stock]" : "";
+    return `• ${g.title} — ${priceStr}${statusStr}`;
   };
 
-  // Group games by price categories based on lowest price
-  const under99 = useMemo(() => activeGames.filter((g) => lowestPrice(g) > 0 && lowestPrice(g) <= 99).sort((a, b) => lowestPrice(a) - lowestPrice(b)), [activeGames]);
-  const range100to199 = useMemo(() => activeGames.filter((g) => lowestPrice(g) >= 100 && lowestPrice(g) <= 199).sort((a, b) => lowestPrice(a) - lowestPrice(b)), [activeGames]);
-  const range200to499 = useMemo(() => activeGames.filter((g) => lowestPrice(g) >= 200 && lowestPrice(g) <= 499).sort((a, b) => lowestPrice(a) - lowestPrice(b)), [activeGames]);
-  const range500plus = useMemo(() => activeGames.filter((g) => lowestPrice(g) >= 500).sort((a, b) => lowestPrice(a) - lowestPrice(b)), [activeGames]);
+  // Helper to format subscription plans cleanly
+  const formatSubscriptionLine = (g: Game) => {
+    const plans: string[] = [];
+    if (g.price_1m && Number(g.price_1m) > 0) plans.push(`₹${g.price_1m} (1 Month)`);
+    if (g.price_2m && Number(g.price_2m) > 0) plans.push(`₹${g.price_2m} (2 Months)`);
+    if (g.price_3m && Number(g.price_3m) > 0) plans.push(`₹${g.price_3m} (3 Months)`);
+    if (g.price_6m && Number(g.price_6m) > 0) plans.push(`₹${g.price_6m} (6 Months)`);
+    if (g.price_12m && Number(g.price_12m) > 0) plans.push(`₹${g.price_12m} (12 Months)`);
+
+    let priceStr = "";
+    if (plans.length > 1) {
+      priceStr = plans.join(" | ");
+    } else if (plans.length === 1) {
+      if (/month|year/i.test(g.title)) {
+        priceStr = `₹${lowestPrice(g)}`;
+      } else {
+        priceStr = plans[0];
+      }
+    } else {
+      priceStr = `₹${lowestPrice(g)}`;
+    }
+    const statusStr = g.out_of_stock || g.activation_slots === 0 ? " [Out of Stock]" : "";
+    return `• ${g.title} — ${priceStr}${statusStr}`;
+  };
+
+  // Group regular games by price categories based on lowest price
+  const under99 = useMemo(
+    () => regularGames.filter((g) => lowestPrice(g) > 0 && lowestPrice(g) <= 99).sort((a, b) => lowestPrice(a) - lowestPrice(b) || a.title.localeCompare(b.title)),
+    [regularGames]
+  );
+  const range100to199 = useMemo(
+    () => regularGames.filter((g) => lowestPrice(g) >= 100 && lowestPrice(g) <= 199).sort((a, b) => lowestPrice(a) - lowestPrice(b) || a.title.localeCompare(b.title)),
+    [regularGames]
+  );
+  const range200to499 = useMemo(
+    () => regularGames.filter((g) => lowestPrice(g) >= 200 && lowestPrice(g) <= 499).sort((a, b) => lowestPrice(a) - lowestPrice(b) || a.title.localeCompare(b.title)),
+    [regularGames]
+  );
+  const range500plus = useMemo(
+    () => regularGames.filter((g) => lowestPrice(g) >= 500).sort((a, b) => lowestPrice(a) - lowestPrice(b) || a.title.localeCompare(b.title)),
+    [regularGames]
+  );
 
   // Build clean WhatsApp formatted message using WhatsApp-native Markdown
   const formattedText = useMemo(() => {
     const lines: string[] = [];
     const publicStoreUrl = SITE_CONFIG.siteUrl;
-    const contactNumber = `+${WHATSAPP_NUMBER.replace(/\D/g, "") || "916381765192"}`;
+    const rawDigits = WHATSAPP_NUMBER.replace(/\D/g, "") || "918317416695";
+    const cleanNumber = rawDigits.startsWith("91") ? rawDigits : `91${rawDigits}`;
+    const formattedWhatsapp = cleanNumber.length === 12
+      ? `+91 ${cleanNumber.slice(2, 7)} ${cleanNumber.slice(7)}`
+      : `+${cleanNumber}`;
 
     const hasFlashSales = flashSales.length > 0;
 
@@ -115,7 +237,7 @@ export function CopyablePriceModal({ games, bundles, flashSales: initialFlashSal
               const reg = getPlatformRegularPrice(game, plan);
               const fl = calculatePlatformPrice(game, plan, fs);
               if (reg > 0 && fl < reg) {
-                subLines.push(`  - ${plan}: ~₹${reg}~ -> *₹${fl}*`);
+                subLines.push(`  • ${plan}: ~₹${reg}~ -> *₹${fl}*`);
               }
             }
             if (subLines.length > 0) {
@@ -142,18 +264,18 @@ export function CopyablePriceModal({ games, bundles, flashSales: initialFlashSal
               const processed = new Set<string>();
 
               if (offlineDeal && steamDeal && offlineDeal.regular === steamDeal.regular && offlineDeal.flash === steamDeal.flash) {
-                lines.push(`  - Steam / Offline: ~₹${steamDeal.regular}~ -> *₹${steamDeal.flash}*`);
+                lines.push(`  • Steam / Offline: ~₹${steamDeal.regular}~ -> *₹${steamDeal.flash}*`);
                 processed.add("Offline");
                 processed.add("Steam");
               }
               if (epicDeal && onlineDeal && epicDeal.regular === onlineDeal.regular && epicDeal.flash === onlineDeal.flash) {
-                lines.push(`  - Epic / Online: ~₹${epicDeal.regular}~ -> *₹${epicDeal.flash}*`);
+                lines.push(`  • Epic / Online: ~₹${epicDeal.regular}~ -> *₹${epicDeal.flash}*`);
                 processed.add("Epic");
                 processed.add("Online");
               }
               for (const d of platformDeals) {
                 if (processed.has(d.name)) continue;
-                lines.push(`  - ${d.name}: ~₹${d.regular}~ -> *₹${d.flash}*`);
+                lines.push(`  • ${d.name}: ~₹${d.regular}~ -> *₹${d.flash}*`);
               }
               lines.push("");
             }
@@ -168,18 +290,19 @@ export function CopyablePriceModal({ games, bundles, flashSales: initialFlashSal
           const gameTitles = b.bundle_games?.map((bg: any) => bg.games?.title || bg.games?.[0]?.title).filter(Boolean) || [];
           const includesText = gameTitles.length > 0 ? ` (${gameTitles.join(", ")})` : "";
           const origPrice = Number(b.original_price || Math.round(b.bundle_price * 1.35));
-          lines.push(`- *${b.title}*${includesText}: ~₹${origPrice}~ -> *₹${b.bundle_price}*`);
+          lines.push(`• *${b.title}*${includesText}: ~₹${origPrice}~ -> *₹${b.bundle_price}*`);
         }
         lines.push("");
       }
 
+      lines.push("──────────────────");
       lines.push("🔒 *Why buy from Rakexura Store?*");
       lines.push("✅ 100% Genuine, Permanent & Safe Accounts");
       lines.push("✅ Instant Delivery within Minutes");
       lines.push("✅ Full Lifetime Tech Support\n");
       lines.push("⏰ *Limited Slots Available!* Prices will revert back once the sale timer expires.\n");
       lines.push(`📲 *DM us directly to lock in your game before slots run out:*`);
-      lines.push(`👉 ${contactNumber}\n`);
+      lines.push(`👉 ${formattedWhatsapp}\n`);
       lines.push(`🌐 *Browse Full Catalog Online:*`);
       lines.push(`${publicStoreUrl}`);
 
@@ -207,7 +330,7 @@ export function CopyablePriceModal({ games, bundles, flashSales: initialFlashSal
             const reg = getPlatformRegularPrice(game, plan);
             const fl = calculatePlatformPrice(game, plan, fs);
             if (reg > 0 && fl < reg) {
-              subLines.push(`  - ${plan}: ~₹${reg}~ -> *₹${fl}*`);
+              subLines.push(`  • ${plan}: ~₹${reg}~ -> *₹${fl}*`);
             }
           }
 
@@ -245,7 +368,7 @@ export function CopyablePriceModal({ games, bundles, flashSales: initialFlashSal
               offlineDeal.regular === steamDeal.regular &&
               offlineDeal.flash === steamDeal.flash
             ) {
-              lines.push(`  - Steam / Offline: ~₹${steamDeal.regular}~ -> *₹${steamDeal.flash}*`);
+              lines.push(`  • Steam / Offline: ~₹${steamDeal.regular}~ -> *₹${steamDeal.flash}*`);
               processed.add("Offline");
               processed.add("Steam");
             }
@@ -256,14 +379,14 @@ export function CopyablePriceModal({ games, bundles, flashSales: initialFlashSal
               epicDeal.regular === onlineDeal.regular &&
               epicDeal.flash === onlineDeal.flash
             ) {
-              lines.push(`  - Epic / Online: ~₹${epicDeal.regular}~ -> *₹${epicDeal.flash}*`);
+              lines.push(`  • Epic / Online: ~₹${epicDeal.regular}~ -> *₹${epicDeal.flash}*`);
               processed.add("Epic");
               processed.add("Online");
             }
 
             for (const d of platformDeals) {
               if (processed.has(d.name)) continue;
-              lines.push(`  - ${d.name}: ~₹${d.regular}~ -> *₹${d.flash}*`);
+              lines.push(`  • ${d.name}: ~₹${d.regular}~ -> *₹${d.flash}*`);
             }
 
             lines.push("");
@@ -279,25 +402,28 @@ export function CopyablePriceModal({ games, bundles, flashSales: initialFlashSal
           const gameTitles = b.bundle_games?.map((bg: any) => bg.games?.title || bg.games?.[0]?.title).filter(Boolean) || [];
           const includesText = gameTitles.length > 0 ? ` (${gameTitles.join(", ")})` : "";
           const origPrice = Number(b.original_price || Math.round(b.bundle_price * 1.35));
-          lines.push(`- *${b.title}*${includesText}: ~₹${origPrice}~ -> *₹${b.bundle_price}*`);
+          lines.push(`• *${b.title}*${includesText}: ~₹${origPrice}~ -> *₹${b.bundle_price}*`);
         }
         lines.push("");
       }
 
+      lines.push("──────────────────");
       lines.push("*💥 Limited time weekend deals!*");
       lines.push("⏰ Offer valid for 48 hours only");
-      lines.push("Grab now before it's gone!\n");
-      lines.push(`📩 *DM NOW TO BOOK:* ${contactNumber}`);
-      lines.push(`🌐 *Store:* ${publicStoreUrl}\n`);
+      lines.push("Grab now before slots run out!\n");
+      lines.push(`💬 *To order:* Reply with the game name!`);
+      lines.push(`🌐 *Store:* ${publicStoreUrl}`);
+      lines.push(`📱 *WhatsApp:* ${formattedWhatsapp}\n`);
     }
 
     // 2. COMPLETE CATALOG CATEGORIES
     if (activeTab === "full" || activeTab === "catalog" || (!hasFlashSales && activeTab === "flash")) {
       if (activeTab === "full" && hasFlashSales) {
-        lines.push("━━━━━━━━━━━━━━━━━━━━");
-        lines.push("*🛍️ FULL CATALOG & PRICE LIST:*\n");
+        lines.push("──────────────────");
+        lines.push("*🛍️ FULL CATALOG & PRICES:*\n");
       } else {
-        lines.push("*🛍️ RAKEXURA STORE — COMPLETE CATALOG & PRICE LIST*\n");
+        lines.push("🛍️ *RAKEXURA STORE — COMPLETE CATALOG & PRICES*");
+        lines.push("⚡ Instant Delivery | 100% Genuine Access\n");
       }
 
       if (under99.length > 0) {
@@ -307,13 +433,13 @@ export function CopyablePriceModal({ games, bundles, flashSales: initialFlashSal
       }
 
       if (range100to199.length > 0) {
-        lines.push("*⚡ ₹100 - ₹199 GAMES:*");
+        lines.push("*⚡ ₹100 – ₹199 GAMES:*");
         range100to199.forEach((g) => lines.push(formatGameLine(g)));
         lines.push("");
       }
 
       if (range200to499.length > 0) {
-        lines.push("*🎮 ₹200 - ₹499 GAMES:*");
+        lines.push("*🎮 ₹200 – ₹499 GAMES:*");
         range200to499.forEach((g) => lines.push(formatGameLine(g)));
         lines.push("");
       }
@@ -324,23 +450,31 @@ export function CopyablePriceModal({ games, bundles, flashSales: initialFlashSal
         lines.push("");
       }
 
-      if (bundles.length > 0 && activeTab === "catalog") {
+      if (subscriptionGames.length > 0) {
+        lines.push("*🎟️ SUBSCRIPTIONS & CLOUD:*");
+        subscriptionGames.forEach((g) => lines.push(formatSubscriptionLine(g)));
+        lines.push("");
+      }
+
+      if (bundles.length > 0) {
         lines.push("*📦 COMBO BUNDLES:*");
         bundles.forEach((b) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const gameTitles = b.bundle_games?.map((bg: any) => bg.games?.title || bg.games?.[0]?.title).filter(Boolean) || [];
           const includesText = gameTitles.length > 0 ? ` (${gameTitles.join(", ")})` : "";
-          lines.push(`- ${b.title}: ₹${b.bundle_price}${includesText}`);
+          lines.push(`• ${b.title} — ₹${b.bundle_price}${includesText}`);
         });
         lines.push("");
       }
 
-      lines.push("💬 To order, reply with the game title or visit our storefront!");
-      lines.push(`📱 WhatsApp: ${contactNumber}`);
+      lines.push("──────────────────");
+      lines.push("💬 *To order:* Reply with the game name or visit our storefront!");
+      lines.push(`🌐 *Store:* ${publicStoreUrl}`);
+      lines.push(`📱 *WhatsApp:* ${formattedWhatsapp}`);
     }
 
     return lines.join("\n");
-  }, [flashSales, games, bundles, activeTab, under99, range100to199, range200to499, range500plus]);
+  }, [flashSales, games, bundles, activeTab, under99, range100to199, range200to499, range500plus, subscriptionGames]);
 
   if (!isOpen || !mounted) return null;
 
