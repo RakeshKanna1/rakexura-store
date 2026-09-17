@@ -1116,7 +1116,7 @@ export async function sendStoreAnnouncement(formData: FormData) {
       if (Array.isArray(g.available_platforms) && g.available_platforms.length > 0) {
         platforms = (g.available_platforms as string[]).join(" · ");
       }
-      discountTag = "SPECIAL GAME DEAL! Available live on Rakexura";
+      discountTag = discountPercentage ? `SPECIAL OFFER · ${discountPercentage}% OFF` : "NEW RELEASE";
     }
   }
 
@@ -1312,7 +1312,7 @@ export async function sendSingleEmailNotification(formData: FormData) {
       if (Array.isArray(g.available_platforms) && g.available_platforms.length > 0) {
         platforms = (g.available_platforms as string[]).join(" · ");
       }
-      discountTag = "SPECIAL GAME DEAL! Available live on Rakexura";
+      discountTag = discountPercentage ? `SPECIAL OFFER · ${discountPercentage}% OFF` : "NEW RELEASE";
     }
   }
 

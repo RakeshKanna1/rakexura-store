@@ -248,66 +248,88 @@ export function buildProfessionalEmailHtml(options: StoreEmailOptions) {
       : `${siteUrl}${imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`}`;
   }
 
+  // Determine a sleek, high-end store category badge (no spammy exclamation marks or AI clichés)
+  let badgeLabel = "STORE ANNOUNCEMENT";
+  const lowerTitle = (title || "").toLowerCase();
+  const lowerMsg = (message || "").toLowerCase();
+  const discNum = discountPercentage ? Number(discountPercentage) : 0;
+
+  if (discNum > 0) {
+    badgeLabel = `SPECIAL OFFER · ${discNum}% OFF`;
+  } else if (lowerTitle.includes("pre-order") || lowerTitle.includes("preorder")) {
+    badgeLabel = "PRE-ORDER AVAILABLE";
+  } else if (lowerTitle.includes("giveaway") || lowerMsg.includes("giveaway")) {
+    badgeLabel = "COMMUNITY GIVEAWAY";
+  } else if (lowerTitle.includes("available") || lowerTitle.includes("arrived") || lowerTitle.includes("new game")) {
+    badgeLabel = "NEW RELEASE";
+  } else if (discountTag && discountTag.length <= 25 && !discountTag.includes("!")) {
+    badgeLabel = discountTag.trim().toUpperCase();
+  }
+
   return `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>${escapeHtml(title)}</title>
       </head>
       <body style="margin:0;padding:0;background-color:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased;">
-        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f4f5f7;padding:32px 10px;">
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f4f5f7;padding:36px 12px;">
           <tr>
             <td align="center">
               
-              <!-- NVIDIA & Epic Games Inspired Main White Card Container -->
-              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:580px;background-color:#ffffff;border-radius:16px;border:1px solid #e2e8f0;padding:32px 24px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.06);">
+              <!-- Professional AAA Gaming Store White Container -->
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:560px;background-color:#ffffff;border-radius:12px;border:1px solid #e2e8f0;padding:36px 28px;text-align:center;box-shadow:0 12px 36px rgba(15,23,42,0.06);">
                 <tr>
                   <td align="center">
                     
-                    <!-- Clean Centered Brand Header with Badge Image -->
-                    <div style="padding-bottom:20px;border-bottom:1px solid #f1f5f9;margin-bottom:24px;text-align:center;">
-                      <img src="${logoUrl}" alt="Rakexura Shield" width="44" height="52" style="display:block;margin:0 auto 12px auto;border:0;outline:none;max-width:44px;height:auto;" />
-                      <div style="font-size:22px;font-weight:900;color:#0f172a;letter-spacing:2px;text-transform:uppercase;line-height:1;">
+                    <!-- Clean Brand Header with Silver Shield -->
+                    <div style="padding-bottom:22px;border-bottom:1px solid #f1f5f9;margin-bottom:24px;text-align:center;">
+                      <img src="${logoUrl}" alt="Rakexura Shield" width="40" height="48" style="display:block;margin:0 auto 10px auto;border:0;outline:none;" />
+                      <div style="font-size:17px;font-weight:900;color:#0f172a;letter-spacing:2.5px;text-transform:uppercase;line-height:1;">
                         RAKEXURA STORE
                       </div>
-                      <div style="margin-top:10px;">
-                        <span style="display:inline-block;background-color:#f1f5f9;color:#6d28d9;font-size:10px;font-weight:900;padding:5px 14px;border-radius:12px;border:1px solid #ddd6fe;text-transform:uppercase;letter-spacing:1.2px;">
-                          ${discountTag ? escapeHtml(discountTag.toUpperCase()) : 'SPECIAL GAME DEAL'}
+                      <div style="margin-top:12px;">
+                        <span style="display:inline-block;background-color:#0f172a;color:#ffffff;font-size:10px;font-weight:800;padding:4px 10px;border-radius:4px;letter-spacing:1.5px;text-transform:uppercase;border:1px solid #1e293b;">
+                          ${escapeHtml(badgeLabel)}
                         </span>
                       </div>
                     </div>
 
                     <!-- Headline Title -->
-                    <h1 style="font-size:24px;font-weight:900;color:#0f172a;letter-spacing:-0.5px;line-height:1.35;margin:0 0 22px 0;padding:0;text-align:center;">
+                    <h1 style="font-size:23px;font-weight:900;color:#0f172a;letter-spacing:-0.5px;line-height:1.3;margin:0 0 20px 0;padding:0;text-align:center;">
                       ${escapeHtml(title)}
                     </h1>
 
-                    <!-- Real Game Banner Image (if available) -->
+                    <!-- Key Art Banner Image -->
                     ${fullImageUrl ? `
-                      <div style="margin-bottom:24px;text-align:center;">
-                        <img src="${escapeHtml(fullImageUrl)}" alt="${escapeHtml(title)}" style="width:100%;max-width:520px;height:auto;border-radius:12px;border:1px solid #e2e8f0;display:block;margin:0 auto;box-shadow:0 4px 16px rgba(0,0,0,0.08);" />
+                      <div style="margin-bottom:22px;text-align:center;">
+                        <a href="${escapeHtml(targetUrl)}" target="_blank" style="display:block;text-decoration:none;">
+                          <img src="${escapeHtml(fullImageUrl)}" alt="${escapeHtml(title)}" style="width:100%;max-width:504px;height:auto;border-radius:8px;border:1px solid #e2e8f0;display:block;margin:0 auto;box-shadow:0 4px 14px rgba(0,0,0,0.06);" />
+                        </a>
                       </div>
                     ` : ''}
 
-                    <!-- NVIDIA / Epic Games Style Price & Platform Card -->
-                    ${(price || originalPrice || platforms || discountTag) ? `
-                      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f8fafc;border-radius:12px;padding:18px 16px;margin-bottom:26px;border:1px solid #e2e8f0;text-align:center;">
+                    <!-- Official Hardware & Pricing Module -->
+                    ${(price || originalPrice || platforms || discNum > 0) ? `
+                      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f8fafc;border-radius:8px;padding:18px 16px;margin-bottom:24px;border:1px solid #e2e8f0;text-align:center;">
                         ${platforms ? `
                           <tr>
                             <td align="center" style="padding-bottom:12px;">
-                              <span style="display:inline-block;background-color:#ede9fe;color:#5b21b6;font-weight:900;padding:6px 14px;border-radius:6px;font-size:11px;text-transform:uppercase;letter-spacing:1px;border:1px solid #ddd6fe;">${escapeHtml(platforms)}</span>
+                              <span style="display:inline-block;background-color:#0f172a;color:#f8fafc;font-weight:800;padding:4px 10px;border-radius:4px;font-size:10px;text-transform:uppercase;letter-spacing:1.2px;border:1px solid #1e293b;">
+                                ${escapeHtml(platforms)}
+                              </span>
                             </td>
                           </tr>
                         ` : ''}
                         <tr>
-                          <td align="center" style="padding-bottom:8px;">
+                          <td align="center" style="padding-bottom:6px;">
                             <table role="presentation" border="0" cellspacing="0" cellpadding="0" style="margin:0 auto;">
                               <tr>
-                                ${discountPercentage ? `
+                                ${discNum > 0 ? `
                                   <td style="padding-right:10px;vertical-align:middle;">
-                                    <span style="background-color:#00df6c;color:#000000;font-size:13px;font-weight:900;padding:4px 10px;border-radius:6px;display:inline-block;">-${discountPercentage}%</span>
+                                    <span style="background-color:#16a34a;color:#ffffff;font-size:12px;font-weight:900;padding:3px 8px;border-radius:4px;display:inline-block;letter-spacing:0.5px;">-${discNum}%</span>
                                   </td>
                                 ` : ''}
                                 ${originalPrice ? `
@@ -317,7 +339,7 @@ export function buildProfessionalEmailHtml(options: StoreEmailOptions) {
                                 ` : ''}
                                 ${price ? `
                                   <td style="vertical-align:middle;">
-                                    <span style="font-size:24px;font-weight:900;color:#0f172a;">₹${Number(price).toLocaleString("en-IN")}</span>
+                                    <span style="font-size:25px;font-weight:900;color:#0f172a;letter-spacing:-0.5px;">₹${Number(price).toLocaleString("en-IN")}</span>
                                   </td>
                                 ` : ''}
                               </tr>
@@ -325,37 +347,44 @@ export function buildProfessionalEmailHtml(options: StoreEmailOptions) {
                           </td>
                         </tr>
                         <tr>
-                          <td align="center" style="color:#64748b;font-size:11px;font-weight:700;padding-top:4px;">
-                            ${discountTag ? escapeHtml(discountTag) : 'SPECIAL GAME DEAL! Available live on Rakexura'}
+                          <td align="center" style="color:#64748b;font-size:11px;font-weight:600;padding-top:6px;letter-spacing:0.3px;">
+                            Official Digital License &bull; Instant Access &bull; Verified Authenticity
                           </td>
                         </tr>
                       </table>
                     ` : ''}
 
                     <!-- Message Body -->
-                    <div style="font-size:14px;line-height:1.75;color:#334155;margin-bottom:30px;text-align:left;">
+                    <div style="font-size:14px;line-height:1.75;color:#334155;margin-bottom:28px;text-align:left;">
                       ${escapeHtml(message).replace(/\n/g, '<br />')}
                     </div>
 
-                    <!-- Epic / NVIDIA Style Primary Action CTA Button -->
+                    <!-- High-Contrast Authoritative Action CTA Button -->
                     <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
                       <tr>
                         <td align="center">
-                          <a href="${escapeHtml(targetUrl)}" target="_blank" style="display:inline-block;width:85%;max-width:320px;background-color:#0078f2;color:#ffffff;font-size:14px;font-weight:900;text-decoration:none;padding:16px 24px;border-radius:8px;box-shadow:0 6px 20px rgba(0,120,242,0.35);letter-spacing:0.8px;text-transform:uppercase;text-align:center;">
-                            VIEW GAME ON RAKEXURA &rarr;
+                          <a href="${escapeHtml(targetUrl)}" target="_blank" style="display:inline-block;width:85%;max-width:320px;background-color:#0f172a;color:#ffffff;font-size:13px;font-weight:800;text-decoration:none;padding:16px 28px;border-radius:6px;box-shadow:0 4px 14px rgba(15,23,42,0.18);letter-spacing:1px;text-transform:uppercase;text-align:center;border:1px solid #1e293b;">
+                            VIEW ON RAKEXURA STORE &rarr;
                           </a>
                         </td>
                       </tr>
                     </table>
 
+                    <!-- Subtle Trust Strip -->
+                    <div style="margin-top:28px;padding-top:20px;border-top:1px solid #f1f5f9;font-size:11px;font-weight:600;color:#64748b;text-align:center;letter-spacing:0.2px;">
+                      Instant Delivery &bull; 100% Genuine Digital License &bull; 24/7 Support
+                    </div>
+
                   </td>
                 </tr>
               </table>
 
-              <!-- White Theme Footer Disclaimer -->
-              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:580px;margin-top:24px;text-align:center;">
+              <!-- Footer Disclaimer -->
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:560px;margin-top:24px;text-align:center;">
                 <tr>
                   <td style="font-size:11px;line-height:1.6;color:#64748b;">
+                    <div style="font-weight:800;color:#0f172a;margin-bottom:2px;">Rakexura Store Gaming Pvt Ltd</div>
+                    <div style="font-size:10px;color:#94a3b8;margin-bottom:12px;">Authorized PC Game Reseller &middot; India</div>
                     <p style="margin:0 0 6px 0;">Specific pricing, stock, and platform options are subject to change. Check live details at Rakexura Store.</p>
                     <p style="margin:0 0 14px 0;">You are receiving this notification email because you registered an account at Rakexura Store.</p>
                     <div style="border-top:1px solid #e2e8f0;padding-top:16px;font-size:11px;color:#64748b;">
