@@ -768,7 +768,7 @@ export function BroadcastComposer({
           </div>
 
           {/* Optional Game Selector for Game-specific templates */}
-          {(selectedTemplateKey === "offer" || selectedTemplateKey === "preorder" || selectedTemplateKey === "review" || selectedTemplateKey === "cart") && (
+          {(selectedTemplateKey === "game" || selectedTemplateKey === "offer" || selectedTemplateKey === "preorder" || selectedTemplateKey === "review" || selectedTemplateKey === "cart") && (
             <div className="rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/5 p-3.5 space-y-2">
               <label className="block text-xs font-bold text-[#b9a4ff]">Pick Game to Auto-fill Details</label>
               <CustomSelect
