@@ -342,7 +342,7 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
     <div className="space-y-4">
       {/* Top Search & Filter Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-1 max-w-md items-center gap-3 rounded-md border border-white/10 bg-black/25 px-4 py-1 text-sm outline-none focus-within:border-white/30">
+        <div className="flex w-full sm:w-auto sm:flex-1 sm:max-w-md items-center gap-3 rounded-md border border-white/10 bg-black/25 px-3.5 sm:px-4 py-1 text-sm outline-none focus-within:border-white/30">
           <Search size={16} className="text-[#8991a6] shrink-0" />
           <input
             value={query}
@@ -1498,11 +1498,11 @@ export function SearchableTable({ rows, headers, section, hasActions }: { rows: 
       )}
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-white/[0.07] pt-4 text-xs font-semibold text-[#8991a6]">
-          <span>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-white/[0.07] pt-4 text-xs font-semibold text-[#8991a6]">
+          <span className="text-center sm:text-left">
             Showing {page * pageSize + 1} to {Math.min((page + 1) * pageSize, filtered.length)} of {filtered.length} entries
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center sm:justify-end gap-2">
             <button
               type="button"
               disabled={page === 0}

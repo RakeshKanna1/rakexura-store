@@ -177,19 +177,19 @@ export function VisitorAnalytics() {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/10 bg-gradient-to-r from-[#0d0924] via-[#120e2e] to-[#0d0924] p-6 shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="relative flex h-12 w-12 items-center justify-center rounded-xl border border-[#00d68f]/30 bg-[#00d68f]/10 text-[#00d68f]">
-            <Activity size={24} />
+      <div className="flex flex-col gap-4 rounded-xl border border-white/10 bg-gradient-to-r from-[#0d0924] via-[#120e2e] to-[#0d0924] p-4 sm:p-6 shadow-xl lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-start sm:items-center gap-3">
+          <div className="relative flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl border border-[#00d68f]/30 bg-[#00d68f]/10 text-[#00d68f]">
+            <Activity size={22} className="sm:w-6 sm:h-6" />
             <span className="absolute -right-1 -top-1 flex h-3.5 w-3.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500"></span>
             </span>
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-black text-white">Live Visitor Monitor</h2>
-              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-black text-emerald-400">
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+              <h2 className="text-xl sm:text-2xl font-black text-white">Live Visitor Monitor</h2>
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-black text-emerald-400 whitespace-nowrap shrink-0">
                 REAL-TIME
               </span>
             </div>
@@ -199,12 +199,35 @@ export function VisitorAnalytics() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2.5 sm:gap-3">
+          {/* Streamlined Live Active Counter Badge & Refresh button */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex h-10 flex-1 sm:flex-initial items-center justify-between sm:justify-start gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3.5 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="font-semibold text-emerald-400">Online:</span>
+              </div>
+              <strong className="font-black text-white whitespace-nowrap">{activeCount} Visitor{activeCount !== 1 ? "s" : ""}</strong>
+            </div>
+
+            <button
+              onClick={fetchLogs}
+              disabled={loading}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-black/40 text-white transition hover:bg-white/10 cursor-pointer"
+              title="Refresh analytics"
+            >
+              <RefreshCw size={16} className={loading ? "animate-spin text-[#8b5cf6]" : ""} />
+            </button>
+          </div>
+
           {/* Retention & Storage Cleanup Control */}
-          <div className="flex h-10 items-center gap-2 rounded-lg border border-white/10 bg-black/40 px-3 text-xs">
-            <div className="flex items-center gap-1.5 text-[#8991a6]" title="Automatic retention policy prevents Supabase storage bloat">
-              <ShieldCheck size={14} className="text-[#00d68f]" />
-              <span className="font-semibold text-white">Auto-prune:</span>
+          <div className="flex h-10 w-full sm:w-auto items-center justify-between sm:justify-start gap-2 rounded-lg border border-white/10 bg-black/40 px-3 text-xs">
+            <div className="flex items-center gap-1.5 text-[#8991a6] whitespace-nowrap" title="Automatic retention policy prevents Supabase storage bloat">
+              <ShieldCheck size={14} className="text-[#00d68f] shrink-0" />
+              <span className="font-semibold text-white whitespace-nowrap">Auto-prune:</span>
               <select
                 value={retentionDays}
                 onChange={(e) => setRetentionDays(Number(e.target.value))}
@@ -219,101 +242,82 @@ export function VisitorAnalytics() {
             <button
               onClick={handlePrune}
               disabled={isPruning || loading}
-              className="flex items-center gap-1 rounded bg-red-500/10 border border-red-500/20 px-2.5 py-1 text-[11px] font-bold text-red-300 hover:bg-red-500/20 hover:text-red-200 transition disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-1 rounded bg-red-500/10 border border-red-500/20 px-2.5 py-1 text-[11px] font-bold text-red-300 hover:bg-red-500/20 hover:text-red-200 transition disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
               title="Prune logs older than selected days"
             >
               <Trash2 size={12} className={isPruning ? "animate-spin" : ""} />
               <span>{isPruning ? "Pruning..." : "Prune Now"}</span>
             </button>
           </div>
-
-          {/* Streamlined Live Active Counter Badge */}
-          <div className="flex h-10 items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3.5 text-xs">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span className="font-semibold text-emerald-400">Online:</span>
-            <strong className="font-black text-white">{activeCount} Visitor{activeCount !== 1 ? "s" : ""}</strong>
-          </div>
-
-          <button
-            onClick={fetchLogs}
-            disabled={loading}
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-black/40 text-white transition hover:bg-white/10 cursor-pointer"
-            title="Refresh analytics"
-          >
-            <RefreshCw size={16} className={loading ? "animate-spin text-[#8b5cf6]" : ""} />
-          </button>
         </div>
       </div>
 
       {/* Analytics Metric Cards */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <div className="premium-panel rounded-xl border border-white/10 bg-[#0d0924]/80 p-5">
+        <div className="premium-panel rounded-xl border border-white/10 bg-[#0d0924]/80 p-4 sm:p-5">
           <div className="flex items-center justify-between text-[#8b5cf6] mb-3">
             <Eye size={20} />
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#8991a6]">Total Views</span>
           </div>
-          <strong className="block text-2xl font-black text-white">{totalPageviews}</strong>
-          <span className="mt-1 block text-xs text-[#8991a6]">Recent Page Views</span>
+          <strong className="block text-xl sm:text-2xl font-black text-white">{totalPageviews}</strong>
+          <span className="mt-1 block text-[11px] sm:text-xs text-[#8991a6]">Recent Page Views</span>
         </div>
 
-        <div className="premium-panel rounded-xl border border-white/10 bg-[#0d0924]/80 p-5">
+        <div className="premium-panel rounded-xl border border-white/10 bg-[#0d0924]/80 p-4 sm:p-5">
           <div className="flex items-center justify-between text-[#facc15] mb-3">
             <Users size={20} />
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#8991a6]">Unique Users</span>
           </div>
-          <strong className="block text-2xl font-black text-white">{uniqueVisitors}</strong>
-          <span className="mt-1 block text-xs text-[#8991a6]">Active Visitor Sessions</span>
+          <strong className="block text-xl sm:text-2xl font-black text-white">{uniqueVisitors}</strong>
+          <span className="mt-1 block text-[11px] sm:text-xs text-[#8991a6]">Active Visitor Sessions</span>
         </div>
 
-        <div className="premium-panel rounded-xl border border-white/10 bg-[#0d0924]/80 p-5">
+        <div className="premium-panel rounded-xl border border-white/10 bg-[#0d0924]/80 p-4 sm:p-5">
           <div className="flex items-center justify-between text-[#20c763] mb-3">
             <Smartphone size={20} />
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#8991a6]">Mobile Share</span>
           </div>
-          <strong className="block text-2xl font-black text-white">{mobilePercent}%</strong>
-          <span className="mt-1 block text-xs text-[#8991a6]">Mobile & Tablet Users</span>
+          <strong className="block text-xl sm:text-2xl font-black text-white">{mobilePercent}%</strong>
+          <span className="mt-1 block text-[11px] sm:text-xs text-[#8991a6]">Mobile & Tablet Users</span>
         </div>
 
-        <div className="premium-panel rounded-xl border border-white/10 bg-[#0d0924]/80 p-5">
+        <div className="premium-panel rounded-xl border border-white/10 bg-[#0d0924]/80 p-4 sm:p-5">
           <div className="flex items-center justify-between text-[#00d68f] mb-3">
             <Monitor size={20} />
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#8991a6]">Desktop Share</span>
           </div>
-          <strong className="block text-2xl font-black text-white">{desktopPercent}%</strong>
-          <span className="mt-1 block text-xs text-[#8991a6]">Desktop PC Users</span>
+          <strong className="block text-xl sm:text-2xl font-black text-white">{desktopPercent}%</strong>
+          <span className="mt-1 block text-[11px] sm:text-xs text-[#8991a6]">Desktop PC Users</span>
         </div>
       </div>
 
       {/* Top Pages & Referrers Grid */}
-      <div className="grid gap-5 md:grid-cols-2">
-        <div className="premium-panel rounded-xl border border-white/10 bg-[#0d0924]/80 p-5">
+      <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+        <div className="premium-panel rounded-xl border border-white/10 bg-[#0d0924]/80 p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-4">
             <Compass size={18} className="text-[#8b5cf6]" />
-            <h3 className="text-base font-bold text-white">Most Popular Pages</h3>
+            <h3 className="text-sm sm:text-base font-bold text-white">Most Popular Pages</h3>
           </div>
           <div className="space-y-2.5">
             {topPages.map(([path, count]) => (
-              <div key={path} className="flex items-center justify-between rounded-lg border border-white/5 bg-black/30 p-3 text-xs">
-                <span className="font-mono text-white truncate max-w-[240px]">{path}</span>
-                <span className="rounded bg-[#8b5cf6]/20 px-2 py-0.5 font-bold text-[#b9a4ff]">{count} views</span>
+              <div key={path} className="flex items-center justify-between gap-2 rounded-lg border border-white/5 bg-black/30 p-2.5 sm:p-3 text-xs">
+                <span className="font-mono text-white truncate flex-1 min-w-0" title={path}>{path}</span>
+                <span className="rounded bg-[#8b5cf6]/20 px-2 py-0.5 font-bold text-[#b9a4ff] shrink-0 whitespace-nowrap">{count} views</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="premium-panel rounded-xl border border-white/10 bg-[#0d0924]/80 p-5">
+        <div className="premium-panel rounded-xl border border-white/10 bg-[#0d0924]/80 p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-4">
             <Globe size={18} className="text-[#facc15]" />
-            <h3 className="text-base font-bold text-white">Traffic Acquisition Sources</h3>
+            <h3 className="text-sm sm:text-base font-bold text-white">Traffic Acquisition Sources</h3>
           </div>
           <div className="space-y-2.5">
             {topReferrers.map(([src, count]) => (
-              <div key={src} className="flex items-center justify-between rounded-lg border border-white/5 bg-black/30 p-3 text-xs">
-                <span className="font-semibold text-white truncate">{src}</span>
-                <span className="rounded bg-[#facc15]/20 px-2 py-0.5 font-bold text-[#facc15]">{count} visits</span>
+              <div key={src} className="flex items-center justify-between gap-2 rounded-lg border border-white/5 bg-black/30 p-2.5 sm:p-3 text-xs">
+                <span className="font-semibold text-white truncate flex-1 min-w-0" title={src}>{src}</span>
+                <span className="rounded bg-[#facc15]/20 px-2 py-0.5 font-bold text-[#facc15] shrink-0 whitespace-nowrap">{count} visits</span>
               </div>
             ))}
           </div>
@@ -321,20 +325,20 @@ export function VisitorAnalytics() {
       </div>
 
       {/* Live Visitor Feed Stream */}
-      <div className="premium-panel rounded-xl border border-white/10 bg-[#0d0924]/80 p-5">
+      <div className="premium-panel rounded-xl border border-white/10 bg-[#0d0924]/80 p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
           <div>
             <h3 className="text-base font-bold text-white">Visitor Activity Stream</h3>
             <p className="text-xs text-[#8991a6]">Grouped by customer sessions to avoid duplicate rows when users browse multiple pages.</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 max-w-full">
             {/* Audience Segment Filter */}
-            <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-black/40 p-1 text-xs">
+            <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-black/40 p-1 text-xs max-w-full overflow-x-auto hide-scrollbar">
               <button
                 type="button"
                 onClick={() => setFilterType("all")}
-                className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition-colors whitespace-nowrap ${
                   filterType === "all" ? "bg-white/20 text-white" : "text-[#8991a6] hover:text-white"
                 }`}
               >
@@ -343,7 +347,7 @@ export function VisitorAnalytics() {
               <button
                 type="button"
                 onClick={() => setFilterType("customers")}
-                className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition-colors whitespace-nowrap ${
                   filterType === "customers" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "text-[#8991a6] hover:text-white"
                 }`}
               >
@@ -352,7 +356,7 @@ export function VisitorAnalytics() {
               <button
                 type="button"
                 onClick={() => setFilterType("admin")}
-                className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition-colors whitespace-nowrap ${
                   filterType === "admin" ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" : "text-[#8991a6] hover:text-white"
                 }`}
               >
@@ -361,7 +365,7 @@ export function VisitorAnalytics() {
             </div>
 
             {/* View Mode */}
-            <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-black/40 p-1 text-xs">
+            <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-black/40 p-1 text-xs whitespace-nowrap">
               <button
                 onClick={() => setViewMode("grouped")}
                 className={`flex items-center gap-1.5 rounded-md px-3 py-1 font-bold transition-colors ${
@@ -393,61 +397,61 @@ export function VisitorAnalytics() {
                 <div key={sess.visitor_id} className="rounded-lg border border-white/10 bg-black/30 overflow-hidden transition-colors">
                   <div
                     onClick={() => toggleExpand(sess.visitor_id)}
-                    className="flex flex-wrap items-center justify-between gap-3 p-4 cursor-pointer hover:bg-white/[0.02]"
+                    className="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:p-4 cursor-pointer hover:bg-white/[0.02]"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`grid h-9 w-9 place-items-center rounded-lg font-bold text-sm ${isAdmin ? "bg-amber-500/10 text-amber-400 border border-amber-500/30" : "bg-[#8b5cf6]/10 text-[#b9a4ff]"}`}>
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg font-bold text-sm ${isAdmin ? "bg-amber-500/10 text-amber-400 border border-amber-500/30" : "bg-[#8b5cf6]/10 text-[#b9a4ff]"}`}>
                         {isAdmin ? <ShieldCheck size={18} /> : sess.user_name ? <Users size={18} /> : <Globe size={18} />}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                           {sess.user_name ? (
                             <div className="flex items-center gap-1.5">
                               {isAdmin && (
-                                <span className="rounded bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-300">
+                                <span className="rounded bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-300 whitespace-nowrap">
                                   ADMIN
                                 </span>
                               )}
-                              <strong className={isAdmin ? "text-amber-300 font-bold" : "text-[#70efbb] font-bold"}>
+                              <strong className={`truncate ${isAdmin ? "text-amber-300 font-bold" : "text-[#70efbb] font-bold"}`}>
                                 {sess.user_name}
                               </strong>
                             </div>
                           ) : (
-                            <div className="flex items-center gap-1.5 font-semibold text-white">
+                            <div className="flex items-center gap-1.5 font-semibold text-white flex-wrap text-xs">
                               <span>Guest</span>
                               <span className="text-white/30 font-normal">•</span>
-                              <span className="text-[#8991a6] font-normal text-xs">{sess.device_type || "Visitor"}</span>
+                              <span className="text-[#8991a6] font-normal">{sess.device_type || "Visitor"}</span>
                               {sess.referrer && !sess.referrer.includes("Direct") && (
-                                <span className="rounded bg-[#8b5cf6]/20 border border-[#8b5cf6]/30 px-1.5 py-0.5 text-[10px] text-[#b9a4ff] font-bold">
+                                <span className="rounded bg-[#8b5cf6]/20 border border-[#8b5cf6]/30 px-1.5 py-0.5 text-[10px] text-[#b9a4ff] font-bold truncate max-w-[120px]">
                                   {sess.referrer}
                                 </span>
                               )}
                               <span className="font-mono text-[10px] text-[#60697f]">#{sess.visitor_id.slice(-5)}</span>
                             </div>
                           )}
-                          <span className="rounded bg-[#8b5cf6]/20 border border-[#8b5cf6]/30 px-2 py-0.5 text-[10px] font-black text-[#b9a4ff]">
+                          <span className="rounded bg-[#8b5cf6]/20 border border-[#8b5cf6]/30 px-2 py-0.5 text-[10px] font-black text-[#b9a4ff] whitespace-nowrap">
                             {sess.total_hits} page{sess.total_hits > 1 ? "s" : ""} visited
                           </span>
                         </div>
-                        <span className="text-xs text-[#8991a6]">
+                        <span className="text-xs text-[#8991a6] block truncate mt-0.5">
                           Latest page: <code className="text-white font-mono">{latestPage === "/" ? "Home (/)" : latestPage}</code>
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 text-xs text-[#8991a6]">
-                      <span className="font-semibold text-white inline-flex items-center gap-1.5">
+                    <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4 text-xs text-[#8991a6] w-full sm:w-auto pt-2 sm:pt-0 border-t border-white/5 sm:border-t-0">
+                      <span className="font-semibold text-white inline-flex items-center gap-1.5 shrink-0">
                         {sess.device_type === "Mobile" ? <Smartphone size={14} /> : <Monitor size={14} />}
                         {sess.device_type || "Desktop"}
                       </span>
-                      <span className="rounded bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-white">
+                      <span className="rounded bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-white shrink-0 truncate max-w-[110px] sm:max-w-none">
                         {sess.referrer?.startsWith("Direct") ? "Direct" : (sess.referrer || "Direct")}
                       </span>
-                      <span className="font-mono text-[11px]">
+                      <span className="font-mono text-[11px] shrink-0 whitespace-nowrap">
                         {new Date(sess.latest_time).toLocaleDateString("en-US", { month: "short", day: "numeric" })},{" "}
                         {new Date(sess.latest_time).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}
                       </span>
-                      {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      {isExpanded ? <ChevronUp size={16} className="shrink-0" /> : <ChevronDown size={16} className="shrink-0" />}
                     </div>
                   </div>
 

@@ -77,12 +77,13 @@ export function ResellerCustomerButton({
 
   const modalContent = modalOpen && mounted ? (
     <div
-      className="fixed inset-0 z-[99999] flex min-h-screen items-center justify-center overflow-y-auto bg-black/85 p-4 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 z-[99999] overflow-y-auto bg-black/85 p-3 sm:p-4 backdrop-blur-md animate-in fade-in duration-150"
       onClick={(e) => {
         if (e.target === e.currentTarget) setModalOpen(false);
       }}
     >
-      <div className="relative my-auto w-full max-w-lg overflow-hidden rounded-2xl border border-white/15 bg-[#0d0f17] p-6 shadow-2xl space-y-5 text-left">
+      <div className="flex min-h-full items-center justify-center py-6 sm:py-10">
+        <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-white/15 bg-[#0d0f17] p-4 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 text-left">
         
         {/* Header */}
         <div className="flex items-start justify-between gap-4 pb-4 border-b border-white/10">
@@ -211,7 +212,7 @@ export function ResellerCustomerButton({
                 Current Value: {preview.label}
               </span>
             </div>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
               {PRESETS[discountType].map((val) => (
                 <button
                   key={val}
@@ -231,7 +232,7 @@ export function ResellerCustomerButton({
 
           {/* Custom Input Field */}
           <div className="pt-2 border-t border-white/5 flex items-center gap-3">
-            <div className="relative w-32 shrink-0">
+            <div className="relative w-28 sm:w-32 shrink-0">
               <input
                 type="number"
                 min="0"
@@ -261,11 +262,11 @@ export function ResellerCustomerButton({
           </div>
 
           {/* Live Pricing Preview Simulation */}
-          <div className="rounded-xl border border-[#facc15]/25 bg-[#facc15]/[0.04] p-3.5 text-xs flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+          <div className="rounded-xl border border-[#facc15]/25 bg-[#facc15]/[0.04] p-3 sm:p-3.5 text-xs flex flex-wrap items-center justify-between gap-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
             <span className="text-[#a0a8c0] font-medium">
               Simulation on <strong className="text-white font-bold">₹500 Game</strong>:
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               {preview.isDiscount ? (
                 <>
                   <del className="text-[#646b7b] font-medium">₹500</del>
@@ -292,27 +293,27 @@ export function ResellerCustomerButton({
         </div>
 
         {/* Modal Actions Footer */}
-        <div className="flex items-center justify-between gap-2.5 pt-3 border-t border-white/10">
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2.5 pt-3 border-t border-white/10">
           {activeReseller ? (
             <button
               type="button"
               onClick={() => handleToggle(false)}
               disabled={isPending}
-              className="h-11 inline-flex items-center justify-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 text-xs font-bold text-red-300 hover:bg-red-500/20 hover:text-red-200 transition cursor-pointer whitespace-nowrap shrink-0"
+              className="h-10 sm:h-11 w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 text-xs font-bold text-red-300 hover:bg-red-500/20 hover:text-red-200 transition cursor-pointer whitespace-nowrap"
             >
               {isPending ? <Loader2 size={15} className="animate-spin" /> : <ShieldX size={15} />}
               <span>Revoke Access</span>
             </button>
           ) : (
-            <div />
+            <div className="hidden sm:block" />
           )}
 
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               type="button"
               onClick={() => setModalOpen(false)}
               disabled={isPending}
-              className="h-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 text-xs font-bold text-[#8991a6] hover:text-white hover:bg-white/10 transition cursor-pointer whitespace-nowrap"
+              className="h-10 sm:h-11 flex-1 sm:flex-initial inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 text-xs font-bold text-[#8991a6] hover:text-white hover:bg-white/10 transition cursor-pointer whitespace-nowrap"
             >
               Cancel
             </button>
@@ -321,7 +322,7 @@ export function ResellerCustomerButton({
               type="button"
               onClick={() => handleToggle(true)}
               disabled={isPending}
-              className="h-11 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#ffe45c] via-[#facc15] to-[#f59e0b] px-5 text-xs font-black text-black shadow-[0_0_15px_rgba(250,204,21,0.25)] hover:brightness-110 active:scale-[0.98] transition cursor-pointer whitespace-nowrap shrink-0"
+              className="h-10 sm:h-11 flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#ffe45c] via-[#facc15] to-[#f59e0b] px-4 sm:px-5 text-xs font-black text-black shadow-[0_0_15px_rgba(250,204,21,0.25)] hover:brightness-110 active:scale-[0.98] transition cursor-pointer whitespace-nowrap"
             >
               {isPending ? <Loader2 size={15} className="animate-spin text-black" /> : <ShieldCheck size={15} className="text-black" />}
               <span>{activeReseller ? "Update Rate" : "Activate Reseller"}</span>
@@ -329,6 +330,7 @@ export function ResellerCustomerButton({
           </div>
         </div>
 
+      </div>
       </div>
     </div>
   ) : null;

@@ -34,8 +34,8 @@ export default async function AdminRewardsPage() {
     <main className="space-y-6">
       <div>
         <p className="eyebrow">Customer loyalty & gamification</p>
-        <h1 className="mt-2 text-3xl font-black md:text-5xl text-white">Ranks & rewards</h1>
-        <p className="section-copy mt-2 text-sm text-[#8991a6]">
+        <h1 className="mt-2 text-2xl sm:text-4xl md:text-5xl font-black text-white">Ranks & rewards</h1>
+        <p className="section-copy mt-2 text-xs sm:text-sm text-[#8991a6]">
           Delivered orders earn 100 XP. Review customer rank progression, search members, and grant instant loyalty bonus points.
         </p>
       </div>

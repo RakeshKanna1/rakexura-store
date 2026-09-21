@@ -41,59 +41,61 @@ export function DeleteCustomerButton({ userId, customerName }: DeleteCustomerBut
 
   const modalContent = confirmOpen && mounted ? (
     <div
-      className="fixed inset-0 z-[99999] flex min-h-screen items-center justify-center overflow-y-auto bg-black/85 p-4 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 z-[99999] overflow-y-auto bg-black/85 p-3 sm:p-4 backdrop-blur-md animate-in fade-in duration-150"
       onClick={(e) => {
         if (e.target === e.currentTarget) setConfirmOpen(false);
       }}
     >
-      <div className="relative my-auto w-full max-w-md rounded-xl border border-white/15 bg-[#121216] p-6 shadow-2xl space-y-4 text-left">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3 text-red-400">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-red-500/10 border border-red-500/20">
-              <Trash2 size={18} />
+      <div className="flex min-h-full items-center justify-center py-6 sm:py-10">
+        <div className="relative w-full max-w-md rounded-xl border border-white/15 bg-[#121216] p-4 sm:p-6 shadow-2xl space-y-4 text-left">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3 text-red-400">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-red-500/10 border border-red-500/20">
+                <Trash2 size={18} />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Delete Customer Account</h3>
+                <p className="text-xs text-[#8991a6]">This action cannot be undone.</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-base font-bold text-white">Delete Customer Account</h3>
-              <p className="text-xs text-[#8991a6]">This action cannot be undone.</p>
-            </div>
+
+            <button
+              type="button"
+              onClick={() => setConfirmOpen(false)}
+              className="grid h-7 w-7 place-items-center rounded-md border border-white/10 text-[#8991a6] hover:text-white hover:border-white/20 transition cursor-pointer"
+            >
+              <X size={14} />
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setConfirmOpen(false)}
-            className="grid h-7 w-7 place-items-center rounded-md border border-white/10 text-[#8991a6] hover:text-white hover:border-white/20 transition cursor-pointer"
-          >
-            <X size={14} />
-          </button>
-        </div>
+          <p className="text-xs text-[#b8bfd0] leading-relaxed break-words">
+            Are you sure you want to delete customer <strong className="text-white">{customerName || userId}</strong>? This will permanently remove their profile, notifications, and associated store data.
+          </p>
 
-        <p className="text-xs text-[#b8bfd0] leading-relaxed break-words">
-          Are you sure you want to delete customer <strong className="text-white">{customerName || userId}</strong>? This will permanently remove their profile, notifications, and associated store data.
-        </p>
-
-        <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/10">
-          <button
-            type="button"
-            onClick={() => setConfirmOpen(false)}
-            disabled={isPending}
-            className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-[#8991a6] hover:bg-white/10 hover:text-white transition cursor-pointer"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-red-600 hover:bg-red-500 px-4 py-2 text-xs font-bold text-white shadow-lg transition cursor-pointer disabled:opacity-50"
-          >
-            {isPending ? (
-              <>
-                <Loader2 size={13} className="animate-spin" /> Deleting...
-              </>
-            ) : (
-              "Yes, Delete Account"
-            )}
-          </button>
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 sm:gap-2.5 pt-3 border-t border-white/10">
+            <button
+              type="button"
+              onClick={() => setConfirmOpen(false)}
+              disabled={isPending}
+              className="w-full sm:w-auto rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 sm:py-2 text-xs font-bold text-[#8991a6] hover:bg-white/10 hover:text-white transition cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={isPending}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 hover:bg-red-500 px-4 py-2.5 sm:py-2 text-xs font-bold text-white shadow-lg transition cursor-pointer disabled:opacity-50"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 size={13} className="animate-spin" /> Deleting...
+                </>
+              ) : (
+                "Yes, Delete Account"
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -85,8 +85,13 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
         </label>
         
         {/* Product Type Switcher */}
-        <div className="md:col-span-2 rounded-md border border-white/10 bg-black/20 p-4">
-          <p className="eyebrow text-xs mb-3">Product category type</p>
+        <div className="md:col-span-2 rounded-xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-black/30 p-4 sm:p-5">
+          <div className="flex items-center justify-between mb-3">
+            <p className="eyebrow text-xs text-[#b9a4ff]">Product category type</p>
+            <span className="text-[11px] font-bold text-[#8991a6] hidden sm:inline-block">
+              {!isSubscription ? "Standard Catalog Game" : "Recurring Pass / Plan"}
+            </span>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
@@ -94,29 +99,47 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
                 setIsSubscription(false);
                 setSelectedPlatforms(["Steam", "Offline"]);
               }}
-              className={`flex items-center justify-center gap-2.5 h-11 px-4 rounded-md font-bold text-xs sm:text-sm transition-all border cursor-pointer ${
+              className={`relative flex items-center justify-between h-12 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all border cursor-pointer select-none ${
                 !isSubscription
-                  ? "bg-white/10 border-white/40 text-white shadow-sm"
-                  : "bg-black/25 border-white/10 text-[#8991a6] hover:bg-white/5 hover:text-white"
+                  ? "border-[#8b5cf6] bg-[#8b5cf6]/15 text-white shadow-[0_0_20px_rgba(139,92,246,0.22)] ring-1 ring-[#8b5cf6]/40"
+                  : "border-white/10 bg-black/40 text-[#8991a6] hover:border-white/20 hover:text-white hover:bg-white/[0.04]"
               }`}
             >
-              <Gamepad2 size={16} className={!isSubscription ? "text-white" : "text-[#8991a6]"} />
-              <span>Standard PC Game</span>
+              <div className="flex items-center gap-2.5">
+                <Gamepad2 size={18} className={!isSubscription ? "text-[#b9a4ff]" : "text-[#656d81]"} />
+                <span>Standard PC Game</span>
+              </div>
+              {!isSubscription && (
+                <span className="flex items-center gap-1.5 text-[10px] font-black uppercase text-[#b9a4ff]">
+                  <span className="h-2 w-2 rounded-full bg-[#b9a4ff] shadow-[0_0_8px_#b9a4ff]" />
+                  Active
+                </span>
+              )}
             </button>
+
             <button
               type="button"
               onClick={() => {
                 setIsSubscription(true);
                 setSelectedPlatforms(["1 Month", "2 Months", "3 Months"]);
               }}
-              className={`flex items-center justify-center gap-2.5 h-11 px-4 rounded-md font-bold text-xs sm:text-sm transition-all border cursor-pointer ${
+              className={`relative flex items-center justify-between h-12 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all border cursor-pointer select-none ${
                 isSubscription
-                  ? "bg-white/10 border-white/40 text-white shadow-sm"
-                  : "bg-black/25 border-white/10 text-[#8991a6] hover:bg-white/5 hover:text-white"
+                  ? "border-[#facc15] bg-[#facc15]/15 text-white shadow-[0_0_20px_rgba(250,204,21,0.22)] ring-1 ring-[#facc15]/40"
+                  : "border-white/10 bg-black/40 text-[#8991a6] hover:border-white/20 hover:text-white hover:bg-white/[0.04]"
               }`}
             >
-              <Zap size={16} className={isSubscription ? "text-white" : "text-[#8991a6]"} />
-              <span>Subscription / Pass (Xbox, Nvidia)</span>
+              <div className="flex items-center gap-2.5">
+                <Zap size={18} className={isSubscription ? "text-[#facc15]" : "text-[#656d81]"} />
+                <span>Subscription / Pass</span>
+                <span className="text-[11px] font-normal text-[#8991a6] hidden sm:inline">(Xbox, Nvidia)</span>
+              </div>
+              {isSubscription && (
+                <span className="flex items-center gap-1.5 text-[10px] font-black uppercase text-[#facc15]">
+                  <span className="h-2 w-2 rounded-full bg-[#facc15] shadow-[0_0_8px_#facc15]" />
+                  Active
+                </span>
+              )}
             </button>
           </div>
           {/* Hidden input to ensure form submission includes is_subscription */}

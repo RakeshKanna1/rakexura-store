@@ -78,29 +78,31 @@ export function RewardsManager({ initialRewards }: { initialRewards: RewardUserR
   return (
     <div className="space-y-6">
       {/* 5 Rank Overview Boxes */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        {tiers.map(([rank, range, Icon]) => {
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {tiers.map(([rank, range, Icon], index) => {
           const isSelected = selectedRank.toUpperCase() === rank.toUpperCase();
           return (
             <button
               key={rank}
               type="button"
               onClick={() => setSelectedRank(isSelected ? "ALL" : rank)}
-              className={`text-left p-4 rounded-xl border transition-all cursor-pointer ${
+              className={`text-left p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer ${
+                index === 4 ? "col-span-2 sm:col-span-1" : ""
+              } ${
                 isSelected
                   ? "bg-[#1f173b] border-[#8b5cf6] shadow-[0_0_20px_rgba(139,92,246,0.25)] ring-1 ring-[#8b5cf6]"
                   : "premium-panel border-white/10 hover:border-white/20"
               }`}
             >
               <Icon size={20} className={rankStyle[rank]?.text ?? "text-white"} />
-              <strong className="mt-3 block font-bold text-white">{rank}</strong>
-              <span className="mt-1 text-xs text-[#8991a6]">{range} points</span>
+              <strong className="mt-2.5 sm:mt-3 block font-bold text-white text-sm sm:text-base">{rank}</strong>
+              <span className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-[#8991a6] block">{range} points</span>
             </button>
           );
         })}
       </div>
 
-      {/* Filter & Search Bar - Matching Screenshot 2026-08-23 011300 */}
+      {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="relative w-full sm:w-80">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8991a6]" size={16} />
@@ -113,11 +115,11 @@ export function RewardsManager({ initialRewards }: { initialRewards: RewardUserR
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto hide-scrollbar py-0.5">
           <button
             type="button"
             onClick={() => setSelectedRank("ALL")}
-            className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
               selectedRank === "ALL"
                 ? "bg-[#8b5cf6] text-white shadow-[0_0_14px_rgba(139,92,246,0.4)]"
                 : "bg-white/5 text-[#8991a6] hover:bg-white/10 hover:text-white"
@@ -130,7 +132,7 @@ export function RewardsManager({ initialRewards }: { initialRewards: RewardUserR
               key={rank}
               type="button"
               onClick={() => setSelectedRank(rank)}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
                 selectedRank === rank
                   ? "bg-[#8b5cf6] text-white shadow-[0_0_14px_rgba(139,92,246,0.4)]"
                   : "bg-white/5 text-[#8991a6] hover:bg-white/10 hover:text-white"
@@ -142,7 +144,7 @@ export function RewardsManager({ initialRewards }: { initialRewards: RewardUserR
         </div>
       </div>
 
-      {/* Rewards Users List - Matching Screenshot 2026-08-23 011300 */}
+      {/* Rewards Users List */}
       <div className="space-y-3">
         {filteredRewards.map((reward, index) => {
           const styling = rankStyle[reward.level] || rankStyle.Bronze;
@@ -151,14 +153,14 @@ export function RewardsManager({ initialRewards }: { initialRewards: RewardUserR
           return (
             <article
               key={reward.user_id}
-              className={`premium-panel grid gap-4 rounded-xl p-5 md:grid-cols-[56px_1fr_auto] md:items-center border ${
+              className={`premium-panel flex flex-col gap-3.5 rounded-xl p-4 sm:p-5 md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-4 border ${
                 isAdmin ? "border-[#8b5cf6]/40 bg-[#8b5cf6]/[0.05]" : "border-white/10 hover:border-white/20"
               }`}
             >
-              {/* Rank Badge / Number */}
-              <div className="flex items-center gap-3 md:block">
+              <div className="flex items-start md:items-center gap-3 min-w-0 flex-1">
+                {/* Rank Badge / Number */}
                 <span
-                  className={`grid h-12 w-12 place-items-center rounded-xl font-black text-sm border ${
+                  className={`grid h-11 w-11 md:h-12 md:w-12 shrink-0 place-items-center rounded-xl font-black text-sm border ${
                     isAdmin
                       ? "bg-[#8b5cf6]/20 border-[#8b5cf6]/50 text-[#c4b5fd] shadow-[0_0_15px_rgba(139,92,246,0.3)]"
                       : index < 3
@@ -168,50 +170,50 @@ export function RewardsManager({ initialRewards }: { initialRewards: RewardUserR
                 >
                   {isAdmin ? "👑" : `#${index + 1}`}
                 </span>
-              </div>
 
-              {/* Profile Details */}
-              <div className="space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <strong className="text-base font-bold text-white">
-                    {reward.display_name || "Customer"}
-                  </strong>
+                {/* Profile Details */}
+                <div className="space-y-1 min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <strong className="text-sm sm:text-base font-bold text-white truncate max-w-[170px] sm:max-w-none">
+                      {reward.display_name || "Customer"}
+                    </strong>
 
-                  {isAdmin && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-[#c4b5fd] border border-[#8b5cf6]/40 shadow-[0_0_10px_rgba(139,92,246,0.2)]">
-                      <Crown size={11} className="text-yellow-400" /> Admin / Owner
+                    {isAdmin && (
+                      <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-extrabold uppercase px-1.5 sm:px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-[#c4b5fd] border border-[#8b5cf6]/40 shadow-[0_0_10px_rgba(139,92,246,0.2)] whitespace-nowrap shrink-0">
+                        <Crown size={11} className="text-yellow-400" /> Admin
+                      </span>
+                    )}
+
+                    <span className={`text-[9px] sm:text-[10px] font-black uppercase px-1.5 sm:px-2 py-0.5 rounded border whitespace-nowrap shrink-0 ${styling.badge}`}>
+                      {reward.level}
                     </span>
-                  )}
 
-                  <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded border ${styling.badge}`}>
-                    {reward.level}
-                  </span>
-
-                  <span className="text-xs font-black text-[#facc15] px-2.5 py-0.5 rounded-full bg-[#facc15]/10 border border-[#facc15]/20">
-                    {reward.points.toLocaleString()} XP
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#8991a6]">
-                  {reward.email && (
-                    <span className="inline-flex items-center gap-1.5 text-[#a4abbc]">
-                      <Mail size={12} className="text-[#8b5cf6]" />
-                      {reward.email}
+                    <span className="text-[11px] sm:text-xs font-black text-[#facc15] px-2 sm:px-2.5 py-0.5 rounded-full bg-[#facc15]/10 border border-[#facc15]/20 whitespace-nowrap shrink-0">
+                      {reward.points.toLocaleString()} XP
                     </span>
-                  )}
-                  {reward.whatsapp ? (
-                    <span className="inline-flex items-center gap-1.5 text-[#a4abbc]">
-                      <Phone size={12} className="text-emerald-400" />
-                      {reward.whatsapp}
-                    </span>
-                  ) : (
-                    <span className="text-[#656d81]">No WhatsApp saved</span>
-                  )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-0.5 text-xs text-[#8991a6]">
+                    {reward.email && (
+                      <span className="inline-flex items-center gap-1 sm:gap-1.5 text-[#a4abbc] truncate max-w-full">
+                        <Mail size={12} className="text-[#8b5cf6] shrink-0" />
+                        <span className="truncate">{reward.email}</span>
+                      </span>
+                    )}
+                    {reward.whatsapp ? (
+                      <span className="inline-flex items-center gap-1 sm:gap-1.5 text-[#a4abbc] shrink-0">
+                        <Phone size={12} className="text-emerald-400 shrink-0" />
+                        <span>{reward.whatsapp}</span>
+                      </span>
+                    ) : (
+                      <span className="text-[#656d81] shrink-0">No WhatsApp saved</span>
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* Quick Point Adjustment Form */}
-              <form action={adjustRewardPoints} className="flex flex-wrap items-center gap-2 pt-2 md:pt-0">
+              <form action={adjustRewardPoints} className="flex items-center gap-2 pt-2.5 border-t border-white/5 md:border-t-0 md:pt-0 w-full md:w-auto">
                 <input type="hidden" name="user_id" value={reward.user_id} />
                 
                 <input
@@ -219,7 +221,7 @@ export function RewardsManager({ initialRewards }: { initialRewards: RewardUserR
                   type="number"
                   required
                   placeholder="+100"
-                  className="h-10 w-24 rounded-lg border border-white/10 bg-black/40 px-3 text-xs font-bold text-white placeholder:text-[#656d81] focus:outline-none focus:border-[#8b5cf6]/60"
+                  className="h-10 flex-1 sm:w-24 sm:flex-initial rounded-lg border border-white/10 bg-black/40 px-3 text-xs font-bold text-white placeholder:text-[#656d81] focus:outline-none focus:border-[#8b5cf6]/60"
                 />
 
                 <input
@@ -231,7 +233,7 @@ export function RewardsManager({ initialRewards }: { initialRewards: RewardUserR
 
                 <button
                   type="submit"
-                  className="h-10 px-4 rounded-lg bg-[#8b5cf6]/20 border border-[#8b5cf6]/40 text-xs font-bold text-[#c4b5fd] hover:bg-[#8b5cf6] hover:text-white transition-all cursor-pointer shadow-[0_0_12px_rgba(139,92,246,0.15)] flex items-center gap-1.5"
+                  className="h-10 px-5 rounded-lg bg-[#8b5cf6]/20 border border-[#8b5cf6]/40 text-xs font-bold text-[#c4b5fd] hover:bg-[#8b5cf6] hover:text-white transition-all cursor-pointer shadow-[0_0_12px_rgba(139,92,246,0.15)] flex items-center justify-center gap-1.5 shrink-0"
                 >
                   <span>Apply</span>
                 </button>

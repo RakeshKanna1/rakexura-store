@@ -257,9 +257,9 @@ export default async function AdminSection({ params, searchParams }: { params: P
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="eyebrow">Administration</p>
-          <h1 className="mt-3 text-4xl font-black md:text-5xl">{source.title}</h1>
+          <h1 className="mt-2 text-2xl sm:text-4xl md:text-5xl font-black">{source.title}</h1>
         </div>
-        <span className="rounded bg-white/[.05] px-3 py-2 text-xs font-bold">{rows.length} records</span>
+        <span className="rounded bg-white/[.05] px-3 py-1.5 sm:py-2 text-xs font-bold">{rows.length} records</span>
       </div>
       {section === "flash-sales" && (
         <aside className="mt-6 flex gap-3 rounded-md border border-[#facc15]/25 bg-[#facc15]/[.07] p-4 text-sm text-[#fbeab8]">
