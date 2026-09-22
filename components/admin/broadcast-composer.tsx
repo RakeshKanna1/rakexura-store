@@ -192,19 +192,21 @@ export function BroadcastComposer({
     const items = entries.map((entry) => {
       if (!entry || typeof entry !== "object") return null;
       const item = entry as Record<string, unknown>;
+      const gameId = Number(item.gameId ?? item.game_id ?? item.id);
       return {
+        gameId: Number.isFinite(gameId) && gameId > 0 ? gameId : (fallbackGameId ? Number(fallbackGameId) : undefined),
         title: String(item.title ?? item.name ?? "Game order"),
         platform: typeof item.platform === "string" ? item.platform : typeof item.variant_type === "string" ? item.variant_type : undefined,
         quantity: Math.max(1, Number(item.quantity ?? 1) || 1),
         price: Number(item.unit_price ?? item.price ?? item.sale_price ?? item.total ?? 0) || 0,
       };
-    }).filter(Boolean) as Array<{ title: string; platform?: string; quantity: number; price: number }>;
+    }).filter(Boolean) as Array<{ gameId?: number; title: string; platform?: string; quantity: number; price: number }>;
 
     if (items.length) return items;
-    return [{ title: "Game order", platform: fallbackPlatform || undefined, quantity: 1, price: fallbackPrice || 0 }];
+    return [{ gameId: fallbackGameId ? Number(fallbackGameId) : undefined, title: "Game order", platform: fallbackPlatform || undefined, quantity: 1, price: fallbackPrice || 0 }];
   }
 
-  function applyInvoiceFromData(data: {
+  function applyOrderData(data: {
     orderRef: string;
     items: string;
     totalPrice: number;
@@ -213,32 +215,18 @@ export function BroadcastComposer({
     userId?: string | null;
     customerEmail?: string | null;
     customerWhatsapp?: string | null;
-  }) {
-    setSelectedTemplateKey("invoice");
+    customerName?: string | null;
+    gameId?: number | string | null;
+  }, targetMode?: "invoice" | "review") {
     setShowOrderInvoiceBox(true);
     const ref = data.orderRef;
-    const itemsText = data.items || "Purchased Items";
-    const amountStr = `₹${Number(data.totalPrice ?? 0).toLocaleString("en-IN")}`;
-    const todayDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
-    setTitle(`Invoice ID: ${ref}`);
-    setMessage(
-      `Thank You.\n\n` +
-      `Hi ${data.customerEmail ? data.customerEmail.split("@")[0] : 'Customer'}!\n` +
-      `Thank you for your purchase!\n\n` +
-      `INVOICE ID:\n${ref}\n\n` +
-      `YOUR ORDER INFORMATION:\n` +
-      `• Order ID: ${ref}\n` +
-      `• Order Date: ${todayDate}\n` +
-      `• Source: Rakexura Store\n\n` +
-      `HERE'S WHAT YOU ORDERED:\n` +
-      `• ${itemsText} - ${amountStr} INR\n\n` +
-      `TOTAL: ${amountStr} INR\n\n` +
-      `Please keep a copy of this receipt for your records.\n` +
-      `View your purchase history: https://rakexura-store.vercel.app/dashboard/orders`
-    );
-    setLink(`/track-order?order=${encodeURIComponent(ref)}`);
+    // 1. Sync game ID from order if present
+    if (data.gameId) {
+      setSelectedGameId(String(data.gameId));
+    }
 
+    // 2. Sync customer recipient
     let foundCustomer = customers.find((c) => data.userId && c.id === data.userId);
     if (!foundCustomer && data.customerEmail) {
       foundCustomer = customers.find((c) => c.email?.toLowerCase() === data.customerEmail?.toLowerCase());
@@ -251,16 +239,67 @@ export function BroadcastComposer({
     if (foundCustomer) {
       setCustomerId(foundCustomer.id);
       if (foundCustomer.email) setTargetEmail(foundCustomer.email);
-      toast.success(`Loaded invoice for ${ref} (${foundCustomer.display_name || foundCustomer.email})!`);
     } else if (data.customerEmail) {
       setTargetEmail(data.customerEmail);
-      toast.success(`Loaded invoice for ${ref}!`);
+    }
+
+    const custDisplayName = foundCustomer?.display_name || data.customerName || (data.customerEmail ? data.customerEmail.split("@")[0] : 'Customer');
+
+    // 3. Populate matching template
+    const mode = targetMode || (selectedTemplateKey === "review" ? "review" : "invoice");
+
+    if (mode === "review") {
+      setSelectedTemplateKey("review");
+      const matchedGame = games.find((g) => data.gameId && g.id === Number(data.gameId));
+      const greeting = `Hi ${custDisplayName}!\n\n`;
+
+      if (matchedGame) {
+        setTitle(`How is ${matchedGame.title}? Leave a review!`);
+        setMessage(
+          `${greeting}Thank you for shopping at Rakexura Store! We hope you are enjoying ${matchedGame.title}.\n\n` +
+          `Please take 30 seconds to rate your experience and leave a review. Your feedback helps fellow gamers!`
+        );
+        setShortMessage(`Leave a review for ${matchedGame.title}! Share your experience.`);
+        setLink(`${gameUrl(matchedGame)}#reviews`);
+        toast.success(`Loaded Review Request for ${matchedGame.title} (${ref})!`);
+      } else {
+        setTitle("How was your gaming experience? Leave a review!");
+        setMessage(
+          `${greeting}Thank you for shopping at Rakexura Store! We hope you are enjoying your new game.\n\n` +
+          `Please take 30 seconds to rate your experience and leave a review. Your feedback helps fellow gamers!`
+        );
+        setShortMessage("Leave a review on Rakexura Store! Share your gaming experience.");
+        setLink("/dashboard/orders");
+        toast.success(`Loaded Review Request for order ${ref}!`);
+      }
     } else {
-      toast.success(`Loaded invoice for ${ref}!`);
+      setSelectedTemplateKey("invoice");
+      const itemsText = data.items || "Purchased Items";
+      const amountStr = `₹${Number(data.totalPrice ?? 0).toLocaleString("en-IN")}`;
+      const todayDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
+      setTitle(`Invoice ID: ${ref}`);
+      setMessage(
+        `Thank You.\n\n` +
+        `Hi ${custDisplayName}!\n` +
+        `Thank you for your purchase!\n\n` +
+        `INVOICE ID:\n${ref}\n\n` +
+        `YOUR ORDER INFORMATION:\n` +
+        `• Order ID: ${ref}\n` +
+        `• Order Date: ${todayDate}\n` +
+        `• Source: Rakexura Store\n\n` +
+        `HERE'S WHAT YOU ORDERED:\n` +
+        `• ${itemsText} - ${amountStr} INR\n\n` +
+        `TOTAL: ${amountStr} INR\n\n` +
+        `Please keep a copy of this receipt for your records.\n` +
+        `View your purchase history: https://rakexura-store.vercel.app/dashboard/orders`
+      );
+      setLink(`/track-order?order=${encodeURIComponent(ref)}`);
+      toast.success(`Loaded invoice for ${ref} (${custDisplayName})!`);
     }
   }
 
-  function selectOrderById(idStr: string) {
+  function selectOrderById(idStr: string, mode?: "invoice" | "review") {
     setSelectedOrderId(idStr);
     if (!idStr) return;
     const foundOrder = orders.find((o) => String(o.id) === idStr);
@@ -269,8 +308,9 @@ export function BroadcastComposer({
     const items = parseOrderItemsInClient(foundOrder.cart_items, foundOrder.game_id, foundOrder.variant_type, foundOrder.total_price);
     const itemSummary = items.map((i) => `${i.title}${i.platform ? ` (${i.platform})` : ""} x${i.quantity}`).join(", ");
     const orderRef = foundOrder.order_reference || `#${foundOrder.id}`;
+    const primaryGameId = foundOrder.game_id || items.find((i) => i.gameId)?.gameId || null;
 
-    applyInvoiceFromData({
+    applyOrderData({
       orderRef,
       items: itemSummary,
       totalPrice: foundOrder.total_price ?? 0,
@@ -278,15 +318,17 @@ export function BroadcastComposer({
       accountAccess: foundOrder.account_access,
       userId: foundOrder.user_id,
       customerWhatsapp: foundOrder.customer_whatsapp,
-    });
+      customerName: foundOrder.customer_name,
+      gameId: primaryGameId,
+    }, mode);
   }
 
-  async function handleFetchOrderNo() {
+  async function handleFetchOrderNo(mode?: "invoice" | "review") {
     if (!orderQueryInput.trim()) return toast.error("Enter an Order Ref or ID");
     setFetchingOrder(true);
     try {
       const res = await fetchOrderInvoiceData(orderQueryInput);
-      applyInvoiceFromData(res);
+      applyOrderData(res, mode);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Order not found");
     } finally {
@@ -783,9 +825,36 @@ export function BroadcastComposer({
           {/* Optional Order Invoice Fetcher */}
           {showOrderInvoiceBox && (
             <div className="rounded-lg border border-[#facc15]/30 bg-[#facc15]/5 p-3.5 space-y-3">
-              <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#facc15]">
-                <Receipt size={14} />
-                <span>Fetch Order & Auto-Fill Invoice</span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#facc15]">
+                  <Receipt size={14} />
+                  <span>Fetch Order &amp; Auto-Fill</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] text-[#8991a8] uppercase font-bold tracking-wider">Fill As:</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedOrderId) selectOrderById(selectedOrderId, "invoice");
+                      else if (orderQueryInput.trim()) void handleFetchOrderNo("invoice");
+                      else applyTemplate("invoice");
+                    }}
+                    className={`px-2.5 py-1 rounded text-[11px] font-bold cursor-pointer transition flex items-center gap-1 ${selectedTemplateKey === "invoice" ? "bg-[#facc15] text-black shadow-sm" : "bg-white/10 text-[#a0a8c0] hover:text-white"}`}
+                  >
+                    <Receipt size={11} /> Invoice
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedOrderId) selectOrderById(selectedOrderId, "review");
+                      else if (orderQueryInput.trim()) void handleFetchOrderNo("review");
+                      else applyTemplate("review");
+                    }}
+                    className={`px-2.5 py-1 rounded text-[11px] font-bold cursor-pointer transition flex items-center gap-1 ${selectedTemplateKey === "review" ? "bg-[#8b5cf6] text-white shadow-sm" : "bg-white/10 text-[#a0a8c0] hover:text-white"}`}
+                  >
+                    <Star size={11} /> Review Request
+                  </button>
+                </div>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
@@ -812,14 +881,14 @@ export function BroadcastComposer({
                     <input
                       value={orderQueryInput}
                       onChange={(e) => setOrderQueryInput(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter") handleFetchOrderNo(); }}
+                      onKeyDown={(e) => { if (e.key === "Enter") void handleFetchOrderNo(); }}
                       placeholder="e.g. RKX-2607-000064"
                       className="h-10 min-w-0 flex-1 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-mono text-white outline-none focus:border-[#facc15]"
                     />
                     <button
                       suppressHydrationWarning
                       type="button"
-                      onClick={handleFetchOrderNo}
+                      onClick={() => void handleFetchOrderNo()}
                       disabled={fetchingOrder}
                       className="btn bg-[#facc15] hover:bg-[#eab308] text-black h-10 px-3.5 text-xs font-bold cursor-pointer shrink-0 flex items-center gap-1"
                     >

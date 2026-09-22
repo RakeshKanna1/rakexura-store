@@ -593,11 +593,13 @@ export async function fetchOrderInvoiceData(query: string) {
 
   const itemSummary = items.map((i) => `${i.title}${i.platform ? ` (${i.platform})` : ""} x${i.quantity}`).join(", ");
   const orderRef = order.order_reference || `#${order.id}`;
+  const primaryGameId = order.game_id || items.find((i) => i.gameId)?.gameId || null;
 
   return {
     orderId: order.id,
     orderRef,
     userId: order.user_id,
+    gameId: primaryGameId,
     customerName: order.customer_name,
     customerWhatsapp: order.customer_whatsapp,
     customerEmail,
