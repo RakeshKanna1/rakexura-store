@@ -216,12 +216,19 @@ function GameCardInner({
                 Online
               </span>
             )}
-            {platforms.slice(0, 3).map((platform) => (
-              <span key={platform} className="inline-flex shrink-0 items-center gap-1 rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[8px] font-black uppercase text-[#a7adbb]">
-                <PlatformIcon platform={platform} className="h-2.5 w-2.5 shrink-0 text-[#a7adbb]" />
-                <span>{game.is_subscription && game.duration ? game.duration : platform}</span>
+            {platforms.length > 0 ? (
+              platforms.slice(0, 3).map((platform) => (
+                <span key={platform} className="inline-flex shrink-0 items-center gap-1 rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[8px] font-black uppercase text-[#a7adbb]">
+                  <PlatformIcon platform={platform} className="h-2.5 w-2.5 shrink-0 text-[#a7adbb]" />
+                  <span>{platform}</span>
+                </span>
+              ))
+            ) : game.is_subscription && game.duration ? (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[8px] font-black uppercase text-[#a7adbb]">
+                <PlatformIcon platform={game.duration} className="h-2.5 w-2.5 shrink-0 text-[#a7adbb]" />
+                <span>{game.duration}</span>
               </span>
-            ))}
+            ) : null}
           </div>
 
           <div className="mt-2.5 rounded-md border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-center">

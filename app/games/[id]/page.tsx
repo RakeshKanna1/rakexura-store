@@ -15,6 +15,7 @@ import { fetchOfficialSteamRequirements } from "@/lib/steam-requirements";
 import { DynamicBannerAccent } from "@/components/store/dynamic-banner-accent";
 import { PlatformIcon } from "@/components/store/platform-icon";
 import { BackButton } from "@/components/layout/back-button";
+import { ReviewAutoScroll } from "@/components/store/review-auto-scroll";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -599,9 +600,11 @@ export default async function GamePage({ params }: Props) {
         <section className={`premium-panel rounded-md p-6 border ${activationPanelClass}`}><div className="flex items-center gap-3"><KeyRound style={{ color: accent }} /><h2 className="section-title">Activation preview</h2></div><p className="section-copy mt-4 whitespace-pre-line">{game.activation_instructions || "After verification, your delivery message includes the game-specific activation steps and direct support access. Follow only the instructions attached to your Rakexura order."}</p></section>
         
         {/* ⭐ Customer Reviews & Ratings - Deferred */}
-        <Suspense fallback={<div className="h-32 w-full skeleton rounded-md" />}>
-          <ReviewsSection gameId={game.id} />
-        </Suspense>
+        <section id="reviews" className="scroll-mt-28">
+          <Suspense fallback={<div className="h-32 w-full skeleton rounded-md" />}>
+            <ReviewsSection gameId={game.id} />
+          </Suspense>
+        </section>
       </div>
     </div>
 
@@ -616,7 +619,8 @@ async function ReviewsSection({ gameId }: { gameId: number }) {
   const finalReviews = await getGameReviews(gameId);
 
   return (
-    <section className="premium-panel rounded-md p-6">
+    <div className="premium-panel rounded-md p-6">
+      <ReviewAutoScroll />
       <h2 className="text-xl font-black text-white flex items-center gap-2 mb-6">
         <MessageSquare size={18} className="text-[#8b5cf6] shrink-0" /> Customer Reviews & Ratings
       </h2>
@@ -646,7 +650,7 @@ async function ReviewsSection({ gameId }: { gameId: number }) {
           No reviews available for this game yet.
         </p>
       )}
-    </section>
+    </div>
   );
 }
 

@@ -6,7 +6,13 @@ export function createClient() {
   if (clientInstance) return clientInstance;
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://cwvfgxdhearouclomjeq.supabase.co";
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
-  clientInstance = createBrowserClient(url, key);
+  clientInstance = createBrowserClient(url, key, {
+    cookieOptions: {
+      maxAge: 60 * 60 * 24 * 365, // 1 year persistence
+      sameSite: "lax",
+      path: "/",
+    },
+  });
   return clientInstance;
 }
 

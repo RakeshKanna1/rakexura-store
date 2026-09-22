@@ -24,7 +24,10 @@ export async function updateSession(request: NextRequest) {
         items.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
         items.forEach(({ name, value, options }) => {
-          response.cookies.set(name, value, options);
+          response.cookies.set(name, value, {
+            ...options,
+            maxAge: options?.maxAge ?? 60 * 60 * 24 * 365,
+          });
         });
       },
     },
@@ -44,14 +47,12 @@ export async function updateSession(request: NextRequest) {
     const { data, error } = await supabase.auth.getUser();
 
     if (error) {
-      // Check if error is related to invalid / expired / revoked refresh token
-      const isInvalidRefreshToken =
-        error.message?.toLowerCase().includes("refresh token") ||
-        error.message?.toLowerCase().includes("not found") ||
+      const errMessage = (error.message || "").toLowerCase();
+      const isExplicitlyRevoked =
         (error as { code?: string }).code === "refresh_token_not_found" ||
-        (error as { status?: number }).status === 400;
+        (errMessage.includes("invalid refresh token") && !errMessage.includes("already used"));
 
-      if (isInvalidRefreshToken) {
+      if (isExplicitlyRevoked) {
         purgeAuthCookies();
       }
       return { response, user: null };
@@ -59,8 +60,7 @@ export async function updateSession(request: NextRequest) {
 
     return { response, user: data?.user ?? null };
   } catch {
-    // If an error or exception occurs, purge corrupted auth cookies so browser stops repeating the error
-    purgeAuthCookies();
+    // On network timeout or edge runtime error, never purge valid cookies so user stays logged in
     return { response, user: null };
   }
 }

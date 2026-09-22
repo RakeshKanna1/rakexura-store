@@ -26,13 +26,16 @@ export async function GET(request: Request) {
   const cookieStore = await cookies();
   const allCookies = await cookieStore.getAll();
   
+  const isProduction = process.env.NODE_ENV === "production";
+
   const handleRedirect = async (destination: string) => {
     const response = NextResponse.redirect(new URL(destination, request.url));
     allCookies.forEach((cookie) => {
       response.cookies.set(cookie.name, cookie.value, {
         path: "/",
         sameSite: "lax",
-        secure: true,
+        secure: isProduction,
+        maxAge: 60 * 60 * 24 * 365, // 1 year persistent session (prevents logout on browser close)
       });
     });
     return response;
