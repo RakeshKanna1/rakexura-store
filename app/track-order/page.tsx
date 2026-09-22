@@ -714,20 +714,24 @@ function TrackOrderContent() {
             </div>
           ) : (
             <>
-              {/* Handshake Complete Awaiting Manual Fulfillment state label - only when pending */}
+              {/* Handshake Complete Awaiting Fulfillment - only when pending */}
               {active < 3 && !isRejected && (
-                <div className="mt-6 flex items-center justify-center gap-2 rounded-md border border-[#00d68f]/20 bg-[#00d68f]/[.05] p-3 text-xs font-bold text-[#70efbb]">
-                  <ShieldCheck size={16} /> Handshake complete, awaiting manual fulfillment
+                <div className="mt-5 flex items-center justify-between gap-3 rounded-xl border border-[#00d68f]/20 bg-[#00d68f]/[0.04] p-3.5 text-xs font-bold text-[#70efbb]">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck size={16} className="text-[#00d68f] shrink-0" />
+                    <span>Handshake complete, preparing delivery</span>
+                  </div>
+                  <span className="text-[10px] text-[#8991a6] font-normal hidden sm:inline">Typically 10–20 mins</span>
                 </div>
               )}
 
               {/* Estimated status - only when pending or rejected */}
               {(active < 3 || isRejected) && (
-                <div className={`mt-6 flex items-start gap-3 rounded-md border p-4 ${isRejected ? "border-red-500/15 bg-red-500/[.03]" : "border-[#facc15]/15 bg-[#b89412]/[.06]"}`}>
-                  <Clock3 size={19} className={`mt-0.5 shrink-0 ${isRejected ? "text-red-400" : "text-[#f8e38a]"}`} />
+                <div className={`mt-3 flex items-start gap-3 rounded-xl border p-3.5 sm:p-4 ${isRejected ? "border-red-500/20 bg-red-500/[.03]" : "border-[#facc15]/20 bg-[#facc15]/[0.03]"}`}>
+                  <Clock3 size={18} className={`mt-0.5 shrink-0 ${isRejected ? "text-red-400" : "text-[#f8e38a]"}`} />
                   <div>
-                    <strong className="text-sm">Estimated status</strong>
-                    <p className="mt-1 text-xs leading-5 text-[#a4abbc]">{estimate(result.status)}</p>
+                    <strong className="text-xs sm:text-sm font-bold text-white">Estimated Status</strong>
+                    <p className="mt-0.5 text-xs text-[#8991a6] leading-relaxed">{estimate(result.status)}</p>
                   </div>
                 </div>
               )}
@@ -739,37 +743,46 @@ function TrackOrderContent() {
               )}
 
               {/* Account Login Credentials & Delivery Status Section */}
-              <div id="credentials-section" className="space-y-4 mt-6">
+              <div id="credentials-section" className="space-y-4 mt-5 sm:mt-6">
                 {(result.status === "Delivered" || result.status === "Completed") ? (
                   <>
-                    {/* Loyalty Points Already Credited Banner */}
-                    <div className="flex items-center gap-3.5 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent p-3.5 sm:p-4 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.25)]">
-                        <Sparkles size={20} />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-black uppercase tracking-wider text-amber-300">Loyalty Rewards Credited</span>
-                          <span className="rounded-full bg-amber-500/25 px-2 py-0.5 text-[10px] font-black text-amber-200 border border-amber-500/40">+{hasSubscription ? "200" : "100"} XP</span>
+                    {/* Unified Completion & Loyalty Reward Card */}
+                    <div className="rounded-xl border border-emerald-500/25 bg-gradient-to-r from-emerald-500/10 via-[#0c0f18]/90 to-amber-500/10 p-4 sm:p-5 backdrop-blur-xl shadow-lg">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
+                            <Check size={20} className="stroke-[2.5]" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-base sm:text-lg font-black text-white truncate">Order Delivered!</h3>
+                              <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-black text-emerald-300 border border-emerald-500/30 shrink-0">
+                                Verified
+                              </span>
+                            </div>
+                            <p className="text-xs text-[#8991a6] mt-0.5 truncate">
+                              Thank you for shopping with Rakexura Store! Your game delivery is ready.
+                            </p>
+                          </div>
                         </div>
-                        <p className="mt-0.5 text-xs text-[#cad1de] leading-relaxed">
-                          +{hasSubscription ? "200" : "100"} Rank Points have been added to your profile for this purchase!
-                        </p>
+
+                        {/* Loyalty Chip */}
+                        <div className="flex items-center gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 self-start sm:self-center shrink-0">
+                          <Sparkles size={15} className="text-amber-400" />
+                          <div className="text-left">
+                            <span className="text-[11px] font-black text-amber-300 block leading-tight">+{hasSubscription ? "200" : "100"} XP Credited</span>
+                            <span className="text-[9px] uppercase font-bold text-amber-200/70 tracking-wider block">Rank Points Added</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="text-center p-4 sm:p-5 rounded-xl border border-emerald-500/20 bg-emerald-500/[.03] space-y-1.5">
-                      <h3 className="text-emerald-400 font-extrabold text-lg sm:text-xl">Thank you for your purchase!</h3>
-                      <p className="text-xs sm:text-sm text-[#a4abbc]">
-                        Your order is completed! Thank you for shopping with Rakexura Store.
-                      </p>
-                    </div>
-
+                    {/* Game Activation Credentials Card */}
                     {result.account_access ? (
-                      <div className="p-4 sm:p-5 rounded-xl border border-[#8b5cf6]/40 bg-[#8b5cf6]/5 space-y-3 shadow-lg">
+                      <div className="rounded-xl border border-[#8b5cf6]/40 bg-[#0c0f18]/90 p-4 sm:p-5 space-y-3.5 shadow-xl backdrop-blur-xl">
                         <div className="flex items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
                           <div className="flex items-center gap-2 text-xs font-black text-[#c4b5fd] min-w-0">
-                            <Key size={15} className="text-[#facc15] shrink-0" />
+                            <Key size={16} className="text-[#facc15] shrink-0" />
                             <span className="truncate">Game Activation / Account Login Details</span>
                           </div>
                           <button
@@ -778,35 +791,38 @@ function TrackOrderContent() {
                               navigator.clipboard.writeText(result.account_access || "");
                               toast.success("Login details copied to clipboard!");
                             }}
-                            className="btn btn-secondary text-xs font-bold py-1.5 px-3 inline-flex items-center gap-1.5 border border-white/10 hover:border-[#8b5cf6] text-white rounded cursor-pointer transition shrink-0 whitespace-nowrap active:scale-95"
+                            className="btn btn-secondary text-xs font-bold py-1.5 px-3 inline-flex items-center gap-1.5 border border-white/10 hover:border-[#facc15]/50 text-white hover:text-[#facc15] rounded-md cursor-pointer transition shrink-0 whitespace-nowrap active:scale-95 shadow-sm"
                           >
                             <Clipboard size={13} className="text-[#facc15]" />
                             <span>Copy Details</span>
                           </button>
                         </div>
-                        <div className="font-mono bg-black/50 p-3.5 sm:p-4 rounded-lg border border-white/5 text-xs sm:text-sm text-slate-100 select-all whitespace-pre-wrap leading-relaxed shadow-inner break-words">
+                        <div className="font-mono bg-black/60 p-3.5 sm:p-4 rounded-lg border border-white/10 text-xs sm:text-sm text-slate-100 select-all whitespace-pre-wrap leading-relaxed shadow-inner break-words">
                           {result.account_access}
                         </div>
-                        <p className="text-[11px] text-[#8991a6] leading-relaxed">
-                          Please use these credentials to log in or activate your game. If you face any issues, click the WhatsApp Help button below.
-                        </p>
+                        <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-[#8991a6]">
+                          <span>Please use these credentials to log in or activate your game.</span>
+                          <a href={whatsappUrl} target="_blank" rel="noreferrer" className="text-[#00d68f] hover:underline font-bold flex items-center gap-1 text-xs">
+                            <MessageCircle size={13} /> Need help? WhatsApp Support &rarr;
+                          </a>
+                        </div>
                       </div>
                     ) : (
-                      <div className="p-5 rounded-xl border border-amber-500/30 bg-amber-500/[0.05] space-y-3 shadow-md">
+                      <div className="rounded-xl border border-amber-500/30 bg-[#0c0f18]/90 p-4 sm:p-5 space-y-3 shadow-md backdrop-blur-xl">
                         <div className="flex items-center justify-between gap-2 border-b border-amber-500/20 pb-2.5">
                           <div className="flex items-center gap-2 text-xs font-black text-amber-300">
                             <AlertCircle size={16} className="text-amber-400 shrink-0" />
                             <span>Account Login Credentials Notice</span>
                           </div>
                           <span className="rounded bg-amber-500/20 border border-amber-500/30 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-300">
-                            Not Attached to Record
+                            Sent to WhatsApp
                           </span>
                         </div>
                         <p className="text-xs text-[#d0d6e5] leading-relaxed">
-                          Your order is marked as <strong className="text-white">{result.status}</strong>, but specific login credentials were not saved to this web panel. They were likely sent directly to your WhatsApp number.
+                          Your order is marked as <strong className="text-white">{result.status}</strong>! Your login credentials were sent directly to your WhatsApp number.
                         </p>
                         <p className="text-xs text-[#8991a6] leading-relaxed">
-                          If you haven&apos;t received your credentials yet, tap below to message our administrator on WhatsApp. Your Order Reference (<code className="text-[#facc15] font-mono">{result.order_ref}</code>) will be included automatically.
+                          If you haven&apos;t received your credentials yet, tap below to message our administrator. Order reference (<code className="text-[#facc15] font-mono">{result.order_ref}</code>) will be attached automatically.
                         </p>
                         <div className="pt-1">
                           <a
