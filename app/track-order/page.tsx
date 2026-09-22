@@ -432,14 +432,14 @@ function TrackOrderContent() {
               className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none transition focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15]/30 text-white"
             />
           </div>
-          <button
-            suppressHydrationWarning
-            onClick={() => void track()}
-            disabled={loading}
-            className="btn btn-primary h-12 min-w-36 text-xs font-black uppercase tracking-wider text-black disabled:opacity-50"
+          <button 
+            suppressHydrationWarning 
+            onClick={() => void track()} 
+            disabled={loading} 
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-[#facc15] bg-[#facc15] px-6 text-xs font-black uppercase tracking-wider text-black shadow-[0_0_20px_rgba(250,204,21,0.3)] transition-all hover:bg-[#fde047] hover:scale-[1.02] active:scale-95 cursor-pointer disabled:opacity-50"
           >
-            <Search size={16} className="text-black" />
-            {loading ? "Checking..." : "Track Order"}
+            <Search size={17} className="text-black stroke-[2.5]" />
+            <span className="font-black text-black">{loading ? "Checking..." : "Track Order"}</span>
           </button>
         </div>
       </div>
@@ -519,10 +519,10 @@ function TrackOrderContent() {
                   void track();
                 }}
                 disabled={loading}
-                className="btn btn-primary h-11 w-full text-xs font-black uppercase tracking-wider text-black disabled:opacity-50 mt-1"
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md border border-[#facc15] bg-[#facc15] px-6 text-xs font-black uppercase tracking-wider text-black shadow-[0_0_20px_rgba(250,204,21,0.3)] transition-all hover:bg-[#fde047] hover:scale-[1.01] active:scale-95 cursor-pointer disabled:opacity-50 mt-1"
               >
-                <Search size={16} className="text-black" />
-                {loading ? "Checking..." : "Track Order"}
+                <Search size={16} className="text-black stroke-[2.5]" />
+                <span className="font-black text-black">{loading ? "Checking..." : "Track Order"}</span>
               </button>
             </div>
           </div>
