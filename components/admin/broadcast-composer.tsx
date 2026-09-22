@@ -1097,10 +1097,10 @@ export function BroadcastComposer({
                 type="button"
                 onClick={sendEmailToCustomer}
                 disabled={emailPending}
-                className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-md shadow-sm whitespace-nowrap"
+                className="btn w-full h-10 bg-white hover:bg-zinc-100 text-black font-bold text-xs cursor-pointer flex items-center justify-center gap-2 px-3 rounded-lg shadow-sm whitespace-nowrap transition-all active:scale-[0.98]"
               >
-                <Mail size={14} className="shrink-0" />
-                <span>{emailPending ? "Sending..." : "Send Direct Email"}</span>
+                <Mail size={15} className="shrink-0 text-black" />
+                <span>{emailPending ? "Sending..." : "Send Email"}</span>
               </button>
 
               <button
@@ -1108,10 +1108,10 @@ export function BroadcastComposer({
                 type="button"
                 onClick={sendPushToCustomer}
                 disabled={pushPending}
-                className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-md shadow-sm whitespace-nowrap"
+                className="btn w-full h-10 bg-white hover:bg-zinc-100 text-black font-bold text-xs cursor-pointer flex items-center justify-center gap-2 px-3 rounded-lg shadow-sm whitespace-nowrap transition-all active:scale-[0.98]"
               >
-                <Send size={14} className="shrink-0" />
-                <span>{pushPending ? "Sending..." : "Send Device Push"}</span>
+                <Send size={15} className="shrink-0 text-black" />
+                <span>{pushPending ? "Sending..." : "Send Push"}</span>
               </button>
 
               <button
@@ -1119,9 +1119,9 @@ export function BroadcastComposer({
                 type="button"
                 onClick={sendComboToCustomer}
                 disabled={comboPending}
-                className="btn w-full bg-white hover:bg-[#e4e4e7] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 py-2.5 px-3 rounded-md shadow-sm sm:col-span-2 whitespace-nowrap"
+                className="btn w-full h-10.5 bg-white hover:bg-zinc-100 text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 px-4 rounded-lg shadow-sm sm:col-span-2 whitespace-nowrap transition-all active:scale-[0.98]"
               >
-                <Sparkles size={15} className="shrink-0" />
+                <Sparkles size={15} className="shrink-0 text-[#f59e0b]" />
                 <span>{comboPending ? "Sending Combo..." : "Send Email + Device Push"}</span>
               </button>
 
@@ -1129,9 +1129,9 @@ export function BroadcastComposer({
                 suppressHydrationWarning
                 type="button"
                 onClick={openWhatsApp}
-                className="btn w-full bg-[#20c763] hover:bg-[#1bb057] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 py-2.5 px-3 rounded-md shadow-sm sm:col-span-2 whitespace-nowrap"
+                className="btn w-full h-10.5 bg-[#25D366] hover:bg-[#20bd5a] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 px-4 rounded-lg shadow-sm sm:col-span-2 whitespace-nowrap transition-all active:scale-[0.98]"
               >
-                <MessageCircle size={15} className="shrink-0" />
+                <MessageCircle size={16} className="shrink-0 text-black stroke-[2.2]" />
                 <span>Open WhatsApp</span>
               </button>
             </div>
