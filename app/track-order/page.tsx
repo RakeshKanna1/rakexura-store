@@ -1,9 +1,10 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Check, Circle, Clipboard, Clock3, HelpCircle, LifeBuoy, MessageCircle, Search, X, ShieldCheck, Sparkles, FileText, Mail, Send, Key, AlertCircle } from "lucide-react";
+import { Check, Circle, Clipboard, Clock3, HelpCircle, LifeBuoy, MessageCircle, Search, X, ShieldCheck, Sparkles, FileText, Mail, Send, Key, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
@@ -66,18 +67,30 @@ function TrackOrderContent() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [hasSubscription, setHasSubscription] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
+  const [showSearchForm, setShowSearchForm] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
 
   const handleDismissPoints = () => {
     setShowPointsAnimation(false);
     setTimeout(() => {
-      const el = document.getElementById("credentials-section") || document.getElementById("order-tracking-result");
+      const el = document.getElementById("order-tracking-result") || document.getElementById("credentials-section");
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "start" });
       }
-    }, 100);
+    }, 120);
   };
+
+  useEffect(() => {
+    if (showPointsAnimation) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showPointsAnimation]);
 
   async function handleSendEmailInvoice(targetEmail?: string) {
     const emailToSend = targetEmail || currentUser?.email;
@@ -192,6 +205,7 @@ function TrackOrderContent() {
 
     const casted = row as unknown as TrackedOrder;
     setResult(casted);
+    setShowSearchForm(false);
     setWhatsappActivated(typeof window !== "undefined" && localStorage.getItem("activated_" + casted.order_ref) === "true");
 
     let isSub = false;
@@ -253,7 +267,7 @@ function TrackOrderContent() {
 
     if (!isShowingAnim) {
       setTimeout(() => {
-        const el = document.getElementById("credentials-section") || document.getElementById("order-tracking-result");
+        const el = document.getElementById("order-tracking-result") || document.getElementById("credentials-section");
         if (el) {
           el.scrollIntoView({ behavior: "smooth", block: "start" });
         }
@@ -330,99 +344,167 @@ function TrackOrderContent() {
 
   if (!mounted) {
     return (
-      <div className="page-shell py-10">
+      <div className="page-shell px-4 sm:px-6 py-6 sm:py-10 pb-28 sm:pb-12 max-w-4xl mx-auto">
         <BackButton href="/" label="Back to Store" className="mb-4" />
-        <p className="eyebrow mb-3">Live order status</p>
-        <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Track your delivery</h1>
-        <p className="section-copy max-w-2xl mb-8">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
-        <div className="glass rounded-xl border border-white/[.08] bg-[#0c0f18]/80 p-6 backdrop-blur-xl">
+        <p className="eyebrow mb-2">Live order status</p>
+        <h1 className="mb-2 text-2xl sm:text-4xl lg:text-5xl font-black text-white">Track your delivery</h1>
+        <p className="section-copy max-w-2xl mb-6 text-xs sm:text-sm text-[#8991a6]">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
+        <div className="glass rounded-xl border border-white/[.08] bg-[#0c0f18]/80 p-4 sm:p-6 backdrop-blur-xl">
           <div className="mb-4">
-            <h2 className="text-lg font-black text-white">Find your order</h2>
-            <p className="mt-1 text-sm text-[#8991a6]">Use the reference shown after checkout and the same WhatsApp number used for delivery.</p>
+            <h2 className="text-base sm:text-lg font-black text-white">Find your order</h2>
+            <p className="mt-1 text-xs sm:text-sm text-[#8991a6]">Use the reference shown after checkout and the same WhatsApp number used for delivery.</p>
           </div>
-          <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] items-end">
+          <div className="grid gap-3.5 sm:gap-4 md:grid-cols-[1fr_1fr_auto] items-end">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-[#aeb5c8]">Order reference</label>
-              <div className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm" />
+              <div className="h-11 sm:h-12 w-full rounded-lg border border-white/10 bg-black/25 px-4 text-sm" />
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-[#aeb5c8]">WhatsApp number</label>
-              <div className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm" />
+              <div className="h-11 sm:h-12 w-full rounded-lg border border-white/10 bg-black/25 px-4 text-sm" />
             </div>
-            <div className="h-12 min-w-36 rounded-md bg-[#facc15]" />
+            <div className="h-11 sm:h-12 min-w-36 rounded-lg bg-[#facc15]" />
           </div>
         </div>
       </div>
     );
   }
 
+  const isFormVisible = !result || showSearchForm;
+
   return (
-    <div className="page-shell py-10">
+    <div className="page-shell px-4 sm:px-6 py-6 sm:py-10 pb-28 sm:pb-12 max-w-4xl mx-auto">
       <BackButton href="/" label="Back to Store" className="mb-4" />
       <Confetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
-      <p className="eyebrow mb-3">Live order status</p>
-      <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Track your delivery</h1>
-      <p className="section-copy max-w-2xl mb-8">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
+      <p className="eyebrow mb-2">Live order status</p>
+      <h1 className="mb-2 text-2xl sm:text-4xl lg:text-5xl font-black text-white">Track your delivery</h1>
+      <p className="section-copy max-w-2xl mb-6 text-xs sm:text-sm text-[#8991a6]">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
       
-      <div className="glass rounded-xl border border-white/[.08] bg-[#0c0f18]/80 p-6 backdrop-blur-xl shadow-2xl">
-        <div className="mb-4">
-          <h2 className="text-lg font-black text-white">Find your order</h2>
-          <p className="mt-1 text-sm text-[#8991a6]">Use the reference shown after checkout and the same WhatsApp number used for delivery.</p>
+      {isFormVisible ? (
+        <div className="glass rounded-xl border border-white/[.08] bg-[#0c0f18]/80 p-4 sm:p-6 backdrop-blur-xl shadow-2xl mb-5 sm:mb-6">
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-base sm:text-lg font-black text-white">Find your order</h2>
+              <p className="mt-1 text-xs sm:text-sm text-[#8991a6]">Use the reference shown after checkout and the same WhatsApp number used for delivery.</p>
+            </div>
+            {result && (
+              <button
+                type="button"
+                onClick={() => setShowSearchForm(false)}
+                className="shrink-0 text-xs font-bold text-[#8991a6] hover:text-white flex items-center gap-1 py-1 px-2.5 rounded-lg border border-white/10 bg-white/[0.03] transition-colors cursor-pointer"
+              >
+                <span>Collapse</span>
+                <ChevronUp size={14} />
+              </button>
+            )}
+          </div>
+          <div className="grid gap-3.5 sm:gap-4 md:grid-cols-[1fr_1fr_auto] items-end">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="track-order-ref" className="text-xs font-bold text-[#aeb5c8]">
+                Order reference
+              </label>
+              <input
+                suppressHydrationWarning
+                id="track-order-ref"
+                name="order_ref"
+                value={order}
+                onChange={(event) => setOrder(event.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void track();
+                  }
+                }}
+                autoComplete="off"
+                placeholder="RKX-2606-000123"
+                className="h-11 sm:h-12 w-full rounded-lg border border-white/10 bg-black/25 px-4 text-sm outline-none transition focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15]/30 text-white"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="track-order-phone" className="text-xs font-bold text-[#aeb5c8]">
+                WhatsApp number
+              </label>
+              <input
+                suppressHydrationWarning
+                id="track-order-phone"
+                name="phone"
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+                onBlur={(event) => {
+                  const formatted = formatWhatsAppDisplay(event.target.value);
+                  if (formatted) setPhone(formatted);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void track();
+                  }
+                }}
+                autoComplete="tel"
+                placeholder="+91 98765 43210"
+                inputMode="tel"
+                className="h-11 sm:h-12 w-full rounded-lg border border-white/10 bg-black/25 px-4 text-sm outline-none transition focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15]/30 text-white"
+              />
+            </div>
+            <button 
+              suppressHydrationWarning 
+              onClick={() => {
+                setShowSearchForm(false);
+                void track();
+              }} 
+              disabled={loading} 
+              className="inline-flex min-h-11 sm:min-h-12 w-full md:w-auto items-center justify-center gap-2 rounded-lg border border-[#facc15] bg-[#facc15] px-6 text-xs font-black uppercase tracking-wider text-black shadow-[0_0_20px_rgba(250,204,21,0.3)] transition-all hover:bg-[#fde047] hover:scale-[1.01] active:scale-95 cursor-pointer disabled:opacity-50"
+            >
+              <Search size={16} className="text-black stroke-[2.5]" />
+              <span className="font-black text-black">{loading ? "Checking..." : "Track Order"}</span>
+            </button>
+          </div>
         </div>
-        <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] items-end">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="track-order-ref" className="text-xs font-bold text-[#aeb5c8]">
-              Order reference
-            </label>
-            <input suppressHydrationWarning id="track-order-ref" name="order_ref" value={order} onChange={(event) => setOrder(event.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void track(); } }} autoComplete="off" placeholder="RKX-2606-000123" className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none transition focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15]/30 text-white" />
+      ) : (
+        <div className="glass rounded-xl border border-white/[.08] bg-[#0c0f18]/80 p-3.5 sm:p-4 backdrop-blur-xl flex items-center justify-between gap-3 shadow-xl mb-5 sm:mb-6">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="grid h-9 w-9 place-items-center rounded-lg bg-[#facc15]/10 text-[#facc15] border border-[#facc15]/20 shrink-0">
+              <Search size={16} />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase font-black tracking-wider text-[#8991a6]">Active Tracking</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              </div>
+              <p className="text-xs sm:text-sm font-mono font-bold text-white truncate">
+                {result.order_ref} {phone ? <span className="text-[#8991a6] font-sans font-normal hidden xs:inline">• {phone}</span> : null}
+              </p>
+            </div>
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="track-order-phone" className="text-xs font-bold text-[#aeb5c8]">
-              WhatsApp number
-            </label>
-            <input
-              suppressHydrationWarning
-              id="track-order-phone"
-              name="phone"
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-              onBlur={(event) => {
-                const formatted = formatWhatsAppDisplay(event.target.value);
-                if (formatted) setPhone(formatted);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  void track();
-                }
-              }}
-              autoComplete="tel"
-              placeholder="+91 98765 43210"
-              inputMode="tel"
-              className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm outline-none transition focus:border-[#facc15] focus:ring-1 focus:ring-[#facc15]/30 text-white"
-            />
-          </div>
-          <button 
-            suppressHydrationWarning 
-            onClick={track} 
-            disabled={loading} 
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-[#facc15] bg-[#facc15] px-6 text-xs font-black uppercase tracking-wider text-black shadow-[0_0_20px_rgba(250,204,21,0.3)] transition-all hover:bg-[#fde047] hover:scale-[1.02] active:scale-95 cursor-pointer disabled:opacity-50"
+          <button
+            type="button"
+            onClick={() => setShowSearchForm(true)}
+            className="shrink-0 px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-[#facc15] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
           >
-            <Search size={17} className="text-black stroke-[2.5]" />
-            <span className="font-black text-black">{loading ? "Checking..." : "Track Order"}</span>
+            <span>Search Another</span>
+            <ChevronDown size={14} />
           </button>
         </div>
-      </div>
+      )}
 
       {result && (
-        <article className="premium-panel mt-6 rounded-xl border border-white/[.08] bg-[#0c0f18]/90 p-6 md:p-8 backdrop-blur-xl" id="order-tracking-result">
-          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/[.08] pb-6">
+        <article className="premium-panel mt-4 sm:mt-6 rounded-xl border border-white/[.08] bg-[#0c0f18]/90 p-4 sm:p-6 md:p-8 backdrop-blur-xl" id="order-tracking-result">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-white/[.08] pb-6">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#b9a4ff]">Order Reference</p>
-              <button type="button" onClick={copyOrder} className="mt-1.5 inline-flex min-h-11 items-center gap-2 text-2xl font-black text-[#facc15] hover:text-[#fde047] transition-colors" aria-label="Copy order reference">
-                {result.order_ref}
-                <Clipboard size={16} className="text-[#facc15]" />
-              </button>
+              <div className="flex items-center justify-between sm:block gap-2">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#b9a4ff]">Order Reference</p>
+                  <button type="button" onClick={copyOrder} className="mt-1.5 inline-flex min-h-11 items-center gap-2 text-2xl font-black text-[#facc15] hover:text-[#fde047] transition-colors" aria-label="Copy order reference">
+                    {result.order_ref}
+                    <Clipboard size={16} className="text-[#facc15]" />
+                  </button>
+                </div>
+                {/* On mobile: status badge at top right */}
+                <div className="sm:hidden">
+                  <span className={`block rounded-md px-3 py-1.5 text-xs font-bold ${isRejected ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-[#8b5cf6]/15 text-[#c4b5fd] border border-[#8b5cf6]/25"}`}>{result.status}</span>
+                </div>
+              </div>
+
               {result.auth_required ? (
                 <div className="mt-3 flex items-center gap-2 text-sm text-[#facc15] font-bold">
                   <span>Protected Customer Order</span>
@@ -437,11 +519,15 @@ function TrackOrderContent() {
                 </>
               )}
             </div>
-            <div className="text-right flex flex-col items-end gap-1.5">
+
+            {/* On desktop: right column. On mobile: clean row for price and receipt button */}
+            <div className="flex items-center justify-between sm:flex-col sm:items-end sm:text-right gap-2 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/[.06]">
               <strong className="text-2xl font-black text-[#facc15]">{result.auth_required ? "Rs. --" : formatPrice(result.total_price)}</strong>
-              <span className={`block rounded-md px-3 py-1.5 text-xs font-bold ${isRejected ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-[#8b5cf6]/15 text-[#c4b5fd] border border-[#8b5cf6]/25"}`}>{result.status}</span>
               
-              {/* Side Receipt Button with Active Gold Glow */}
+              {/* On desktop: show status badge here */}
+              <span className={`hidden sm:block rounded-md px-3 py-1.5 text-xs font-bold ${isRejected ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-[#8b5cf6]/15 text-[#c4b5fd] border border-[#8b5cf6]/25"}`}>{result.status}</span>
+              
+              {/* Side Receipt Button with Active Gold Glow - exact original styling */}
               <button
                 suppressHydrationWarning
                 type="button"
@@ -457,7 +543,7 @@ function TrackOrderContent() {
                     }, 80);
                   }
                 }}
-                className={`btn btn-secondary text-xs font-bold py-1.5 px-3 inline-flex items-center gap-1.5 border rounded-md shadow-sm cursor-pointer transition mt-1 ${
+                className={`btn btn-secondary text-xs font-bold py-1.5 px-3 inline-flex items-center gap-1.5 border rounded-md shadow-sm cursor-pointer transition sm:mt-1 ${
                   showReceipt
                     ? "border-[#facc15] bg-[#facc15]/10 text-[#facc15] shadow-[0_0_12px_rgba(250,204,21,0.25)]"
                     : "border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white"
@@ -473,8 +559,22 @@ function TrackOrderContent() {
           {showReceipt && (
             <div
               id="thermal-receipt-section"
-              className="my-6 p-4 rounded-lg border border-white/10 bg-black/40 flex flex-col items-center animate-in fade-in duration-300"
+              className="my-5 p-3.5 sm:p-5 rounded-xl border border-white/10 bg-black/60 flex flex-col items-center animate-in fade-in duration-300"
             >
+              <div className="w-full max-w-[340px] flex items-center justify-between pb-2.5 mb-3 border-b border-white/10">
+                <div className="flex items-center gap-2 text-xs font-black text-white">
+                  <FileText size={14} className="text-[#facc15]" />
+                  <span>Official Order Invoice</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowReceipt(false)}
+                  className="text-xs text-[#8991a6] hover:text-white transition-colors cursor-pointer px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 border border-white/5"
+                >
+                  ✕ Close
+                </button>
+              </div>
+
               <ThermalReceiptPrinter
                 orderReference={result.order_ref}
                 customerName={result.customer_name || "Rakexura Customer"}
@@ -614,18 +714,23 @@ function TrackOrderContent() {
             </div>
           ) : (
             <>
-              {/* Handshake Complete Awaiting Manual Fulfillment state label */}
-              <div className="mt-6 flex items-center justify-center gap-2 rounded-md border border-[#00d68f]/20 bg-[#00d68f]/[.05] p-3 text-xs font-bold text-[#70efbb]">
-                <ShieldCheck size={16} /> Handshake complete, awaiting manual fulfillment
-              </div>
-
-              <div className={`mt-6 flex items-start gap-3 rounded-md border p-4 ${isRejected ? "border-red-500/15 bg-red-500/[.03]" : "border-[#facc15]/15 bg-[#b89412]/[.06]"}`}>
-                <Clock3 size={19} className={`mt-0.5 shrink-0 ${isRejected ? "text-red-400" : "text-[#f8e38a]"}`} />
-                <div>
-                  <strong className="text-sm">Estimated status</strong>
-                  <p className="mt-1 text-xs leading-5 text-[#a4abbc]">{estimate(result.status)}</p>
+              {/* Handshake Complete Awaiting Manual Fulfillment state label - only when pending */}
+              {active < 3 && !isRejected && (
+                <div className="mt-6 flex items-center justify-center gap-2 rounded-md border border-[#00d68f]/20 bg-[#00d68f]/[.05] p-3 text-xs font-bold text-[#70efbb]">
+                  <ShieldCheck size={16} /> Handshake complete, awaiting manual fulfillment
                 </div>
-              </div>
+              )}
+
+              {/* Estimated status - only when pending or rejected */}
+              {(active < 3 || isRejected) && (
+                <div className={`mt-6 flex items-start gap-3 rounded-md border p-4 ${isRejected ? "border-red-500/15 bg-red-500/[.03]" : "border-[#facc15]/15 bg-[#b89412]/[.06]"}`}>
+                  <Clock3 size={19} className={`mt-0.5 shrink-0 ${isRejected ? "text-red-400" : "text-[#f8e38a]"}`} />
+                  <div>
+                    <strong className="text-sm">Estimated status</strong>
+                    <p className="mt-1 text-xs leading-5 text-[#a4abbc]">{estimate(result.status)}</p>
+                  </div>
+                </div>
+              )}
 
               {!isRejected && active < 3 && (
                 <div className="mt-3 flex items-center gap-2.5 rounded-lg border border-[#facc15]/15 bg-gradient-to-r from-amber-500/[0.03] to-yellow-500/[0.03] p-3 text-xs text-[#facc15] font-bold">
@@ -638,7 +743,7 @@ function TrackOrderContent() {
                 {(result.status === "Delivered" || result.status === "Completed") ? (
                   <>
                     {/* Loyalty Points Already Credited Banner */}
-                    <div className="flex items-center gap-3.5 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent p-4 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
+                    <div className="flex items-center gap-3.5 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent p-3.5 sm:p-4 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.25)]">
                         <Sparkles size={20} />
                       </div>
@@ -653,19 +758,19 @@ function TrackOrderContent() {
                       </div>
                     </div>
 
-                    <div className="text-center p-6 rounded-lg border border-emerald-500/20 bg-emerald-500/[.03] space-y-2">
-                      <h3 className="text-emerald-400 font-extrabold text-xl">Thank you for your purchase!</h3>
-                      <p className="text-sm text-[#a4abbc]">
+                    <div className="text-center p-4 sm:p-5 rounded-xl border border-emerald-500/20 bg-emerald-500/[.03] space-y-1.5">
+                      <h3 className="text-emerald-400 font-extrabold text-lg sm:text-xl">Thank you for your purchase!</h3>
+                      <p className="text-xs sm:text-sm text-[#a4abbc]">
                         Your order is completed! Thank you for shopping with Rakexura Store.
                       </p>
                     </div>
 
                     {result.account_access ? (
-                      <div className="p-4.5 rounded-xl border border-[#8b5cf6]/40 bg-[#8b5cf6]/5 space-y-2.5 shadow-lg">
-                        <div className="flex items-center justify-between gap-2 border-b border-white/[0.08] pb-2.5">
-                          <div className="flex items-center gap-2 text-xs font-black text-[#c4b5fd]">
-                            <Key size={15} className="text-[#facc15]" />
-                            <span>Game Activation / Account Login Details</span>
+                      <div className="p-4 sm:p-5 rounded-xl border border-[#8b5cf6]/40 bg-[#8b5cf6]/5 space-y-3 shadow-lg">
+                        <div className="flex items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
+                          <div className="flex items-center gap-2 text-xs font-black text-[#c4b5fd] min-w-0">
+                            <Key size={15} className="text-[#facc15] shrink-0" />
+                            <span className="truncate">Game Activation / Account Login Details</span>
                           </div>
                           <button
                             type="button"
@@ -673,16 +778,16 @@ function TrackOrderContent() {
                               navigator.clipboard.writeText(result.account_access || "");
                               toast.success("Login details copied to clipboard!");
                             }}
-                            className="btn btn-secondary text-[11px] font-bold py-1 px-2.5 inline-flex items-center gap-1.5 border border-white/10 hover:border-[#8b5cf6] text-white rounded cursor-pointer transition active:scale-95"
+                            className="btn btn-secondary text-xs font-bold py-1.5 px-3 inline-flex items-center gap-1.5 border border-white/10 hover:border-[#8b5cf6] text-white rounded cursor-pointer transition shrink-0 whitespace-nowrap active:scale-95"
                           >
-                            <Clipboard size={12} className="text-[#facc15]" />
+                            <Clipboard size={13} className="text-[#facc15]" />
                             <span>Copy Details</span>
                           </button>
                         </div>
-                        <div className="font-mono bg-black/50 p-3.5 rounded-lg border border-white/5 text-xs text-slate-100 select-all whitespace-pre-wrap leading-relaxed shadow-inner">
+                        <div className="font-mono bg-black/50 p-3.5 sm:p-4 rounded-lg border border-white/5 text-xs sm:text-sm text-slate-100 select-all whitespace-pre-wrap leading-relaxed shadow-inner break-words">
                           {result.account_access}
                         </div>
-                        <p className="text-[10px] text-[#8991a6] leading-relaxed">
+                        <p className="text-[11px] text-[#8991a6] leading-relaxed">
                           Please use these credentials to log in or activate your game. If you face any issues, click the WhatsApp Help button below.
                         </p>
                       </div>
@@ -791,18 +896,18 @@ function TrackOrderContent() {
                   );
                 })}
               </div>
-              <div className="mt-7 flex flex-wrap gap-3 border-t border-white/[.08] pt-5">
-                <button type="button" onClick={copyOrder} className="btn btn-secondary border-white/10 hover:border-[#facc15]/40 hover:text-[#facc15]">
-                  <Clipboard size={16} className="text-[#facc15]" /> Copy order ID
+              <div className="mt-7 grid grid-cols-2 sm:flex sm:flex-wrap gap-2.5 sm:gap-3 border-t border-white/[.08] pt-5">
+                <button type="button" onClick={copyOrder} className="btn btn-secondary border-white/10 hover:border-[#facc15]/40 hover:text-[#facc15] justify-center text-xs py-2.5">
+                  <Clipboard size={15} className="text-[#facc15]" /> <span>Copy order ID</span>
                 </button>
-                <Link href="/support" className="btn btn-secondary border-white/10 hover:border-[#8b5cf6]/40 hover:text-[#c4b5fd]">
-                  <LifeBuoy size={17} className="text-[#8b5cf6]" /> Support ticket
+                <Link href="/support" className="btn btn-secondary border-white/10 hover:border-[#8b5cf6]/40 hover:text-[#c4b5fd] justify-center text-xs py-2.5">
+                  <LifeBuoy size={15} className="text-[#8b5cf6]" /> <span>Support ticket</span>
                 </Link>
-                <a href={whatsappUrl} target="_blank" rel="noreferrer" className="btn btn-secondary border-white/10 hover:border-emerald-500/40 hover:text-emerald-400">
-                  <MessageCircle size={17} className="text-[#25d366]" /> WhatsApp Help
+                <a href={whatsappUrl} target="_blank" rel="noreferrer" className="btn btn-secondary border-white/10 hover:border-emerald-500/40 hover:text-emerald-400 justify-center text-xs py-2.5">
+                  <MessageCircle size={15} className="text-[#25d366]" /> <span>WhatsApp Help</span>
                 </a>
-                <Link href="/faq" className="btn btn-secondary border-white/10 hover:border-white/20">
-                  <HelpCircle size={17} className="text-[#8991a6]" /> FAQ
+                <Link href="/faq" className="btn btn-secondary border-white/10 hover:border-white/20 justify-center text-xs py-2.5">
+                  <HelpCircle size={15} className="text-[#8991a6]" /> <span>FAQ</span>
                 </Link>
               </div>
             </>
@@ -810,53 +915,56 @@ function TrackOrderContent() {
         </article>
       )}
 
-      {/* Points Awarded Animation Overlay */}
-      <AnimatePresence>
-        {showPointsAnimation && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
-            onClick={handleDismissPoints}
-          >
+      {/* Points Awarded Animation Overlay via Portal directly to body */}
+      {mounted && typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {showPointsAnimation && (
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 15 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 10 }}
-              transition={{ type: "spring", stiffness: 350, damping: 25 }}
-              className="relative w-full max-w-sm rounded-2xl border border-amber-400/30 bg-[#0c0d16] p-6 text-center shadow-[0_0_50px_rgba(251,191,36,0.35)]"
-              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto min-h-screen min-h-[100dvh]"
+              onClick={handleDismissPoints}
             >
-              {/* Floating Glow */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.15),transparent_70%)] pointer-events-none rounded-2xl" />
-
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 text-amber-400 font-black shadow-[0_0_20px_rgba(245,158,11,0.2)] animate-bounce mb-4">
-                <Sparkles size={32} />
-              </div>
-
-              <h3 className="text-2xl font-black text-white bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">
-                +{hasSubscription ? "200" : "100"} Rank Points
-              </h3>
-              <p className="mt-1 text-sm font-bold text-amber-200 uppercase tracking-widest">
-                Loyalty Awarded!
-              </p>
-              
-              <p className="mt-3 text-xs leading-relaxed text-[#9ea6b9]">
-                Your purchase has been verified and delivered. {hasSubscription ? "200" : "100"} XP points have been successfully added to your Rakexura account profile!
-              </p>
-
-              <button
-                type="button"
-                onClick={handleDismissPoints}
-                className="mt-5 w-full rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 py-2.5 text-xs font-black text-black shadow-lg shadow-amber-500/20 transition active:scale-95 cursor-pointer"
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 0 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 0 }}
+                transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                className="relative my-auto w-full max-w-sm rounded-2xl border border-amber-400/30 bg-[#0c0d16] p-6 text-center shadow-[0_0_50px_rgba(251,191,36,0.35)]"
+                onClick={(e) => e.stopPropagation()}
               >
-                Claim & Continue
-              </button>
+                {/* Floating Glow */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.15),transparent_70%)] pointer-events-none rounded-2xl" />
+
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 text-amber-400 font-black shadow-[0_0_20px_rgba(245,158,11,0.2)] animate-bounce mb-4">
+                  <Sparkles size={32} />
+                </div>
+
+                <h3 className="text-2xl font-black text-white bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">
+                  +{hasSubscription ? "200" : "100"} Rank Points
+                </h3>
+                <p className="mt-1 text-sm font-bold text-amber-200 uppercase tracking-widest">
+                  Loyalty Awarded!
+                </p>
+                
+                <p className="mt-3 text-xs leading-relaxed text-[#9ea6b9]">
+                  Your purchase has been verified and delivered. {hasSubscription ? "200" : "100"} XP points have been successfully added to your Rakexura account profile!
+                </p>
+
+                <button
+                  type="button"
+                  onClick={handleDismissPoints}
+                  className="mt-5 w-full rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 py-2.5 text-xs font-black text-black shadow-lg shadow-amber-500/20 transition active:scale-95 cursor-pointer"
+                >
+                  Claim & Continue
+                </button>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }
