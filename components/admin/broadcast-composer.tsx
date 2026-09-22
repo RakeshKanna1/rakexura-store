@@ -1121,7 +1121,7 @@ export function BroadcastComposer({
                 disabled={comboPending}
                 className="btn w-full h-10.5 bg-white hover:bg-zinc-100 text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 px-4 rounded-lg shadow-sm sm:col-span-2 whitespace-nowrap transition-all active:scale-[0.98]"
               >
-                <Sparkles size={15} className="shrink-0 text-[#f59e0b]" />
+                <Sparkles size={15} className="shrink-0 text-black" />
                 <span>{comboPending ? "Sending Combo..." : "Send Email + Device Push"}</span>
               </button>
 
