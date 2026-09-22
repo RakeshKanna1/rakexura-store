@@ -166,6 +166,19 @@ export function BroadcastComposer({
   const [fetchingOrder, setFetchingOrder] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState("");
   const [showOrderInvoiceBox, setShowOrderInvoiceBox] = useState(false);
+  const [loadedOrderData, setLoadedOrderData] = useState<{
+    orderId?: number | string;
+    orderRef: string;
+    items: string;
+    totalPrice: number;
+    status: string | null;
+    accountAccess?: string | null;
+    userId?: string | null;
+    customerEmail?: string | null;
+    customerWhatsapp?: string | null;
+    customerName?: string | null;
+    gameId?: number | string | null;
+  } | null>(null);
 
   const customer = customers.find((item) => item.id === customerId);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -207,6 +220,7 @@ export function BroadcastComposer({
   }
 
   function applyOrderData(data: {
+    orderId?: number | string;
     orderRef: string;
     items: string;
     totalPrice: number;
@@ -217,7 +231,8 @@ export function BroadcastComposer({
     customerWhatsapp?: string | null;
     customerName?: string | null;
     gameId?: number | string | null;
-  }, targetMode?: "invoice" | "review") {
+  }, targetMode?: "invoice" | "review", silent?: boolean) {
+    setLoadedOrderData(data);
     setShowOrderInvoiceBox(true);
     const ref = data.orderRef;
 
@@ -261,7 +276,7 @@ export function BroadcastComposer({
         );
         setShortMessage(`Leave a review for ${matchedGame.title}! Share your experience.`);
         setLink(`${gameUrl(matchedGame)}#reviews`);
-        toast.success(`Loaded Review Request for ${matchedGame.title} (${ref})!`);
+        if (!silent) toast.success(`Loaded Review Request for ${matchedGame.title} (${ref})!`);
       } else {
         setTitle("How was your gaming experience? Leave a review!");
         setMessage(
@@ -270,7 +285,7 @@ export function BroadcastComposer({
         );
         setShortMessage("Leave a review on Rakexura Store! Share your gaming experience.");
         setLink("/dashboard/orders");
-        toast.success(`Loaded Review Request for order ${ref}!`);
+        if (!silent) toast.success(`Loaded Review Request for order ${ref}!`);
       }
     } else {
       setSelectedTemplateKey("invoice");
@@ -295,11 +310,11 @@ export function BroadcastComposer({
         `View your purchase history: https://rakexura-store.vercel.app/dashboard/orders`
       );
       setLink(`/track-order?order=${encodeURIComponent(ref)}`);
-      toast.success(`Loaded invoice for ${ref} (${custDisplayName})!`);
+      if (!silent) toast.success(`Loaded invoice for ${ref} (${custDisplayName})!`);
     }
   }
 
-  function selectOrderById(idStr: string, mode?: "invoice" | "review") {
+  function selectOrderById(idStr: string) {
     setSelectedOrderId(idStr);
     if (!idStr) return;
     const foundOrder = orders.find((o) => String(o.id) === idStr);
@@ -311,6 +326,7 @@ export function BroadcastComposer({
     const primaryGameId = foundOrder.game_id || items.find((i) => i.gameId)?.gameId || null;
 
     applyOrderData({
+      orderId: foundOrder.id,
       orderRef,
       items: itemSummary,
       totalPrice: foundOrder.total_price ?? 0,
@@ -320,15 +336,18 @@ export function BroadcastComposer({
       customerWhatsapp: foundOrder.customer_whatsapp,
       customerName: foundOrder.customer_name,
       gameId: primaryGameId,
-    }, mode);
+    });
   }
 
-  async function handleFetchOrderNo(mode?: "invoice" | "review") {
+  async function handleFetchOrderNo() {
     if (!orderQueryInput.trim()) return toast.error("Enter an Order Ref or ID");
     setFetchingOrder(true);
     try {
       const res = await fetchOrderInvoiceData(orderQueryInput);
-      applyOrderData(res, mode);
+      applyOrderData(res);
+      if (res.orderId) {
+        setSelectedOrderId(String(res.orderId));
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Order not found");
     } finally {
@@ -363,6 +382,15 @@ export function BroadcastComposer({
     setSelectedTemplateKey(key);
     if (key === "invoice") {
       setShowOrderInvoiceBox(true);
+      if (loadedOrderData) {
+        applyOrderData(loadedOrderData, "invoice", true);
+        return;
+      }
+    } else if (key === "review") {
+      if (loadedOrderData) {
+        applyOrderData(loadedOrderData, "review", true);
+        return;
+      }
     }
     const template = templates[key as keyof typeof templates];
     const game = games.find((item) => item.id === Number(selectedGameId));
@@ -795,9 +823,19 @@ export function BroadcastComposer({
                 suppressHydrationWarning
                 type="button"
                 onClick={() => setShowOrderInvoiceBox(!showOrderInvoiceBox)}
-                className="text-[11px] font-bold text-[#facc15] hover:underline cursor-pointer flex items-center gap-1"
+                className={`text-[11px] font-bold hover:underline cursor-pointer flex items-center gap-1 transition-colors ${
+                  selectedTemplateKey === "review" ? "text-[#a78bfa] hover:text-white" : "text-[#facc15] hover:text-yellow-300"
+                }`}
               >
-                <Receipt size={12} /> {showOrderInvoiceBox ? "Hide Invoice" : "Fetch Invoice"}
+                {selectedTemplateKey === "review" ? (
+                  <>
+                    <Star size={12} /> {showOrderInvoiceBox ? "Hide Order Lookup" : "Auto-Fill from Order"}
+                  </>
+                ) : (
+                  <>
+                    <Receipt size={12} /> {showOrderInvoiceBox ? "Hide Invoice Lookup" : "Fetch Order Invoice"}
+                  </>
+                )}
               </button>
             </div>
             <CustomSelect
@@ -812,7 +850,18 @@ export function BroadcastComposer({
           {/* Optional Game Selector for Game-specific templates */}
           {(selectedTemplateKey === "game" || selectedTemplateKey === "offer" || selectedTemplateKey === "preorder" || selectedTemplateKey === "review" || selectedTemplateKey === "cart") && (
             <div className="rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/5 p-3.5 space-y-2">
-              <label className="block text-xs font-bold text-[#b9a4ff]">Pick Game to Auto-fill Details</label>
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-[#b9a4ff]">Pick Game to Auto-fill Details</label>
+                {selectedTemplateKey === "review" && !showOrderInvoiceBox && (
+                  <button
+                    type="button"
+                    onClick={() => setShowOrderInvoiceBox(true)}
+                    className="text-[11px] font-bold text-[#a78bfa] hover:underline cursor-pointer flex items-center gap-1"
+                  >
+                    <Star size={11} /> Or sync from recent order
+                  </button>
+                )}
+              </div>
               <CustomSelect
                 options={gameOptions}
                 value={selectedGameId}
@@ -822,39 +871,36 @@ export function BroadcastComposer({
             </div>
           )}
 
-          {/* Optional Order Invoice Fetcher */}
+          {/* Context-Aware Order Lookup Box */}
           {showOrderInvoiceBox && (
-            <div className="rounded-lg border border-[#facc15]/30 bg-[#facc15]/5 p-3.5 space-y-3">
+            <div
+              className={`rounded-lg border p-3.5 space-y-3 transition-colors ${
+                selectedTemplateKey === "review"
+                  ? "border-[#8b5cf6]/30 bg-[#8b5cf6]/5 shadow-[0_0_15px_rgba(139,92,246,0.06)]"
+                  : "border-[#facc15]/30 bg-[#facc15]/5 shadow-[0_0_15px_rgba(250,204,21,0.06)]"
+              }`}
+            >
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#facc15]">
-                  <Receipt size={14} />
-                  <span>Fetch Order &amp; Auto-Fill</span>
+                <div
+                  className={`flex items-center gap-1.5 text-xs font-black uppercase tracking-wider ${
+                    selectedTemplateKey === "review" ? "text-[#b9a4ff]" : "text-[#facc15]"
+                  }`}
+                >
+                  {selectedTemplateKey === "review" ? <Star size={14} /> : <Receipt size={14} />}
+                  <span>
+                    {selectedTemplateKey === "review"
+                      ? "Auto-Fill Review Request from Order"
+                      : "Fetch Order & Auto-Fill Invoice"}
+                  </span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-[#8991a8] uppercase font-bold tracking-wider">Fill As:</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (selectedOrderId) selectOrderById(selectedOrderId, "invoice");
-                      else if (orderQueryInput.trim()) void handleFetchOrderNo("invoice");
-                      else applyTemplate("invoice");
-                    }}
-                    className={`px-2.5 py-1 rounded text-[11px] font-bold cursor-pointer transition flex items-center gap-1 ${selectedTemplateKey === "invoice" ? "bg-[#facc15] text-black shadow-sm" : "bg-white/10 text-[#a0a8c0] hover:text-white"}`}
-                  >
-                    <Receipt size={11} /> Invoice
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (selectedOrderId) selectOrderById(selectedOrderId, "review");
-                      else if (orderQueryInput.trim()) void handleFetchOrderNo("review");
-                      else applyTemplate("review");
-                    }}
-                    className={`px-2.5 py-1 rounded text-[11px] font-bold cursor-pointer transition flex items-center gap-1 ${selectedTemplateKey === "review" ? "bg-[#8b5cf6] text-white shadow-sm" : "bg-white/10 text-[#a0a8c0] hover:text-white"}`}
-                  >
-                    <Star size={11} /> Review Request
-                  </button>
-                </div>
+                {loadedOrderData && (
+                  <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#8991a8]">
+                    <span>Order:</span>
+                    <span className="text-white font-bold bg-white/10 px-2 py-0.5 rounded">
+                      {loadedOrderData.orderRef}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
@@ -883,14 +929,20 @@ export function BroadcastComposer({
                       onChange={(e) => setOrderQueryInput(e.target.value)}
                       onKeyDown={(e) => { if (e.key === "Enter") void handleFetchOrderNo(); }}
                       placeholder="e.g. RKX-2607-000064"
-                      className="h-10 min-w-0 flex-1 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-mono text-white outline-none focus:border-[#facc15]"
+                      className={`h-10 min-w-0 flex-1 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-mono text-white outline-none ${
+                        selectedTemplateKey === "review" ? "focus:border-[#8b5cf6]" : "focus:border-[#facc15]"
+                      }`}
                     />
                     <button
                       suppressHydrationWarning
                       type="button"
                       onClick={() => void handleFetchOrderNo()}
                       disabled={fetchingOrder}
-                      className="btn bg-[#facc15] hover:bg-[#eab308] text-black h-10 px-3.5 text-xs font-bold cursor-pointer shrink-0 flex items-center gap-1"
+                      className={`btn h-10 px-3.5 text-xs font-bold cursor-pointer shrink-0 flex items-center gap-1 ${
+                        selectedTemplateKey === "review"
+                          ? "bg-[#8b5cf6] hover:bg-[#7c3aed] text-white"
+                          : "bg-[#facc15] hover:bg-[#eab308] text-black"
+                      }`}
                     >
                       <Search size={13} />
                       <span>{fetchingOrder ? "Searching..." : "Fetch"}</span>
