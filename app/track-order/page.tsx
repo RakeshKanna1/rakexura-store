@@ -344,41 +344,39 @@ function TrackOrderContent() {
 
   if (!mounted) {
     return (
-      <div className="page-shell px-4 sm:px-6 py-6 sm:py-10 pb-28 sm:pb-12 max-w-4xl mx-auto">
+      <div className="page-shell py-6 sm:py-10 pb-28 sm:pb-12">
         <BackButton href="/" label="Back to Store" className="mb-4" />
-        <p className="eyebrow mb-2">Live order status</p>
-        <h1 className="mb-2 text-2xl sm:text-4xl lg:text-5xl font-black text-white">Track your delivery</h1>
-        <p className="section-copy max-w-2xl mb-6 text-xs sm:text-sm text-[#8991a6]">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
-        <div className="glass rounded-xl border border-white/[.08] bg-[#0c0f18]/80 p-4 sm:p-6 backdrop-blur-xl">
+        <p className="eyebrow mb-3">Live order status</p>
+        <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Track your delivery</h1>
+        <p className="section-copy max-w-2xl mb-8">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
+        <div className="glass rounded-xl border border-white/[.08] bg-[#0c0f18]/80 p-6 backdrop-blur-xl">
           <div className="mb-4">
-            <h2 className="text-base sm:text-lg font-black text-white">Find your order</h2>
-            <p className="mt-1 text-xs sm:text-sm text-[#8991a6]">Use the reference shown after checkout and the same WhatsApp number used for delivery.</p>
+            <h2 className="text-lg font-black text-white">Find your order</h2>
+            <p className="mt-1 text-sm text-[#8991a6]">Use the reference shown after checkout and the same WhatsApp number used for delivery.</p>
           </div>
-          <div className="grid gap-3.5 sm:gap-4 md:grid-cols-[1fr_1fr_auto] items-end">
+          <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] items-end">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-[#aeb5c8]">Order reference</label>
-              <div className="h-11 sm:h-12 w-full rounded-lg border border-white/10 bg-black/25 px-4 text-sm" />
+              <div className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm" />
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-[#aeb5c8]">WhatsApp number</label>
-              <div className="h-11 sm:h-12 w-full rounded-lg border border-white/10 bg-black/25 px-4 text-sm" />
+              <div className="h-12 w-full rounded-md border border-white/10 bg-black/25 px-4 text-sm" />
             </div>
-            <div className="h-11 sm:h-12 min-w-36 rounded-lg bg-[#facc15]" />
+            <div className="h-12 min-w-36 rounded-md bg-[#facc15]" />
           </div>
         </div>
       </div>
     );
   }
 
-  const isFormVisible = !result || showSearchForm;
-
   return (
-    <div className="page-shell px-4 sm:px-6 md:px-0 py-6 md:py-10 pb-28 md:pb-12 max-w-4xl mx-auto">
+    <div className="page-shell py-6 sm:py-10 pb-28 sm:pb-12">
       <BackButton href="/" label="Back to Store" className="mb-4" />
       <Confetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
-      <p className="eyebrow mb-2 md:mb-3">Live order status</p>
-      <h1 className="mb-2 md:mb-4 text-3xl sm:text-4xl md:text-6xl font-black text-white">Track your delivery</h1>
-      <p className="section-copy max-w-2xl mb-6 md:mb-8 text-xs sm:text-sm md:text-base text-[#8991a6]">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
+      <p className="eyebrow mb-3">Live order status</p>
+      <h1 className="mb-4 text-4xl font-black sm:text-6xl text-white">Track your delivery</h1>
+      <p className="section-copy max-w-2xl mb-8">Use your order reference and WhatsApp number. Customer details are never shown publicly.</p>
       
       {/* Desktop Search Form - 100% Exact original PC layout, always visible */}
       <div className="hidden md:block glass rounded-xl border border-white/[.08] bg-[#0c0f18]/80 p-6 backdrop-blur-xl shadow-2xl mb-6">
