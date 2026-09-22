@@ -1378,13 +1378,68 @@ export async function sendSingleEmailNotification(formData: FormData) {
   } else if (title.toLowerCase().includes("review") || message.toLowerCase().includes("review") || title.toLowerCase().includes("experience")) {
     const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://rakexura-store.vercel.app").replace(/\/$/, "");
     let customerName = targetEmail.split("@")[0] || "Valued Customer";
-    if (userId) {
+    const formName = String(formData.get("name") ?? "").trim();
+    if (formName && formName !== "Customer") {
+      customerName = formName;
+    } else if (userId) {
       const { data: prof } = await supabase.from("profiles").select("display_name").eq("id", userId).maybeSingle();
       if (prof?.display_name) customerName = prof.display_name;
     }
+
+    let gameTitle: string | undefined;
+    let gameCoverUrl: string | null = null;
+    let platform: string | null = null;
+
+    // Detect game from link
+    const gameSlugMatch = link.match(/\/games\/([^/?#]+)/);
+    if (gameSlugMatch) {
+      const slugOrId = gameSlugMatch[1];
+      const isNum = /^\d+$/.test(slugOrId);
+      const { data: dbGame } = await supabase
+        .from("games")
+        .select("title, cover_image, banner_image, available_platforms")
+        .match(isNum ? { id: Number(slugOrId) } : { slug: slugOrId })
+        .maybeSingle();
+
+      if (dbGame) {
+        gameTitle = dbGame.title;
+        gameCoverUrl = dbGame.cover_image || dbGame.banner_image || null;
+        if (Array.isArray(dbGame.available_platforms) && dbGame.available_platforms.length > 0) {
+          platform = (dbGame.available_platforms as string[]).join(" · ");
+        }
+      }
+    }
+
+    // Fallback: detect game from title
+    if (!gameTitle) {
+      const titleMatch = title.match(/How is (.*?)\? Leave a review!/i);
+      if (titleMatch && titleMatch[1]) {
+        gameTitle = titleMatch[1].trim();
+        const { data: dbGame } = await supabase
+          .from("games")
+          .select("title, cover_image, banner_image, available_platforms")
+          .ilike("title", `%${gameTitle}%`)
+          .limit(1)
+          .maybeSingle();
+        if (dbGame) {
+          gameCoverUrl = dbGame.cover_image || dbGame.banner_image || null;
+          if (Array.isArray(dbGame.available_platforms) && dbGame.available_platforms.length > 0) {
+            platform = (dbGame.available_platforms as string[]).join(" · ");
+          }
+        }
+      }
+    }
+
+    if (gameCoverUrl && !gameCoverUrl.startsWith("http")) {
+      gameCoverUrl = `${siteUrl}${gameCoverUrl.startsWith("/") ? gameCoverUrl : `/${gameCoverUrl}`}`;
+    }
+
     const resolvedReviewUrl = link && link !== "/reviews" ? `${siteUrl}${link.startsWith("/") ? link : `/${link}`}` : `${siteUrl}/dashboard/orders`;
     emailHtml = buildReviewRequestEmailHtml({
       customerName,
+      gameTitle,
+      gameCoverUrl,
+      platform,
       message,
       reviewUrl: resolvedReviewUrl,
     });
