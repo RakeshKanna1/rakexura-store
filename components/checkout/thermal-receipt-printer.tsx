@@ -550,24 +550,25 @@ export function ThermalReceiptPrinter({
           <h3 className="text-base font-extrabold text-white tracking-tight">{statusHeading}</h3>
           {statusSubtext && <p className="text-[11px] text-[#8991a6] -mt-1">{statusSubtext}</p>}
 
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex items-center justify-center gap-2 mt-1">
             <button
               suppressHydrationWarning
               type="button"
               onClick={() => triggerPrint()}
               disabled={isPrinting}
-              className="btn min-h-9 bg-[#facc15] hover:bg-[#fbbf24] text-[#05070f] text-xs font-extrabold py-1.5 px-4 rounded-md shadow-[0_0_12px_rgba(250,204,21,0.2)] flex items-center gap-1.5 cursor-pointer transition active:scale-[0.97] disabled:opacity-60"
+              className="inline-flex min-h-9 items-center justify-center gap-1.5 whitespace-nowrap bg-[#facc15] hover:bg-[#fbbf24] text-[#05070f] text-xs font-extrabold py-2 px-3.5 rounded-md shadow-[0_0_12px_rgba(250,204,21,0.2)] cursor-pointer transition active:scale-[0.97] disabled:opacity-60 shrink-0"
             >
-              <Printer size={13} /> {isPrinting ? "Printing..." : isPrinted ? "Re-Print Receipt" : "Print Receipt"}
+              <Printer size={13} />
+              <span>{isPrinting ? "Printing..." : isPrinted ? "Re-Print Receipt" : "Print Receipt"}</span>
             </button>
             {isPrinted && !isPrinting && (
               <button
                 suppressHydrationWarning
                 type="button"
                 onClick={() => triggerTear("right")}
-                className="btn min-h-9 bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-bold py-1.5 px-3 rounded-md border border-white/10 flex items-center gap-1.5 cursor-pointer transition active:scale-[0.97]"
+                className="inline-flex min-h-9 items-center justify-center gap-1.5 whitespace-nowrap bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-bold py-2 px-3 rounded-md border border-white/10 cursor-pointer transition active:scale-[0.97] shrink-0"
               >
-                Tear Receipt
+                <span>Tear Receipt</span>
               </button>
             )}
           </div>
