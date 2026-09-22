@@ -16,6 +16,7 @@ import { DynamicBannerAccent } from "@/components/store/dynamic-banner-accent";
 import { PlatformIcon } from "@/components/store/platform-icon";
 import { BackButton } from "@/components/layout/back-button";
 import { ReviewAutoScroll } from "@/components/store/review-auto-scroll";
+import { ReviewForm } from "@/components/reviews/review-form";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -599,8 +600,9 @@ export default async function GamePage({ params }: Props) {
         </section>
         <section className={`premium-panel rounded-md p-6 border ${activationPanelClass}`}><div className="flex items-center gap-3"><KeyRound style={{ color: accent }} /><h2 className="section-title">Activation preview</h2></div><p className="section-copy mt-4 whitespace-pre-line">{game.activation_instructions || "After verification, your delivery message includes the game-specific activation steps and direct support access. Follow only the instructions attached to your Rakexura order."}</p></section>
         
-        {/* ⭐ Customer Reviews & Ratings - Deferred */}
-        <section id="reviews" className="scroll-mt-28">
+        {/* ⭐ Customer Reviews & Ratings */}
+        <section id="reviews" className="scroll-mt-28 space-y-6">
+          <ReviewForm gameId={game.id} gameTitle={game.title} />
           <Suspense fallback={<div className="h-32 w-full skeleton rounded-md" />}>
             <ReviewsSection gameId={game.id} />
           </Suspense>

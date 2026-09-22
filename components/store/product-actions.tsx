@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/common/button";
-import { ReviewForm } from "@/components/reviews/review-form";
 import { createClient } from "@/lib/supabase/client";
 import { AuthModal } from "@/components/auth/auth-modal";
 import type { User } from "@supabase/supabase-js";
@@ -630,7 +629,6 @@ export function ProductActions({ game }: { game: Game }) {
           </p>
         </div>
       </div>
-      <ReviewForm gameId={game.id} gameTitle={game.title} />
       <Confetti active={celebrate} onComplete={() => setCelebrate(false)} />
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onContinueAsGuest={() => { if (pendingAction) pendingAction(); setShowAuthModal(false); }} />
       {/* Sticky Bottom Bar for Mobile View Only - Only show when out of stock */}
