@@ -22,7 +22,13 @@ async function getSupabaseAdmin() {
   return await createServerClient();
 }
 
-export async function sendPushNotification(userId: string, title: string, message: string, link: string = "/") {
+export async function sendPushNotification(
+  userId: string,
+  title: string,
+  message: string,
+  link: string = "/",
+  targetEndpoint?: string | null
+) {
   try {
     const supabase = await getSupabaseAdmin();
     
@@ -41,6 +47,10 @@ export async function sendPushNotification(userId: string, title: string, messag
         return { success: false, error: error.message };
       }
       subscriptions = directSubs;
+    }
+
+    if (targetEndpoint && subscriptions) {
+      subscriptions = subscriptions.filter((s) => s.endpoint === targetEndpoint);
     }
 
     if (!subscriptions || subscriptions.length === 0) {

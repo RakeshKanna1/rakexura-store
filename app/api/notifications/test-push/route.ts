@@ -43,8 +43,9 @@ export async function POST(request: Request) {
     const title = String(body.title || "Test Push Notification");
     const message = String(body.message || "Hello from Rakexura Store! Push notifications are working.");
     const url = String(body.url || "/dashboard");
+    const endpoint = body.endpoint ? String(body.endpoint) : undefined;
 
-    const result = await sendPushNotification(user.id, title, message, url);
+    const result = await sendPushNotification(user.id, title, message, url, endpoint);
     return NextResponse.json({
       success: true,
       data: result

@@ -125,18 +125,32 @@ export function PushNotificationToggle({
   const sendTestPush = async () => {
     setTesting(true);
     try {
+      let endpoint: string | undefined;
+      if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+        try {
+          const reg = await navigator.serviceWorker.ready;
+          const sub = await reg.pushManager.getSubscription();
+          if (sub) {
+            endpoint = sub.endpoint;
+          }
+        } catch {
+          // If reading endpoint fails, backend falls back to all user devices
+        }
+      }
+
       const res = await fetch("/api/notifications/test-push", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: "Rakexura Alert Test",
           message: "Push notifications are active and working on this browser!",
-          url: "/dashboard/settings"
+          url: "/dashboard/settings",
+          endpoint,
         })
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error?.message || data?.error || `Request failed (${res.status})`);
-      toast.success("Test notification sent! Check your device.");
+      toast.success("Test notification sent to this device! Check your screen.");
     } catch (err) {
       console.error(err);
       toast.error(err instanceof Error ? err.message : "Test push failed");
