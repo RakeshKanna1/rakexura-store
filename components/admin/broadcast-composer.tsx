@@ -755,20 +755,20 @@ export function BroadcastComposer({
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 w-full min-w-0 max-w-full">
       {/* Mobile-Only Segmented Mode Selector */}
-      <div className="grid grid-cols-3 gap-1 rounded-xl bg-[#090b14]/90 p-1 border border-white/10 shadow-lg xl:hidden">
+      <div className="grid grid-cols-3 gap-1 rounded-xl bg-[#090b14]/90 p-1 border border-white/10 shadow-lg xl:hidden w-full min-w-0">
         <button
           suppressHydrationWarning
           type="button"
           onClick={() => setActiveTab("broadcast")}
-          className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+          className={`flex items-center justify-center gap-1.5 py-2.5 px-1.5 sm:px-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer min-w-0 ${
             activeTab === "broadcast"
               ? "bg-gradient-to-b from-[#1c1830] to-[#121020] text-white border border-[#8b5cf6]/40 shadow-[0_0_12px_rgba(139,92,246,0.25)]"
               : "text-[#8991a6] hover:text-white border border-transparent hover:bg-white/[0.04]"
           }`}
         >
-          <BellRing size={14} className={activeTab === "broadcast" ? "text-[#a78bfa]" : ""} />
+          <BellRing size={14} className={`shrink-0 ${activeTab === "broadcast" ? "text-[#a78bfa]" : ""}`} />
           <span className="truncate">Broadcast</span>
         </button>
 
@@ -776,13 +776,13 @@ export function BroadcastComposer({
           suppressHydrationWarning
           type="button"
           onClick={() => setActiveTab("direct")}
-          className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+          className={`flex items-center justify-center gap-1.5 py-2.5 px-1.5 sm:px-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer min-w-0 ${
             activeTab === "direct"
               ? "bg-gradient-to-b from-[#14261d] to-[#0d1a13] text-white border border-[#20c763]/40 shadow-[0_0_12px_rgba(32,199,99,0.25)]"
               : "text-[#8991a6] hover:text-white border border-transparent hover:bg-white/[0.04]"
           }`}
         >
-          <MessageCircle size={14} className={activeTab === "direct" ? "text-[#20c763]" : ""} />
+          <MessageCircle size={14} className={`shrink-0 ${activeTab === "direct" ? "text-[#20c763]" : ""}`} />
           <span className="truncate">Direct</span>
         </button>
 
@@ -790,50 +790,50 @@ export function BroadcastComposer({
           suppressHydrationWarning
           type="button"
           onClick={() => setActiveTab("gift")}
-          className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+          className={`flex items-center justify-center gap-1.5 py-2.5 px-1.5 sm:px-2 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer min-w-0 ${
             activeTab === "gift"
               ? "bg-gradient-to-b from-[#241f12] to-[#17140b] text-white border border-[#facc15]/40 shadow-[0_0_12px_rgba(250,204,21,0.25)]"
               : "text-[#8991a6] hover:text-white border border-transparent hover:bg-white/[0.04]"
           }`}
         >
-          <Gift size={14} className={activeTab === "gift" ? "text-[#facc15]" : ""} />
+          <Gift size={14} className={`shrink-0 ${activeTab === "gift" ? "text-[#facc15]" : ""}`} />
           <span className="truncate">Gift Game</span>
         </button>
       </div>
 
       {/* Main 2-Column Grid on Desktop, Tab-Responsive on Mobile */}
-      <div className="grid gap-6 xl:grid-cols-[1fr_390px]">
+      <div className="grid gap-6 grid-cols-1 xl:grid-cols-[1fr_390px] w-full min-w-0 max-w-full">
         {/* LEFT COLUMN: BROADCAST COMPOSER */}
-        <section className={`premium-panel rounded-lg p-4 sm:p-5 md:p-7 space-y-4 ${activeTab === "broadcast" ? "block" : "hidden xl:block"}`}>
-          <div className="flex items-center gap-3">
+        <section className={`premium-panel rounded-lg p-3.5 sm:p-5 md:p-7 space-y-4 w-full min-w-0 max-w-full overflow-hidden ${activeTab === "broadcast" ? "block" : "hidden xl:block"}`}>
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#b9a4ff] shadow-[0_0_15px_rgba(139,92,246,0.15)]">
               <BellRing size={20} />
             </div>
-            <div>
-              <h2 className="text-lg sm:text-xl font-black text-white leading-tight">Create an update</h2>
-              <p className="text-xs sm:text-sm text-[#8991a6] mt-0.5">Send a safe in-app, push, or email notification to registered customers.</p>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-lg sm:text-xl font-black text-white leading-tight truncate">Create an update</h2>
+              <p className="text-xs sm:text-sm text-[#8991a6] mt-0.5 leading-snug">Send a safe in-app, push, or email notification to registered customers.</p>
             </div>
           </div>
 
           {/* Template Select */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
+          <div className="w-full min-w-0">
+            <div className="flex flex-wrap items-center justify-between gap-1.5 mb-1.5">
               <label className="text-xs font-bold text-[#8991a8]">Select Notification Template</label>
               <button
                 suppressHydrationWarning
                 type="button"
                 onClick={() => setShowOrderInvoiceBox(!showOrderInvoiceBox)}
-                className={`text-[11px] font-bold hover:underline cursor-pointer flex items-center gap-1 transition-colors ${
+                className={`text-[11px] font-bold hover:underline cursor-pointer flex items-center gap-1 transition-colors shrink-0 ${
                   selectedTemplateKey === "review" ? "text-[#a78bfa] hover:text-white" : "text-[#facc15] hover:text-yellow-300"
                 }`}
               >
                 {selectedTemplateKey === "review" ? (
                   <>
-                    <Star size={12} /> {showOrderInvoiceBox ? "Hide Order Lookup" : "Auto-Fill from Order"}
+                    <Star size={12} className="shrink-0" /> <span>{showOrderInvoiceBox ? "Hide Order Lookup" : "Auto-Fill from Order"}</span>
                   </>
                 ) : (
                   <>
-                    <Receipt size={12} /> {showOrderInvoiceBox ? "Hide Invoice Lookup" : "Fetch Order Invoice"}
+                    <Receipt size={12} className="shrink-0" /> <span>{showOrderInvoiceBox ? "Hide Invoice Lookup" : "Fetch Order Invoice"}</span>
                   </>
                 )}
               </button>
@@ -849,16 +849,16 @@ export function BroadcastComposer({
 
           {/* Optional Game Selector for Game-specific templates */}
           {(selectedTemplateKey === "game" || selectedTemplateKey === "offer" || selectedTemplateKey === "preorder" || selectedTemplateKey === "review" || selectedTemplateKey === "cart") && (
-            <div className="rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/5 p-3.5 space-y-2">
-              <div className="flex items-center justify-between">
+            <div className="rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/5 p-3 sm:p-3.5 space-y-2 w-full min-w-0 max-w-full overflow-hidden">
+              <div className="flex flex-wrap items-center justify-between gap-1">
                 <label className="block text-xs font-bold text-[#b9a4ff]">Pick Game to Auto-fill Details</label>
                 {selectedTemplateKey === "review" && !showOrderInvoiceBox && (
                   <button
                     type="button"
                     onClick={() => setShowOrderInvoiceBox(true)}
-                    className="text-[11px] font-bold text-[#a78bfa] hover:underline cursor-pointer flex items-center gap-1"
+                    className="text-[11px] font-bold text-[#a78bfa] hover:underline cursor-pointer flex items-center gap-1 shrink-0"
                   >
-                    <Star size={11} /> Or sync from recent order
+                    <Star size={11} className="shrink-0" /> <span>Or sync from recent order</span>
                   </button>
                 )}
               </div>
@@ -874,37 +874,37 @@ export function BroadcastComposer({
           {/* Context-Aware Order Lookup Box */}
           {showOrderInvoiceBox && (
             <div
-              className={`rounded-lg border p-3.5 space-y-3 transition-colors ${
+              className={`rounded-lg border p-3 sm:p-3.5 space-y-3 transition-colors w-full min-w-0 max-w-full overflow-hidden ${
                 selectedTemplateKey === "review"
                   ? "border-[#8b5cf6]/30 bg-[#8b5cf6]/5 shadow-[0_0_15px_rgba(139,92,246,0.06)]"
                   : "border-[#facc15]/30 bg-[#facc15]/5 shadow-[0_0_15px_rgba(250,204,21,0.06)]"
               }`}
             >
-              <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
                 <div
-                  className={`flex items-center gap-1.5 text-xs font-black uppercase tracking-wider ${
+                  className={`flex items-center gap-1.5 text-xs font-black uppercase tracking-wider min-w-0 ${
                     selectedTemplateKey === "review" ? "text-[#b9a4ff]" : "text-[#facc15]"
                   }`}
                 >
-                  {selectedTemplateKey === "review" ? <Star size={14} /> : <Receipt size={14} />}
-                  <span>
+                  {selectedTemplateKey === "review" ? <Star size={14} className="shrink-0" /> : <Receipt size={14} className="shrink-0" />}
+                  <span className="truncate">
                     {selectedTemplateKey === "review"
                       ? "Auto-Fill Review Request from Order"
                       : "Fetch Order & Auto-Fill Invoice"}
                   </span>
                 </div>
                 {loadedOrderData && (
-                  <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#8991a8]">
+                  <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#8991a8] shrink-0">
                     <span>Order:</span>
-                    <span className="text-white font-bold bg-white/10 px-2 py-0.5 rounded">
+                    <span className="text-white font-bold bg-white/10 px-2 py-0.5 rounded truncate max-w-[140px]">
                       {loadedOrderData.orderRef}
                     </span>
                   </div>
                 )}
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
+              <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 w-full min-w-0">
+                <div className="min-w-0 w-full">
                   <label className="block text-xs font-bold text-[#8991a8] mb-1">Pick Recent Order</label>
                   <CustomSelect
                     options={[
@@ -921,15 +921,16 @@ export function BroadcastComposer({
                   />
                 </div>
 
-                <div>
+                <div className="min-w-0 w-full">
                   <label className="block text-xs font-bold text-[#8991a8] mb-1">Search Order No / Ref</label>
-                  <div className="flex gap-2 min-w-0">
+                  <div className="flex gap-2 min-w-0 w-full">
                     <input
+                      suppressHydrationWarning
                       value={orderQueryInput}
                       onChange={(e) => setOrderQueryInput(e.target.value)}
                       onKeyDown={(e) => { if (e.key === "Enter") void handleFetchOrderNo(); }}
                       placeholder="e.g. RKX-2607-000064"
-                      className={`h-10 min-w-0 flex-1 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-mono text-white outline-none ${
+                      className={`h-10 min-w-0 flex-1 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-mono text-white outline-none w-full ${
                         selectedTemplateKey === "review" ? "focus:border-[#8b5cf6]" : "focus:border-[#facc15]"
                       }`}
                     />
@@ -938,13 +939,13 @@ export function BroadcastComposer({
                       type="button"
                       onClick={() => void handleFetchOrderNo()}
                       disabled={fetchingOrder}
-                      className={`btn h-10 px-3.5 text-xs font-bold cursor-pointer shrink-0 flex items-center gap-1 ${
+                      className={`btn h-10 px-3 text-xs font-bold cursor-pointer shrink-0 flex items-center justify-center gap-1 ${
                         selectedTemplateKey === "review"
                           ? "bg-[#8b5cf6] hover:bg-[#7c3aed] text-white"
                           : "bg-[#facc15] hover:bg-[#eab308] text-black"
                       }`}
                     >
-                      <Search size={13} />
+                      <Search size={13} className="shrink-0" />
                       <span>{fetchingOrder ? "Searching..." : "Fetch"}</span>
                     </button>
                   </div>
@@ -954,20 +955,22 @@ export function BroadcastComposer({
           )}
 
           {/* Title */}
-          <div>
+          <div className="w-full min-w-0">
             <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Title / Email Subject</label>
             <input
+              suppressHydrationWarning
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               maxLength={80}
-              className="h-11 w-full rounded-md border border-white/10 bg-black/25 px-3.5 text-xs sm:text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
+              className="h-11 w-full min-w-0 rounded-md border border-white/10 bg-black/25 px-3.5 text-xs sm:text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
             />
           </div>
 
           {/* Message Body */}
-          <div>
+          <div className="w-full min-w-0">
             <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Message Body</label>
             <textarea
+              suppressHydrationWarning
               ref={textareaRef}
               value={message}
               onChange={(event) => setMessage(event.target.value)}
@@ -975,100 +978,103 @@ export function BroadcastComposer({
               maxLength={3000}
               rows={6}
               style={{ overflowY: "auto", scrollbarWidth: "thin" }}
-              className="w-full min-h-[140px] max-h-[500px] overflow-y-auto resize-y rounded-md border border-white/10 bg-black/25 p-3.5 text-xs sm:text-sm leading-relaxed text-white outline-none focus:border-[#8b5cf6]"
+              className="w-full min-w-0 max-w-full min-h-[140px] max-h-[500px] overflow-y-auto resize-y rounded-md border border-white/10 bg-black/25 p-3.5 text-xs sm:text-sm leading-relaxed text-white outline-none focus:border-[#8b5cf6]"
             />
           </div>
 
           {/* Push Alert Short Text */}
-          <div>
-            <div className="flex items-center justify-between text-xs font-bold text-[#8991a8] mb-1.5">
+          <div className="w-full min-w-0">
+            <div className="flex flex-wrap items-center justify-between gap-1 text-xs font-bold text-[#8991a8] mb-1.5">
               <span>Push Notification Short Message</span>
-              <span className="text-[9px] font-black uppercase text-[#a78bfa] tracking-wider bg-[#a78bfa]/10 px-1.5 py-0.5 rounded border border-[#a78bfa]/20">Device Push</span>
+              <span className="text-[9px] font-black uppercase text-[#a78bfa] tracking-wider bg-[#a78bfa]/10 px-1.5 py-0.5 rounded border border-[#a78bfa]/20 shrink-0">Device Push</span>
             </div>
             <input
+              suppressHydrationWarning
               value={shortMessage}
               onChange={(event) => setShortMessage(event.target.value)}
               maxLength={120}
               placeholder="Short text for push alert..."
-              className="h-10 w-full rounded-md border border-[#a78bfa]/40 bg-black/25 px-3.5 text-xs font-bold text-white outline-none focus:border-[#a78bfa]"
+              className="h-10 w-full min-w-0 rounded-md border border-[#a78bfa]/40 bg-black/25 px-3.5 text-xs font-bold text-white outline-none focus:border-[#a78bfa]"
             />
           </div>
 
           {/* Target Link */}
-          <div>
+          <div className="w-full min-w-0">
             <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Rakexura Target Link</label>
             <input
+              suppressHydrationWarning
               value={link}
               onChange={(event) => setLink(event.target.value)}
-              className="h-10 w-full rounded-md border border-white/10 bg-black/25 px-3.5 text-xs sm:text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
+              className="h-10 w-full min-w-0 rounded-md border border-white/10 bg-black/25 px-3.5 text-xs sm:text-sm font-medium text-white outline-none focus:border-[#8b5cf6]"
             />
           </div>
 
           {/* WhatsApp Channel Link */}
-          <div>
+          <div className="w-full min-w-0">
             <label className="block text-xs font-bold text-[#20c763] mb-1.5">
               Rakexura WhatsApp Channel Link
             </label>
             <input
+              suppressHydrationWarning
               value={whatsappChannelLink}
               onChange={(event) => setWhatsappChannelLink(event.target.value)}
               placeholder="https://whatsapp.com/channel/..."
-              className="h-10 w-full rounded-md border border-[#20c763]/40 bg-black/25 px-3.5 text-xs sm:text-sm font-medium text-white outline-none focus:border-[#20c763]"
+              className="h-10 w-full min-w-0 rounded-md border border-[#20c763]/40 bg-black/25 px-3.5 text-xs sm:text-sm font-medium text-white outline-none focus:border-[#20c763]"
             />
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-2 space-y-2.5">
+          <div className="pt-2 space-y-2.5 w-full min-w-0">
             <button
               suppressHydrationWarning
               type="button"
               onClick={notifyAll}
               disabled={pending}
-              className="btn btn-primary w-full h-11 text-xs sm:text-sm font-bold cursor-pointer"
+              className="btn btn-primary w-full min-w-0 h-11 text-xs sm:text-sm font-bold cursor-pointer"
             >
-              <Send size={15} />
-              <span>{pending ? "Sending Broadcast..." : "Notify all customer accounts"}</span>
+              <Send size={15} className="shrink-0" />
+              <span className="truncate">{pending ? "Sending Broadcast..." : "Notify all customer accounts"}</span>
             </button>
 
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 w-full min-w-0">
               <button
                 suppressHydrationWarning
                 type="button"
                 onClick={shareToWhatsAppChannel}
-                className="btn w-full bg-[#25D366] hover:bg-[#20bd5a] text-black font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md"
+                className="btn w-full min-w-0 bg-[#25D366] hover:bg-[#20bd5a] text-black font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md"
               >
                 <MessageCircle size={16} className="text-black stroke-[2.2] shrink-0" />
-                <span>Open WhatsApp Channel</span>
+                <span className="truncate">Open WhatsApp Channel</span>
               </button>
 
               <button
                 suppressHydrationWarning
                 type="button"
                 onClick={() => void copyWhatsAppBroadcastText()}
-                className="btn w-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md border border-white/15"
+                className="btn w-full min-w-0 bg-white/10 hover:bg-white/20 text-white font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 py-2.5 rounded-md border border-white/15"
               >
                 <Copy size={15} className="text-[#a78bfa] shrink-0" />
-                <span>Copy Broadcast Text</span>
+                <span className="truncate">Copy Broadcast Text</span>
               </button>
             </div>
           </div>
         </section>
 
         {/* RIGHT COLUMN ASIDE: TARGETED MESSAGING & GIVEAWAY */}
-        <aside className="space-y-6">
+        <aside className="space-y-6 w-full min-w-0 max-w-full">
           {/* Targeted Customer Messaging */}
-          <section className={`premium-panel rounded-lg p-4 sm:p-5 space-y-4 ${activeTab === "direct" ? "block" : "hidden xl:block"}`}>
-            <div className="flex items-center gap-3">
+          <section className={`premium-panel rounded-lg p-3.5 sm:p-5 space-y-4 w-full min-w-0 max-w-full overflow-hidden ${activeTab === "direct" ? "block" : "hidden xl:block"}`}>
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#20c763]/30 bg-[#20c763]/10 text-[#20c763]">
                 <MessageCircle size={18} />
               </div>
-              <h2 className="text-lg font-black text-white">Targeted Customer Messaging</h2>
+              <h2 className="text-lg font-black text-white truncate min-w-0">Targeted Customer Messaging</h2>
             </div>
             <p className="text-xs leading-5 text-[#8991a6]">
               Select a registered website account to send a targeted lockscreen push, WhatsApp message, or direct email update.
             </p>
 
-            <div>
+            <div className="w-full min-w-0">
               <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Website Customer</label>
               <CustomSelect
                 options={customerOptions}
@@ -1084,23 +1090,23 @@ export function BroadcastComposer({
 
             <div
               style={{ overflowY: "auto", scrollbarWidth: "thin" }}
-              className="max-h-[200px] overflow-y-auto whitespace-pre-wrap rounded-md border border-white/[.07] bg-black/25 p-3.5 text-xs leading-5 text-[#aab1c1]"
+              className="max-h-[200px] overflow-y-auto whitespace-pre-wrap break-words rounded-md border border-white/[.07] bg-black/25 p-3.5 text-xs leading-5 text-[#aab1c1] w-full min-w-0"
             >
-              <strong className="block text-white font-bold">{title}</strong>
-              <span className="mt-1 block text-zinc-300 whitespace-pre-wrap">{message}</span>
-              {targetEmail && <span className="mt-2 block text-[11px] text-[#b9a4ff] font-mono">Recipient Email: {targetEmail}</span>}
+              <strong className="block text-white font-bold break-words">{title}</strong>
+              <span className="mt-1 block text-zinc-300 whitespace-pre-wrap break-words">{message}</span>
+              {targetEmail && <span className="mt-2 block text-[11px] text-[#b9a4ff] font-mono break-all">Recipient Email: {targetEmail}</span>}
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2 pt-1">
+            <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 pt-1 w-full min-w-0">
               <button
                 suppressHydrationWarning
                 type="button"
                 onClick={sendEmailToCustomer}
                 disabled={emailPending}
-                className="btn w-full h-10 bg-white hover:bg-zinc-100 text-black font-bold text-xs cursor-pointer flex items-center justify-center gap-2 px-3 rounded-lg shadow-sm whitespace-nowrap transition-all active:scale-[0.98]"
+                className="btn w-full min-w-0 h-10 bg-white hover:bg-zinc-100 text-black font-bold text-xs cursor-pointer flex items-center justify-center gap-2 px-3 rounded-lg shadow-sm transition-all active:scale-[0.98]"
               >
                 <Mail size={15} className="shrink-0 text-black" />
-                <span>{emailPending ? "Sending..." : "Send Email"}</span>
+                <span className="truncate">{emailPending ? "Sending..." : "Send Email"}</span>
               </button>
 
               <button
@@ -1108,10 +1114,10 @@ export function BroadcastComposer({
                 type="button"
                 onClick={sendPushToCustomer}
                 disabled={pushPending}
-                className="btn w-full h-10 bg-white hover:bg-zinc-100 text-black font-bold text-xs cursor-pointer flex items-center justify-center gap-2 px-3 rounded-lg shadow-sm whitespace-nowrap transition-all active:scale-[0.98]"
+                className="btn w-full min-w-0 h-10 bg-white hover:bg-zinc-100 text-black font-bold text-xs cursor-pointer flex items-center justify-center gap-2 px-3 rounded-lg shadow-sm transition-all active:scale-[0.98]"
               >
                 <Send size={15} className="shrink-0 text-black" />
-                <span>{pushPending ? "Sending..." : "Send Push"}</span>
+                <span className="truncate">{pushPending ? "Sending..." : "Send Push"}</span>
               </button>
 
               <button
@@ -1119,35 +1125,35 @@ export function BroadcastComposer({
                 type="button"
                 onClick={sendComboToCustomer}
                 disabled={comboPending}
-                className="btn w-full h-10.5 bg-white hover:bg-zinc-100 text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 px-4 rounded-lg shadow-sm sm:col-span-2 whitespace-nowrap transition-all active:scale-[0.98]"
+                className="btn w-full min-w-0 h-10.5 bg-white hover:bg-zinc-100 text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 px-3 sm:px-4 rounded-lg shadow-sm sm:col-span-2 transition-all active:scale-[0.98]"
               >
                 <Sparkles size={15} className="shrink-0 text-black" />
-                <span>{comboPending ? "Sending Combo..." : "Send Email + Device Push"}</span>
+                <span className="truncate">{comboPending ? "Sending Combo..." : "Send Email + Device Push"}</span>
               </button>
 
               <button
                 suppressHydrationWarning
                 type="button"
                 onClick={openWhatsApp}
-                className="btn w-full h-10.5 bg-[#25D366] hover:bg-[#20bd5a] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 px-4 rounded-lg shadow-sm sm:col-span-2 whitespace-nowrap transition-all active:scale-[0.98]"
+                className="btn w-full min-w-0 h-10.5 bg-[#25D366] hover:bg-[#20bd5a] text-black font-bold text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 px-3 sm:px-4 rounded-lg shadow-sm sm:col-span-2 transition-all active:scale-[0.98]"
               >
                 <MessageCircle size={16} className="shrink-0 text-black stroke-[2.2]" />
-                <span>Open WhatsApp</span>
+                <span className="truncate">Open WhatsApp</span>
               </button>
             </div>
           </section>
 
           {/* Giveaway / Gift Game */}
-          <section className={`premium-panel rounded-lg p-4 sm:p-5 space-y-4 ${activeTab === "gift" ? "block" : "hidden xl:block"}`}>
-            <div className="flex items-center gap-3">
+          <section className={`premium-panel rounded-lg p-3.5 sm:p-5 space-y-4 w-full min-w-0 max-w-full overflow-hidden ${activeTab === "gift" ? "block" : "hidden xl:block"}`}>
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#facc15]/30 bg-[#facc15]/10 text-[#facc15]">
                 <Gift size={18} />
               </div>
-              <h2 className="text-lg font-black text-white">Giveaway / Gift Game</h2>
+              <h2 className="text-lg font-black text-white truncate min-w-0">Giveaway / Gift Game</h2>
             </div>
             <p className="text-xs leading-5 text-[#8991a6]">Send a game directly to this customer&apos;s library and orders page at Rs. 0 as a giveaway.</p>
 
-            <div>
+            <div className="w-full min-w-0">
               <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Customer</label>
               <CustomSelect
                 options={customerOptions}
@@ -1161,7 +1167,7 @@ export function BroadcastComposer({
               />
             </div>
 
-            <div>
+            <div className="w-full min-w-0">
               <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Game</label>
               <CustomSelect
                 options={giftGameOptions}
@@ -1171,7 +1177,7 @@ export function BroadcastComposer({
               />
             </div>
 
-            <div>
+            <div className="w-full min-w-0">
               <label className="block text-xs font-bold text-[#8991a8] mb-1.5">Select Platform</label>
               <CustomSelect
                 options={platformOptions}
@@ -1187,9 +1193,9 @@ export function BroadcastComposer({
               type="button"
               onClick={sendGiftGame}
               disabled={giftPending}
-              className="btn w-full btn-primary bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold cursor-pointer h-11 mt-2"
+              className="btn w-full min-w-0 btn-primary bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold cursor-pointer h-11 mt-2"
             >
-              <Gift size={15} /> {giftPending ? "Gifting..." : "Gift Game"}
+              <Gift size={15} className="shrink-0" /> <span className="truncate">{giftPending ? "Gifting..." : "Gift Game"}</span>
             </button>
           </section>
         </aside>

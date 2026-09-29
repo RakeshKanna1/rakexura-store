@@ -61,23 +61,23 @@ export function CustomSelect({
   const SelectedIcon = selectedOption?.icon;
 
   return (
-    <div ref={containerRef} className={`relative w-full ${isOpen ? "z-50" : "z-10"} ${className}`}>
+    <div ref={containerRef} className={`relative w-full min-w-0 max-w-full ${isOpen ? "z-50" : "z-10"} ${className}`}>
       {/* Trigger Button */}
       <button
         type="button"
         suppressHydrationWarning
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-12 w-full items-center justify-between rounded-md border border-white/15 bg-black/40 px-4 text-sm font-medium text-white transition-all hover:border-[#8b5cf6]/50 focus:border-[#8b5cf6] focus:outline-none select-none cursor-pointer"
+        className="flex h-12 w-full min-w-0 max-w-full items-center justify-between rounded-md border border-white/15 bg-black/40 px-3.5 sm:px-4 text-xs sm:text-sm font-medium text-white transition-all hover:border-[#8b5cf6]/50 focus:border-[#8b5cf6] focus:outline-none select-none cursor-pointer overflow-hidden"
       >
-        <div className="flex items-center gap-2.5 min-w-0 truncate">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden mr-2">
           {SelectedIcon && <SelectedIcon size={17} className="text-[#a78bfa] shrink-0" />}
-          <span className={selectedOption ? "text-white font-medium truncate" : "text-[#8991a6] truncate"}>
+          <span className={`block truncate min-w-0 text-left ${selectedOption ? "text-white font-medium" : "text-[#8991a6]"}`}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>
         <ChevronDown
-          size={18}
-          className={`text-[#8991a6] transition-transform duration-200 shrink-0 ml-2 ${
+          size={17}
+          className={`text-[#8991a6] transition-transform duration-200 shrink-0 ${
             isOpen ? "rotate-180 text-[#8b5cf6]" : ""
           }`}
         />
@@ -94,13 +94,14 @@ export function CustomSelect({
             transition={{ duration: 0.15, ease: "easeOut" }}
             onWheel={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
-            className="absolute left-0 right-0 top-full z-[9999] overflow-hidden rounded-lg border border-white/20 bg-[#120f26] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.98)] backdrop-blur-2xl"
+            className="absolute left-0 right-0 top-full z-[9999] w-full max-w-full overflow-hidden rounded-lg border border-white/20 bg-[#120f26] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.98)] backdrop-blur-2xl"
           >
             {/* Optional Search Filter */}
             {searchable && options.length > 3 && (
-              <div className="relative mb-2">
+              <div className="relative mb-2 w-full min-w-0">
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8991a6]" />
                 <input
+                  suppressHydrationWarning
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -109,13 +110,13 @@ export function CustomSelect({
                   autoCorrect="off"
                   spellCheck={false}
                   autoFocus
-                  className="h-9 w-full rounded-md border border-white/10 bg-black/50 pl-9 pr-3 text-xs text-white placeholder-[#656d82] outline-none focus:border-[#8b5cf6]/60"
+                  className="h-9 w-full min-w-0 rounded-md border border-white/10 bg-black/50 pl-9 pr-3 text-xs text-white placeholder-[#656d82] outline-none focus:border-[#8b5cf6]/60"
                 />
               </div>
             )}
 
             {/* Options List */}
-            <div data-lenis-prevent className="max-h-60 overflow-y-auto space-y-0.5 custom-scrollbar pr-1">
+            <div data-lenis-prevent className="max-h-60 overflow-y-auto space-y-0.5 custom-scrollbar pr-1 w-full min-w-0">
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((opt) => {
                   const isSelected = opt.value === value;
@@ -129,15 +130,15 @@ export function CustomSelect({
                         setIsOpen(false);
                         setSearchQuery("");
                       }}
-                      className={`flex w-full items-center justify-between rounded-md px-3 py-2.5 text-xs font-medium transition-colors cursor-pointer text-left ${
+                      className={`flex w-full min-w-0 items-center justify-between rounded-md px-3 py-2.5 text-xs font-medium transition-colors cursor-pointer text-left overflow-hidden ${
                         isSelected
                           ? "bg-[#8b5cf6] text-white"
                           : "text-[#d0d6e5] hover:bg-white/10 hover:text-white"
                       }`}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0 truncate">
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden mr-2">
                         {OptIcon && <OptIcon size={16} className={isSelected ? "text-white shrink-0" : "text-[#a78bfa] shrink-0"} />}
-                        <div className="truncate">
+                        <div className="truncate min-w-0 flex-1">
                           <span className="block truncate font-semibold">{opt.label}</span>
                           {opt.sublabel && (
                             <span className={`block text-[10px] truncate ${isSelected ? "text-white/80" : "text-[#8991a6]"}`}>
@@ -146,7 +147,7 @@ export function CustomSelect({
                           )}
                         </div>
                       </div>
-                      {isSelected && <Check size={16} className="shrink-0 ml-2 text-white" />}
+                      {isSelected && <Check size={16} className="shrink-0 ml-1 text-white" />}
                     </button>
                   );
                 })

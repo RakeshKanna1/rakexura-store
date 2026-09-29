@@ -72,7 +72,7 @@ export function StoreCloudSync() {
 
         try {
           const [cartRes, bundleRes, wishlistRes] = await Promise.all([
-            supabase.from("cart_items").select("variant_type,quantity,games(id,title,cover_image,sale_price,original_price,steam_price,epic_price,offline_price,online_price,xbox_price,geforce_price,is_subscription,duration)").eq("user_id", user.id),
+            supabase.from("cart_items").select("variant_type,quantity,games(id,title,cover_image,sale_price,original_price,steam_price,epic_price,offline_price,online_price,xbox_price,geforce_price,price_1m,price_2m,price_3m,price_6m,price_12m,is_subscription,duration)").eq("user_id", user.id),
             supabase.from("cart_bundles").select("quantity,bundles(id,title,description,cover_image,original_price,bundle_price,active,offer_end_date,bundle_games(games(id,title)))").eq("user_id", user.id),
             supabase.from("wishlist").select("game_id").eq("user_id", user.id),
           ]);

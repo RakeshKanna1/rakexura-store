@@ -8,27 +8,28 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { assetUrl, calculateResellerPrice, formatPrice, gameUrl, lowestPrice, matchesSearchQuery } from "@/lib/utils";
+import { assetUrl, calculatePlatformPrice, calculateResellerPrice, formatPrice, gameUrl, lowestPrice, matchesSearchQuery } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
-import type { Game } from "@/types/store";
+import type { Game, Platform } from "@/types/store";
 import { availablePlatforms } from "./game-card";
 import { TextType } from "@/components/animations/text-type";
 
 const RECENT_KEY = "rakexura-recent-searches";
 const trendingTerms = ["Open World", "Under ₹299", "Xbox PC Pass", "Story Rich", "Co-op"];
 
-function quickPlatform(game: Game) {
-  return availablePlatforms(game).sort((a, b) => {
-    const price = (platform: string) => {
-      if (platform === "Epic") return Number(game.epic_price ?? 0);
-      if (platform === "Offline") return Number(game.offline_price ?? 0);
-      if (platform === "Online") return Number(game.online_price ?? 0);
-      if (platform === "Xbox") return Number(game.xbox_price ?? 0);
-      if (platform === "Nvidia GeForce") return Number(game.geforce_price ?? 0);
-      return Number(game.steam_price ?? 0) || Number.POSITIVE_INFINITY;
-    };
-    return price(a) - price(b);
-  })[0];
+function quickPlatform(game: Game): Platform {
+  const platforms = availablePlatforms(game);
+  if (!platforms.length) return "Steam" as Platform;
+  let lowestP = platforms[0];
+  let minPrice = Infinity;
+  for (const p of platforms) {
+    const pr = calculatePlatformPrice(game, p);
+    if (pr > 0 && pr < minPrice) {
+      minPrice = pr;
+      lowestP = p;
+    }
+  }
+  return lowestP;
 }
 
 export function PremiumSearch() {
@@ -63,7 +64,7 @@ export function PremiumSearch() {
     setLoading(true);
     void createClient()
       .from("games")
-      .select("id, title, tagline, description, genres, cover_image, sale_price, original_price, steam_price, epic_price, offline_price, online_price, xbox_price, geforce_price, available_platforms, is_subscription, duration")
+      .select("id, title, tagline, description, genres, cover_image, sale_price, original_price, steam_price, epic_price, offline_price, online_price, xbox_price, geforce_price, price_1m, price_2m, price_3m, price_6m, price_12m, available_platforms, is_subscription, duration")
       .or("archived.is.null,archived.eq.false")
       .then(({ data }: { data: Game[] | null }) => {
         setLoading(false);
@@ -293,6 +294,9 @@ export function PremiumSearch() {
                             {resellerCalc ? (
                               resellerCalc.isDiscount ? (
                                 <div className="flex items-baseline gap-1.5">
+                                  {game.is_subscription && (
+                                    <span className="text-[10px] text-[#8991a8] font-bold">From</span>
+                                  )}
                                   <strong className="text-xs font-black text-[#facc15] font-mono">
                                     {formatPrice(resellerCalc.price)}
                                   </strong>
@@ -302,6 +306,9 @@ export function PremiumSearch() {
                                 </div>
                               ) : (
                                 <div className="flex items-baseline gap-1.5">
+                                  {game.is_subscription && (
+                                    <span className="text-[10px] text-[#8991a8] font-bold">From</span>
+                                  )}
                                   <strong className="text-xs font-black text-[#facc15] font-mono">
                                     {formatPrice(resellerCalc.price)}
                                   </strong>
@@ -311,26 +318,31 @@ export function PremiumSearch() {
                                 </div>
                               )
                             ) : (
-                              <strong className="text-xs font-black text-[#c4b5fd] font-mono">
-                                {formatPrice(rawPrice)}
-                              </strong>
+                              <div className="flex items-baseline gap-1">
+                                {game.is_subscription && (
+                                  <span className="text-[10px] text-[#8991a8] font-bold">From</span>
+                                )}
+                                <strong className="text-xs font-black text-[#c4b5fd] font-mono">
+                                  {formatPrice(rawPrice)}
+                                </strong>
+                              </div>
                             )}
 
-                            {/* Platform Badges */}
-                            {platforms.slice(0, 3).map((plat) => (
-                              <span
-                                key={plat}
-                                className="rounded bg-white/[0.04] border border-white/10 px-1.5 py-0.5 text-[9px] font-bold text-[#a7adbb]"
-                              >
-                                {plat}
-                              </span>
-                            ))}
-
-                            {game.is_subscription && game.duration && (
+                            {/* Platform / Duration Badges */}
+                            {platforms.length > 0 ? (
+                              platforms.slice(0, 3).map((plat) => (
+                                <span
+                                  key={plat}
+                                  className="rounded bg-white/[0.04] border border-white/10 px-1.5 py-0.5 text-[9px] font-bold text-[#a7adbb]"
+                                >
+                                  {plat}
+                                </span>
+                              ))
+                            ) : game.is_subscription && game.duration ? (
                               <span className="rounded bg-[#8b5cf6]/15 border border-[#8b5cf6]/25 px-1.5 py-0.5 text-[9px] font-bold text-[#c4b5fd]">
                                 {game.duration}
                               </span>
-                            )}
+                            ) : null}
                           </div>
                         </div>
                       </Link>

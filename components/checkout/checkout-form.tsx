@@ -182,7 +182,7 @@ export function CheckoutForm() {
       const supabase = createClient();
       const { data } = await supabase
         .from("games")
-        .select("id, title, steam_price, sale_price, epic_price, offline_price, online_price, xbox_price, geforce_price, is_subscription")
+        .select("id, title, steam_price, sale_price, epic_price, offline_price, online_price, xbox_price, geforce_price, price_1m, price_2m, price_3m, price_6m, price_12m, is_subscription")
         .eq("archived", false);
       if (data) setGames(data as Game[]);
 

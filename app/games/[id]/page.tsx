@@ -552,12 +552,12 @@ export default async function GamePage({ params }: Props) {
           </Suspense>
         )}
         <section className={panelClass}>
-          <h2 className="section-title mb-5">Compare platforms</h2>
+          <h2 className="section-title mb-5">{isSubscriptionOrCloudOnly ? "Compare plan durations" : "Compare platforms"}</h2>
           <div className="overflow-x-auto rounded-md border border-white/[.08]">
             <table className="w-full min-w-[520px] border-collapse text-left text-sm">
               <thead className="bg-white/[.04] text-[#8991a6]">
                 <tr>
-                  <th className="p-4">Platform</th>
+                  <th className="p-4">{isSubscriptionOrCloudOnly ? "Plan Duration" : "Platform"}</th>
                   <th className="p-4">Price</th>
                   <th className="p-4">Delivery</th>
                   <th className="p-4">Availability</th>

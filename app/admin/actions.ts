@@ -761,6 +761,9 @@ export async function saveGame(formData: FormData) {
     .map((line) => line.trim())
     .filter((line) => line.length > 0);
 
+  const isSubscription = formData.get("is_subscription") === "on";
+  const subStartingPrice = optionalNumber(formData.get("price_1m")) ?? optionalNumber(formData.get("price_2m")) ?? optionalNumber(formData.get("price_3m")) ?? optionalNumber(formData.get("price_6m")) ?? optionalNumber(formData.get("price_12m"));
+
   const payload = {
     title,
     tagline: String(formData.get("tagline") ?? "").trim() || null,
@@ -786,7 +789,7 @@ export async function saveGame(formData: FormData) {
     price_12m: optionalNumber(formData.get("price_12m")),
     duration: String(formData.get("duration") ?? "").trim() || null,
     original_price: optionalNumber(formData.get("original_price")),
-    sale_price: optionalNumber(formData.get("sale_price")),
+    sale_price: isSubscription ? (subStartingPrice ?? optionalNumber(formData.get("sale_price"))) : optionalNumber(formData.get("sale_price")),
     reseller_price: optionalNumber(formData.get("reseller_price")),
     activation_slots: optionalNumber(formData.get("activation_slots")),
     genres: formData.getAll("genres").map(String),
@@ -800,7 +803,7 @@ export async function saveGame(formData: FormData) {
     show_in_trending: formData.get("show_in_trending") === "on",
     show_in_recommended: formData.get("show_in_recommended") === "on",
     preorder: formData.get("preorder") === "on",
-    is_subscription: formData.get("is_subscription") === "on",
+    is_subscription: isSubscription,
     online_activation: formData.get("online_activation") === "on",
     is_premium: formData.get("is_premium") === "on",
     premium_theme: String(formData.get("premium_theme") ?? "royal").trim() || "royal",

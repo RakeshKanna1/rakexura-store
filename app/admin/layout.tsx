@@ -20,14 +20,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* Subtle brand color gradient glow matching logo signature colors */}
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(139,92,246,0.06),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(167,139,250,0.03),transparent_50%)]" />
       
-      <div className="relative z-10 page-shell pt-3 sm:pt-4 pb-8 sm:pb-10">
+      <div className="relative z-10 page-shell pt-3 sm:pt-4 pb-8 sm:pb-10 w-full min-w-0 max-w-full">
         <BackButton className="mb-6 sm:mb-7" />
-        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[230px_minmax(0,1fr)] lg:items-start">
-          <aside className="lg:sticky lg:top-24 z-20">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-[230px_minmax(0,1fr)] lg:items-start w-full min-w-0 max-w-full">
+          <aside className="lg:sticky lg:top-24 z-20 w-full min-w-0">
             <AdminNav />
           </aside>
           
-          <div className="min-w-0">
+          <div className="min-w-0 w-full max-w-full">
             {children}
           </div>
         </div>
