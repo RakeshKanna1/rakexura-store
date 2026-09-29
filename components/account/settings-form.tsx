@@ -137,20 +137,20 @@ export function SettingsForm({
           <span>Encrypted &amp; synchronized across active sessions</span>
         </span>
 
-        {/* High-End Studio-Grade Save Changes Button */}
+        {/* Compact Ergonomic Save Changes Button */}
         <button
           type="submit"
           disabled={isSubmitting}
-          className="group relative inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-2.5 text-xs font-bold tracking-wide text-[#08090d] shadow-[0_2px_10px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.8)] transition-all duration-150 hover:bg-[#f4f4f8] hover:shadow-[0_4px_18px_rgba(255,255,255,0.18)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer select-none"
+          className="group relative inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-white px-3.5 text-xs font-bold text-[#08090d] shadow-sm transition-all duration-150 hover:bg-[#f0f0f5] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer select-none"
         >
           {isSubmitting ? (
             <>
               <Loader2 className="w-3.5 h-3.5 animate-spin text-[#08090d]" />
-              <span>Saving Changes...</span>
+              <span>Saving...</span>
             </>
           ) : (
             <>
-              <Check size={14} className="stroke-[2.5] text-[#08090d] transition-transform duration-150 group-hover:scale-110" />
+              <Check size={13} className="stroke-[2.5] text-[#08090d] transition-transform duration-150 group-hover:scale-110" />
               <span>Save Changes</span>
             </>
           )}
