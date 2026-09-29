@@ -22,39 +22,61 @@ async function getSupabaseAdmin() {
   return await createServerClient();
 }
 
+export type PushSubscriptionTarget =
+  | string
+  | {
+      endpoint: string;
+      keys: {
+        p256dh: string;
+        auth: string;
+      };
+    };
+
 export async function sendPushNotification(
   userId: string,
   title: string,
   message: string,
   link: string = "/",
-  targetEndpoint?: string | null
+  target?: PushSubscriptionTarget | null
 ) {
   try {
     const supabase = await getSupabaseAdmin();
-    
-    // Fetch all push subscriptions for this user using security definer RPC
-    const { data: rpcSubs, error: rpcErr } = await supabase
-      .rpc("get_user_push_subscriptions" as never, { p_user_id: userId } as never);
-    
-    let subscriptions = rpcSubs as Array<{ endpoint: string; p256dh: string; auth: string }> | null;
-    if (rpcErr || !subscriptions) {
-      const { data: directSubs, error } = await supabase
-        .from("push_subscriptions")
-        .select("endpoint, p256dh, auth")
-        .eq("user_id", userId);
-      if (error && !subscriptions) {
-        console.error("Error fetching push subscriptions:", error);
-        return { success: false, error: error.message };
-      }
-      subscriptions = directSubs;
-    }
+    let subscriptions: Array<{ endpoint: string; p256dh: string; auth: string }> = [];
 
-    if (targetEndpoint && subscriptions) {
-      subscriptions = subscriptions.filter((s) => s.endpoint === targetEndpoint);
+    if (target && typeof target === "object" && target.endpoint && target.keys) {
+      subscriptions = [
+        {
+          endpoint: target.endpoint,
+          p256dh: target.keys.p256dh,
+          auth: target.keys.auth,
+        },
+      ];
+    } else {
+      // Fetch all push subscriptions for this user using security definer RPC
+      const { data: rpcSubs, error: rpcErr } = await supabase
+        .rpc("get_user_push_subscriptions" as never, { p_user_id: userId } as never);
+      
+      let dbSubs = rpcSubs as Array<{ endpoint: string; p256dh: string; auth: string }> | null;
+      if (rpcErr || !dbSubs) {
+        const { data: directSubs, error } = await supabase
+          .from("push_subscriptions")
+          .select("endpoint, p256dh, auth")
+          .eq("user_id", userId);
+        if (error && !dbSubs) {
+          console.error("Error fetching push subscriptions:", error);
+          return { success: false, error: error.message };
+        }
+        dbSubs = directSubs;
+      }
+      subscriptions = dbSubs || [];
+
+      if (typeof target === "string" && target) {
+        subscriptions = subscriptions.filter((s) => s.endpoint === target);
+      }
     }
 
     if (!subscriptions || subscriptions.length === 0) {
-      return { success: true, sentCount: 0 };
+      return { success: false, sentCount: 0, error: "No active push subscription registered on this device." };
     }
 
     const payload = JSON.stringify({

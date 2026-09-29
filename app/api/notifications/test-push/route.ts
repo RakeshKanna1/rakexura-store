@@ -42,10 +42,41 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}));
     const title = String(body.title || "Test Push Notification");
     const message = String(body.message || "Hello from Rakexura Store! Push notifications are working.");
-    const url = String(body.url || "/dashboard");
-    const endpoint = body.endpoint ? String(body.endpoint) : undefined;
+    const url = String(body.url || "/dashboard/settings");
+    const subscription = body.subscription;
+    const target = (subscription?.endpoint && subscription?.keys) ? subscription : (body.endpoint ? String(body.endpoint) : undefined);
 
-    const result = await sendPushNotification(user.id, title, message, url, endpoint);
+    // If active subscription payload was provided by device, sync to push_subscriptions
+    if (subscription?.endpoint && subscription?.keys?.p256dh && subscription?.keys?.auth) {
+      try {
+        const { createAdminClient } = await import("@/lib/supabase/server");
+        const admin = await createAdminClient();
+        await admin.from("push_subscriptions").upsert({
+          user_id: user.id,
+          endpoint: subscription.endpoint,
+          p256dh: subscription.keys.p256dh,
+          auth: subscription.keys.auth,
+          user_agent: request.headers.get("user-agent") || null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "endpoint" });
+      } catch (upsertErr) {
+        console.warn("Auto-sync subscription in test-push warning:", upsertErr);
+      }
+    }
+
+    const result = await sendPushNotification(user.id, title, message, url, target);
+
+    if (!result.success || result.sentCount === 0) {
+      return NextResponse.json({
+        success: false,
+        error: {
+          message: result.error || "Could not deliver push notification to this device. Please toggle Enable Notifications off and on again.",
+          code: "PUSH_SEND_FAILED"
+        }
+      }, { status: 400 });
+    }
+
     return NextResponse.json({
       success: true,
       data: result

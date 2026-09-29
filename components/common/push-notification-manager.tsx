@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { createClient } from "@/lib/supabase/client";
 import { Bell, BellOff, Loader2, Zap } from "lucide-react";
 
 // Helper to convert VAPID key
@@ -29,17 +28,37 @@ export function PushNotificationToggle({
   const [loading, setLoading] = useState(true);
   const [testing, setTesting] = useState(false);
 
-  const supabase = createClient();
-
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window) {
       setIsSupported(true);
       
       // Check active subscription
       navigator.serviceWorker.ready.then((reg) => {
-        reg.pushManager.getSubscription().then((sub) => {
+        reg.pushManager.getSubscription().then(async (sub) => {
           setIsSubscribed(!!sub);
           setLoading(false);
+          // If the browser already has an active push subscription, auto-sync it with the server
+          if (sub) {
+            try {
+              const subJson = sub.toJSON();
+              if (subJson.endpoint && subJson.keys?.p256dh && subJson.keys?.auth) {
+                await fetch("/api/notifications/subscribe", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    endpoint: subJson.endpoint,
+                    keys: {
+                      p256dh: subJson.keys.p256dh,
+                      auth: subJson.keys.auth,
+                    },
+                    userAgent: navigator.userAgent,
+                  }),
+                });
+              }
+            } catch {
+              // Ignore background auto-sync failure
+            }
+          }
         }).catch(() => setLoading(false));
       }).catch(() => setLoading(false));
     } else {
@@ -74,20 +93,28 @@ export function PushNotificationToggle({
 
       if (!subscription) throw new Error("Failed to subscribe device");
 
-      // Save to Supabase
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const subJson = subscription.toJSON();
-        const { error } = await supabase.from("push_subscriptions").upsert({
-          user_id: user.id,
-          endpoint: subJson.endpoint,
-          p256dh: subJson.keys?.p256dh,
-          auth: subJson.keys?.auth,
-          user_agent: navigator.userAgent,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: "endpoint" });
+      // Save via server endpoint with admin privileges to avoid RLS/table restrictions
+      const subJson = subscription.toJSON();
+      if (!subJson.endpoint || !subJson.keys?.p256dh || !subJson.keys?.auth) {
+        throw new Error("Invalid subscription keys received from browser.");
+      }
 
-        if (error) throw error;
+      const syncRes = await fetch("/api/notifications/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          endpoint: subJson.endpoint,
+          keys: {
+            p256dh: subJson.keys.p256dh,
+            auth: subJson.keys.auth,
+          },
+          userAgent: navigator.userAgent,
+        }),
+      });
+
+      if (!syncRes.ok) {
+        const errorData = await syncRes.json().catch(() => null);
+        throw new Error(errorData?.error || "Failed to register subscription on server.");
       }
 
       setIsSubscribed(true);
@@ -106,10 +133,14 @@ export function PushNotificationToggle({
       const reg = await navigator.serviceWorker.ready;
       const subscription = await reg.pushManager.getSubscription();
       if (subscription) {
-        await subscription.unsubscribe();
         const subJson = subscription.toJSON();
+        await subscription.unsubscribe();
         if (subJson.endpoint) {
-          await supabase.from("push_subscriptions").delete().eq("endpoint", subJson.endpoint);
+          await fetch("/api/notifications/subscribe", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ endpoint: subJson.endpoint }),
+          }).catch(() => null);
         }
       }
       setIsSubscribed(false);
@@ -125,13 +156,26 @@ export function PushNotificationToggle({
   const sendTestPush = async () => {
     setTesting(true);
     try {
-      let endpoint: string | undefined;
+      let subPayload: {
+        endpoint: string;
+        keys: { p256dh: string; auth: string };
+      } | null = null;
+
       if (typeof window !== "undefined" && "serviceWorker" in navigator) {
         try {
           const reg = await navigator.serviceWorker.ready;
           const sub = await reg.pushManager.getSubscription();
           if (sub) {
-            endpoint = sub.endpoint;
+            const subJson = sub.toJSON();
+            if (subJson.endpoint && subJson.keys?.p256dh && subJson.keys?.auth) {
+              subPayload = {
+                endpoint: subJson.endpoint,
+                keys: {
+                  p256dh: subJson.keys.p256dh,
+                  auth: subJson.keys.auth,
+                },
+              };
+            }
           }
         } catch {
           // If reading endpoint fails, backend falls back to all user devices
@@ -143,10 +187,11 @@ export function PushNotificationToggle({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: "Rakexura Alert Test",
-          message: "Push notifications are active and working on this browser!",
+          message: "Push notifications are active and working on this device!",
           url: "/dashboard/settings",
-          endpoint,
-        })
+          endpoint: subPayload?.endpoint,
+          subscription: subPayload,
+        }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error?.message || data?.error || `Request failed (${res.status})`);
