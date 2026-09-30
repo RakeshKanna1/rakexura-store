@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Save, Gamepad2, Zap, Sparkles } from "lucide-react";
+import { Save, Gamepad2, Zap, Sparkles, Check } from "lucide-react";
 import { saveGame } from "@/app/admin/actions";
 import { ImageUploader } from "@/components/admin/image-uploader";
-import type { Game } from "@/types/store";
+import { PlatformIcon } from "@/components/store/platform-icon";
+import type { Game, Platform } from "@/types/store";
 
 import { useUnsavedChanges } from "@/lib/hooks/use-unsaved-changes";
 
@@ -13,9 +14,50 @@ const input = "mt-2 h-11 w-full rounded-md border border-white/10 bg-black/25 px
 
 export function GameForm({ game, genres }: { game?: Game | null; genres: string[] }) {
   const { setIsDirty, setIsSubmitting, confirmNavigation } = useUnsavedChanges();
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
-    game?.available_platforms ?? []
-  );
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(() => {
+    const raw = game?.available_platforms ?? [];
+    if (!raw.length && !game?.id) {
+      return ["Steam (Offline)"];
+    }
+    const result: string[] = [];
+    for (const p of raw) {
+      if (p === "Offline" || p === "Online") continue;
+      if (p === "Steam") {
+        if (Number(game?.offline_price ?? 0) > 0 || raw.includes("Offline" as Platform)) {
+          result.push("Steam (Offline)");
+        }
+        if (game?.online_activation || Number(game?.online_price ?? 0) > 0 || raw.includes("Online" as Platform)) {
+          result.push("Steam (Online)");
+        }
+        if (!result.some((x) => x.startsWith("Steam"))) {
+          result.push("Steam (Offline)");
+        }
+      } else if (p === "Epic") {
+        if (Number(game?.offline_price ?? 0) > 0 || raw.includes("Offline" as Platform)) {
+          result.push("Epic (Offline)");
+        }
+        if (game?.online_activation || Number(game?.online_price ?? 0) > 0 || raw.includes("Online" as Platform)) {
+          result.push("Epic (Online)");
+        }
+        if (!result.some((x) => x.startsWith("Epic"))) {
+          result.push("Epic (Offline)");
+        }
+      } else if (p === "Ubisoft") {
+        if (Number(game?.offline_price ?? 0) > 0 || raw.includes("Offline" as Platform)) {
+          result.push("Ubisoft (Offline)");
+        }
+        if (game?.online_activation || Number(game?.online_price ?? 0) > 0 || raw.includes("Online" as Platform)) {
+          result.push("Ubisoft (Online)");
+        }
+        if (!result.some((x) => x.startsWith("Ubisoft"))) {
+          result.push("Ubisoft (Offline)");
+        }
+      } else {
+        result.push(p);
+      }
+    }
+    return Array.from(new Set(result));
+  });
   const [isSubscription, setIsSubscription] = useState<boolean>(
     Boolean(game?.is_subscription)
   );
@@ -97,7 +139,7 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
               type="button"
               onClick={() => {
                 setIsSubscription(false);
-                setSelectedPlatforms(["Steam", "Offline"]);
+                setSelectedPlatforms(["Steam (Offline)"]);
               }}
               className={`relative flex items-center justify-between h-12 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all border cursor-pointer select-none ${
                 !isSubscription
@@ -187,33 +229,88 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
                 </label>
               </div>
             </div>
-            <label className="text-sm font-bold capitalize">
+            <label className="text-sm font-bold text-white">
               Activation Slots / Accounts
               <input type="number" min="0" step="1" name="activation_slots" defaultValue={String(game?.activation_slots ?? "")} placeholder="Leave blank for Slots available, 0 for Out of slots" className={input} />
+              <span className="mt-1 block text-[11px] font-normal text-[#8991a6]">Stock / account slots remaining</span>
             </label>
-            <label className="text-sm font-bold capitalize">
-              Featured Sale Price (Fallback)
-              <input type="number" min="0" step="1" name="sale_price" defaultValue={String(game?.sale_price ?? "")} className={input} />
-            </label>
-            <label className="text-sm font-bold capitalize">
+            <label className="text-sm font-bold text-white">
               Wholesale / Reseller Price (₹)
               <input type="number" min="0" step="1" name="reseller_price" defaultValue={String((game as unknown as Record<string, unknown>)?.reseller_price ?? "")} placeholder="Optional wholesale rate" className={input} />
+              <span className="mt-1 block text-[11px] font-normal text-[#8991a6]">Optional discount for reseller accounts</span>
             </label>
           </>
         ) : (
-          ["original_price", "sale_price", "reseller_price", "steam_price", "epic_price", "offline_price", "online_price", "xbox_price", "geforce_price", "activation_slots"].map((field) => (
-            <label key={field} className="text-sm font-bold capitalize">
-              {field.replaceAll("_", " ")}
-              <input 
-                type="number" 
-                min="0" 
-                step="1" 
-                name={field} 
-                defaultValue={String((game as unknown as Record<string, unknown>)?.[field] ?? "")} 
-                className={input} 
-              />
-            </label>
-          ))
+          <>
+            {[
+              {
+                name: "original_price",
+                label: "Original MRP / Compare Price (₹)",
+                placeholder: "e.g. 2999",
+                helper: "Strikethrough base price",
+              },
+              {
+                name: "sale_price",
+                label: "Featured Sale Price (₹)",
+                placeholder: "e.g. 120",
+                helper: "Base catalog / default price",
+              },
+              {
+                name: "offline_price",
+                label: "Offline Activation Price (₹)",
+                placeholder: "e.g. 120",
+                helper: "Applied to Steam, Epic & Ubisoft (Offline)",
+              },
+              {
+                name: "online_price",
+                label: "Online Activation Price (₹)",
+                placeholder: "e.g. 1499",
+                helper: "Applied to Steam, Epic & Ubisoft (Online)",
+              },
+              {
+                name: "xbox_price",
+                label: "Xbox PC Price (₹)",
+                placeholder: "e.g. 499",
+                helper: "Applied if Xbox platform is chosen",
+              },
+              {
+                name: "geforce_price",
+                label: "GeForce NOW Price (₹)",
+                placeholder: "e.g. 599",
+                helper: "Applied if Nvidia GeForce platform is chosen",
+              },
+              {
+                name: "reseller_price",
+                label: "Wholesale / Reseller Rate (₹)",
+                placeholder: "Optional wholesale rate",
+                helper: "Discounted price for resellers",
+              },
+              {
+                name: "activation_slots",
+                label: "Activation Slots / Accounts",
+                placeholder: "Blank for available, 0 for out",
+                helper: "Stock / slot count availability",
+              },
+            ].map((item) => (
+              <label key={item.name} className="text-sm font-bold text-white">
+                <span className="flex items-center justify-between">
+                  <span>{item.label}</span>
+                </span>
+                <input 
+                  type="number" 
+                  min="0" 
+                  step="1" 
+                  name={item.name} 
+                  defaultValue={String((game as unknown as Record<string, unknown>)?.[item.name] ?? "")} 
+                  placeholder={item.placeholder}
+                  className={input} 
+                />
+                <span className="mt-1 block text-[11px] font-normal text-[#8991a6]">
+                  {item.helper}
+                </span>
+              </label>
+            ))}
+          </>
         )}
 
         {showDuration && (
@@ -261,25 +358,113 @@ export function GameForm({ game, genres }: { game?: Game | null; genres: string[
         </div>
       </fieldset>
 
-      <fieldset className="mt-6">
-        <legend className="text-sm font-bold">Available platforms / Plan Options</legend>
-        <div className="mt-3 flex flex-wrap gap-3">
+      <fieldset className="mt-6 rounded-xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-black/30 p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-1 mb-3.5">
+          <div>
+            <legend className="text-sm font-bold text-white flex items-center gap-2">
+              <Gamepad2 size={16} className="text-[#b9a4ff]" />
+              <span>{isSubscription ? "Available Durations & Passes" : "Available Platforms & Activation"}</span>
+            </legend>
+            <p className="mt-0.5 text-xs text-[#8991a6]">
+              {isSubscription
+                ? "Select plan durations supported for this pass"
+                : "Choose official launcher and activation delivery modes offered"}
+            </p>
+          </div>
+          <span className="text-[11px] font-bold text-[#b9a4ff] px-2.5 py-0.5 rounded-full bg-[#8b5cf6]/10 border border-[#8b5cf6]/20">
+            {selectedPlatforms.length} Selected
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
           {(isSubscription
             ? ["1 Month", "2 Months", "3 Months", "6 Months", "12 Months", "Xbox", "Nvidia GeForce"]
-            : ["Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce"]
-          ).map((platform) => (
-            <label key={platform} className="flex min-h-11 items-center gap-2 rounded-md border border-white/10 bg-black/20 px-4 text-sm cursor-pointer hover:border-white/20 transition-all select-none">
-              <input 
-                type="checkbox" 
-                name="platforms" 
-                value={platform} 
-                checked={selectedPlatforms.includes(platform)}
-                onChange={(e) => handlePlatformChange(platform, e.target.checked)} 
-                className="cursor-pointer"
-              />
-              {platform}
-            </label>
-          ))}
+            : ["Steam (Offline)", "Steam (Online)", "Epic (Offline)", "Epic (Online)", "Ubisoft (Offline)", "Ubisoft (Online)", "Xbox", "Nvidia GeForce"]
+          ).map((platform) => {
+            const active = selectedPlatforms.includes(platform);
+            const isOffline = platform.includes("Offline");
+            const isOnline = platform.includes("Online");
+            const launcherName = platform.replace(/\s*\((Offline|Online)\)/, "");
+            const modeBadge = isOffline ? "Offline" : isOnline ? "Online" : null;
+
+            return (
+              <label
+                key={platform}
+                className={`group relative flex items-center justify-between gap-2.5 min-h-[52px] rounded-xl border px-3 py-2.5 cursor-pointer transition-all duration-200 select-none ${
+                  active
+                    ? isOffline
+                      ? "border-[#facc15]/50 bg-[#facc15]/[0.08] text-white shadow-[0_4px_16px_rgba(250,204,21,0.15)] ring-1 ring-[#facc15]/30"
+                      : isOnline
+                        ? "border-emerald-500/50 bg-emerald-500/[0.08] text-white shadow-[0_4px_16px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/30"
+                        : "border-[#8b5cf6]/50 bg-[#8b5cf6]/[0.08] text-white shadow-[0_4px_16px_rgba(139,92,246,0.15)] ring-1 ring-[#8b5cf6]/30"
+                    : "border-white/10 bg-black/40 text-[#8991a6] hover:border-white/20 hover:text-white hover:bg-white/[0.03]"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  name="platforms"
+                  value={platform}
+                  checked={active}
+                  onChange={(e) => handlePlatformChange(platform, e.target.checked)}
+                  className="sr-only"
+                />
+
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className={`grid h-8 w-8 place-items-center rounded-lg border transition-colors shrink-0 ${
+                    active
+                      ? isOffline
+                        ? "border-[#facc15]/40 bg-[#facc15]/20 text-[#facc15]"
+                        : isOnline
+                          ? "border-emerald-500/40 bg-emerald-500/20 text-emerald-400"
+                          : "border-[#8b5cf6]/40 bg-[#8b5cf6]/20 text-[#b9a4ff]"
+                      : "border-white/10 bg-white/[0.04] text-[#8991a6] group-hover:text-white"
+                  }`}>
+                    <PlatformIcon platform={platform} className="h-4 w-4 shrink-0" />
+                  </div>
+
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs font-bold leading-tight truncate text-white">
+                      {launcherName}
+                    </span>
+                    {modeBadge ? (
+                      <span className={`text-[10px] font-black uppercase tracking-wider leading-tight mt-0.5 ${
+                        isOffline
+                          ? active ? "text-[#facc15]" : "text-[#facc15]/80"
+                          : active ? "text-emerald-400" : "text-emerald-400/80"
+                      }`}>
+                        {modeBadge}
+                      </span>
+                    ) : (
+                      <span className={`text-[10px] font-medium leading-tight mt-0.5 ${
+                        platform === "Xbox"
+                          ? "text-[#38bdf8]"
+                          : platform.includes("GeForce")
+                            ? "text-[#76b900]"
+                            : "text-[#6c7487]"
+                      }`}>
+                        {platform === "Xbox" ? "Console/PC" : platform.includes("GeForce") ? "Cloud" : "Platform"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Custom Checkbox Indicator */}
+                <div
+                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-all ${
+                    active
+                      ? isOffline
+                        ? "border-[#facc15] bg-[#facc15] text-black shadow-[0_0_8px_#facc15]"
+                        : isOnline
+                          ? "border-emerald-500 bg-emerald-500 text-black shadow-[0_0_8px_#10b981]"
+                          : "border-[#8b5cf6] bg-[#8b5cf6] text-white shadow-[0_0_8px_#8b5cf6]"
+                      : "border-white/20 bg-black/40 group-hover:border-white/40"
+                  }`}
+                >
+                  {active && <Check size={11} strokeWidth={3.5} />}
+                </div>
+              </label>
+            );
+          })}
         </div>
       </fieldset>
 

@@ -14,6 +14,7 @@ import { WishlistButton } from "./wishlist-button";
 import { PlatformIcon } from "./platform-icon";
 import { ResellerIcon } from "@/components/ui/reseller-badge";
 import { triggerPageTransition } from "@/components/common/page-transition-loader";
+import { getGamePlatforms } from "@/lib/platforms";
 
 function gamePrice(game: Game) {
   if (game.active_flash_sale) {
@@ -48,39 +49,8 @@ function gamePrice(game: Game) {
   return prices.length ? Math.min(...prices) : Number(game.sale_price || 0);
 }
 
-export function availablePlatforms(game: Game): Platform[] {
-  if (game.is_subscription) {
-    const raw = (game.available_platforms ?? []).filter(Boolean) as Platform[];
-    const subOnly = raw.filter((p) => p.includes("Month") || p.includes("Year") || p.includes("Days"));
-    if (subOnly.length) return subOnly;
+export const availablePlatforms = getGamePlatforms;
 
-    const subPlans: Array<[Platform, unknown]> = [
-      ["1 Month", game.price_1m ?? game.xbox_price ?? game.steam_price],
-      ["2 Months", game.price_2m],
-      ["3 Months", game.price_3m],
-      ["6 Months", game.price_6m],
-      ["12 Months", game.price_12m],
-    ];
-    const subListed = subPlans.filter(([, value]) => Number(value ?? 0) > 0).map(([platform]) => platform);
-    if (subListed.length) return subListed;
-    return ["1 Month"];
-  }
-
-  const custom = (game.available_platforms ?? []).filter(Boolean) as Platform[];
-  if (custom.length) return custom;
-
-  const legacy: Array<[Platform, unknown]> = [
-    ["Steam", game.steam_price],
-    ["Epic", game.epic_price],
-    ["Offline", game.offline_price],
-    ["Online", game.online_price],
-    ["Xbox", game.xbox_price],
-    ["Nvidia GeForce", game.geforce_price],
-  ];
-  const listed = legacy.filter(([, value]) => Number(value ?? 0) > 0).map(([platform]) => platform);
-  if (listed.length) return listed;
-  return ["Steam"];
-}
 
 interface GameCardInnerProps {
   game: Game;
@@ -211,11 +181,6 @@ function GameCardInner({
           </Link>
 
           <div className="mt-2 flex items-center gap-1 overflow-hidden min-h-[22px]">
-            {game.online_activation && (
-              <span className="inline-flex shrink-0 items-center rounded border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[8px] font-black uppercase text-emerald-400">
-                Online
-              </span>
-            )}
             {platforms.length > 0 ? (
               platforms.slice(0, 3).map((platform) => (
                 <span key={platform} className="inline-flex shrink-0 items-center gap-1 rounded border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[8px] font-black uppercase text-[#a7adbb]">

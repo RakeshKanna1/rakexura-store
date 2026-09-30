@@ -12,7 +12,7 @@ import type { Game, Bundle, Platform } from "@/types/store";
 import { createClient } from "@/lib/supabase/client";
 import { OWNER_EMAIL } from "@/lib/config";
 
-const platforms: Array<"All" | Platform | "Pre-orders" | "Subscriptions"> = ["All", "Steam", "Epic", "Offline", "Online", "Xbox", "Nvidia GeForce", "Pre-orders", "Subscriptions"];
+const platforms: Array<"All" | Platform | "Pre-orders" | "Subscriptions"> = ["All", "Steam", "Epic", "Ubisoft", "Xbox", "Nvidia GeForce", "Pre-orders", "Subscriptions"];
 const sorts = ["Featured", "Price: Low to high", "Price: High to low", "Best sellers", "Latest"] as const;
 
 interface CustomSelectProps {
@@ -77,6 +77,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
   const [platform, setPlatform] = useState<(typeof platforms)[number]>("All");
   const [genre, setGenre] = useState("All");
   const [budget, setBudget] = useState("All");
+  const [activationMode, setActivationMode] = useState<string>("All");
   const [sort, setSort] = useState<(typeof sorts)[number]>("Featured");
   const [quickView, setQuickView] = useState<Game | null>(null);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
@@ -125,7 +126,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
 
   useEffect(() => {
     setVisibleCount(24);
-  }, [query, platform, genre, budget, sort]);
+  }, [query, platform, genre, budget, sort, activationMode]);
 
   const genres = useMemo(() => ["All", ...new Set(games.flatMap((game) => game.genres ?? []).filter(Boolean))], [games]);
   const selectedGenre = genres.includes(genre) ? genre : "All";
@@ -140,18 +141,34 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
           matchesPlatform = isPreorderActive(game);
         } else if (platform === "Subscriptions") {
           matchesPlatform = Boolean(game.is_subscription);
-        } else if (platform === "Online") {
-          matchesPlatform = availablePlatforms(game).includes("Online" as Platform) || 
-            Number(game.online_price ?? 0) > 0 ||
-            Boolean(game.online_activation);
         } else {
-          matchesPlatform = availablePlatforms(game).includes(platform as Platform) && !isPreorderActive(game);
+          const gamePlats = availablePlatforms(game);
+          matchesPlatform = (
+            gamePlats.includes(platform as Platform) ||
+            gamePlats.some((p) => p.startsWith(platform))
+          ) && !isPreorderActive(game);
+        }
+      }
+
+      let matchesActivation = true;
+      if (activationMode !== "All") {
+        if (activationMode === "Offline") {
+          matchesActivation = !game.is_subscription && (
+            Number(game.offline_price ?? 0) > 0 ||
+            (game.available_platforms ?? []).some((p) => p.includes("Offline"))
+          );
+        } else if (activationMode === "Online") {
+          matchesActivation = !game.is_subscription && (
+            Boolean(game.online_activation) ||
+            Number(game.online_price ?? 0) > 0 ||
+            (game.available_platforms ?? []).some((p) => p.includes("Online"))
+          );
         }
       }
       
       const matchesGenre = selectedGenre === "All" || game.genres?.includes(selectedGenre);
       const matchesBudget = budget === "All" || (budget === "Under ₹99" || budget === "Under Rs. 99" ? price <= 99 : budget === "₹100 - ₹199" || budget === "Rs. 100-199" ? price >= 100 && price <= 199 : price >= 200);
-      return matchesText && matchesPlatform && matchesGenre && matchesBudget;
+      return matchesText && matchesPlatform && matchesActivation && matchesGenre && matchesBudget;
     });
     return result.sort((a, b) => {
       if (sort === "Price: Low to high") return lowestPrice(a) - lowestPrice(b);
@@ -160,7 +177,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
       if (sort === "Latest") return Number(b.id) - Number(a.id);
       return Number(b.show_in_featured || b.featured) - Number(a.show_in_featured || a.featured);
     });
-  }, [budget, games, platform, query, selectedGenre, sort]);
+  }, [budget, games, platform, query, selectedGenre, sort, activationMode]);
 
   return (
     <>
@@ -242,15 +259,24 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
           </div>
         </div>
 
-        {/* Category & Budget Selectors */}
-        <div className="grid gap-2 sm:grid-cols-2">
+        {/* Category, Budget & Activation Selectors */}
+        <div className="grid gap-2 sm:grid-cols-3">
           <label className="flex items-center justify-between rounded-lg bg-black/40 px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-[#a0a8c0] border border-white/[0.08]">
             <span className="text-xs font-bold text-white">Category</span>
             <CustomSelect
               value={selectedGenre}
               onChange={(val) => setGenre(val)}
               options={genres}
-              className="w-44 max-w-[65%]"
+              className="w-36 max-w-[60%]"
+            />
+          </label>
+          <label className="flex items-center justify-between rounded-lg bg-black/40 px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-[#a0a8c0] border border-white/[0.08]">
+            <span className="text-xs font-bold text-white">Activation</span>
+            <CustomSelect
+              value={activationMode}
+              onChange={(val) => setActivationMode(val)}
+              options={["All", "Offline", "Online"]}
+              className="w-36 max-w-[60%]"
             />
           </label>
           <label className="flex items-center justify-between rounded-lg bg-black/40 px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-[#a0a8c0] border border-white/[0.08]">
@@ -259,7 +285,7 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
               value={budget}
               onChange={(val) => setBudget(val)}
               options={["All", "Under ₹99", "₹100 - ₹199", "₹200+"]}
-              className="w-44 max-w-[65%]"
+              className="w-36 max-w-[60%]"
             />
           </label>
         </div>
@@ -270,12 +296,13 @@ export function Catalog({ games, bundles = [] }: { games: Game[]; bundles?: Bund
         <p className="text-xs font-medium text-[#8991a6]">
           {filtered.length} {filtered.length === 1 ? "game available" : "games available"}
         </p>
-        {(query || platform !== "All" || selectedGenre !== "All" || budget !== "All") && (
+        {(query || platform !== "All" || activationMode !== "All" || selectedGenre !== "All" || budget !== "All") && (
           <button
             type="button"
             onClick={() => {
               setQuery("");
               setPlatform("All");
+              setActivationMode("All");
               setGenre("All");
               setBudget("All");
             }}

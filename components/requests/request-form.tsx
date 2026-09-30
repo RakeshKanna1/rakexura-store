@@ -6,9 +6,11 @@ import { createClient } from "@/lib/supabase/client";
 import { CustomSelect } from "@/components/common/custom-select";
 
 const platformOptions = [
-  { value: "Steam", label: "Steam", sublabel: "PC Steam Key / Account" },
+  { value: "Steam", label: "Steam", sublabel: "PC Steam Key / Activation" },
   { value: "Epic", label: "Epic Games", sublabel: "Epic Games Store" },
-  { value: "Offline", label: "Offline Mode", sublabel: "Single Player / Offline Access" },
+  { value: "Ubisoft", label: "Ubisoft Connect", sublabel: "Ubisoft Launcher" },
+  { value: "Xbox", label: "Xbox PC", sublabel: "Xbox PC / Game Pass" },
+  { value: "Nvidia GeForce", label: "Nvidia GeForce", sublabel: "GeForce NOW Cloud" },
 ];
 
 export function RequestForm() {

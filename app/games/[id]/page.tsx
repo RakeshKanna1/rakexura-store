@@ -6,9 +6,9 @@ import { GameShelf } from "@/components/store/game-shelf";
 import { MediaGallery } from "@/components/store/media-gallery";
 import { ProductActions } from "@/components/store/product-actions";
 import { RecentlyViewedTracker } from "@/components/store/recently-viewed";
-import { assetUrl, calculatePlatformPrice, formatPrice, gameUrl, lowestPrice, parseGameId, slugify, isPreorderActive } from "@/lib/utils";
+import { assetUrl, calculatePlatformPrice, formatPrice, gameUrl, getGameDeliverySummary, lowestPrice, parseGameId, slugify, isPreorderActive } from "@/lib/utils";
 import { getGame, getGames, getGameReviews } from "@/lib/supabase/queries";
-import type { Game } from "@/types/store";
+import type { Game, Platform } from "@/types/store";
 import { BundleAddonMatrix } from "@/components/store/bundle-addon-matrix";
 import { PremiumAmbientEffect } from "@/components/animations/premium-ambient";
 import { fetchOfficialSteamRequirements } from "@/lib/steam-requirements";
@@ -17,6 +17,7 @@ import { PlatformIcon } from "@/components/store/platform-icon";
 import { BackButton } from "@/components/layout/back-button";
 import { ReviewAutoScroll } from "@/components/store/review-auto-scroll";
 import { ReviewForm } from "@/components/reviews/review-form";
+import { getGamePlatforms } from "@/lib/platforms";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -225,9 +226,10 @@ export default async function GamePage({ params }: Props) {
   const bannerUrl = assetUrl(game.banner_image || game.cover_image);
 
   const tags = [...(game.genres ?? []), ...(game.tags ?? [])].slice(0, 7);
+  const deliverySummary = getGameDeliverySummary(game);
   const screenshots = (game.screenshots ?? []).filter(Boolean);
   const features = game.key_features?.length ? game.key_features : game.features ?? [];
-  const platforms = (game.available_platforms ?? ["Steam", "Epic"]).filter((platform) => platform !== "Offline" && platform !== "Online" && platformPrice(game, platform) > 0);
+  const platforms = getGamePlatforms(game);
   const premiumTheme = game.is_premium ? getPremiumTheme(game.premium_theme, game.title, game.genres) : null;
   const accent = premiumTheme ? getPremiumAccent(premiumTheme) : gameAccent(game);
   const isSubscriptionOrCloudOnly = 
@@ -433,7 +435,28 @@ export default async function GamePage({ params }: Props) {
           </p>
           <h1 className={`mt-5 max-w-4xl font-black leading-[.95] ${titleSize(game.title)} ${titleGradientClass}`}>{game.title}</h1>
           <p className="mt-5 text-lg text-[#d7dae4]">{game.tagline}</p>
-          {tags.length > 0 && <div className="mt-6 flex flex-wrap gap-2">{tags.map((tag) => <span key={tag} className={`rounded border px-3 py-2 text-xs font-semibold backdrop-blur ${tagClass}`} style={!game.is_premium ? { borderColor: `${accent}55` } : {}}>{tag}</span>)}</div>}
+          {(tags.length > 0 || !game.is_subscription) && (
+            <div className="mt-6 flex flex-wrap gap-2">
+              {!game.is_subscription && (
+                <span
+                  className={`rounded border px-3 py-2 text-xs font-semibold backdrop-blur ${
+                    deliverySummary.hasBoth
+                      ? "border-purple-500/30 bg-purple-500/10 text-purple-300"
+                      : deliverySummary.isOnline
+                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                      : "border-amber-500/30 bg-amber-500/10 text-amber-400"
+                  }`}
+                >
+                  {deliverySummary.badgeLabel}
+                </span>
+              )}
+              {tags.map((tag) => (
+                <span key={tag} className={`rounded border px-3 py-2 text-xs font-semibold backdrop-blur ${tagClass}`} style={!game.is_premium ? { borderColor: `${accent}55` } : {}}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
       </div>
     </section>
 
@@ -478,7 +501,7 @@ export default async function GamePage({ params }: Props) {
         </div>
 
         {/* Premium Game Details Metadata Panel */}
-        {(game.release_date || game.developer || game.publisher) && (
+        {(game.release_date || game.developer || game.publisher || !game.is_subscription) && (
           <div className="mt-3 rounded-md border border-white/[0.06] bg-white/[0.015] p-4 space-y-3.5">
             <h3 className="text-xs font-black uppercase tracking-wider text-[#8991a6] border-b border-white/[0.06] pb-2">
               Game Information
@@ -517,6 +540,14 @@ export default async function GamePage({ params }: Props) {
                   <span className="text-[#7f879d]">Publisher</span>
                   <span className="font-semibold text-white truncate max-w-[65%] text-right" title={game.publisher}>
                     {game.publisher}
+                  </span>
+                </div>
+              )}
+              {!game.is_subscription && (
+                <div className="flex justify-between items-center gap-4">
+                  <span className="text-[#7f879d]">Delivery Mode</span>
+                  <span className="font-semibold text-white">
+                    {deliverySummary.label}
                   </span>
                 </div>
               )}
@@ -565,7 +596,10 @@ export default async function GamePage({ params }: Props) {
               </thead>
               <tbody>
                 {platforms.map((platform) => {
-                  const isSharedActivation = platform === "Offline" || platform === "Online";
+                  const isSharedActivation = !game.is_subscription && (
+                    platform.includes("Offline") ||
+                    (!platform.includes("Online") && (Number(game.offline_price ?? 0) > 0 || (game.available_platforms ?? []).includes("Offline" as Platform)))
+                  );
                   const isOutOfSlots = isSharedActivation
                     ? (game.activation_slots === 0 || Boolean(game.out_of_stock))
                     : Boolean(game.out_of_stock);
@@ -576,10 +610,19 @@ export default async function GamePage({ params }: Props) {
                     <tr key={platform} className="border-t border-white/[.07]">
                       <td className="p-4 font-bold flex items-center gap-2">
                         <PlatformIcon platform={platform} className="h-4 w-4 shrink-0 text-[#facc15]" />
-                        <span>{platform}</span>
+                        <span>{platform.replace(/\s*\((Offline|Online)\)/i, "")}</span>
+                        {!game.is_subscription && (
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                            platform.includes("Online")
+                              ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25"
+                              : "bg-[#facc15]/15 text-[#facc15] border border-[#facc15]/25"
+                          }`}>
+                            {platform.includes("Online") ? "Online (Multiplayer)" : "Offline (Story Mode)"}
+                          </span>
+                        )}
                       </td>
                       <td className="p-4">{formatPrice(platformPrice(game, platform))}</td>
-                      <td className="p-4 text-[#a0a8c0]">Digital assisted delivery</td>
+                      <td className="p-4 text-[#a0a8c0]">Digital delivery</td>
                       <td className="p-4">
                         {isOutOfSlots ? (
                           <span className="text-red-400 font-medium">

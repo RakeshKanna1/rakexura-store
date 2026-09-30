@@ -743,6 +743,13 @@ export async function saveGame(formData: FormData) {
       [
         "Steam",
         "Epic",
+        "Ubisoft",
+        "Steam (Offline)",
+        "Steam (Online)",
+        "Epic (Offline)",
+        "Epic (Online)",
+        "Ubisoft (Offline)",
+        "Ubisoft (Online)",
         "Offline",
         "Online",
         "Xbox",
@@ -754,15 +761,26 @@ export async function saveGame(formData: FormData) {
         "12 Months",
       ].includes(value)
     );
-  if (!platforms.length) throw new Error("Select at least one platform or duration plan");
+  if (!platforms.length) {
+    if (formData.get("is_subscription") === "on") {
+      platforms.push("1 Month");
+    } else {
+      platforms.push("Steam (Offline)");
+    }
+  }
+  const isSubscription = formData.get("is_subscription") === "on";
+  const subStartingPrice = optionalNumber(formData.get("price_1m")) ?? optionalNumber(formData.get("price_2m")) ?? optionalNumber(formData.get("price_3m")) ?? optionalNumber(formData.get("price_6m")) ?? optionalNumber(formData.get("price_12m"));
+  const salePrice = isSubscription ? (subStartingPrice ?? optionalNumber(formData.get("sale_price"))) : optionalNumber(formData.get("sale_price"));
+
+  const hasOfflinePlatform = platforms.some((p) => p.includes("Offline"));
+  const rawOfflinePrice = optionalNumber(formData.get("offline_price"));
+  const computedOfflinePrice = rawOfflinePrice ?? (hasOfflinePlatform ? (salePrice ?? optionalNumber(formData.get("steam_price"))) : null);
+  const defaultLauncherPrice = computedOfflinePrice ?? salePrice;
   const keyFeaturesRaw = String(formData.get("key_features") ?? "");
   const key_features = keyFeaturesRaw
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line.length > 0);
-
-  const isSubscription = formData.get("is_subscription") === "on";
-  const subStartingPrice = optionalNumber(formData.get("price_1m")) ?? optionalNumber(formData.get("price_2m")) ?? optionalNumber(formData.get("price_3m")) ?? optionalNumber(formData.get("price_6m")) ?? optionalNumber(formData.get("price_12m"));
 
   const payload = {
     title,
@@ -776,9 +794,10 @@ export async function saveGame(formData: FormData) {
     trailer_url: String(formData.get("trailer_url") ?? "").trim() || null,
     card_video_url: String(formData.get("card_video_url") ?? "").trim() || null,
     key_features: key_features.length ? key_features : null,
-    steam_price: optionalNumber(formData.get("steam_price")),
-    epic_price: optionalNumber(formData.get("epic_price")),
-    offline_price: optionalNumber(formData.get("offline_price")),
+    steam_price: optionalNumber(formData.get("steam_price")) ?? defaultLauncherPrice,
+    epic_price: optionalNumber(formData.get("epic_price")) ?? defaultLauncherPrice,
+    ubisoft_price: optionalNumber(formData.get("ubisoft_price")) ?? defaultLauncherPrice,
+    offline_price: computedOfflinePrice,
     online_price: optionalNumber(formData.get("online_price")),
     xbox_price: optionalNumber(formData.get("xbox_price")),
     geforce_price: optionalNumber(formData.get("geforce_price")),
@@ -789,7 +808,7 @@ export async function saveGame(formData: FormData) {
     price_12m: optionalNumber(formData.get("price_12m")),
     duration: String(formData.get("duration") ?? "").trim() || null,
     original_price: optionalNumber(formData.get("original_price")),
-    sale_price: isSubscription ? (subStartingPrice ?? optionalNumber(formData.get("sale_price"))) : optionalNumber(formData.get("sale_price")),
+    sale_price: salePrice,
     reseller_price: optionalNumber(formData.get("reseller_price")),
     activation_slots: optionalNumber(formData.get("activation_slots")),
     genres: formData.getAll("genres").map(String),
@@ -804,7 +823,7 @@ export async function saveGame(formData: FormData) {
     show_in_recommended: formData.get("show_in_recommended") === "on",
     preorder: formData.get("preorder") === "on",
     is_subscription: isSubscription,
-    online_activation: formData.get("online_activation") === "on",
+    online_activation: formData.get("online_activation") === "on" || platforms.some((p) => p.includes("Online")),
     is_premium: formData.get("is_premium") === "on",
     premium_theme: String(formData.get("premium_theme") ?? "royal").trim() || "royal",
     out_of_stock: formData.get("out_of_stock") === "on",

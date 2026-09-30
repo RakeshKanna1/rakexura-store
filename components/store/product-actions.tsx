@@ -9,7 +9,7 @@ import { Button } from "@/components/common/button";
 import { createClient } from "@/lib/supabase/client";
 import { AuthModal } from "@/components/auth/auth-modal";
 import type { User } from "@supabase/supabase-js";
-import { calculatePlatformPrice, calculateResellerPrice, formatPrice, isDiamondOrPlatinumCoupon, isPreorderActive } from "@/lib/utils";
+import { calculatePlatformPrice, calculateResellerPrice, formatPrice, getDeliveryInfo, isDiamondOrPlatinumCoupon, isPreorderActive } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import type { Game, Platform } from "@/types/store";
 import { availablePlatforms } from "./game-card";
@@ -53,6 +53,7 @@ export function ProductActions({ game }: { game: Game }) {
   const [checkingCoupon, setCheckingCoupon] = useState(false);
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
+  const deliveryInfo = getDeliveryInfo(game, selected);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -228,6 +229,11 @@ export function ProductActions({ game }: { game: Game }) {
           </span>
           <div className="mt-2.5 flex flex-wrap gap-2">
             {platforms.map((platform) => {
+              const match = platform.match(/^(.*?)\s*\((Offline|Online)\)$/i);
+              const base = match ? match[1].trim() : platform.toLowerCase() === "offline" || platform.toLowerCase() === "online" ? "Steam" : platform;
+              const mode = match ? (match[2].toLowerCase() === "online" ? "Online" : "Offline") : platform.toLowerCase() === "offline" ? "Offline" : platform.toLowerCase() === "online" ? "Online" : null;
+              const isSelected = selected === platform;
+
               return (
                 <button
                   key={platform}
@@ -235,19 +241,35 @@ export function ProductActions({ game }: { game: Game }) {
                   suppressHydrationWarning
                   onClick={() => setSelected(platform)}
                   className={`inline-flex h-10 min-h-[40px] items-center justify-center gap-2 rounded-md border px-3.5 py-2 text-xs font-bold transition whitespace-nowrap cursor-pointer ${
-                    selected === platform
+                    isSelected
                       ? "border-white bg-white text-black shadow-sm"
-                      : "border-white/10 bg-black/20 text-[#bbc1d1] hover:border-white/25"
+                      : "border-white/10 bg-black/20 text-[#bbc1d1] hover:border-white/25 hover:bg-white/[0.04]"
                   }`}
                 >
-                  <PlatformIcon platform={platform} gameTitle={game.title} active={selected === platform} className={`h-3.5 w-3.5 shrink-0 ${selected === platform ? "text-black" : "text-[#bbc1d1]"}`} />
-                  <span className="whitespace-nowrap">
-                    {platform}
+                  <PlatformIcon
+                    platform={platform}
+                    gameTitle={game.title}
+                    active={isSelected}
+                    className={`h-3.5 w-3.5 shrink-0 ${isSelected ? "text-black" : "text-[#bbc1d1]"}`}
+                  />
+                  <span className="whitespace-nowrap flex items-baseline gap-1">
+                    <span>{base}</span>
+                    {mode && (
+                      <span className={`text-[10.5px] font-semibold ${isSelected ? "text-black/60" : "text-[#8991a8]"}`}>
+                        ({mode})
+                      </span>
+                    )}
                   </span>
                 </button>
               );
             })}
           </div>
+          {!game.is_subscription && (
+            <div className="mt-2.5 flex items-center gap-2 text-xs font-medium text-[#8991a8]">
+              <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${deliveryInfo.dotColor}`} />
+              <span>{deliveryInfo.description}</span>
+            </div>
+          )}
         </div>
 
         {/* Polished Minimalist Coupon Input Field inside Game Details */}

@@ -33,6 +33,12 @@ function getPlatformLabel(platform: string, isSubscription?: boolean | null, dur
   if (isSubscription && duration) {
     return `${platform} (${duration})`;
   }
+  if (platform === "Offline") {
+    return "Steam (Offline)";
+  }
+  if (platform === "Online") {
+    return "Steam (Online)";
+  }
   return platform;
 }
 

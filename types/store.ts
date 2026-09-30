@@ -1,6 +1,13 @@
 export type Platform =
   | "Steam"
   | "Epic"
+  | "Ubisoft"
+  | "Steam (Offline)"
+  | "Steam (Online)"
+  | "Epic (Offline)"
+  | "Epic (Online)"
+  | "Ubisoft (Offline)"
+  | "Ubisoft (Online)"
   | "Offline"
   | "Online"
   | "Xbox"
@@ -44,6 +51,7 @@ export interface Game {
   rating?: number | null;
   steam_price?: number | null;
   epic_price?: number | null;
+  ubisoft_price?: number | null;
   offline_price?: number | null;
   online_price?: number | null;
   xbox_price?: number | null;

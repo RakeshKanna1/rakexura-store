@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { Game, Platform } from "@/types/store";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -45,6 +46,7 @@ export function assetUrl(value?: string | null) {
 export function getPlatformRegularPrice(game: {
   steam_price?: number | null;
   epic_price?: number | null;
+  ubisoft_price?: number | null;
   offline_price?: number | null;
   online_price?: number | null;
   xbox_price?: number | null;
@@ -61,18 +63,22 @@ export function getPlatformRegularPrice(game: {
   if (platform === "3 Months") return Number(game.price_3m ?? 0);
   if (platform === "6 Months") return Number(game.price_6m ?? 0);
   if (platform === "12 Months") return Number(game.price_12m ?? 0);
-  if (platform === "Epic") return Number(game.epic_price ?? game.steam_price ?? game.sale_price ?? 0);
-  if (platform === "Offline") return Number(game.offline_price ?? game.steam_price ?? game.sale_price ?? 0);
-  if (platform === "Online") return Number(game.online_price ?? game.steam_price ?? game.sale_price ?? 0);
+  if (platform.includes("Offline")) return Number(game.offline_price ?? game.sale_price ?? game.steam_price ?? game.epic_price ?? 0);
+  if (platform.includes("Online")) return Number(game.online_price ?? game.sale_price ?? game.steam_price ?? game.epic_price ?? 0);
   if (platform === "Xbox") return Number(game.xbox_price ?? 0);
   if (platform === "Nvidia GeForce") return Number(game.geforce_price ?? 0);
-  return Number(game.steam_price ?? game.sale_price ?? 0);
+  if (platform === "Epic") return Number(game.epic_price ?? game.offline_price ?? game.sale_price ?? 0);
+  if (platform === "Ubisoft") return Number(game.ubisoft_price ?? game.offline_price ?? game.sale_price ?? 0);
+  return Number(game.steam_price ?? game.offline_price ?? game.sale_price ?? 0);
 }
 
+
 export function calculatePlatformPrice(
+
   game: {
     steam_price?: number | null;
     epic_price?: number | null;
+    ubisoft_price?: number | null;
     offline_price?: number | null;
     online_price?: number | null;
     xbox_price?: number | null;
@@ -496,3 +502,164 @@ export function extractPhoneLookup(value?: string | null): string {
   }
   return digits;
 }
+
+/**
+ * Returns delivery metadata (mode, labels, badge colors, and single-line explainer)
+ * for a specific game and chosen platform.
+ */
+export function getDeliveryInfo(
+  game: {
+    is_subscription?: boolean | null;
+    online_activation?: boolean | null;
+    offline_price?: number | null;
+    online_price?: number | null;
+    steam_price?: number | null;
+    epic_price?: number | null;
+    ubisoft_price?: number | null;
+    available_platforms?: string[] | null;
+  },
+  platform?: string
+): {
+  mode: "offline" | "online" | "subscription";
+  label: string;
+  badgeLabel: string;
+  dotColor: string;
+  badgeColor: string;
+  description: string;
+} {
+  if (game.is_subscription) {
+    return {
+      mode: "subscription",
+      label: "Digital Membership",
+      badgeLabel: "Subscription",
+      dotColor: "bg-purple-400",
+      badgeColor: "border-purple-500/30 bg-purple-500/10 text-purple-300",
+      description: "Digital Membership · Service membership duration · Assisted instant delivery",
+    };
+  }
+
+  const pLower = (platform || "").toLowerCase();
+
+  // 1. Direct platform keyword match
+  if (pLower.includes("online") || pLower.includes("global key")) {
+    return {
+      mode: "online",
+      label: "Online Activation",
+      badgeLabel: "Online",
+      dotColor: "bg-emerald-400",
+      badgeColor: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+      description: "Online Activation · Full multiplayer & online features enabled",
+    };
+  }
+
+  if (pLower.includes("offline")) {
+    return {
+      mode: "offline",
+      label: "Offline Activation",
+      badgeLabel: "Offline",
+      dotColor: "bg-amber-400",
+      badgeColor: "border-amber-500/30 bg-amber-500/10 text-amber-400",
+      description: "Offline Activation · Story mode play",
+    };
+  }
+
+  // 2. Legacy fallback: check online_activation flag and prices
+  const hasOnlinePrice = Number(game.online_price ?? 0) > 0;
+  const hasOfflinePrice = Number(game.offline_price ?? 0) > 0;
+  const isOnlineActive = Boolean(game.online_activation);
+
+  if ((isOnlineActive || hasOnlinePrice) && !hasOfflinePrice) {
+    return {
+      mode: "online",
+      label: "Online Activation",
+      badgeLabel: "Online",
+      dotColor: "bg-emerald-400",
+      badgeColor: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+      description: "Online Activation · Full multiplayer & online features enabled",
+    };
+  }
+
+  if (hasOnlinePrice && platform) {
+    const regPrice = getPlatformRegularPrice(game, platform);
+    if (regPrice === Number(game.online_price) && regPrice > Number(game.offline_price ?? 0)) {
+      return {
+        mode: "online",
+        label: "Online Activation",
+        badgeLabel: "Online",
+        dotColor: "bg-emerald-400",
+        badgeColor: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+        description: "Online Activation · Full multiplayer & online features enabled",
+      };
+    }
+  }
+
+  return {
+    mode: "offline",
+    label: "Offline Activation",
+    badgeLabel: "Offline",
+    dotColor: "bg-amber-400",
+    badgeColor: "border-amber-500/30 bg-amber-500/10 text-amber-400",
+    description: "Offline Activation · Story mode play",
+  };
+}
+
+/**
+ * Returns overall delivery summary for the game (for specs table and hero badge).
+ */
+export function getGameDeliverySummary(game: {
+  is_subscription?: boolean | null;
+  online_activation?: boolean | null;
+  offline_price?: number | null;
+  online_price?: number | null;
+  available_platforms?: string[] | null;
+}): {
+  hasBoth: boolean;
+  isOnline: boolean;
+  label: string;
+  badgeLabel: string;
+} {
+  if (game.is_subscription) {
+    return {
+      hasBoth: false,
+      isOnline: false,
+      label: "Digital Membership",
+      badgeLabel: "Membership",
+    };
+  }
+
+  const platforms = game.available_platforms ?? [];
+  const hasOfflinePlatform = platforms.some((p) => p.includes("Offline"));
+  const hasOnlinePlatform = platforms.some((p) => p.includes("Online"));
+  const hasOfflinePrice = Number(game.offline_price ?? 0) > 0;
+  const hasOnlinePrice = Number(game.online_price ?? 0) > 0;
+  const isOnlineActive = Boolean(game.online_activation);
+
+  const hasBoth = (hasOfflinePlatform && hasOnlinePlatform) || (hasOfflinePrice && hasOnlinePrice);
+
+  if (hasBoth) {
+    return {
+      hasBoth: true,
+      isOnline: true,
+      label: "Offline & Online Options",
+      badgeLabel: "Offline & Online",
+    };
+  }
+
+  if (hasOnlinePlatform || isOnlineActive || (hasOnlinePrice && !hasOfflinePrice)) {
+    return {
+      hasBoth: false,
+      isOnline: true,
+      label: "Online Activation (Multiplayer)",
+      badgeLabel: "Online Activation",
+    };
+  }
+
+  return {
+    hasBoth: false,
+    isOnline: false,
+    label: "Offline Activation (Story Mode)",
+    badgeLabel: "Offline Mode",
+  };
+}
+
+
