@@ -1,0 +1,16 @@
+# Supabase configuration for rakexura-store
+project_id = "cwvfgxdhearouclomjeq"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db.pooler]
+enabled = true
+port = 54322
+pool_mode = "transaction"
+default_pool_size = 20
+max_client_conn = 100

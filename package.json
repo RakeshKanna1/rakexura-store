@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint app components lib stores types middleware.ts next.config.ts",
     "typecheck": "tsc --noEmit",
+    "db:push": "supabase db push --db-url \"postgresql://postgres.cwvfgxdhearouclomjeq@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres\"",
     "test-production": "echo \"Production tests completed successfully.\""
   },
   "dependencies": {
